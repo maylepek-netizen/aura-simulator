@@ -1,0 +1,26 @@
+# Aura repo ignores (security first)
+
+# Secrets / env
+.env*
+
+# OS junk
+.DS_Store
+
+# Next.js / Node
+**/node_modules/
+**/.next/
+**/out/
+**/build/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Vercel
+**/.vercel
+
+# TS build info
+*.tsbuildinfo
+
