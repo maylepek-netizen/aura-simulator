@@ -113,7 +113,7 @@ function formatUTCTime(date: Date) {
 }
 
 export default function DashboardPage() {
-  const [currentTime, setCurrentTime] = useState(() => new Date());
+  const [currentTime, setCurrentTime] = useState<Date | null>(null);
   const [isSimulating, setIsSimulating] = useState(false);
   const [currentMonologueIndex, setCurrentMonologueIndex] = useState(0);
   const [monologueHistory, setMonologueHistory] = useState<MonologueItem[]>([]);
@@ -132,8 +132,9 @@ export default function DashboardPage() {
     isSimulating
   );
 
-  // Update time
+  // Update time (client-side only to avoid hydration mismatch)
   useEffect(() => {
+    setCurrentTime(new Date());
     const interval = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(interval);
   }, []);
@@ -212,7 +213,7 @@ export default function DashboardPage() {
 
           <div className="flex items-center gap-6">
             <div className="text-[10px] uppercase tracking-[0.22em] opacity-60 tabular-nums">
-              {formatUTCTime(currentTime)}
+              {currentTime ? formatUTCTime(currentTime) : "--:--:-- UTC"}
             </div>
             <div className="h-4 w-px bg-foreground/15" />
             <div className="flex items-center gap-2">

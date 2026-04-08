@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Gender, OnboardingProfile } from "@/lib/experienceStorage";
 import { saveProfile, clearExperienceDraft } from "@/lib/experienceStorage";
@@ -11,7 +11,11 @@ function clamp(n: number, min: number, max: number) {
 
 export default function OnboardingPage() {
   const router = useRouter();
-  const iso = useMemo(() => new Date().toISOString(), []);
+  const [iso, setIso] = useState<string | null>(null);
+
+  useEffect(() => {
+    setIso(new Date().toISOString());
+  }, []);
 
   const [name, setName] = useState("");
   const [age, setAge] = useState<number>(22);
@@ -45,7 +49,7 @@ export default function OnboardingPage() {
       <div className="pointer-events-none absolute inset-0 z-20">
         <div className="absolute left-4 top-4 sm:left-6 sm:top-6 text-[10px] leading-4 tracking-[0.22em] uppercase opacity-70">
           <div>Aura / simulator</div>
-          <div className="opacity-80">t={iso}</div>
+          <div className="opacity-80">t={iso ?? "---"}</div>
         </div>
         <div className="absolute right-4 top-4 sm:right-6 sm:top-6 text-[10px] leading-4 tracking-[0.22em] uppercase opacity-70 text-right">
           <div>route /</div>
