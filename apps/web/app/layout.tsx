@@ -9,8 +9,8 @@ const ibmPlexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Aura",
-  description: "Aura — minimalist, technical interface",
+  title: "Aura | Sensory Simulator",
+  description: "Aura — high-end minimalist sensory simulation dashboard",
 };
 
 export default function RootLayout({

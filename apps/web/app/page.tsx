@@ -165,13 +165,22 @@ export default function OnboardingPage() {
                   </div>
                 )}
 
-                <button
-                  type="button"
-                  onClick={onStart}
-                  className="mt-2 inline-flex h-11 items-center justify-center rounded-md bg-foreground px-5 text-[11px] uppercase tracking-[0.22em] text-background hover:opacity-90"
-                >
-                  Start Experience
-                </button>
+                <div className="mt-2 flex flex-col gap-3 sm:flex-row">
+                  <button
+                    type="button"
+                    onClick={onStart}
+                    className="inline-flex h-11 items-center justify-center rounded-md bg-foreground px-5 text-[11px] uppercase tracking-[0.22em] text-background hover:opacity-90"
+                  >
+                    Start Experience
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => router.push("/dashboard")}
+                    className="inline-flex h-11 items-center justify-center rounded-md border border-foreground/20 px-5 text-[11px] uppercase tracking-[0.22em] hover:border-foreground/35"
+                  >
+                    Open Dashboard
+                  </button>
+                </div>
               </div>
             </section>
 
