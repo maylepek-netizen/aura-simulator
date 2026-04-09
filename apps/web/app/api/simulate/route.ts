@@ -89,7 +89,7 @@ export async function POST(req: NextRequest) {
       situation: string;
     };
  
-    const apiKey = req.headers.get("x-gemini-key");
+    const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
       return NextResponse.json({ error: "Missing API key" }, { status: 401 });
     }
