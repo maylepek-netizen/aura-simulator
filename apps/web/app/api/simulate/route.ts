@@ -42,7 +42,7 @@ Return this exact JSON:
         body: JSON.stringify({
           
           contents: [{ role: "user", parts: [{ text: SYSTEM_PROMPT + "\n\n" + prompt }] }],
-          generationConfig: { temperature: 0.8, maxOutputTokens: 2048 }
+          generationConfig: { temperature: 0.8, maxOutputTokens: 8192 }
         })
       }
     );
