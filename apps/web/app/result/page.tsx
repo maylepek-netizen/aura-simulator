@@ -417,7 +417,7 @@ export default function ResultPage() {
       <main className="relative z-10 mx-auto w-full max-w-6xl px-4 pb-20 pt-6 sm:px-6">
 
         {/* ── API Key entry (if not saved) ── */}
-        {!apiKeySaved && !loading && (
+        {false && (
           <div className="mb-6 rounded-2xl border border-foreground/15 p-6">
             <div className="text-[11px] uppercase tracking-[0.22em] opacity-80 mb-3">
               Google Gemini API Key Required
