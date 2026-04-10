@@ -306,8 +306,8 @@ export default function ResultPage() {
 
   // Auto-run if we already have a key
   useEffect(() => {
-    if (snapshot.hasProfile && snapshot.hasDraft && snapshot.apiKey) {
-      void runSimulation(snapshot.apiKey);
+    if (snapshot.hasProfile && snapshot.hasDraft) {
+      void runSimulation("");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
