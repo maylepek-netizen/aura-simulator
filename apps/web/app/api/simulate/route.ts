@@ -40,8 +40,8 @@ Return this exact JSON:
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
-          contents: [{ role: "user", parts: [{ text: prompt }] }],
+          
+          contents: [{ role: "user", parts: [{ text: SYSTEM_PROMPT + "\n\n" + prompt }] }],
           generationConfig: { temperature: 0.8, maxOutputTokens: 2048 }
         })
       }
