@@ -2,7 +2,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
  
-const GEMINI_MODEL = "gemini-pro";
+const GEMINI_MODEL = "gemini-1.5-flash";
  
 const SYSTEM_PROMPT = `You are a precise simulation engine that recreates the internal experience of an autistic person in a given situation.
  
