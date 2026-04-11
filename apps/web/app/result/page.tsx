@@ -290,7 +290,8 @@ export default function ResultPage() {
   });
 
   // UI state
-  const [result, setResult] = useState<SimulationResult | null>(null);
+  const [result, setResult] = useState<SimulationResult | null>(null);const [videoUrl, setVideoUrl] = useState<string | null>(null);
+const [videoLoading, setVideoLoading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [loadMsg, setLoadMsg] = useState("Initialising…");
   const [error, setError] = useState<string | null>(null);
@@ -313,7 +314,8 @@ export default function ResultPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  async function runSimulation(key: string) {
+  async function runSimulation(key: string) {setVideoUrl(null);
+setVideoLoading(false);
     setLoading(true);
     setError(null);
 
@@ -351,7 +353,16 @@ export default function ResultPage() {
       }
 
       const data = (await res.json()) as SimulationResult;
-      setResult(data);
+      setResult(data);// Generate video
+setVideoLoading(true);
+fetch("/api/video", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ prompt: `${data.unsplash_query || snapshot.situation}, first person POV, cinematic, slightly distorted perception, oversaturated colors, sensory overload visual style` })
+}).then(r => r.json()).then(v => {
+  if (v.video) setVideoUrl(v.video);
+  setVideoLoading(false);
+}).catch(() => setVideoLoading(false));
     } catch (e) {
       setError(e instanceof Error ? e.message : "Unknown error");
     } finally {
