@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           instances: [{ prompt }],
-          parameters: { aspectRatio: "16:9", sampleCount: 1 }
+          parameters: { aspectRatio: "16:9", sampleCount: 1, durationSeconds: 5 }
         })
       }
     );
