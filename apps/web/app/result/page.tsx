@@ -503,6 +503,24 @@ fetch("/api/video", {
     }}
   />
 )}
+             {/* Video */}
+{videoUrl && (
+  <video
+    className="absolute inset-0 z-0 h-full w-full object-cover"
+    src={videoUrl}
+    autoPlay
+    loop
+    muted
+    playsInline
+  />
+)}
+{videoLoading && !videoUrl && (
+  <div className="absolute inset-0 z-0 flex items-center justify-center bg-black/50">
+    <div className="text-[11px] uppercase tracking-[0.22em] text-white/60 animate-pulse">
+      Generating visual...
+    </div>
+  </div>
+)}
               {/* Glitch canvas */}
               <GlitchOverlay effect={result.visual_effect} load={load} />
 
