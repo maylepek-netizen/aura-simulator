@@ -30,6 +30,7 @@ type SimulationResult = {
   coping_actions: string[];
   masking_cost: string;
   research_tags: string[];
+  unsplash_query?: string;
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -479,7 +480,18 @@ export default function ResultPage() {
             {/* Visual scene panel */}
             <div className="relative mb-6 overflow-hidden rounded-2xl border border-foreground/15 bg-black"
               style={{ minHeight: "280px" }}>
-
+{result.unsplash_query && (
+  <div
+    className="absolute inset-0 z-0"
+    style={{
+      backgroundImage: `url(https://source.unsplash.com/featured/1200x800?${encodeURIComponent(result.unsplash_query)})`,
+      backgroundSize: "cover",
+      backgroundPosition: "center",
+      filter: `saturate(1.5) brightness(1.2) contrast(1.1)`,
+      opacity: 0.85,
+    }}
+  />
+)}
               {/* Glitch canvas */}
               <GlitchOverlay effect={result.visual_effect} load={load} />
 
