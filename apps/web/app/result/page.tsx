@@ -19,7 +19,7 @@ type SimulationResult = {
   overall_load: number;
   visual_effect: "glitch_heavy" | "glitch_medium" | "glitch_light" | "calm";
   scene_caption: string;
-  unsplash_query?: string;
+  unsplash_query?: string;video_prompt?: string;
   monologue: string[];
   sensory_channels: {
     auditory: string;
@@ -178,7 +178,7 @@ export default function ResultPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          prompt: `${data.unsplash_query || snapshot.situation}, first person POV, cinematic, slightly distorted perception, oversaturated colors, sensory overload visual style, photorealistic`,
+         prompt: data.video_prompt || `First-person POV through the eyes of a person in ${snapshot.situation}. Cinematic handheld camera, overexposed fluorescent lighting, tunnel vision effect, photorealistic.`,
         }),
       })
         .then((r) => r.json())
