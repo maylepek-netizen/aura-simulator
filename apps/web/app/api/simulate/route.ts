@@ -2,30 +2,26 @@ import { NextRequest, NextResponse } from "next/server";
 
 const GEMINI_MODEL = "gemini-2.5-flash";
 
-const SYSTEM_PROMPT = `You are a precise simulation engine that recreates the internal experience of an autistic person in a given situation.
-
-Your output is grounded in peer-reviewed autism research, first-person autistic accounts, and sensory processing theory.
-
-Return ONLY valid JSON with no markdown, no explanation, no code fences.`;
+const SYSTEM_PROMPT = `You are a precise simulation engine that recreates the internal experience of an autistic person in a given situation. Your output is grounded in peer-reviewed autism research, first-person autistic accounts, and sensory processing theory. Return ONLY valid JSON with no markdown, no explanation, no code fences. All text must be in English.`;
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const { name, age, gender, situation } = body;
     const apiKey = process.env.GEMINI_API_KEY;
-
     if (!apiKey) return NextResponse.json({ error: "Missing API key" }, { status: 401 });
 
     const prompt = `Simulate the internal autistic experience for:
 Name: ${name}, Age: ${age}, Gender: ${gender}
 Situation: "${situation}"
 
-Return this exact JSON:
+Return this exact JSON (all text in English):
 {
   "sensory_scores": { "auditory": 0, "visual": 0, "tactile": 0, "social": 0 },
   "overall_load": 0,
   "visual_effect": "glitch_heavy",
-  "scene_caption": "first person caption",
+  "scene_caption": "short first-person caption of this exact moment, 10-15 words",
+  "unsplash_query": "2-4 english keywords describing the real physical scene (e.g. crowded mall people, busy supermarket, classroom)",
   "monologue": ["thought1","thought2","thought3","thought4","thought5","thought6","thought7","thought8"],
   "sensory_channels": { "auditory": "description", "visual": "description", "tactile": "description", "interoception": "description" },
   "emotions": ["emotion1","emotion2","emotion3"],
@@ -40,7 +36,6 @@ Return this exact JSON:
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          
           contents: [{ role: "user", parts: [{ text: SYSTEM_PROMPT + "\n\n" + prompt }] }],
           generationConfig: { temperature: 0.8, maxOutputTokens: 8192 }
         })
