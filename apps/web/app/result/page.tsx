@@ -394,6 +394,9 @@ export default function ResultPage() {
   // Stimming pause
   const [stimmingPaused, setStimmingPaused] = useState(false);
 
+  // History save
+  const [saved, setSaved] = useState(false);
+
   useEffect(() => {
     return () => {
       ambientEngineRef.current?.destroy();
@@ -463,6 +466,7 @@ export default function ResultPage() {
     setError(null);
     setVideoUrl(null);
     setVideoLoading(false);
+    setSaved(false);
     narrationStartedRef.current = false;
     stopNarration();
 
@@ -510,7 +514,24 @@ export default function ResultPage() {
       })
         .then((r) => r.json())
         .then((v) => {
-          if (v.uri) setVideoUrl("/api/video-proxy?uri=" + encodeURIComponent(v.uri));
+          if (v.uri) {
+            setVideoUrl("/api/video-proxy?uri=" + encodeURIComponent(v.uri));
+            // Save to history
+            fetch("/api/history", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                situation: snapshot.situation,
+                name: snapshot.name,
+                age: snapshot.age,
+                gender: snapshot.gender,
+                result: data,
+                videoUri: v.uri,
+              }),
+            })
+              .then((r) => r.ok && setSaved(true))
+              .catch(() => {});
+          }
           setVideoLoading(false);
         })
         .catch(() => setVideoLoading(false));
@@ -624,13 +645,27 @@ export default function ResultPage() {
         <div className="text-[10px] uppercase tracking-[0.2em] opacity-50 max-w-xs truncate">
           {snapshot.situation}
         </div>
-        <button
-          type="button"
-          onClick={() => router.push("/chat")}
-          className="text-[10px] uppercase tracking-[0.2em] opacity-50 hover:opacity-100 border border-foreground/20 rounded px-3 py-1"
-        >
-          New →
-        </button>
+        <div className="flex items-center gap-2">
+          {saved && (
+            <span className="text-[10px] uppercase tracking-[0.2em] opacity-60 text-green-400">
+              Saved ✓
+            </span>
+          )}
+          <button
+            type="button"
+            onClick={() => router.push("/history")}
+            className="text-[10px] uppercase tracking-[0.2em] opacity-50 hover:opacity-100 border border-foreground/20 rounded px-3 py-1"
+          >
+            History
+          </button>
+          <button
+            type="button"
+            onClick={() => router.push("/chat")}
+            className="text-[10px] uppercase tracking-[0.2em] opacity-50 hover:opacity-100 border border-foreground/20 rounded px-3 py-1"
+          >
+            New →
+          </button>
+        </div>
       </header>
 
       {/* Loading */}
