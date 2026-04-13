@@ -58,7 +58,16 @@ function buildVideoPromptInstructions(age: number, gender: string, situation: st
     "Objects have equal visual weight to people — a chair is as visually prominent as a human. " +
     "Slight temporal distortion: some moments feel stretched, others compressed. " +
     "Color temperature is slightly off — skin tones have an unusual hue. " +
-    "The overall feeling is of a scientist observing an incomprehensible ritual. " +
+    "The overall feeling is of a scientist observing an incomprehensible ritual.\n" +
+    "INTERNAL EXPERIENCE RULE: The video must show the INTERNAL EXPERIENCE, not the external reality. What is filmed is what the brain perceives, not what a camera would objectively record.\n" +
+    "CHANGE/UNPREDICTABILITY RULE: Detect whether the situation involves unexpected change (haircut, moved furniture, new place, altered routine, unfamiliar version of a familiar person or environment). " +
+    "If YES — maximize the uncanny valley effect with ALL of these: " +
+    "(1) The changed element appears DISTORTED and THREATENING — a short haircut makes the person look like a completely different alien face where a familiar one should be, an altered room looks like a wrong copy of itself with the same objects in subtly wrong positions and wrong colors; " +
+    "(2) Camera hesitates and obsessively returns to the 'wrong' detail, unable to look away, zooming in on the specific changed feature as if trying to reconcile it with memory; " +
+    "(3) Color grading shifts to cold/desaturated and slightly blue when looking at the changed element, and shifts warmer when looking at familiar safe objects elsewhere in the frame; " +
+    "(4) The changed person or object appears slightly out of focus and visually fragmented — like a face seen through frosted glass — unrecognizable despite being close; " +
+    "(5) The world feels like a dream where something is deeply wrong but cannot be named — same room, wrong universe. " +
+    "If the situation does NOT involve change — skip this block. " +
     "Always photorealistic, first-person POV, not horror-genre, immersive and grounded."
   );
 }
