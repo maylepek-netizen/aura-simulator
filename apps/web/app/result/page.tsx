@@ -40,11 +40,22 @@ function nowIso() {
 
 // ─── Ambient Sound Engine ─────────────────────────────────────────────────────
 
+type AuditoryType = "scream" | "crowd" | "machine" | "default";
+
+function detectAuditoryType(text: string): AuditoryType {
+  const t = text.toLowerCase();
+  if (/scream|cry|crying|children|shriek|yell/.test(t)) return "scream";
+  if (/crowd|people|voices|chatter|noise|murmur|buzz/.test(t)) return "crowd";
+  if (/beep|machine|alarm|click|mechanical|buzz|hum/.test(t)) return "machine";
+  return "default";
+}
+
 class AmbientSoundEngine {
   private ctx: AudioContext;
   private nodes: AudioNode[] = [];
   private heartbeatTimeout: ReturnType<typeof setTimeout> | null = null;
   private breathTimeout: ReturnType<typeof setTimeout> | null = null;
+  private ambientTimeout: ReturnType<typeof setTimeout> | null = null;
   private running = false;
 
   constructor() {
@@ -66,12 +77,8 @@ class AmbientSoundEngine {
   private playHeartbeat(load: number) {
     if (!this.running) return;
     const now = this.ctx.currentTime;
-
-    // lub
     this.beatPulse(now, 0.9);
-    // dub (slightly softer, 120ms later)
     this.beatPulse(now + 0.12, 0.55);
-
     const bpm = this.bpmForLoad(load);
     const interval = (60 / bpm) * 1000;
     this.heartbeatTimeout = setTimeout(() => this.playHeartbeat(load), interval);
@@ -81,23 +88,18 @@ class AmbientSoundEngine {
     const osc = this.ctx.createOscillator();
     const gainNode = this.ctx.createGain();
     const filter = this.ctx.createBiquadFilter();
-
     filter.type = "lowpass";
     filter.frequency.value = 80;
     filter.Q.value = 8;
-
     osc.type = "sine";
     osc.frequency.setValueAtTime(55, when);
     osc.frequency.exponentialRampToValueAtTime(30, when + 0.08);
-
     gainNode.gain.setValueAtTime(0, when);
     gainNode.gain.linearRampToValueAtTime(gain, when + 0.01);
     gainNode.gain.exponentialRampToValueAtTime(0.001, when + 0.15);
-
     osc.connect(filter);
     filter.connect(gainNode);
     gainNode.connect(this.ctx.destination);
-
     osc.start(when);
     osc.stop(when + 0.2);
     this.nodes.push(osc, gainNode, filter);
@@ -108,53 +110,140 @@ class AmbientSoundEngine {
     const period = this.breathPeriodForLoad(load);
     const duration = (period / 2) / 1000;
     const now = this.ctx.currentTime;
-
-    const bufferSize = this.ctx.sampleRate * duration;
+    const bufferSize = Math.floor(this.ctx.sampleRate * duration);
     const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
     const data = buffer.getChannelData(0);
     for (let i = 0; i < bufferSize; i++) {
       data[i] = (Math.random() * 2 - 1) * 0.15;
     }
-
     const source = this.ctx.createBufferSource();
     source.buffer = buffer;
-
     const filter = this.ctx.createBiquadFilter();
     filter.type = "bandpass";
     filter.frequency.value = inhale ? 800 : 600;
     filter.Q.value = 0.8;
-
     const gainNode = this.ctx.createGain();
     gainNode.gain.setValueAtTime(0, now);
     gainNode.gain.linearRampToValueAtTime(0.12, now + duration * 0.3);
     gainNode.gain.linearRampToValueAtTime(0, now + duration);
-
     source.connect(filter);
     filter.connect(gainNode);
     gainNode.connect(this.ctx.destination);
     source.start(now);
     this.nodes.push(source, filter, gainNode);
-
-    this.breathTimeout = setTimeout(
-      () => this.playBreath(load, !inhale),
-      period / 2
-    );
+    this.breathTimeout = setTimeout(() => this.playBreath(load, !inhale), period / 2);
   }
 
-  start(load: number) {
+  // ── Situational ambient soundscapes ──────────────────────────────────────
+
+  private playScreamAmbient(load: number) {
+    if (!this.running) return;
+    const vol = 0.15 * (0.7 + (load / 100) * 0.3);
+    const now = this.ctx.currentTime;
+    // Short high-pitched noise burst
+    const burstDur = 0.08 + Math.random() * 0.12;
+    const bufSize = Math.floor(this.ctx.sampleRate * burstDur);
+    const buf = this.ctx.createBuffer(1, bufSize, this.ctx.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < bufSize; i++) d[i] = (Math.random() * 2 - 1);
+    const src = this.ctx.createBufferSource();
+    src.buffer = buf;
+    const filt = this.ctx.createBiquadFilter();
+    filt.type = "bandpass";
+    filt.frequency.value = 2000 + Math.random() * 2000;
+    filt.Q.value = 2;
+    const g = this.ctx.createGain();
+    g.gain.setValueAtTime(vol, now);
+    g.gain.exponentialRampToValueAtTime(0.001, now + burstDur);
+    src.connect(filt);
+    filt.connect(g);
+    g.connect(this.ctx.destination);
+    src.start(now);
+    this.nodes.push(src, filt, g);
+    const nextMs = 800 + Math.random() * 1200;
+    this.ambientTimeout = setTimeout(() => this.playScreamAmbient(load), nextMs);
+  }
+
+  private playCrowdAmbient(load: number) {
+    if (!this.running) return;
+    const vol = 0.15 * (0.7 + (load / 100) * 0.3);
+    const dur = 1.5;
+    const now = this.ctx.currentTime;
+    const bufSize = Math.floor(this.ctx.sampleRate * dur);
+    const buf = this.ctx.createBuffer(1, bufSize, this.ctx.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < bufSize; i++) d[i] = (Math.random() * 2 - 1) * 0.4;
+    const src = this.ctx.createBufferSource();
+    src.buffer = buf;
+    // Layer voice-like modulation via LFO on a bandpass
+    const filt = this.ctx.createBiquadFilter();
+    filt.type = "bandpass";
+    filt.frequency.value = 400 + Math.random() * 400;
+    filt.Q.value = 1.5;
+    const lfo = this.ctx.createOscillator();
+    const lfoGain = this.ctx.createGain();
+    lfo.frequency.value = 3 + Math.random() * 4;
+    lfoGain.gain.value = 150;
+    lfo.connect(lfoGain);
+    lfoGain.connect(filt.frequency);
+    const g = this.ctx.createGain();
+    g.gain.setValueAtTime(0, now);
+    g.gain.linearRampToValueAtTime(vol, now + 0.3);
+    g.gain.linearRampToValueAtTime(0, now + dur);
+    src.connect(filt);
+    filt.connect(g);
+    g.connect(this.ctx.destination);
+    src.start(now);
+    lfo.start(now);
+    src.stop(now + dur);
+    lfo.stop(now + dur);
+    this.nodes.push(src, filt, lfo, lfoGain, g);
+    this.ambientTimeout = setTimeout(() => this.playCrowdAmbient(load), dur * 1000 - 200);
+  }
+
+  private playMachineAmbient(load: number) {
+    if (!this.running) return;
+    const vol = 0.15 * (0.7 + (load / 100) * 0.3);
+    const now = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const g = this.ctx.createGain();
+    osc.type = "square";
+    osc.frequency.value = 440 + Math.random() * 880;
+    g.gain.setValueAtTime(vol, now);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+    osc.connect(g);
+    g.connect(this.ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.06);
+    this.nodes.push(osc, g);
+    const period = load > 70 ? 300 + Math.random() * 200 : 800 + Math.random() * 600;
+    this.ambientTimeout = setTimeout(() => this.playMachineAmbient(load), period);
+  }
+
+  private startAmbientSoundscape(auditoryType: AuditoryType, load: number) {
+    if (auditoryType === "scream") this.playScreamAmbient(load);
+    else if (auditoryType === "crowd") this.playCrowdAmbient(load);
+    else if (auditoryType === "machine") this.playMachineAmbient(load);
+    // "default" = no extra soundscape, heartbeat+breath only
+  }
+
+  start(load: number, auditoryType: AuditoryType = "default") {
     if (this.running) return;
     this.running = true;
     if (this.ctx.state === "suspended") this.ctx.resume();
     this.playHeartbeat(load);
     this.playBreath(load, true);
+    this.startAmbientSoundscape(auditoryType, load);
   }
 
   stop() {
     this.running = false;
     if (this.heartbeatTimeout) clearTimeout(this.heartbeatTimeout);
     if (this.breathTimeout) clearTimeout(this.breathTimeout);
+    if (this.ambientTimeout) clearTimeout(this.ambientTimeout);
     this.heartbeatTimeout = null;
     this.breathTimeout = null;
+    this.ambientTimeout = null;
     try { this.ctx.suspend(); } catch {}
   }
 
@@ -242,17 +331,21 @@ export default function ResultPage() {
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [videoLoading, setVideoLoading] = useState(false);
 
-  // Narration (speech synthesis)
+  // Gemini TTS narration
   const [audioPlaying, setAudioPlaying] = useState(false);
-  const audioRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const ttsAudioRef = useRef<HTMLAudioElement | null>(null);
 
-  // Ambient sound (heartbeat + breathing)
+  // Ambient sound (heartbeat + breathing + soundscape)
   const [ambientPlaying, setAmbientPlaying] = useState(false);
   const ambientEngineRef = useRef<AmbientSoundEngine | null>(null);
+
+  // Stimming pause
+  const [stimmingPaused, setStimmingPaused] = useState(false);
 
   useEffect(() => {
     return () => {
       ambientEngineRef.current?.destroy();
+      ttsAudioRef.current?.pause();
     };
   }, []);
 
@@ -274,20 +367,43 @@ export default function ResultPage() {
   const handleVideoPlay = useCallback(() => {
     if (narrationStartedRef.current || !result) return;
     narrationStartedRef.current = true;
-    startNarration(result);
+    void startNarration(result);
   }, [result]);
 
-  function startNarration(r: SimulationResult) {
+  async function startNarration(r: SimulationResult) {
     if (audioPlaying) return;
     const text = r.monologue.join(". ");
-    const utt = new SpeechSynthesisUtterance(text);
-    utt.lang = "en-US";
-    utt.rate = 0.85;
-    utt.pitch = 0.9;
-    utt.onend = () => setAudioPlaying(false);
-    audioRef.current = utt;
-    window.speechSynthesis.speak(utt);
-    setAudioPlaying(true);
+    try {
+      setAudioPlaying(true);
+      const res = await fetch("/api/tts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text, gender: snapshot.gender }),
+      });
+      if (!res.ok) throw new Error("TTS failed");
+      const { audio, mimeType } = await res.json();
+      const src = "data:" + mimeType + ";base64," + audio;
+      const el = new Audio(src);
+      ttsAudioRef.current = el;
+      el.onended = () => setAudioPlaying(false);
+      el.onerror = () => setAudioPlaying(false);
+      await el.play();
+    } catch {
+      // fallback to Web Speech API
+      const utt = new SpeechSynthesisUtterance(r.monologue.join(". "));
+      utt.lang = "en-US";
+      utt.rate = 0.85;
+      utt.pitch = 0.9;
+      utt.onend = () => setAudioPlaying(false);
+      window.speechSynthesis.speak(utt);
+    }
+  }
+
+  function stopNarration() {
+    ttsAudioRef.current?.pause();
+    ttsAudioRef.current = null;
+    window.speechSynthesis?.cancel();
+    setAudioPlaying(false);
   }
 
   async function runSimulation() {
@@ -296,6 +412,7 @@ export default function ResultPage() {
     setVideoUrl(null);
     setVideoLoading(false);
     narrationStartedRef.current = false;
+    stopNarration();
 
     const msgs = [
       "Calibrating sensory channels…",
@@ -357,11 +474,10 @@ export default function ResultPage() {
   function toggleNarration() {
     if (!result) return;
     if (audioPlaying) {
-      window.speechSynthesis.cancel();
-      setAudioPlaying(false);
+      stopNarration();
       return;
     }
-    startNarration(result);
+    void startNarration(result);
   }
 
   function toggleAmbient() {
@@ -373,7 +489,8 @@ export default function ResultPage() {
     if (!ambientEngineRef.current) {
       ambientEngineRef.current = new AmbientSoundEngine();
     }
-    ambientEngineRef.current.start(result?.overall_load ?? 0);
+    const auditoryType = detectAuditoryType(result?.sensory_channels?.auditory ?? "");
+    ambientEngineRef.current.start(result?.overall_load ?? 0, auditoryType);
     setAmbientPlaying(true);
   }
 
@@ -395,10 +512,12 @@ export default function ResultPage() {
 
   const load = result?.overall_load ?? 0;
 
-  const stimmingClass =
+  const activeStimmingClass = stimmingPaused ? "" :
     load > 80 ? "stimming-intense" :
     load > 65 ? "stimming-gentle" :
     "";
+  const hasStimming = load > 65;
+
   const anxiety = result ? Math.round((result.sensory_scores.auditory + result.sensory_scores.social) / 2 * 33) : 0;
   const socialLoad = result ? Math.round(result.sensory_scores.social * 33) : 0;
   const maskingLoad = result ? Math.min(100, load + 10) : 0;
@@ -423,6 +542,7 @@ export default function ResultPage() {
         .stimming-gentle  { animation: stimming-gentle  2s   ease-in-out infinite; }
         .stimming-intense { animation: stimming-intense 0.8s ease-in-out infinite; }
       `}</style>
+
       {/* Corner telemetry */}
       <div className="pointer-events-none absolute inset-0 z-20">
         <div className="absolute left-4 top-4 text-[9px] leading-4 tracking-[0.22em] uppercase opacity-50">
@@ -511,7 +631,7 @@ export default function ResultPage() {
                 </div>
               </Panel>
 
-              {/* Narration button */}
+              {/* Narration button (Gemini TTS) */}
               <button
                 type="button"
                 onClick={toggleNarration}
@@ -526,7 +646,7 @@ export default function ResultPage() {
                 {audioPlaying ? "Stop thoughts" : "Play thoughts"}
               </button>
 
-              {/* Heartbeat + breathing button */}
+              {/* Heartbeat + breathing + ambient button */}
               <button
                 type="button"
                 onClick={toggleAmbient}
@@ -541,6 +661,23 @@ export default function ResultPage() {
                 {ambientPlaying ? "Stop heartbeat" : "Heartbeat"}
               </button>
 
+              {/* Stimming pause button — only visible when stimming is active */}
+              {hasStimming && (
+                <button
+                  type="button"
+                  onClick={() => setStimmingPaused((v) => !v)}
+                  className={[
+                    "flex items-center justify-center gap-2 rounded-lg border px-4 py-3 text-[10px] uppercase tracking-[0.2em] transition-all",
+                    stimmingPaused
+                      ? "border-foreground/40 opacity-80"
+                      : "border-foreground/20 opacity-60 hover:opacity-100",
+                  ].join(" ")}
+                >
+                  <span className="text-base">⟳</span>
+                  {stimmingPaused ? "Resume stimming" : "Pause stimming"}
+                </button>
+              )}
+
               <Panel title="Coping Actions" icon="🛡" defaultOpen={false}>
                 <ul className="space-y-2">
                   {result.coping_actions.map((a, i) => (
@@ -553,7 +690,7 @@ export default function ResultPage() {
             </div>
 
             {/* CENTER - Video */}
-            <div className={["relative rounded-xl overflow-hidden border border-foreground/15 bg-black min-h-[320px] lg:min-h-0", stimmingClass].join(" ")}>
+            <div className={["relative rounded-xl overflow-hidden border border-foreground/15 bg-black min-h-[320px] lg:min-h-0", activeStimmingClass].join(" ")}>
               {videoUrl ? (
                 <video
                   ref={videoRef}
@@ -613,7 +750,7 @@ export default function ResultPage() {
               </div>
 
               {/* Sensory bar */}
-              <div className="absolute top-3 left-3 right-3 z-10 flex items-center gap-2">
+              <div className="absolute top-3 left-3 right-14 z-10 flex items-center gap-2">
                 <div className="text-[8px] uppercase tracking-[0.2em] text-white/40 whitespace-nowrap">load</div>
                 <div className="flex-1 h-px bg-white/10 overflow-hidden">
                   <div
@@ -627,7 +764,7 @@ export default function ResultPage() {
                 <div className="text-[8px] font-mono text-white/40">{load}%</div>
               </div>
 
-              {/* Download button — shown when video is ready */}
+              {/* Download button */}
               {videoUrl && (
                 <button
                   type="button"

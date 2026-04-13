@@ -8,7 +8,7 @@ const SYSTEM_PROMPT =
 
 function cameraHeight(age: number): string {
   if (age >= 5 && age <= 12)
-    return "camera mounted at 1 meter height (child eye level) — adults tower overhead, environment feels enormous and threatening, ceiling feels unreachably high, other people are giants";
+    return "camera at 1 meter height showing what a child sees at eye level — other children's faces directly ahead, adults' waists and hands visible but their faces are far above, furniture surfaces are at face level. NOT under chairs or from floor level. Adults tower over the frame, the world is enormous and threatening from this exact standing child height";
   if (age >= 13 && age <= 17)
     return "camera at 1.5 meter height (teen eye level) — strong awareness of being watched and judged, peers fill the frame, intense social pressure visible in every face";
   return "camera at 1.7 meter height (adult eye level) — years of masking visible as tension in the frame, exhaustion underlies every moment despite appearing functional";
