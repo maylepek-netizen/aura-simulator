@@ -6,20 +6,74 @@ const SYSTEM_PROMPT =
   "You are a precise simulation engine that recreates the internal experience of an autistic person in a given situation. " +
   "Your output is grounded in peer-reviewed autism research. Return ONLY valid JSON. All text in English.";
 
-const JSON_SCHEMA =
-  '{\n' +
-  '  "sensory_scores": { "auditory": 0, "visual": 0, "tactile": 0, "social": 0 },\n' +
-  '  "overall_load": 0,\n' +
-  '  "visual_effect": "glitch_heavy",\n' +
-  '  "scene_caption": "short first-person caption, 10-15 words",\n' +
-  '  "video_prompt": "Write a specific Veo video prompt for THIS exact situation. The prompt must describe the real physical environment of the situation, with these cinematic rules: first-person POV handheld camera, overexposed fluorescent/natural lighting matching the scene, faces of people looming too close and feeling threatening, camera hyper-focusing on random small details (textures, movements, objects), tunnel vision blur on periphery, color saturation scaled to sensory load. The prompt must be UNIQUE to this situation - not generic.",\n' +
-  '  "monologue": ["thought1","thought2","thought3","thought4","thought5","thought6","thought7","thought8"],\n' +
-  '  "sensory_channels": { "auditory": "description", "visual": "description", "tactile": "description", "interoception": "description" },\n' +
-  '  "emotions": ["emotion1","emotion2","emotion3"],\n' +
-  '  "coping_actions": ["action1","action2","action3"],\n' +
-  '  "masking_cost": "description",\n' +
-  '  "research_tags": ["tag1","tag2"]\n' +
-  '}';
+function cameraHeight(age: number): string {
+  if (age >= 5 && age <= 12)
+    return "camera mounted at 1 meter height (child eye level) — adults tower overhead, environment feels enormous and threatening, ceiling feels unreachably high, other people are giants";
+  if (age >= 13 && age <= 17)
+    return "camera at 1.5 meter height (teen eye level) — strong awareness of being watched and judged, peers fill the frame, intense social pressure visible in every face";
+  return "camera at 1.7 meter height (adult eye level) — years of masking visible as tension in the frame, exhaustion underlies every moment despite appearing functional";
+}
+
+function stimmingMotion(load: number): string {
+  if (load < 40)
+    return "camera is mostly stable with slight involuntary micro-tremors and tiny random drifts — the body is trying to stay still but can't fully";
+  if (load <= 70)
+    return "camera moves in a slow gentle rhythmic forward-and-back rocking motion, steady pace, like the body is self-soothing through repetitive movement";
+  return "camera rocks and jolts in urgent repetitive motion — fast rhythmic rocking or bouncing, intense and impossible to suppress, the stimming is overwhelming";
+}
+
+function captionVoice(gender: string): string {
+  const g = gender.toLowerCase();
+  if (g === "female") return "first-person feminine inner voice, written as a girl or woman experiencing this moment";
+  if (g === "male") return "first-person masculine inner voice, written as a boy or man experiencing this moment";
+  return "first-person neutral inner voice, written without gendered assumptions";
+}
+
+function loadVisuals(load: number): string {
+  if (load < 40)
+    return "subtle desaturation, slight blur on periphery, colors muted but recognisable";
+  if (load <= 70)
+    return "heavy tunnel vision with strong peripheral blur, colours oversaturated and slightly distorted, shallow depth of field, faces slightly out of focus";
+  return "severe chromatic aberration with red/blue fringing, extreme overexposure on light sources, faces completely distorted, fast jump cuts, flickering, panic-inducing camera movement";
+}
+
+function buildVideoPromptInstructions(age: number, gender: string, situation: string): string {
+  return (
+    "Write a specific Veo video prompt for THIS exact situation: \"" + situation + "\". " +
+    "The prompt MUST include ALL of the following elements woven into one vivid paragraph:\n" +
+    "CAMERA HEIGHT: " + cameraHeight(age) + ".\n" +
+    "CAMERA MOVEMENT (stimming — fill in the actual load value after you compute overall_load): " +
+    "If overall_load < 40: " + stimmingMotion(25) + ". " +
+    "If overall_load 40-70: " + stimmingMotion(55) + ". " +
+    "If overall_load > 70: " + stimmingMotion(85) + ". " +
+    "SCENE: describe the EXACT real physical environment from the situation — specific objects, surfaces, lighting, people present. Not generic.\n" +
+    "AUTISTIC POV RULES (always include all): " +
+    "camera involuntarily snaps to irrelevant micro-details (a flickering bulb, a shoe texture, someone's repetitive hand movement, a crack in the wall); " +
+    "faces loom too close and feel threatening, expressions unreadable, mouths moving but words blur into noise; " +
+    "tunnel vision with heavy peripheral blur; " +
+    "overexposed lighting matching the real scene (fluorescent if indoors, harsh sunlight if outdoors); " +
+    "LOAD VISUALS: " + loadVisuals(70) + " — scale this precisely to the computed overall_load.\n" +
+    "Always photorealistic, first-person POV, not horror-genre, immersive and grounded."
+  );
+}
+
+function buildSchema(age: number, gender: string, situation: string): string {
+  return (
+    '{\n' +
+    '  "sensory_scores": { "auditory": 0, "visual": 0, "tactile": 0, "social": 0 },\n' +
+    '  "overall_load": 0,\n' +
+    '  "visual_effect": "glitch_heavy",\n' +
+    '  "scene_caption": "10-15 word ' + captionVoice(gender) + ', describing this exact moment in the situation",\n' +
+    '  "video_prompt": "' + buildVideoPromptInstructions(age, gender, situation).replace(/"/g, "'") + '",\n' +
+    '  "monologue": ["thought1","thought2","thought3","thought4","thought5","thought6","thought7","thought8"],\n' +
+    '  "sensory_channels": { "auditory": "description", "visual": "description", "tactile": "description", "interoception": "description" },\n' +
+    '  "emotions": ["emotion1","emotion2","emotion3"],\n' +
+    '  "coping_actions": ["action1","action2","action3"],\n' +
+    '  "masking_cost": "description",\n' +
+    '  "research_tags": ["tag1","tag2"]\n' +
+    '}'
+  );
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -28,12 +82,14 @@ export async function POST(req: NextRequest) {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) return NextResponse.json({ error: "Missing API key" }, { status: 401 });
 
+    const schema = buildSchema(Number(age), String(gender), String(situation));
+
     const userPrompt =
       "Simulate the internal autistic experience for:\n" +
       "Name: " + name + ", Age: " + age + ", Gender: " + gender + "\n" +
       "Situation: \"" + situation + "\"\n\n" +
       "Return this exact JSON (all text in English):\n" +
-      JSON_SCHEMA;
+      schema;
 
     const res = await fetch(
       "https://generativelanguage.googleapis.com/v1/models/" + GEMINI_MODEL + ":generateContent?key=" + apiKey,
