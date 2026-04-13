@@ -53,6 +53,12 @@ function buildVideoPromptInstructions(age: number, gender: string, situation: st
     "tunnel vision with heavy peripheral blur; " +
     "overexposed lighting matching the real scene (fluorescent if indoors, harsh sunlight if outdoors); " +
     "LOAD VISUALS: " + loadVisuals(70) + " — scale this precisely to the computed overall_load.\n" +
+    "ALIEN PERSPECTIVE (always apply): The entire scene must feel profoundly alien and unfamiliar, as if filmed by someone who has never learned the social rules of this world. " +
+    "Faces appear as complex moving patterns rather than recognizable expressions. " +
+    "Objects have equal visual weight to people — a chair is as visually prominent as a human. " +
+    "Slight temporal distortion: some moments feel stretched, others compressed. " +
+    "Color temperature is slightly off — skin tones have an unusual hue. " +
+    "The overall feeling is of a scientist observing an incomprehensible ritual. " +
     "Always photorealistic, first-person POV, not horror-genre, immersive and grounded."
   );
 }

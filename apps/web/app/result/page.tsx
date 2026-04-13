@@ -136,95 +136,146 @@ class AmbientSoundEngine {
 
   // ── Situational ambient soundscapes ──────────────────────────────────────
 
-  private playScreamAmbient(load: number) {
-    if (!this.running) return;
-    const vol = 0.15 * (0.7 + (load / 100) * 0.3);
-    const now = this.ctx.currentTime;
-    // Short high-pitched noise burst
-    const burstDur = 0.08 + Math.random() * 0.12;
-    const bufSize = Math.floor(this.ctx.sampleRate * burstDur);
-    const buf = this.ctx.createBuffer(1, bufSize, this.ctx.sampleRate);
+  // Creates a looping brown noise buffer (low-rumble crowd base)
+  private makeBrownNoiseSource(seconds: number): AudioBufferSourceNode {
+    const sr = this.ctx.sampleRate;
+    const buf = this.ctx.createBuffer(1, Math.floor(sr * seconds), sr);
     const d = buf.getChannelData(0);
-    for (let i = 0; i < bufSize; i++) d[i] = (Math.random() * 2 - 1);
+    let last = 0;
+    for (let i = 0; i < d.length; i++) {
+      const white = Math.random() * 2 - 1;
+      last = (last + 0.02 * white) / 1.02;
+      d[i] = last * 3.5; // amplify
+    }
     const src = this.ctx.createBufferSource();
     src.buffer = buf;
-    const filt = this.ctx.createBiquadFilter();
-    filt.type = "bandpass";
-    filt.frequency.value = 2000 + Math.random() * 2000;
-    filt.Q.value = 2;
-    const g = this.ctx.createGain();
-    g.gain.setValueAtTime(vol, now);
-    g.gain.exponentialRampToValueAtTime(0.001, now + burstDur);
-    src.connect(filt);
-    filt.connect(g);
-    g.connect(this.ctx.destination);
-    src.start(now);
-    this.nodes.push(src, filt, g);
-    const nextMs = 800 + Math.random() * 1200;
-    this.ambientTimeout = setTimeout(() => this.playScreamAmbient(load), nextMs);
+    src.loop = true;
+    return src;
   }
 
-  private playCrowdAmbient(load: number) {
-    if (!this.running) return;
-    const vol = 0.15 * (0.7 + (load / 100) * 0.3);
-    const dur = 1.5;
-    const now = this.ctx.currentTime;
-    const bufSize = Math.floor(this.ctx.sampleRate * dur);
-    const buf = this.ctx.createBuffer(1, bufSize, this.ctx.sampleRate);
+  // Creates a looping pink noise buffer (gentler hiss)
+  private makePinkNoiseSource(seconds: number): AudioBufferSourceNode {
+    const sr = this.ctx.sampleRate;
+    const buf = this.ctx.createBuffer(1, Math.floor(sr * seconds), sr);
     const d = buf.getChannelData(0);
-    for (let i = 0; i < bufSize; i++) d[i] = (Math.random() * 2 - 1) * 0.4;
+    let b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0;
+    for (let i = 0; i < d.length; i++) {
+      const w = Math.random() * 2 - 1;
+      b0=0.99886*b0+w*0.0555179; b1=0.99332*b1+w*0.0750759;
+      b2=0.96900*b2+w*0.1538520; b3=0.86650*b3+w*0.3104856;
+      b4=0.55000*b4+w*0.5329522; b5=-0.7616*b5-w*0.0168980;
+      d[i] = (b0+b1+b2+b3+b4+b5+b6+w*0.5362) * 0.11;
+      b6 = w * 0.115926;
+    }
     const src = this.ctx.createBufferSource();
     src.buffer = buf;
-    // Layer voice-like modulation via LFO on a bandpass
-    const filt = this.ctx.createBiquadFilter();
-    filt.type = "bandpass";
-    filt.frequency.value = 400 + Math.random() * 400;
-    filt.Q.value = 1.5;
+    src.loop = true;
+    return src;
+  }
+
+  private ambientNodes: AudioNode[] = [];
+
+  private startCrowdAmbient(load: number) {
+    const vol = Math.min(0.25, 0.12 + (load / 100) * 0.13);
+    // Brown noise base (crowd rumble)
+    const brownSrc = this.makeBrownNoiseSource(4);
+    const lowpass = this.ctx.createBiquadFilter();
+    lowpass.type = "lowpass";
+    lowpass.frequency.value = 900;
+    // LFO for crowd amplitude swell (2–8 Hz)
     const lfo = this.ctx.createOscillator();
+    lfo.frequency.value = 2 + Math.random() * 6;
     const lfoGain = this.ctx.createGain();
-    lfo.frequency.value = 3 + Math.random() * 4;
-    lfoGain.gain.value = 150;
+    lfoGain.gain.value = 0.04;
+    const masterGain = this.ctx.createGain();
+    masterGain.gain.value = vol;
     lfo.connect(lfoGain);
-    lfoGain.connect(filt.frequency);
-    const g = this.ctx.createGain();
-    g.gain.setValueAtTime(0, now);
-    g.gain.linearRampToValueAtTime(vol, now + 0.3);
-    g.gain.linearRampToValueAtTime(0, now + dur);
-    src.connect(filt);
-    filt.connect(g);
-    g.connect(this.ctx.destination);
-    src.start(now);
-    lfo.start(now);
-    src.stop(now + dur);
-    lfo.stop(now + dur);
-    this.nodes.push(src, filt, lfo, lfoGain, g);
-    this.ambientTimeout = setTimeout(() => this.playCrowdAmbient(load), dur * 1000 - 200);
+    lfoGain.connect(masterGain.gain);
+    brownSrc.connect(lowpass);
+    lowpass.connect(masterGain);
+    masterGain.connect(this.ctx.destination);
+    brownSrc.start();
+    lfo.start();
+    this.ambientNodes.push(brownSrc, lowpass, lfo, lfoGain, masterGain);
   }
 
-  private playMachineAmbient(load: number) {
-    if (!this.running) return;
-    const vol = 0.15 * (0.7 + (load / 100) * 0.3);
-    const now = this.ctx.currentTime;
+  private startScreamAmbient(load: number) {
+    const vol = Math.min(0.25, 0.12 + (load / 100) * 0.13);
+    // Pink noise base
+    const pinkSrc = this.makePinkNoiseSource(3);
+    const highpass = this.ctx.createBiquadFilter();
+    highpass.type = "highpass";
+    highpass.frequency.value = 2500;
+    highpass.Q.value = 1.5;
+    // Fast LFO for sharp amplitude bursts
+    const lfo = this.ctx.createOscillator();
+    lfo.type = "sawtooth";
+    lfo.frequency.value = load > 70 ? 1.8 : 0.9;
+    const lfoGain = this.ctx.createGain();
+    lfoGain.gain.value = vol * 0.6;
+    const masterGain = this.ctx.createGain();
+    masterGain.gain.value = vol * 0.4;
+    lfo.connect(lfoGain);
+    lfoGain.connect(masterGain.gain);
+    pinkSrc.connect(highpass);
+    highpass.connect(masterGain);
+    masterGain.connect(this.ctx.destination);
+    pinkSrc.start();
+    lfo.start();
+    this.ambientNodes.push(pinkSrc, highpass, lfo, lfoGain, masterGain);
+  }
+
+  private startMachineAmbient(load: number) {
+    const vol = Math.min(0.25, 0.12 + (load / 100) * 0.13);
+    const beepFreq = 800 + Math.random() * 400; // 800–1200 Hz
+    const period = load > 70 ? 0.4 : load > 40 ? 0.9 : 1.8;
+    // Continuous oscillator gated by an LFO envelope
     const osc = this.ctx.createOscillator();
-    const g = this.ctx.createGain();
-    osc.type = "square";
-    osc.frequency.value = 440 + Math.random() * 880;
-    g.gain.setValueAtTime(vol, now);
-    g.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
-    osc.connect(g);
-    g.connect(this.ctx.destination);
-    osc.start(now);
-    osc.stop(now + 0.06);
-    this.nodes.push(osc, g);
-    const period = load > 70 ? 300 + Math.random() * 200 : 800 + Math.random() * 600;
-    this.ambientTimeout = setTimeout(() => this.playMachineAmbient(load), period);
+    osc.type = "sine";
+    osc.frequency.value = beepFreq;
+    const lfo = this.ctx.createOscillator();
+    lfo.type = "square";
+    lfo.frequency.value = 1 / period;
+    const lfoGain = this.ctx.createGain();
+    lfoGain.gain.value = vol / 2;
+    const masterGain = this.ctx.createGain();
+    masterGain.gain.value = vol / 2;
+    lfo.connect(lfoGain);
+    lfoGain.connect(masterGain.gain);
+    osc.connect(masterGain);
+    masterGain.connect(this.ctx.destination);
+    osc.start();
+    lfo.start();
+    this.ambientNodes.push(osc, lfo, lfoGain, masterGain);
+  }
+
+  private startQuietAmbient(load: number) {
+    const vol = Math.min(0.18, 0.08 + (load / 100) * 0.1);
+    const pinkSrc = this.makePinkNoiseSource(5);
+    const lowpass = this.ctx.createBiquadFilter();
+    lowpass.type = "lowpass";
+    lowpass.frequency.value = 400;
+    const masterGain = this.ctx.createGain();
+    masterGain.gain.value = vol;
+    pinkSrc.connect(lowpass);
+    lowpass.connect(masterGain);
+    masterGain.connect(this.ctx.destination);
+    pinkSrc.start();
+    this.ambientNodes.push(pinkSrc, lowpass, masterGain);
   }
 
   private startAmbientSoundscape(auditoryType: AuditoryType, load: number) {
-    if (auditoryType === "scream") this.playScreamAmbient(load);
-    else if (auditoryType === "crowd") this.playCrowdAmbient(load);
-    else if (auditoryType === "machine") this.playMachineAmbient(load);
-    // "default" = no extra soundscape, heartbeat+breath only
+    if (auditoryType === "crowd") this.startCrowdAmbient(load);
+    else if (auditoryType === "scream") this.startScreamAmbient(load);
+    else if (auditoryType === "machine") this.startMachineAmbient(load);
+    else this.startQuietAmbient(load);
+  }
+
+  private stopAmbientNodes() {
+    for (const n of this.ambientNodes) {
+      try { (n as AudioBufferSourceNode).stop?.(); } catch {}
+    }
+    this.ambientNodes = [];
   }
 
   start(load: number, auditoryType: AuditoryType = "default") {
@@ -244,6 +295,7 @@ class AmbientSoundEngine {
     this.heartbeatTimeout = null;
     this.breathTimeout = null;
     this.ambientTimeout = null;
+    this.stopAmbientNodes();
     try { this.ctx.suspend(); } catch {}
   }
 
