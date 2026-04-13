@@ -394,12 +394,35 @@ export default function ResultPage() {
   if (!snapshot.hasProfile || !snapshot.hasDraft) return null;
 
   const load = result?.overall_load ?? 0;
+
+  const stimmingClass =
+    load > 80 ? "stimming-intense" :
+    load > 65 ? "stimming-gentle" :
+    "";
   const anxiety = result ? Math.round((result.sensory_scores.auditory + result.sensory_scores.social) / 2 * 33) : 0;
   const socialLoad = result ? Math.round(result.sensory_scores.social * 33) : 0;
   const maskingLoad = result ? Math.min(100, load + 10) : 0;
 
   return (
     <div className="relative flex-1 flex flex-col min-h-screen">
+      <style>{`
+        @keyframes stimming-gentle {
+          0%   { transform: translateY(0px)  rotate(0deg);     }
+          25%  { transform: translateY(4px)  rotate(0.5deg);   }
+          50%  { transform: translateY(0px)  rotate(0deg);     }
+          75%  { transform: translateY(-4px) rotate(-0.5deg);  }
+          100% { transform: translateY(0px)  rotate(0deg);     }
+        }
+        @keyframes stimming-intense {
+          0%   { transform: translateY(0px)   rotate(0deg);    }
+          25%  { transform: translateY(10px)  rotate(1.5deg);  }
+          50%  { transform: translateY(0px)   rotate(0deg);    }
+          75%  { transform: translateY(-10px) rotate(-1.5deg); }
+          100% { transform: translateY(0px)   rotate(0deg);    }
+        }
+        .stimming-gentle  { animation: stimming-gentle  2s   ease-in-out infinite; }
+        .stimming-intense { animation: stimming-intense 0.8s ease-in-out infinite; }
+      `}</style>
       {/* Corner telemetry */}
       <div className="pointer-events-none absolute inset-0 z-20">
         <div className="absolute left-4 top-4 text-[9px] leading-4 tracking-[0.22em] uppercase opacity-50">
@@ -530,7 +553,7 @@ export default function ResultPage() {
             </div>
 
             {/* CENTER - Video */}
-            <div className="relative rounded-xl overflow-hidden border border-foreground/15 bg-black min-h-[320px] lg:min-h-0">
+            <div className={["relative rounded-xl overflow-hidden border border-foreground/15 bg-black min-h-[320px] lg:min-h-0", stimmingClass].join(" ")}>
               {videoUrl ? (
                 <video
                   ref={videoRef}
