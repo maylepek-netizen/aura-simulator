@@ -12,14 +12,7 @@ const JSON_SCHEMA =
   '  "overall_load": 0,\n' +
   '  "visual_effect": "glitch_heavy",\n' +
   '  "scene_caption": "short first-person caption, 10-15 words",\n' +
-  '  "video_prompt": "Complete Veo prompt: first-person POV handheld cinematic camera at eye level. ' +
-  'SOCIAL DREAD: faces loom too close, mouths moving but sound distorted, hands reaching toward camera feeling threatening, ' +
-  'eye contact feels like physical pressure, crowd bodies feel like walls closing in. ' +
-  'HYPER-FOCUS: camera snaps obsessively between tiny details - a button on a shirt, flickering fluorescent tube, floor tile texture, mechanical repetitive movement. ' +
-  'LIGHTING: overexposed fluorescent lights that burn, heavy peripheral vignette blur creating tunnel vision. ' +
-  'Scale by load: load<40=subtle desaturation and slight blur; load 40-70=heavy tunnel vision, saturated colors, shallow depth of field; ' +
-  'load>70=chromatic aberration, fast jump cuts, extreme overexposure, faces completely distorted, panic camera movement, flickering. ' +
-  'Always photorealistic, not horror, immersive.",\n' +
+  '  "video_prompt": "Write a specific Veo video prompt for THIS exact situation. The prompt must describe the real physical environment of the situation, with these cinematic rules: first-person POV handheld camera, overexposed fluorescent/natural lighting matching the scene, faces of people looming too close and feeling threatening, camera hyper-focusing on random small details (textures, movements, objects), tunnel vision blur on periphery, color saturation scaled to sensory load. The prompt must be UNIQUE to this situation - not generic.",\n' +
   '  "monologue": ["thought1","thought2","thought3","thought4","thought5","thought6","thought7","thought8"],\n' +
   '  "sensory_channels": { "auditory": "description", "visual": "description", "tactile": "description", "interoception": "description" },\n' +
   '  "emotions": ["emotion1","emotion2","emotion3"],\n' +
