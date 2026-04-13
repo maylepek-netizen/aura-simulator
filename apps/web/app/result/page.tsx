@@ -183,7 +183,7 @@ export default function ResultPage() {
       })
         .then((r) => r.json())
         .then((v) => {
-          if (v.video) setVideoUrl(v.video);
+          if (v.uri) setVideoUrl("/api/video-proxy?uri=" + encodeURIComponent(v.uri));
           setVideoLoading(false);
         })
         .catch(() => setVideoLoading(false));

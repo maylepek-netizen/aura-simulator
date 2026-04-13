@@ -15,8 +15,8 @@ export async function POST(req: NextRequest) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           instances: [{ prompt }],
-          parameters: { aspectRatio: "16:9", sampleCount: 1, durationSeconds: 5, resolution: "480p" }
-        })
+          parameters: { aspectRatio: "16:9", sampleCount: 1, durationSeconds: 5 },
+        }),
       }
     );
 
@@ -27,10 +27,10 @@ export async function POST(req: NextRequest) {
 
     const { name: operationName } = await startRes.json();
 
-    // Step 2: Poll until done (max 3 minutes)
+    // Step 2: Poll until done (max 3 minutes, 36 × 5s)
     for (let i = 0; i < 36; i++) {
-      await new Promise(r => setTimeout(r, 5000));
-      
+      await new Promise((r) => setTimeout(r, 5000));
+
       const pollRes = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/${operationName}?key=${API_KEY}`
       );
@@ -39,21 +39,13 @@ export async function POST(req: NextRequest) {
       if (pollData.done) {
         const uri = pollData.response?.generateVideoResponse?.generatedSamples?.[0]?.video?.uri;
         if (!uri) return NextResponse.json({ error: "No video URI" }, { status: 500 });
-        
-        // Step 3: Download and return as base64
-        const videoRes = await fetch(`${uri}&key=${API_KEY}`);
-        const buffer = await videoRes.arrayBuffer();
-        const base64 = Buffer.from(buffer).toString("base64");
-        
-        return NextResponse.json({ 
-          video: `data:video/mp4;base64,${base64}`,
-          uri 
-        });
+
+        // Return the raw URI — client will fetch via /api/video-proxy to keep the key server-side
+        return NextResponse.json({ uri });
       }
     }
 
     return NextResponse.json({ error: "Timeout - video took too long" }, { status: 408 });
-
   } catch (err) {
     return NextResponse.json({ error: String(err) }, { status: 500 });
   }
