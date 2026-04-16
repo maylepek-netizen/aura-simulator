@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { CITATIONS } from "@/lib/researchCitations";
-import type { SimulationRecord } from "@/app/api/history/route";
+import { getSimulationById } from "@/lib/simulationStorage";
+import type { SimulationRecord } from "@/lib/simulationStorage";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -70,15 +71,10 @@ export default function ReplayPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch("/api/history")
-      .then((r) => r.json())
-      .then((records: SimulationRecord[]) => {
-        const found = records.find((r) => r.id === id);
-        if (found) setRecord(found);
-        else setError("Simulation not found");
-        setLoading(false);
-      })
-      .catch(() => { setError("Failed to load"); setLoading(false); });
+    const found = getSimulationById(id);
+    if (found) setRecord(found);
+    else setError("Simulation not found");
+    setLoading(false);
   }, [id]);
 
   async function downloadVideo(videoUrl: string) {

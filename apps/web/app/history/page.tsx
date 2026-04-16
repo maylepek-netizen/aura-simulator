@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import type { SimulationRecord } from "@/app/api/history/route";
+import { loadSimulations } from "@/lib/simulationStorage";
+import type { SimulationRecord } from "@/lib/simulationStorage";
 
 function LoadBar({ value, color }: { value: number; color: string }) {
   return (
@@ -21,10 +22,9 @@ export default function HistoryPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/history")
-      .then((r) => r.json())
-      .then((data) => { setRecords(data); setLoading(false); })
-      .catch(() => setLoading(false));
+    const all = loadSimulations().slice().reverse(); // newest first
+    setRecords(all);
+    setLoading(false);
   }, []);
 
   return (

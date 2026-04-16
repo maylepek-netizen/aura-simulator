@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { loadExperienceDraft, loadProfile } from "@/lib/experienceStorage";
+import { saveSimulation } from "@/lib/simulationStorage";
 import { CITATIONS } from "@/lib/researchCitations";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -836,21 +837,18 @@ export default function ResultPage() {
         .then((v) => {
           if (v.uri) {
             setVideoUrl("/api/video-proxy?uri=" + encodeURIComponent(v.uri));
-            // Save to history
-            fetch("/api/history", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
+            // Save to localStorage history
+            try {
+              saveSimulation({
                 situation: snapshot.situation,
                 name: snapshot.name,
                 age: snapshot.age,
                 gender: snapshot.gender,
                 result: data,
                 videoUri: v.uri,
-              }),
-            })
-              .then((r) => r.ok && setSaved(true))
-              .catch(() => {});
+              });
+              setSaved(true);
+            } catch {}
           }
           setVideoLoading(false);
         })
