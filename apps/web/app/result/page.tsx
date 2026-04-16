@@ -307,30 +307,20 @@ class AmbientSoundEngine {
 
 // ─── Environment Sound Engine ────────────────────────────────────────────────
 
-type EnvType = "mall" | "school" | "hospital" | "party" | "transport" | "restaurant" | "default";
-
-function detectEnvType(situation: string): EnvType {
-  const s = situation.toLowerCase();
-  if (/mall|store|shop|supermarket/.test(s)) return "mall";
-  if (/school|class|classroom|children/.test(s)) return "school";
-  if (/doctor|hospital|clinic|waiting/.test(s)) return "hospital";
-  if (/party|birthday|celebrat/.test(s)) return "party";
-  if (/bus|train|transport|metro|subway/.test(s)) return "transport";
-  if (/restaurant|cafe|coffee|diner/.test(s)) return "restaurant";
-  return "default";
-}
-
 class EnvironmentSoundEngine {
   private ctx: AudioContext;
   private nodes: AudioNode[] = [];
+  private timeouts: ReturnType<typeof setTimeout>[] = [];
   private running = false;
 
   constructor() {
     this.ctx = new AudioContext();
   }
 
-  private vol(load: number) {
-    return Math.min(0.3, 0.15 + (load / 100) * 0.15);
+  // Volume scales with load: minimum 0.2, max ~0.8 at load=100
+  private vol(load: number, base: number) {
+    const scale = Math.max(0.2, (load / 100) * 0.6);
+    return Math.min(1.0, base * (scale + 0.2 / base));
   }
 
   private makeBrownNoise(seconds: number): AudioBufferSourceNode {
@@ -344,8 +334,7 @@ class EnvironmentSoundEngine {
       d[i] = last * 3.5;
     }
     const src = this.ctx.createBufferSource();
-    src.buffer = buf;
-    src.loop = true;
+    src.buffer = buf; src.loop = true;
     return src;
   }
 
@@ -363,142 +352,257 @@ class EnvironmentSoundEngine {
       b6 = w * 0.115926;
     }
     const src = this.ctx.createBufferSource();
-    src.buffer = buf;
-    src.loop = true;
+    src.buffer = buf; src.loop = true;
     return src;
   }
 
-  private addCrowdLayer(v: number, lfoFreq: number) {
+  // Children screaming/crying: high-pitched bursts 2000-4000Hz, sharp attack, random 0.5-2s
+  private addScreamLayer(load: number) {
+    const v = this.vol(load, 0.4);
+    const scheduleNext = () => {
+      if (!this.running) return;
+      const now = this.ctx.currentTime;
+      const burstDur = 0.06 + Math.random() * 0.1;
+      const freq = 2000 + Math.random() * 2000;
+      const bufSize = Math.floor(this.ctx.sampleRate * burstDur);
+      const buf = this.ctx.createBuffer(1, bufSize, this.ctx.sampleRate);
+      const d = buf.getChannelData(0);
+      for (let i = 0; i < bufSize; i++) d[i] = Math.random() * 2 - 1;
+      const src = this.ctx.createBufferSource();
+      src.buffer = buf;
+      const bp = this.ctx.createBiquadFilter();
+      bp.type = "bandpass"; bp.frequency.value = freq; bp.Q.value = 3;
+      const g = this.ctx.createGain();
+      g.gain.setValueAtTime(v, now);
+      g.gain.exponentialRampToValueAtTime(0.001, now + burstDur);
+      src.connect(bp); bp.connect(g); g.connect(this.ctx.destination);
+      src.start(now); src.stop(now + burstDur + 0.01);
+      this.nodes.push(src, bp, g);
+      const interval = 500 + Math.random() * 1500;
+      const t = setTimeout(scheduleNext, interval);
+      this.timeouts.push(t);
+    };
+    scheduleNext();
+  }
+
+  // Voice-like formant: 200Hz osc + bandpass modulated 3-8Hz → muffled speech feel
+  private addVoiceLayer(load: number) {
+    const v = this.vol(load, 0.25);
+    const osc = this.ctx.createOscillator();
+    osc.type = "sawtooth"; osc.frequency.value = 200;
+    const bp = this.ctx.createBiquadFilter();
+    bp.type = "bandpass"; bp.frequency.value = 800; bp.Q.value = 2;
+    const lfo = this.ctx.createOscillator();
+    lfo.frequency.value = 3 + Math.random() * 5;
+    const lfoG = this.ctx.createGain();
+    lfoG.gain.value = 400;
+    lfo.connect(lfoG); lfoG.connect(bp.frequency);
+    const master = this.ctx.createGain();
+    master.gain.value = v;
+    osc.connect(bp); bp.connect(master); master.connect(this.ctx.destination);
+    osc.start(); lfo.start();
+    this.nodes.push(osc, bp, lfo, lfoG, master);
+  }
+
+  // Machines/beeping: alternating 800Hz/1200Hz tones every 1-3s
+  private addBeepAlternatingLayer(load: number) {
+    const v = this.vol(load, 0.2);
+    let toggle = false;
+    const scheduleNext = () => {
+      if (!this.running) return;
+      const now = this.ctx.currentTime;
+      const freq = toggle ? 800 : 1200;
+      toggle = !toggle;
+      const osc = this.ctx.createOscillator();
+      osc.type = "sine"; osc.frequency.value = freq;
+      const g = this.ctx.createGain();
+      g.gain.setValueAtTime(v, now);
+      g.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+      osc.connect(g); g.connect(this.ctx.destination);
+      osc.start(now); osc.stop(now + 0.15);
+      this.nodes.push(osc, g);
+      const interval = 1000 + Math.random() * 2000;
+      const t = setTimeout(scheduleNext, interval);
+      this.timeouts.push(t);
+    };
+    scheduleNext();
+  }
+
+  // Crowd/mall: low rumble + mid noise + random voice bursts
+  private addCrowdFullLayer(load: number) {
+    const v = this.vol(load, 0.3);
+    // Low rumble
     const brown = this.makeBrownNoise(4);
     const lp = this.ctx.createBiquadFilter();
-    lp.type = "lowpass"; lp.frequency.value = 1200;
+    lp.type = "lowpass"; lp.frequency.value = 300;
     const lfo = this.ctx.createOscillator();
-    lfo.frequency.value = lfoFreq;
-    const lfoG = this.ctx.createGain();
-    lfoG.gain.value = 0.05;
-    const master = this.ctx.createGain();
-    master.gain.value = v;
-    lfo.connect(lfoG); lfoG.connect(master.gain);
-    brown.connect(lp); lp.connect(master); master.connect(this.ctx.destination);
+    lfo.frequency.value = 0.5 + Math.random() * 2.5;
+    const lfoG = this.ctx.createGain(); lfoG.gain.value = 0.06;
+    const rumbleG = this.ctx.createGain(); rumbleG.gain.value = v;
+    lfo.connect(lfoG); lfoG.connect(rumbleG.gain);
+    brown.connect(lp); lp.connect(rumbleG); rumbleG.connect(this.ctx.destination);
     brown.start(); lfo.start();
-    this.nodes.push(brown, lp, lfo, lfoG, master);
-  }
-
-  private addBeepLayer(freq: number, period: number, v: number) {
-    const osc = this.ctx.createOscillator();
-    osc.type = "sine"; osc.frequency.value = freq;
-    const gate = this.ctx.createOscillator();
-    gate.type = "square"; gate.frequency.value = 1 / period;
-    const gateG = this.ctx.createGain();
-    gateG.gain.value = v / 2;
-    const master = this.ctx.createGain();
-    master.gain.value = v / 2;
-    gate.connect(gateG); gateG.connect(master.gain);
-    osc.connect(master); master.connect(this.ctx.destination);
-    osc.start(); gate.start();
-    this.nodes.push(osc, gate, gateG, master);
-  }
-
-  private addHumLayer(freq: number, v: number) {
-    const osc = this.ctx.createOscillator();
-    osc.type = "sine"; osc.frequency.value = freq;
-    const master = this.ctx.createGain();
-    master.gain.value = v;
-    osc.connect(master); master.connect(this.ctx.destination);
-    osc.start();
-    this.nodes.push(osc, master);
-  }
-
-  private addHighNoise(v: number, lfoFreq: number) {
+    this.nodes.push(brown, lp, lfo, lfoG, rumbleG);
+    // Mid noise
     const pink = this.makePinkNoise(3);
-    const hp = this.ctx.createBiquadFilter();
-    hp.type = "highpass"; hp.frequency.value = 2000;
-    const lfo = this.ctx.createOscillator();
-    lfo.type = "sawtooth"; lfo.frequency.value = lfoFreq;
-    const lfoG = this.ctx.createGain();
-    lfoG.gain.value = v * 0.5;
-    const master = this.ctx.createGain();
-    master.gain.value = v * 0.5;
-    lfo.connect(lfoG); lfoG.connect(master.gain);
-    pink.connect(hp); hp.connect(master); master.connect(this.ctx.destination);
-    pink.start(); lfo.start();
-    this.nodes.push(pink, hp, lfo, lfoG, master);
+    const bp = this.ctx.createBiquadFilter();
+    bp.type = "bandpass"; bp.frequency.value = 600; bp.Q.value = 0.8;
+    const midG = this.ctx.createGain(); midG.gain.value = v * 0.5;
+    pink.connect(bp); bp.connect(midG); midG.connect(this.ctx.destination);
+    pink.start();
+    this.nodes.push(pink, bp, midG);
+    // Occasional voice bursts
+    this.addVoiceBursts(load);
   }
 
-  private addBassThump(bpm: number, v: number) {
+  private addVoiceBursts(load: number) {
+    const v = this.vol(load, 0.15);
+    const scheduleNext = () => {
+      if (!this.running) return;
+      const now = this.ctx.currentTime;
+      const dur = 0.1 + Math.random() * 0.2;
+      const bufSize = Math.floor(this.ctx.sampleRate * dur);
+      const buf = this.ctx.createBuffer(1, bufSize, this.ctx.sampleRate);
+      const d = buf.getChannelData(0);
+      for (let i = 0; i < bufSize; i++) d[i] = Math.random() * 2 - 1;
+      const src = this.ctx.createBufferSource(); src.buffer = buf;
+      const bp = this.ctx.createBiquadFilter();
+      bp.type = "bandpass"; bp.frequency.value = 300 + Math.random() * 500; bp.Q.value = 2;
+      const g = this.ctx.createGain();
+      g.gain.setValueAtTime(0, now);
+      g.gain.linearRampToValueAtTime(v, now + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.001, now + dur);
+      src.connect(bp); bp.connect(g); g.connect(this.ctx.destination);
+      src.start(now); src.stop(now + dur + 0.01);
+      this.nodes.push(src, bp, g);
+      const interval = 600 + Math.random() * 1400;
+      const t = setTimeout(scheduleNext, interval);
+      this.timeouts.push(t);
+    };
+    scheduleNext();
+  }
+
+  // Music/party: bass pulse at 120BPM + mid noise
+  private addPartyLayer(load: number) {
+    const v = this.vol(load, 0.35);
     const osc = this.ctx.createOscillator();
     osc.type = "sine"; osc.frequency.value = 60;
     const gate = this.ctx.createOscillator();
-    gate.type = "square"; gate.frequency.value = bpm / 60;
-    const gateG = this.ctx.createGain();
-    gateG.gain.value = v / 2;
+    gate.type = "square"; gate.frequency.value = 2; // 120BPM = 2Hz
+    const gateG = this.ctx.createGain(); gateG.gain.value = v * 0.5;
     const lp = this.ctx.createBiquadFilter();
     lp.type = "lowpass"; lp.frequency.value = 120;
-    const master = this.ctx.createGain();
-    master.gain.value = v / 2;
+    const master = this.ctx.createGain(); master.gain.value = v * 0.5;
     gate.connect(gateG); gateG.connect(master.gain);
     osc.connect(lp); lp.connect(master); master.connect(this.ctx.destination);
     osc.start(); gate.start();
     this.nodes.push(osc, gate, gateG, lp, master);
+    // Mid noise layer
+    const pink = this.makePinkNoise(3);
+    const bp = this.ctx.createBiquadFilter();
+    bp.type = "bandpass"; bp.frequency.value = 500; bp.Q.value = 1;
+    const midG = this.ctx.createGain(); midG.gain.value = v * 0.3;
+    pink.connect(bp); bp.connect(midG); midG.connect(this.ctx.destination);
+    pink.start();
+    this.nodes.push(pink, bp, midG);
   }
 
-  private addEngineRumble(v: number) {
+  // Traffic/outside: low rumble 40-100Hz with slow random amplitude changes
+  private addTrafficLayer(load: number) {
+    const v = this.vol(load, 0.3);
     const osc = this.ctx.createOscillator();
-    osc.type = "sawtooth"; osc.frequency.value = 55;
+    osc.type = "sawtooth"; osc.frequency.value = 55 + Math.random() * 30;
     const lp = this.ctx.createBiquadFilter();
-    lp.type = "lowpass"; lp.frequency.value = 80;
-    // slight wobble
+    lp.type = "lowpass"; lp.frequency.value = 100;
+    // Slow amplitude wobble (0.1-0.3Hz = slow vehicle passing)
     const lfo = this.ctx.createOscillator();
-    lfo.frequency.value = 6;
-    const lfoG = this.ctx.createGain();
-    lfoG.gain.value = 5;
-    lfo.connect(lfoG); lfoG.connect(osc.frequency);
-    const master = this.ctx.createGain();
-    master.gain.value = v;
+    lfo.frequency.value = 0.1 + Math.random() * 0.2;
+    const lfoG = this.ctx.createGain(); lfoG.gain.value = v * 0.4;
+    const master = this.ctx.createGain(); master.gain.value = v * 0.6;
+    lfo.connect(lfoG); lfoG.connect(master.gain);
     osc.connect(lp); lp.connect(master); master.connect(this.ctx.destination);
     osc.start(); lfo.start();
     this.nodes.push(osc, lp, lfo, lfoG, master);
+    // Higher freq road noise
+    const brown = this.makeBrownNoise(4);
+    const bp = this.ctx.createBiquadFilter();
+    bp.type = "bandpass"; bp.frequency.value = 200; bp.Q.value = 0.5;
+    const roadG = this.ctx.createGain(); roadG.gain.value = v * 0.25;
+    brown.connect(bp); bp.connect(roadG); roadG.connect(this.ctx.destination);
+    brown.start();
+    this.nodes.push(brown, bp, roadG);
   }
 
-  start(envType: EnvType, load: number) {
+  // Quiet/home: very soft pink noise + occasional creak (low-freq burst)
+  private addQuietLayer(load: number) {
+    const v = this.vol(load, 0.05);
+    const pink = this.makePinkNoise(5);
+    const lp = this.ctx.createBiquadFilter();
+    lp.type = "lowpass"; lp.frequency.value = 600;
+    const master = this.ctx.createGain(); master.gain.value = v;
+    pink.connect(lp); lp.connect(master); master.connect(this.ctx.destination);
+    pink.start();
+    this.nodes.push(pink, lp, master);
+    // Occasional creak
+    const scheduleCreak = () => {
+      if (!this.running) return;
+      const now = this.ctx.currentTime;
+      const dur = 0.08 + Math.random() * 0.1;
+      const bufSize = Math.floor(this.ctx.sampleRate * dur);
+      const buf = this.ctx.createBuffer(1, bufSize, this.ctx.sampleRate);
+      const d = buf.getChannelData(0);
+      for (let i = 0; i < bufSize; i++) d[i] = Math.random() * 2 - 1;
+      const src = this.ctx.createBufferSource(); src.buffer = buf;
+      const bp = this.ctx.createBiquadFilter();
+      bp.type = "bandpass"; bp.frequency.value = 200 + Math.random() * 300; bp.Q.value = 5;
+      const g = this.ctx.createGain();
+      g.gain.setValueAtTime(v * 1.5, now);
+      g.gain.exponentialRampToValueAtTime(0.001, now + dur);
+      src.connect(bp); bp.connect(g); g.connect(this.ctx.destination);
+      src.start(now); src.stop(now + dur + 0.01);
+      this.nodes.push(src, bp, g);
+      const interval = 4000 + Math.random() * 8000;
+      const t = setTimeout(scheduleCreak, interval);
+      this.timeouts.push(t);
+    };
+    scheduleCreak();
+  }
+
+  start(situation: string, auditory: string, load: number) {
     if (this.running) return;
     this.running = true;
     if (this.ctx.state === "suspended") this.ctx.resume();
-    const v = this.vol(load);
 
-    switch (envType) {
-      case "mall":
-        this.addCrowdLayer(v, 0.8);
-        this.addBeepLayer(880, 3.5, v * 0.4);
-        break;
-      case "school":
-        this.addHighNoise(v, 1.2);
-        this.addCrowdLayer(v * 0.5, 2.5);
-        break;
-      case "hospital":
-        this.addHumLayer(120, v * 0.6);
-        this.addBeepLayer(1000, 2.0, v * 0.3);
-        break;
-      case "party":
-        this.addCrowdLayer(v, 3.0);
-        this.addBassThump(120, v);
-        break;
-      case "transport":
-        this.addEngineRumble(v);
-        this.addBeepLayer(660, 8.0, v * 0.25);
-        break;
-      case "restaurant":
-        this.addCrowdLayer(v * 0.7, 1.5);
-        this.addBeepLayer(1200, 5.0, v * 0.2);
-        break;
-      default:
-        this.addCrowdLayer(v * 0.6, 1.0);
-        this.addHumLayer(80, v * 0.3);
+    const combined = (situation + " " + auditory).toLowerCase();
+    let layerAdded = false;
+
+    if (/scream|cry|crying|shriek|yell|children scream/.test(combined)) {
+      this.addScreamLayer(load); layerAdded = true;
+    }
+    if (/talk|voice|voices|speaking|person.*talk|conversation/.test(combined)) {
+      this.addVoiceLayer(load); layerAdded = true;
+    }
+    if (/beep|alarm|machine|mechanical|click|buzz|bleep/.test(combined)) {
+      this.addBeepAlternatingLayer(load); layerAdded = true;
+    }
+    if (/crowd|mall|store|shop|supermarket|restaurant|cafe|people/.test(combined)) {
+      this.addCrowdFullLayer(load); layerAdded = true;
+    }
+    if (/music|party|birthday|celebrat|bass|loud music/.test(combined)) {
+      this.addPartyLayer(load); layerAdded = true;
+    }
+    if (/traffic|car|street|outside|road|bus|train|transport/.test(combined)) {
+      this.addTrafficLayer(load); layerAdded = true;
+    }
+    if (!layerAdded || /quiet|silent|home|alone|calm/.test(combined)) {
+      this.addQuietLayer(load);
     }
   }
 
   stop() {
     this.running = false;
+    for (const t of this.timeouts) clearTimeout(t);
+    this.timeouts = [];
     for (const n of this.nodes) {
       try { (n as AudioBufferSourceNode).stop?.(); } catch {}
     }
@@ -640,8 +744,8 @@ export default function ResultPage() {
   async function startNarration(r: SimulationResult) {
     if (audioPlaying) return;
     const text = r.monologue.join(". ");
+    setAudioPlaying(true);
     try {
-      setAudioPlaying(true);
       const res = await fetch("/api/tts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -652,16 +756,20 @@ export default function ResultPage() {
       const src = "data:" + mimeType + ";base64," + audio;
       const el = new Audio(src);
       ttsAudioRef.current = el;
-      el.onended = () => setAudioPlaying(false);
-      el.onerror = () => setAudioPlaying(false);
+      // Play once, no loop
+      el.loop = false;
+      el.onended = () => { ttsAudioRef.current = null; setAudioPlaying(false); };
+      el.onerror = () => { ttsAudioRef.current = null; setAudioPlaying(false); };
       await el.play();
     } catch {
-      // fallback to Web Speech API
-      const utt = new SpeechSynthesisUtterance(r.monologue.join(". "));
+      // Fallback: Web Speech API, play once
+      const utt = new SpeechSynthesisUtterance(text);
       utt.lang = "en-US";
       utt.rate = 0.85;
       utt.pitch = 0.9;
       utt.onend = () => setAudioPlaying(false);
+      utt.onerror = () => setAudioPlaying(false);
+      window.speechSynthesis.cancel();
       window.speechSynthesis.speak(utt);
     }
   }
@@ -788,8 +896,11 @@ export default function ResultPage() {
     if (!envEngineRef.current) {
       envEngineRef.current = new EnvironmentSoundEngine();
     }
-    const envType = detectEnvType(snapshot.situation);
-    envEngineRef.current.start(envType, result?.overall_load ?? 0);
+    envEngineRef.current.start(
+      snapshot.situation,
+      result?.sensory_channels?.auditory ?? "",
+      result?.overall_load ?? 0
+    );
     setEnvPlaying(true);
   }
 
@@ -955,8 +1066,8 @@ export default function ResultPage() {
                     : "border-foreground/20 opacity-60 hover:opacity-100",
                 ].join(" ")}
               >
-                <span className="text-base">{audioPlaying ? "⏹" : "💭"}</span>
-                {audioPlaying ? "Stop thoughts" : "Play thoughts"}
+                <span className={["text-base", audioPlaying ? "animate-pulse" : ""].join(" ")}>💭</span>
+                {audioPlaying ? "Playing…" : "Play thoughts"}
               </button>
 
               {/* Heartbeat + breathing + ambient button */}
