@@ -67,7 +67,16 @@ function buildVideoPromptInstructions(age: number, gender: string, situation: st
     "(3) Color grading shifts to cold/desaturated and slightly blue when looking at the changed element, and shifts warmer when looking at familiar safe objects elsewhere in the frame; " +
     "(4) The changed person or object appears slightly out of focus and visually fragmented — like a face seen through frosted glass — unrecognizable despite being close; " +
     "(5) The world feels like a dream where something is deeply wrong but cannot be named — same room, wrong universe. " +
-    "If the situation does NOT involve change — skip this block. " +
+    "If the situation does NOT involve change — skip this block.\n" +
+    "DIEGETIC SOUND (always apply): The video must imply sound visually — do not describe audio, show it: " +
+    "if children are screaming, show extreme close-up of wide-open mouths filling the frame; " +
+    "if there is a beeping machine or alarm, the camera finds it and lingers on it obsessively; " +
+    "if a crowd is loud, show the visual chaos of many mouths moving simultaneously in overlapping fragments. " +
+    "Every sound source in the situation must appear as a visual element the camera cannot ignore.\n" +
+    "DUTCH ANGLE RULE: If the social sensory score is high (above 2 out of 3), apply a persistent Dutch angle tilt of 3–8 degrees to the entire frame — the world itself feels tilted and wrong under social pressure. The tilt should feel involuntary, like the person's inner state is warping their perception of vertical.\n" +
+    "INVOLUNTARY GAZE RULE: The camera must feel like it is controlled by overwhelming stimuli, not by the person. " +
+    "It is pulled against the person's will — snapping to the loudest sound, the brightest light, the most threatening face — " +
+    "the camera operator is fighting to look at something safe but losing. " +
     "Always photorealistic, first-person POV, not horror-genre, immersive and grounded."
   );
 }

@@ -305,6 +305,213 @@ class AmbientSoundEngine {
   }
 }
 
+// ─── Environment Sound Engine ────────────────────────────────────────────────
+
+type EnvType = "mall" | "school" | "hospital" | "party" | "transport" | "restaurant" | "default";
+
+function detectEnvType(situation: string): EnvType {
+  const s = situation.toLowerCase();
+  if (/mall|store|shop|supermarket/.test(s)) return "mall";
+  if (/school|class|classroom|children/.test(s)) return "school";
+  if (/doctor|hospital|clinic|waiting/.test(s)) return "hospital";
+  if (/party|birthday|celebrat/.test(s)) return "party";
+  if (/bus|train|transport|metro|subway/.test(s)) return "transport";
+  if (/restaurant|cafe|coffee|diner/.test(s)) return "restaurant";
+  return "default";
+}
+
+class EnvironmentSoundEngine {
+  private ctx: AudioContext;
+  private nodes: AudioNode[] = [];
+  private running = false;
+
+  constructor() {
+    this.ctx = new AudioContext();
+  }
+
+  private vol(load: number) {
+    return Math.min(0.3, 0.15 + (load / 100) * 0.15);
+  }
+
+  private makeBrownNoise(seconds: number): AudioBufferSourceNode {
+    const sr = this.ctx.sampleRate;
+    const buf = this.ctx.createBuffer(1, Math.floor(sr * seconds), sr);
+    const d = buf.getChannelData(0);
+    let last = 0;
+    for (let i = 0; i < d.length; i++) {
+      const w = Math.random() * 2 - 1;
+      last = (last + 0.02 * w) / 1.02;
+      d[i] = last * 3.5;
+    }
+    const src = this.ctx.createBufferSource();
+    src.buffer = buf;
+    src.loop = true;
+    return src;
+  }
+
+  private makePinkNoise(seconds: number): AudioBufferSourceNode {
+    const sr = this.ctx.sampleRate;
+    const buf = this.ctx.createBuffer(1, Math.floor(sr * seconds), sr);
+    const d = buf.getChannelData(0);
+    let b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0;
+    for (let i = 0; i < d.length; i++) {
+      const w = Math.random() * 2 - 1;
+      b0=0.99886*b0+w*0.0555179; b1=0.99332*b1+w*0.0750759;
+      b2=0.96900*b2+w*0.1538520; b3=0.86650*b3+w*0.3104856;
+      b4=0.55000*b4+w*0.5329522; b5=-0.7616*b5-w*0.0168980;
+      d[i] = (b0+b1+b2+b3+b4+b5+b6+w*0.5362)*0.11;
+      b6 = w * 0.115926;
+    }
+    const src = this.ctx.createBufferSource();
+    src.buffer = buf;
+    src.loop = true;
+    return src;
+  }
+
+  private addCrowdLayer(v: number, lfoFreq: number) {
+    const brown = this.makeBrownNoise(4);
+    const lp = this.ctx.createBiquadFilter();
+    lp.type = "lowpass"; lp.frequency.value = 1200;
+    const lfo = this.ctx.createOscillator();
+    lfo.frequency.value = lfoFreq;
+    const lfoG = this.ctx.createGain();
+    lfoG.gain.value = 0.05;
+    const master = this.ctx.createGain();
+    master.gain.value = v;
+    lfo.connect(lfoG); lfoG.connect(master.gain);
+    brown.connect(lp); lp.connect(master); master.connect(this.ctx.destination);
+    brown.start(); lfo.start();
+    this.nodes.push(brown, lp, lfo, lfoG, master);
+  }
+
+  private addBeepLayer(freq: number, period: number, v: number) {
+    const osc = this.ctx.createOscillator();
+    osc.type = "sine"; osc.frequency.value = freq;
+    const gate = this.ctx.createOscillator();
+    gate.type = "square"; gate.frequency.value = 1 / period;
+    const gateG = this.ctx.createGain();
+    gateG.gain.value = v / 2;
+    const master = this.ctx.createGain();
+    master.gain.value = v / 2;
+    gate.connect(gateG); gateG.connect(master.gain);
+    osc.connect(master); master.connect(this.ctx.destination);
+    osc.start(); gate.start();
+    this.nodes.push(osc, gate, gateG, master);
+  }
+
+  private addHumLayer(freq: number, v: number) {
+    const osc = this.ctx.createOscillator();
+    osc.type = "sine"; osc.frequency.value = freq;
+    const master = this.ctx.createGain();
+    master.gain.value = v;
+    osc.connect(master); master.connect(this.ctx.destination);
+    osc.start();
+    this.nodes.push(osc, master);
+  }
+
+  private addHighNoise(v: number, lfoFreq: number) {
+    const pink = this.makePinkNoise(3);
+    const hp = this.ctx.createBiquadFilter();
+    hp.type = "highpass"; hp.frequency.value = 2000;
+    const lfo = this.ctx.createOscillator();
+    lfo.type = "sawtooth"; lfo.frequency.value = lfoFreq;
+    const lfoG = this.ctx.createGain();
+    lfoG.gain.value = v * 0.5;
+    const master = this.ctx.createGain();
+    master.gain.value = v * 0.5;
+    lfo.connect(lfoG); lfoG.connect(master.gain);
+    pink.connect(hp); hp.connect(master); master.connect(this.ctx.destination);
+    pink.start(); lfo.start();
+    this.nodes.push(pink, hp, lfo, lfoG, master);
+  }
+
+  private addBassThump(bpm: number, v: number) {
+    const osc = this.ctx.createOscillator();
+    osc.type = "sine"; osc.frequency.value = 60;
+    const gate = this.ctx.createOscillator();
+    gate.type = "square"; gate.frequency.value = bpm / 60;
+    const gateG = this.ctx.createGain();
+    gateG.gain.value = v / 2;
+    const lp = this.ctx.createBiquadFilter();
+    lp.type = "lowpass"; lp.frequency.value = 120;
+    const master = this.ctx.createGain();
+    master.gain.value = v / 2;
+    gate.connect(gateG); gateG.connect(master.gain);
+    osc.connect(lp); lp.connect(master); master.connect(this.ctx.destination);
+    osc.start(); gate.start();
+    this.nodes.push(osc, gate, gateG, lp, master);
+  }
+
+  private addEngineRumble(v: number) {
+    const osc = this.ctx.createOscillator();
+    osc.type = "sawtooth"; osc.frequency.value = 55;
+    const lp = this.ctx.createBiquadFilter();
+    lp.type = "lowpass"; lp.frequency.value = 80;
+    // slight wobble
+    const lfo = this.ctx.createOscillator();
+    lfo.frequency.value = 6;
+    const lfoG = this.ctx.createGain();
+    lfoG.gain.value = 5;
+    lfo.connect(lfoG); lfoG.connect(osc.frequency);
+    const master = this.ctx.createGain();
+    master.gain.value = v;
+    osc.connect(lp); lp.connect(master); master.connect(this.ctx.destination);
+    osc.start(); lfo.start();
+    this.nodes.push(osc, lp, lfo, lfoG, master);
+  }
+
+  start(envType: EnvType, load: number) {
+    if (this.running) return;
+    this.running = true;
+    if (this.ctx.state === "suspended") this.ctx.resume();
+    const v = this.vol(load);
+
+    switch (envType) {
+      case "mall":
+        this.addCrowdLayer(v, 0.8);
+        this.addBeepLayer(880, 3.5, v * 0.4);
+        break;
+      case "school":
+        this.addHighNoise(v, 1.2);
+        this.addCrowdLayer(v * 0.5, 2.5);
+        break;
+      case "hospital":
+        this.addHumLayer(120, v * 0.6);
+        this.addBeepLayer(1000, 2.0, v * 0.3);
+        break;
+      case "party":
+        this.addCrowdLayer(v, 3.0);
+        this.addBassThump(120, v);
+        break;
+      case "transport":
+        this.addEngineRumble(v);
+        this.addBeepLayer(660, 8.0, v * 0.25);
+        break;
+      case "restaurant":
+        this.addCrowdLayer(v * 0.7, 1.5);
+        this.addBeepLayer(1200, 5.0, v * 0.2);
+        break;
+      default:
+        this.addCrowdLayer(v * 0.6, 1.0);
+        this.addHumLayer(80, v * 0.3);
+    }
+  }
+
+  stop() {
+    this.running = false;
+    for (const n of this.nodes) {
+      try { (n as AudioBufferSourceNode).stop?.(); } catch {}
+    }
+    this.nodes = [];
+    try { this.ctx.suspend(); } catch {}
+  }
+
+  destroy() {
+    this.stop();
+    try { this.ctx.close(); } catch {}
+  }
+}
+
 // ─── Animated Meter ───────────────────────────────────────────────────────────
 
 function Meter({ label, value, max = 100, color }: { label: string; value: number; max?: number; color: string }) {
@@ -394,12 +601,17 @@ export default function ResultPage() {
   // Stimming pause
   const [stimmingPaused, setStimmingPaused] = useState(false);
 
+  // Environment sound
+  const [envPlaying, setEnvPlaying] = useState(false);
+  const envEngineRef = useRef<EnvironmentSoundEngine | null>(null);
+
   // History save
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
     return () => {
       ambientEngineRef.current?.destroy();
+      envEngineRef.current?.destroy();
       ttsAudioRef.current?.pause();
     };
   }, []);
@@ -565,6 +777,20 @@ export default function ResultPage() {
     const auditoryType = detectAuditoryType(result?.sensory_channels?.auditory ?? "");
     ambientEngineRef.current.start(result?.overall_load ?? 0, auditoryType);
     setAmbientPlaying(true);
+  }
+
+  function toggleEnv() {
+    if (envPlaying) {
+      envEngineRef.current?.stop();
+      setEnvPlaying(false);
+      return;
+    }
+    if (!envEngineRef.current) {
+      envEngineRef.current = new EnvironmentSoundEngine();
+    }
+    const envType = detectEnvType(snapshot.situation);
+    envEngineRef.current.start(envType, result?.overall_load ?? 0);
+    setEnvPlaying(true);
   }
 
   async function downloadVideo() {
@@ -746,6 +972,21 @@ export default function ResultPage() {
               >
                 <span className={["text-base", ambientPlaying ? "animate-pulse" : ""].join(" ")}>♥</span>
                 {ambientPlaying ? "Stop heartbeat" : "Heartbeat"}
+              </button>
+
+              {/* Environment sound button */}
+              <button
+                type="button"
+                onClick={toggleEnv}
+                className={[
+                  "flex items-center justify-center gap-2 rounded-lg border px-4 py-3 text-[10px] uppercase tracking-[0.2em] transition-all",
+                  envPlaying
+                    ? "border-green-400/60 bg-green-400/10 text-green-300"
+                    : "border-foreground/20 opacity-60 hover:opacity-100",
+                ].join(" ")}
+              >
+                <span className={["text-base", envPlaying ? "animate-pulse" : ""].join(" ")}>🌍</span>
+                {envPlaying ? "Stop environment" : "Environment"}
               </button>
 
               {/* Stimming pause button — only visible when stimming is active */}
