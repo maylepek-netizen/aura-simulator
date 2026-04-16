@@ -76,7 +76,15 @@ function buildVideoPromptInstructions(age: number, gender: string, situation: st
     "DUTCH ANGLE RULE: If the social sensory score is high (above 2 out of 3), apply a persistent Dutch angle tilt of 3–8 degrees to the entire frame — the world itself feels tilted and wrong under social pressure. The tilt should feel involuntary, like the person's inner state is warping their perception of vertical.\n" +
     "INVOLUNTARY GAZE RULE: The camera must feel like it is controlled by overwhelming stimuli, not by the person. " +
     "It is pulled against the person's will — snapping to the loudest sound, the brightest light, the most threatening face — " +
-    "the camera operator is fighting to look at something safe but losing. " +
+    "the camera operator is fighting to look at something safe but losing.\n" +
+    "ALIEN ON ANOTHER PLANET (always apply, scale with overall_load): The scene must feel as if filmed by a being who has never been to Earth and finds everything simultaneously fascinating and overwhelming. " +
+    "Apply ALL of the following, intensity scaled precisely to overall_load (subtle at low load, overwhelming at high load): " +
+    "(1) LIGHTING — too bright and harsh, like two suns: everything slightly overexposed with a cold clinical quality, shadows feel wrong, highlights blow out; " +
+    "(2) COLOR — hyper-saturated and slightly wrong: grass is too green, skin too pink, artificial lights too white, creating an almost synthetic reality where nothing looks quite real; " +
+    "(3) OBJECT SIGNIFICANCE — ordinary objects appear monumentally significant: a door handle, a light switch, a person's fingers are filmed with the reverence of alien artifacts, close-up and lingered upon as if they are the most extraordinary things ever encountered; " +
+    "(4) SOCIAL BEHAVIOR AS RITUAL — human interaction looks like an incomprehensible ceremony: people talking appear to be performing strange repetitive movements with their mouths, gestures seem arbitrary and baffling, eye contact looks like a bizarre territorial display; " +
+    "(5) WRONG SCALE — spaces feel simultaneously too large and too small: a hallway stretches impossibly, a room feels like it is closing in, the relationship between the person's body and the environment is subtly miscalibrated; " +
+    "(6) PROFOUND ISOLATION — an ever-present undercurrent of 'I am the only one who sees the world this way': the camera lingers on moments where everyone else seems to share an understanding that is completely invisible to this observer, a gap between self and world that cannot be bridged. " +
     "Always photorealistic, first-person POV, not horror-genre, immersive and grounded."
   );
 }
