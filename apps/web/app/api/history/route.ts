@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { kv } from "@vercel/kv";
+import { put, list, del } from "@vercel/blob";
 
 export type SimulationRecord = {
   id: string;
@@ -12,18 +12,39 @@ export type SimulationRecord = {
   createdAt: string;
 };
 
-const INDEX_KEY = "simulations:index";
+const BLOB_FILENAME = "simulations.json";
+
+async function readSimulations(): Promise<SimulationRecord[]> {
+  try {
+    const { blobs } = await list({ prefix: BLOB_FILENAME });
+    if (blobs.length === 0) return [];
+    const res = await fetch(blobs[0].url);
+    if (!res.ok) return [];
+    return (await res.json()) as SimulationRecord[];
+  } catch {
+    return [];
+  }
+}
+
+async function writeSimulations(records: SimulationRecord[]): Promise<void> {
+  // Delete existing blob first to avoid accumulating versions
+  try {
+    const { blobs } = await list({ prefix: BLOB_FILENAME });
+    if (blobs.length > 0) {
+      await del(blobs.map((b) => b.url));
+    }
+  } catch {}
+  await put(BLOB_FILENAME, JSON.stringify(records), {
+    access: "public",
+    contentType: "application/json",
+    addRandomSuffix: false,
+  });
+}
 
 export async function GET() {
   try {
-    const ids: string[] = (await kv.lrange(INDEX_KEY, 0, 99)) ?? [];
-    if (ids.length === 0) return NextResponse.json([]);
-    const records = await Promise.all(
-      ids.map((id) => kv.get<SimulationRecord>("simulation:" + id))
-    );
-    const valid = records.filter(Boolean) as SimulationRecord[];
-    // newest first (index is pushed with latest at head)
-    return NextResponse.json(valid);
+    const records = await readSimulations();
+    return NextResponse.json(records.slice().reverse()); // newest first
   } catch (err) {
     return NextResponse.json({ error: String(err) }, { status: 500 });
   }
@@ -42,10 +63,9 @@ export async function POST(req: NextRequest) {
       result: body.result,
       videoUri: body.videoUri,
     };
-    await kv.set("simulation:" + record.id, record);
-    // prepend to index list, trim to 100
-    await kv.lpush(INDEX_KEY, record.id);
-    await kv.ltrim(INDEX_KEY, 0, 99);
+    const records = await readSimulations();
+    records.push(record);
+    await writeSimulations(records.slice(-100));
     return NextResponse.json({ id: record.id });
   } catch (err) {
     return NextResponse.json({ error: String(err) }, { status: 500 });
