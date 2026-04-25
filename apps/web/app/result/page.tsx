@@ -694,6 +694,7 @@ export default function ResultPage() {
   const [error, setError] = useState<string | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [videoLoading, setVideoLoading] = useState(false);
+  const [videoUri, setVideoUri] = useState<string | null>(null);
 
   // Gemini TTS narration
   const [audioPlaying, setAudioPlaying] = useState(false);
@@ -786,6 +787,7 @@ export default function ResultPage() {
     setLoading(true);
     setError(null);
     setVideoUrl(null);
+    setVideoUri(null);
     setVideoLoading(false);
     setSaved(false);
     narrationStartedRef.current = false;
@@ -837,18 +839,7 @@ export default function ResultPage() {
         .then((v) => {
           if (v.uri) {
             setVideoUrl("/api/video-proxy?uri=" + encodeURIComponent(v.uri));
-            // Save to localStorage history
-            try {
-              saveSimulation({
-                situation: snapshot.situation,
-                name: snapshot.name,
-                age: snapshot.age,
-                gender: snapshot.gender,
-                result: data,
-                videoUri: v.uri,
-              });
-              setSaved(true);
-            } catch {}
+            setVideoUri(v.uri);
           }
           setVideoLoading(false);
         })
@@ -916,15 +907,31 @@ export default function ResultPage() {
     } catch {}
   }
 
+  async function handleSave() {
+    if (!result || !videoUri || saved) return;
+    try {
+      saveSimulation({
+        situation: snapshot.situation,
+        name: snapshot.name,
+        age: snapshot.age,
+        gender: snapshot.gender,
+        result,
+        videoUri,
+      });
+      setSaved(true);
+    } catch {}
+  }
+
   if (!snapshot.hasProfile || !snapshot.hasDraft) return null;
 
   const load = result?.overall_load ?? 0;
 
   const activeStimmingClass = stimmingPaused ? "" :
-    load > 80 ? "stimming-intense" :
-    load > 65 ? "stimming-gentle" :
+    load > 39 && load <= 70 ? "stimming-medium" :
+    load > 70 ? "stimming-intense" :
+    load > 0 ? "stimming-slow" :
     "";
-  const hasStimming = load > 65;
+  const hasStimming = load > 0;
 
   const anxiety = result ? Math.round((result.sensory_scores.auditory + result.sensory_scores.social) / 2 * 33) : 0;
   const socialLoad = result ? Math.round(result.sensory_scores.social * 33) : 0;
@@ -933,21 +940,29 @@ export default function ResultPage() {
   return (
     <div className="relative flex-1 flex flex-col min-h-screen">
       <style>{`
-        @keyframes stimming-gentle {
-          0%   { transform: translateY(0px)  rotate(0deg);     }
-          25%  { transform: translateY(4px)  rotate(0.5deg);   }
-          50%  { transform: translateY(0px)  rotate(0deg);     }
-          75%  { transform: translateY(-4px) rotate(-0.5deg);  }
-          100% { transform: translateY(0px)  rotate(0deg);     }
+        @keyframes stimming-slow {
+          0%   { transform: translateY(0px); }
+          25%  { transform: translateY(3px); }
+          50%  { transform: translateY(0px); }
+          75%  { transform: translateY(-3px); }
+          100% { transform: translateY(0px); }
+        }
+        @keyframes stimming-medium {
+          0%   { transform: translateY(0px)  rotate(0deg);    }
+          25%  { transform: translateY(6px)  rotate(0.5deg);  }
+          50%  { transform: translateY(0px)  rotate(0deg);    }
+          75%  { transform: translateY(-6px) rotate(-0.5deg); }
+          100% { transform: translateY(0px)  rotate(0deg);    }
         }
         @keyframes stimming-intense {
           0%   { transform: translateY(0px)   rotate(0deg);    }
-          25%  { transform: translateY(10px)  rotate(1.5deg);  }
+          25%  { transform: translateY(12px)  rotate(1.5deg);  }
           50%  { transform: translateY(0px)   rotate(0deg);    }
-          75%  { transform: translateY(-10px) rotate(-1.5deg); }
+          75%  { transform: translateY(-12px) rotate(-1.5deg); }
           100% { transform: translateY(0px)   rotate(0deg);    }
         }
-        .stimming-gentle  { animation: stimming-gentle  2s   ease-in-out infinite; }
+        .stimming-slow    { animation: stimming-slow    4s   ease-in-out infinite; }
+        .stimming-medium  { animation: stimming-medium  2s   ease-in-out infinite; }
         .stimming-intense { animation: stimming-intense 0.8s ease-in-out infinite; }
       `}</style>
 
@@ -981,11 +996,6 @@ export default function ResultPage() {
           {snapshot.situation}
         </div>
         <div className="flex items-center gap-2">
-          {saved && (
-            <span className="text-[10px] uppercase tracking-[0.2em] opacity-60 text-green-400">
-              Saved ✓
-            </span>
-          )}
           <button
             type="button"
             onClick={() => router.push("/history")}
@@ -1276,6 +1286,26 @@ export default function ResultPage() {
               ))}
             </div>
           </details>
+
+          {/* Save simulation */}
+          {result && videoUri && !saved && (
+            <div className="flex justify-center">
+              <button
+                type="button"
+                onClick={handleSave}
+                className="h-11 rounded-lg border border-foreground/40 bg-foreground/10 px-6 text-[11px] uppercase tracking-[0.22em] hover:bg-foreground/20 hover:border-foreground/60 transition-all"
+              >
+                Save this simulation
+              </button>
+            </div>
+          )}
+          {saved && (
+            <div className="flex justify-center">
+              <span className="text-[11px] uppercase tracking-[0.22em] text-green-400 opacity-80">
+                Saved ✓
+              </span>
+            </div>
+          )}
 
           {/* Actions */}
           <div className="flex gap-3 justify-between">

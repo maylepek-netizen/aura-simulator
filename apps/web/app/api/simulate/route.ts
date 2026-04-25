@@ -77,6 +77,8 @@ function buildVideoPromptInstructions(age: number, gender: string, situation: st
     "INVOLUNTARY GAZE RULE: The camera must feel like it is controlled by overwhelming stimuli, not by the person. " +
     "It is pulled against the person's will — snapping to the loudest sound, the brightest light, the most threatening face — " +
     "the camera operator is fighting to look at something safe but losing.\n" +
+    "CAMERA MOVEMENT PACE RULES (always apply): Camera movement must match human walking pace — slow, natural, weighted, like a body moving through space. Never fast panning or vehicle-speed movement unless the situation explicitly involves being inside a moving vehicle. Movement should feel like breathing, not driving. " +
+    "For ALONE IN NATURE or ALONE OUTDOORS situations specifically: the camera is nearly still, drifting only to micro-details — an ant moving across dirt, a bird landing on a branch, a single rock with unusual texture, a leaf falling in slow motion. The camera stays with each micro-detail for 3–5 seconds before moving. The stillness itself is the overwhelm — the world is vast and the camera has nowhere it must go.\n" +
     "ALIEN ON ANOTHER PLANET (always apply, scale with overall_load): The scene must feel as if filmed by a being who has never been to Earth and finds everything simultaneously fascinating and overwhelming. " +
     "Apply ALL of the following, intensity scaled precisely to overall_load (subtle at low load, overwhelming at high load): " +
     "(1) LIGHTING — too bright and harsh, like two suns: everything slightly overexposed with a cold clinical quality, shadows feel wrong, highlights blow out; " +
