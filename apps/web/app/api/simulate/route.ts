@@ -117,6 +117,8 @@ function buildVideoPromptInstructions(age: number, gender: string, situation: st
     "  IRREGULAR PACING → events out of sync, rhythm broken, subtle wrongness.\n" +
     "  FAST PACING → actions overlap, no pause, time compressed into blur.\n" +
     "Combine ALL selected directing attributes with every rule above into one single unified video prompt paragraph. The classification is NEVER mentioned — only its cinematic effects appear.\n" +
+    "CRITICAL — NO CAMERAS IN FRAME (absolute rule, no exceptions): Never show any camera, camera equipment, phone, or recording device in the frame. This is NOT a video about someone filming. This IS the direct visual perception of a person — what their eyes see. The viewer IS the person. No fourth-wall breaking. No visible recording equipment ever.\n" +
+    "NATURE & SOLITUDE RULE: For situations in nature or alone outdoors — the camera conveys peaceful vastness that still feels slightly wrong and disorienting, not threatening. Solitude is overwhelming in a different way: too much space, no anchor points, endless repetition of natural patterns (trees, waves, grass, sky) that loops and blurs into a kind of sensory noise. The environment is beautiful but incomprehensible in its scale and indifference.\n" +
     "Always photorealistic, first-person POV, not horror-genre, immersive and grounded."
   );
 }
