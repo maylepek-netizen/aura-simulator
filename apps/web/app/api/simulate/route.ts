@@ -84,7 +84,35 @@ function buildVideoPromptInstructions(age: number, gender: string, situation: st
     "(3) OBJECT SIGNIFICANCE — ordinary objects appear monumentally significant: a door handle, a light switch, a person's fingers are filmed with the reverence of alien artifacts, close-up and lingered upon as if they are the most extraordinary things ever encountered; " +
     "(4) SOCIAL BEHAVIOR AS RITUAL — human interaction looks like an incomprehensible ceremony: people talking appear to be performing strange repetitive movements with their mouths, gestures seem arbitrary and baffling, eye contact looks like a bizarre territorial display; " +
     "(5) WRONG SCALE — spaces feel simultaneously too large and too small: a hallway stretches impossibly, a room feels like it is closing in, the relationship between the person's body and the environment is subtly miscalibrated; " +
-    "(6) PROFOUND ISOLATION — an ever-present undercurrent of 'I am the only one who sees the world this way': the camera lingers on moments where everyone else seems to share an understanding that is completely invisible to this observer, a gap between self and world that cannot be bridged. " +
+    "(6) PROFOUND ISOLATION — an ever-present undercurrent of 'I am the only one who sees the world this way': the camera lingers on moments where everyone else seems to share an understanding that is completely invisible to this observer, a gap between self and world that cannot be bridged.\n" +
+    "SITUATION DIRECTING SYSTEM (always apply — classify FIRST, then direct):\n" +
+    "STEP 1 — Classify the situation across these 5 dimensions before writing a single frame:\n" +
+    "  SOCIAL STATE: Alone / One Familiar Person / One Stranger / Small Group (2-5) / Large Crowd\n" +
+    "  ENVIRONMENT: Enclosed Small Space / Enclosed Large Space / Open Natural Space / Urban / Transitional Space / Road-Traffic\n" +
+    "  ACTIVITY: Passive / Focused Task / Repetitive Action / Decision Making / Navigation / Interaction\n" +
+    "  CONTROL LEVEL: High Control / Partial Control / Low Control\n" +
+    "  PACING: Slow-Stretched / Irregular / Fast-Overloaded\n" +
+    "STEP 2 — Apply ALL matching directing rules from this table:\n" +
+    "  ALONE → environment becomes the main character, emptiness is tangible, time stretches, camera drifts to meaningless details with no focal point.\n" +
+    "  ONE FAMILIAR PERSON → subtle misalignment in gestures and timing, pauses feel heavy and loaded, expressions just slightly unreadable.\n" +
+    "  ONE STRANGER → presence feels disproportionately large, personal space invaded, unpredictable micro-movements, eye contact is an event.\n" +
+    "  SMALL GROUP → attention ricochets between faces, overlapping social cues, fragmented — impossible to track all threads simultaneously.\n" +
+    "  LARGE CROWD → complete loss of focal point, all faces equally overwhelming and equally unreadable, sense of being engulfed and erased.\n" +
+    "  ENCLOSED SMALL → walls feel closer than they are, textures repeat and dominate, space compresses under attention.\n" +
+    "  ENCLOSED LARGE → disorienting scale, repetitive architecture stretches in multiple directions, no clear center of gravity.\n" +
+    "  OPEN NATURAL → vastness creates detachment, no reference points anchor the body, environment is indifferent and boundless.\n" +
+    "  URBAN → continuous competing stimulation, no clean boundary between elements, background is always active and never neutral.\n" +
+    "  TRANSITIONAL → in-between quality, passing elements never fully resolve, no grounding, everything is temporary.\n" +
+    "  PASSIVE → time stagnates, attention drifts to irrelevant details, minimal change becomes magnified.\n" +
+    "  FOCUSED TASK → extreme over-focus on one detail, peripheral disruptions feel catastrophic, zoom in relentlessly on the task object.\n" +
+    "  REPETITIVE ACTION → the action's rhythm takes over the frame, becomes the visual heartbeat, other elements subordinate to the cycle.\n" +
+    "  HIGH CONTROL → environment is predictable, perception is stable, visual language is steady and coherent.\n" +
+    "  PARTIAL CONTROL → minor inconsistencies surface, a subtle wrongness accumulates, quiet tension in every frame.\n" +
+    "  LOW CONTROL → events feel arbitrary, environment shifts without cause, visual logic breaks, camera cannot anticipate anything.\n" +
+    "  SLOW PACING → moments are prolonged, delays between cause and effect, each frame lingers longer than comfortable.\n" +
+    "  IRREGULAR PACING → events arrive out of sync, rhythm disrupted, cuts feel mistimed, no reliable cadence.\n" +
+    "  FAST PACING → too rapid to process, actions overlap, no pause, compression of time into an unresolvable blur.\n" +
+    "STEP 3 — Weave ALL selected directing attributes together with every other rule above into one single unified video prompt paragraph. The classification must be invisible — only its effects appear in the final prompt.\n" +
     "Always photorealistic, first-person POV, not horror-genre, immersive and grounded."
   );
 }
