@@ -13,11 +13,62 @@ type ChatItem =
   | { role: "user"; text: string }
   | { role: "assistant"; text: string };
 
-const PRESETS = [
-  "Busy Supermarket",
-  "Loud Birthday Party",
-  "School Hallway Between Classes",
-  "Crowded Bus Ride",
+const SITUATION_BANK: { category: string; items: string[] }[] = [
+  {
+    category: "Daily Life",
+    items: [
+      "Waiting at the doctor's office",
+      "Supermarket with bright fluorescent lights",
+      "Morning routine disrupted",
+      "Eating at a noisy restaurant",
+      "Getting a haircut from a new person",
+      "Crowded public bathroom",
+    ],
+  },
+  {
+    category: "Social",
+    items: [
+      "Birthday party with strangers",
+      "Meeting someone new for the first time",
+      "Group conversation at school",
+      "Unexpected phone call",
+      "Being asked a question in front of the class",
+      "Family dinner with many relatives",
+    ],
+  },
+  {
+    category: "Sensory",
+    items: [
+      "Crowded mall on a weekend",
+      "Loud construction nearby",
+      "Scratchy clothing tag",
+      "Strong perfume in a small elevator",
+      "Sudden fire alarm",
+      "Flickering fluorescent light",
+    ],
+  },
+  {
+    category: "Change & Unexpected",
+    items: [
+      "Mom changed her haircut",
+      "Furniture moved at home",
+      "Different route to school",
+      "Plans cancelled last minute",
+      "Substitute teacher unexpectedly",
+      "Power outage at home",
+    ],
+  },
+  {
+    category: "Nature & Alone",
+    items: [
+      "Walking alone in a park",
+      "Beach with a crowd",
+      "Empty room at night",
+      "Forest path alone",
+      "Sitting by the sea at sunset",
+      "Thunderstorm outside",
+    ],
+  },
 ];
 
 function nowIso() {
@@ -52,6 +103,7 @@ export default function ChatPage() {
     if (!trimmed || processing) return;
 
     setProcessing(true);
+    setInput("");
     setItems((prev) => [...prev, { role: "user", text: trimmed }]);
     setItems((prev) => [
       ...prev,
@@ -111,8 +163,38 @@ export default function ChatPage() {
         </button>
       </header>
 
-      <main className="relative z-10 mx-auto flex w-full max-w-5xl flex-1 flex-col px-4 pb-16 pt-6 sm:px-6">
-        <div className="relative flex min-h-[560px] flex-1 flex-col overflow-hidden rounded-2xl border border-foreground/15">
+      <main className="relative z-10 mx-auto flex w-full max-w-5xl flex-1 flex-col px-4 pb-16 pt-2 sm:px-6">
+        {/* Situations bank */}
+        <div className="mb-4 space-y-3">
+          {SITUATION_BANK.map((group) => (
+            <div key={group.category}>
+              <div className="mb-2 text-[9px] uppercase tracking-[0.22em] opacity-40">
+                {group.category}
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {group.items.map((s) => (
+                  <button
+                    key={s}
+                    type="button"
+                    disabled={processing}
+                    onClick={() => setInput(s)}
+                    className={[
+                      "rounded border px-2.5 py-1 text-[10px] leading-5 tracking-[0.1em] transition-all",
+                      input === s
+                        ? "border-foreground/50 bg-foreground/10 opacity-100"
+                        : "border-foreground/15 opacity-60 hover:border-foreground/35 hover:opacity-100",
+                      processing ? "pointer-events-none opacity-30" : "",
+                    ].join(" ")}
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="relative flex min-h-[300px] flex-1 flex-col overflow-hidden rounded-2xl border border-foreground/15">
           <div className="pointer-events-none absolute inset-0 opacity-[0.06] [background-size:44px_44px] [background-image:linear-gradient(to_right,rgba(255,255,255,0.28)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.28)_1px,transparent_1px)]" />
 
           <div className="relative flex items-center justify-between border-b border-foreground/15 px-5 py-4">
@@ -166,20 +248,6 @@ export default function ChatPage() {
           </div>
 
           <div className="relative border-t border-foreground/15 px-5 py-4 sm:px-8">
-            <div className="mb-3 flex flex-wrap gap-2">
-              {PRESETS.map((p) => (
-                <button
-                  key={p}
-                  type="button"
-                  disabled={processing}
-                  onClick={() => sendSituation(p)}
-                  className="h-9 rounded-md border border-foreground/20 px-3 text-[11px] uppercase tracking-[0.22em] opacity-90 hover:border-foreground/35 disabled:opacity-40"
-                >
-                  {p}
-                </button>
-              ))}
-            </div>
-
             <form
               className="flex gap-2"
               onSubmit={(e) => {
@@ -192,7 +260,7 @@ export default function ChatPage() {
                 onChange={(e) => setInput(e.target.value)}
                 disabled={processing}
                 className="h-11 flex-1 rounded-md border border-foreground/20 bg-transparent px-3 text-sm outline-none focus:border-foreground/40 disabled:opacity-50"
-                placeholder="Type a situation…"
+                placeholder="Type a situation or pick one above…"
               />
               <button
                 type="submit"
@@ -208,4 +276,3 @@ export default function ChatPage() {
     </div>
   );
 }
-
