@@ -151,15 +151,10 @@ export default function ChatPage() {
 
         <button
           type="button"
-          aria-label="Open menu"
-          className="group inline-flex h-9 w-9 items-center justify-center rounded-md border border-foreground/15 bg-transparent hover:border-foreground/30"
+          onClick={() => router.push("/bank")}
+          className="text-[10px] uppercase tracking-[0.2em] opacity-60 hover:opacity-100 border border-foreground/20 rounded px-3 py-1.5 transition-all hover:border-foreground/40"
         >
-          <span className="sr-only">Menu</span>
-          <span className="flex flex-col gap-1">
-            <span className="h-px w-4 bg-foreground/80 transition-transform group-hover:translate-x-[1px]" />
-            <span className="h-px w-4 bg-foreground/80 transition-transform group-hover:translate-x-[-1px]" />
-            <span className="h-px w-4 bg-foreground/80 transition-transform group-hover:translate-x-[1px]" />
-          </span>
+          📁 Situation Bank
         </button>
       </header>
 
