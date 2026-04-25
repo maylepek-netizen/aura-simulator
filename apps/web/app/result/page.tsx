@@ -706,10 +706,17 @@ export default function ResultPage() {
 
   // Stimming pause
   const [stimmingPaused, setStimmingPaused] = useState(false);
+  // Reveal timeline: stimmingActive starts false, auto-enabled at T=30s
+  const [stimmingActive, setStimmingActive] = useState(false);
 
   // Environment sound
   const [envPlaying, setEnvPlaying] = useState(false);
   const envEngineRef = useRef<EnvironmentSoundEngine | null>(null);
+
+  // Timed reveal sequence
+  const [videoVisible, setVideoVisible] = useState(false);
+  const [showGenerating, setShowGenerating] = useState(false);
+  const revealTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   // History save
   const [saved, setSaved] = useState(false);
@@ -719,6 +726,7 @@ export default function ResultPage() {
       ambientEngineRef.current?.destroy();
       envEngineRef.current?.destroy();
       ttsAudioRef.current?.pause();
+      revealTimersRef.current.forEach(clearTimeout);
     };
   }, []);
 
@@ -732,6 +740,55 @@ export default function ResultPage() {
       void runSimulation();
     }
   }, []);
+
+  // Timed reveal sequence — fires once when simulation result arrives
+  useEffect(() => {
+    if (!result) return;
+    // Clear any previous timers
+    revealTimersRef.current.forEach(clearTimeout);
+    revealTimersRef.current = [];
+
+    // T=0: auto-start heartbeat
+    if (!ambientEngineRef.current) {
+      ambientEngineRef.current = new AmbientSoundEngine();
+    }
+    const auditoryType = detectAuditoryType(result.sensory_channels?.auditory ?? "");
+    ambientEngineRef.current.start(result.overall_load ?? 0, auditoryType);
+    setAmbientPlaying(true);
+
+    // T=15s: show "Generating visual…" indicator + auto-start env sound
+    const t15 = setTimeout(() => {
+      setShowGenerating(true);
+      if (!envEngineRef.current) {
+        envEngineRef.current = new EnvironmentSoundEngine();
+      }
+      envEngineRef.current.start(
+        snapshot.situation,
+        result.sensory_channels?.auditory ?? "",
+        result.overall_load ?? 0
+      );
+      setEnvPlaying(true);
+    }, 15000);
+
+    // T=30s: enable stimming on the video container
+    const t30 = setTimeout(() => {
+      setStimmingActive(true);
+    }, 30000);
+
+    revealTimersRef.current = [t15, t30];
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [result !== null]);
+
+  // Fade in video when it becomes available
+  useEffect(() => {
+    if (videoUrl) {
+      // Small delay to let the video element mount before transitioning
+      const t = setTimeout(() => setVideoVisible(true), 50);
+      return () => clearTimeout(t);
+    } else {
+      setVideoVisible(false);
+    }
+  }, [videoUrl]);
 
   // Auto-start narration when video begins playing
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -790,6 +847,11 @@ export default function ResultPage() {
     setVideoUri(null);
     setVideoLoading(false);
     setSaved(false);
+    setVideoVisible(false);
+    setShowGenerating(false);
+    setStimmingActive(false);
+    revealTimersRef.current.forEach(clearTimeout);
+    revealTimersRef.current = [];
     narrationStartedRef.current = false;
     stopNarration();
 
@@ -926,12 +988,11 @@ export default function ResultPage() {
 
   const load = result?.overall_load ?? 0;
 
-  const activeStimmingClass = stimmingPaused ? "" :
-    load > 39 && load <= 70 ? "stimming-medium" :
+  const activeStimmingClass = (!stimmingActive || stimmingPaused) ? "" :
     load > 70 ? "stimming-intense" :
-    load > 0 ? "stimming-slow" :
-    "";
-  const hasStimming = load > 0;
+    load > 39 ? "stimming-medium" :
+    "stimming-slow";
+  const hasStimming = stimmingActive;
 
   const anxiety = result ? Math.round((result.sensory_scores.auditory + result.sensory_scores.social) / 2 * 33) : 0;
   const socialLoad = result ? Math.round(result.sensory_scores.social * 33) : 0;
@@ -1138,10 +1199,15 @@ export default function ResultPage() {
 
             {/* CENTER - Video */}
             <div className={["relative rounded-xl overflow-hidden border border-foreground/15 bg-black min-h-[320px] lg:min-h-0", activeStimmingClass].join(" ")}>
-              {videoUrl ? (
+              {/* Black base — always present */}
+              <div className="absolute inset-0 bg-black" />
+
+              {/* Video — fades in when ready */}
+              {videoUrl && (
                 <video
                   ref={videoRef}
-                  className="absolute inset-0 w-full h-full object-cover"
+                  className="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000"
+                  style={{ opacity: videoVisible ? 1 : 0 }}
                   src={videoUrl}
                   autoPlay
                   loop
@@ -1149,15 +1215,19 @@ export default function ResultPage() {
                   playsInline
                   onPlay={handleVideoPlay}
                 />
-              ) : videoLoading ? (
-                <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black">
-                  <div className="h-5 w-5 rounded-full border border-white/20 border-t-white/70 animate-spin" />
-                  <div className="text-[9px] uppercase tracking-[0.2em] text-white/40 animate-pulse">
+              )}
+
+              {/* Generating indicator — appears at T=15s, hides when video arrives */}
+              {!videoUrl && showGenerating && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 pointer-events-none">
+                  <div
+                    className="h-3 w-3 animate-pulse"
+                    style={{ background: "rgba(255,255,255,0.15)" }}
+                  />
+                  <div className="text-[9px] uppercase tracking-[0.2em] text-white/30 animate-pulse">
                     Generating visual…
                   </div>
                 </div>
-              ) : (
-                <div className="absolute inset-0 bg-black" />
               )}
 
               {/* Overlay effects */}
