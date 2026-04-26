@@ -793,12 +793,26 @@ export default function ResultPage() {
   // Auto-start narration when video begins playing
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const narrationStartedRef = useRef(false);
+  const [videoLoopOpacity, setVideoLoopOpacity] = useState(1);
 
   const handleVideoPlay = useCallback(() => {
     if (narrationStartedRef.current || !result) return;
     narrationStartedRef.current = true;
     void startNarration(result);
   }, [result]);
+
+  const handleTimeUpdate = useCallback(() => {
+    const el = videoRef.current;
+    if (!el || !el.duration) return;
+    const remaining = el.duration - el.currentTime;
+    if (remaining <= 1.5) {
+      // Fade down toward end
+      setVideoLoopOpacity(0.7);
+    } else if (el.currentTime < 0.5) {
+      // Just looped — fade back up
+      setVideoLoopOpacity(1);
+    }
+  }, []);
 
   async function startNarration(r: SimulationResult) {
     if (audioPlaying) return;
@@ -1207,13 +1221,14 @@ export default function ResultPage() {
                 <video
                   ref={videoRef}
                   className="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000"
-                  style={{ opacity: videoVisible ? 1 : 0 }}
+                  style={{ opacity: videoVisible ? videoLoopOpacity : 0 }}
                   src={videoUrl}
                   autoPlay
                   loop
                   muted
                   playsInline
                   onPlay={handleVideoPlay}
+                  onTimeUpdate={handleTimeUpdate}
                 />
               )}
 
