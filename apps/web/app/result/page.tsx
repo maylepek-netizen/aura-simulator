@@ -227,27 +227,28 @@ class AmbientSoundEngine {
   }
 
   private startMachineAmbient(load: number) {
-    const vol = Math.min(0.25, 0.12 + (load / 100) * 0.13);
-    const beepFreq = 800 + Math.random() * 400; // 800–1200 Hz
-    const period = load > 70 ? 0.4 : load > 40 ? 0.9 : 1.8;
-    // Continuous oscillator gated by an LFO envelope
-    const osc = this.ctx.createOscillator();
-    osc.type = "sine";
-    osc.frequency.value = beepFreq;
+    // Low mechanical hum — brown noise through narrow lowpass, no electronic beeps
+    const vol = Math.min(0.22, 0.10 + (load / 100) * 0.12);
+    const brownSrc = this.makeBrownNoiseSource(4);
+    const lowpass = this.ctx.createBiquadFilter();
+    lowpass.type = "lowpass";
+    lowpass.frequency.value = 200;
+    lowpass.Q.value = 2;
     const lfo = this.ctx.createOscillator();
-    lfo.type = "square";
-    lfo.frequency.value = 1 / period;
+    lfo.type = "sine";
+    lfo.frequency.value = load > 70 ? 3 : 1.2;
     const lfoGain = this.ctx.createGain();
-    lfoGain.gain.value = vol / 2;
+    lfoGain.gain.value = 0.03;
     const masterGain = this.ctx.createGain();
-    masterGain.gain.value = vol / 2;
+    masterGain.gain.value = vol;
     lfo.connect(lfoGain);
     lfoGain.connect(masterGain.gain);
-    osc.connect(masterGain);
+    brownSrc.connect(lowpass);
+    lowpass.connect(masterGain);
     masterGain.connect(this.ctx.destination);
-    osc.start();
+    brownSrc.start();
     lfo.start();
-    this.ambientNodes.push(osc, lfo, lfoGain, masterGain);
+    this.ambientNodes.push(brownSrc, lowpass, lfo, lfoGain, masterGain);
   }
 
   private startQuietAmbient(load: number) {

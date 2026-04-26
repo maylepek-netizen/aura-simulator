@@ -80,6 +80,7 @@ export default function ChatPage() {
   const iso = useMemo(() => nowIso(), []);
   const [input, setInput] = useState("");
   const [processing, setProcessing] = useState(false);
+  const [showAllSuggestions, setShowAllSuggestions] = useState(false);
   const [items, setItems] = useState<ChatItem[]>([
     {
       role: "system",
@@ -159,36 +160,6 @@ export default function ChatPage() {
       </header>
 
       <main className="relative z-10 mx-auto flex w-full max-w-5xl flex-1 flex-col px-4 pb-16 pt-2 sm:px-6">
-        {/* Situations bank */}
-        <div className="mb-4 space-y-3">
-          {SITUATION_BANK.map((group) => (
-            <div key={group.category}>
-              <div className="mb-2 text-[9px] uppercase tracking-[0.22em] opacity-40">
-                {group.category}
-              </div>
-              <div className="flex flex-wrap gap-1.5">
-                {group.items.map((s) => (
-                  <button
-                    key={s}
-                    type="button"
-                    disabled={processing}
-                    onClick={() => setInput(s)}
-                    className={[
-                      "rounded border px-2.5 py-1 text-[10px] leading-5 tracking-[0.1em] transition-all",
-                      input === s
-                        ? "border-foreground/50 bg-foreground/10 opacity-100"
-                        : "border-foreground/15 opacity-60 hover:border-foreground/35 hover:opacity-100",
-                      processing ? "pointer-events-none opacity-30" : "",
-                    ].join(" ")}
-                  >
-                    {s}
-                  </button>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-
         <div className="relative flex min-h-[300px] flex-1 flex-col overflow-hidden rounded-2xl border border-foreground/15">
           <div className="pointer-events-none absolute inset-0 opacity-[0.06] [background-size:44px_44px] [background-image:linear-gradient(to_right,rgba(255,255,255,0.28)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.28)_1px,transparent_1px)]" />
 
@@ -255,7 +226,7 @@ export default function ChatPage() {
                 onChange={(e) => setInput(e.target.value)}
                 disabled={processing}
                 className="h-11 flex-1 rounded-md border border-foreground/20 bg-transparent px-3 text-sm outline-none focus:border-foreground/40 disabled:opacity-50"
-                placeholder="Type a situation or pick one above…"
+                placeholder="Describe a situation…"
               />
               <button
                 type="submit"
@@ -267,6 +238,45 @@ export default function ChatPage() {
             </form>
           </div>
         </div>
+
+        {/* Quick suggestions — below the input box */}
+        {!processing && (() => {
+          const allItems = SITUATION_BANK.flatMap((g) => g.items);
+          const visible = showAllSuggestions ? allItems : allItems.slice(0, 3);
+          return (
+            <div className="mt-3 px-1">
+              <div className="mb-2 flex items-center justify-between">
+                <span className="text-[9px] uppercase tracking-[0.2em] opacity-35">Quick suggestions</span>
+                {!showAllSuggestions && (
+                  <button
+                    type="button"
+                    onClick={() => setShowAllSuggestions(true)}
+                    className="text-[9px] uppercase tracking-[0.15em] opacity-35 hover:opacity-70 transition-opacity"
+                  >
+                    Show more →
+                  </button>
+                )}
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {visible.map((s) => (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => setInput(s)}
+                    className={[
+                      "rounded border px-2 py-0.5 text-[9px] leading-5 tracking-[0.08em] transition-all",
+                      input === s
+                        ? "border-foreground/40 bg-foreground/10 opacity-100"
+                        : "border-foreground/12 opacity-40 hover:border-foreground/30 hover:opacity-80",
+                    ].join(" ")}
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
+            </div>
+          );
+        })()}
       </main>
     </div>
   );
