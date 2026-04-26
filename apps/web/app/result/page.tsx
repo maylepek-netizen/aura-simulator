@@ -319,10 +319,18 @@ class EnvironmentSoundEngine {
     this.ctx = new AudioContext();
   }
 
-  // Volume scales with load: minimum 0.2, max ~0.8 at load=100
   private vol(load: number, base: number) {
-    const scale = Math.max(0.2, (load / 100) * 0.6);
-    return Math.min(1.0, base * (scale + 0.2 / base));
+    return Math.min(1.0, base * Math.max(0.4, 0.4 + (load / 100) * 0.6));
+  }
+
+  private makeWhiteNoise(seconds: number): AudioBufferSourceNode {
+    const sr = this.ctx.sampleRate;
+    const buf = this.ctx.createBuffer(1, Math.floor(sr * seconds), sr);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    const src = this.ctx.createBufferSource();
+    src.buffer = buf; src.loop = true;
+    return src;
   }
 
   private makeBrownNoise(seconds: number): AudioBufferSourceNode {
@@ -358,94 +366,216 @@ class EnvironmentSoundEngine {
     return src;
   }
 
-  // Children screaming/crying: high-pitched bursts 2000-4000Hz, sharp attack, random 0.5-2s
-  private addScreamLayer(load: number) {
-    const v = this.vol(load, 0.4);
+  // Alarm/siren/fire: oscillating 800-1200Hz, fast 2Hz oscillation, loud
+  private addAlarmLayer() {
+    const lfo = this.ctx.createOscillator();
+    lfo.type = "sine"; lfo.frequency.value = 2;
+    const lfoG = this.ctx.createGain(); lfoG.gain.value = 200;
+    const osc = this.ctx.createOscillator();
+    osc.type = "sine"; osc.frequency.value = 1000;
+    lfo.connect(lfoG); lfoG.connect(osc.frequency);
+    const master = this.ctx.createGain(); master.gain.value = 0.5;
+    osc.connect(master); master.connect(this.ctx.destination);
+    osc.start(); lfo.start();
+    this.nodes.push(osc, lfo, lfoG, master);
+  }
+
+  // Phone/notification: short 1000Hz tone repeating every 3s
+  private addPhoneLayer() {
     const scheduleNext = () => {
       if (!this.running) return;
       const now = this.ctx.currentTime;
-      const burstDur = 0.06 + Math.random() * 0.1;
-      const freq = 2000 + Math.random() * 2000;
-      const bufSize = Math.floor(this.ctx.sampleRate * burstDur);
+      const osc = this.ctx.createOscillator();
+      osc.type = "sine"; osc.frequency.value = 1000;
+      const g = this.ctx.createGain();
+      g.gain.setValueAtTime(0.35, now);
+      g.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+      osc.connect(g); g.connect(this.ctx.destination);
+      osc.start(now); osc.stop(now + 0.35);
+      this.nodes.push(osc, g);
+      const t = setTimeout(scheduleNext, 3000);
+      this.timeouts.push(t);
+    };
+    scheduleNext();
+  }
+
+  // Dog/animal: rhythmic mid-frequency noise bursts
+  private addDogLayer() {
+    const scheduleNext = () => {
+      if (!this.running) return;
+      const now = this.ctx.currentTime;
+      const dur = 0.08 + Math.random() * 0.06;
+      const bufSize = Math.floor(this.ctx.sampleRate * dur);
       const buf = this.ctx.createBuffer(1, bufSize, this.ctx.sampleRate);
       const d = buf.getChannelData(0);
       for (let i = 0; i < bufSize; i++) d[i] = Math.random() * 2 - 1;
-      const src = this.ctx.createBufferSource();
-      src.buffer = buf;
+      const src = this.ctx.createBufferSource(); src.buffer = buf;
       const bp = this.ctx.createBiquadFilter();
-      bp.type = "bandpass"; bp.frequency.value = freq; bp.Q.value = 3;
+      bp.type = "bandpass"; bp.frequency.value = 500 + Math.random() * 300; bp.Q.value = 2;
       const g = this.ctx.createGain();
-      g.gain.setValueAtTime(v, now);
-      g.gain.exponentialRampToValueAtTime(0.001, now + burstDur);
+      g.gain.setValueAtTime(0.3, now);
+      g.gain.exponentialRampToValueAtTime(0.001, now + dur);
       src.connect(bp); bp.connect(g); g.connect(this.ctx.destination);
-      src.start(now); src.stop(now + burstDur + 0.01);
+      src.start(now); src.stop(now + dur + 0.01);
       this.nodes.push(src, bp, g);
-      const interval = 500 + Math.random() * 1500;
+      const interval = 600 + Math.random() * 800;
       const t = setTimeout(scheduleNext, interval);
       this.timeouts.push(t);
     };
     scheduleNext();
   }
 
-  // Voice-like formant: 200Hz osc + bandpass modulated 3-8Hz → muffled speech feel
-  private addVoiceLayer(load: number) {
-    const v = this.vol(load, 0.25);
-    const osc = this.ctx.createOscillator();
-    osc.type = "sawtooth"; osc.frequency.value = 200;
-    const bp = this.ctx.createBiquadFilter();
-    bp.type = "bandpass"; bp.frequency.value = 800; bp.Q.value = 2;
-    const lfo = this.ctx.createOscillator();
-    lfo.frequency.value = 3 + Math.random() * 5;
-    const lfoG = this.ctx.createGain();
-    lfoG.gain.value = 400;
-    lfo.connect(lfoG); lfoG.connect(bp.frequency);
-    const master = this.ctx.createGain();
-    master.gain.value = v;
-    osc.connect(bp); bp.connect(master); master.connect(this.ctx.destination);
-    osc.start(); lfo.start();
-    this.nodes.push(osc, bp, lfo, lfoG, master);
+  // Music/radio: layered sine chord (root + fifth + octave) with slow rhythm
+  private addMusicLayer() {
+    const freqs = [220, 330, 440]; // A3 chord
+    for (const freq of freqs) {
+      const osc = this.ctx.createOscillator();
+      osc.type = "sine"; osc.frequency.value = freq;
+      const lfo = this.ctx.createOscillator();
+      lfo.type = "sine"; lfo.frequency.value = 0.8;
+      const lfoG = this.ctx.createGain(); lfoG.gain.value = 0.06;
+      const master = this.ctx.createGain(); master.gain.value = 0.12;
+      lfo.connect(lfoG); lfoG.connect(master.gain);
+      osc.connect(master); master.connect(this.ctx.destination);
+      osc.start(); lfo.start();
+      this.nodes.push(osc, lfo, lfoG, master);
+    }
   }
 
-  // Machines/beeping: alternating 800Hz/1200Hz tones every 1-3s
-  private addBeepAlternatingLayer(load: number) {
-    const v = this.vol(load, 0.2);
-    let toggle = false;
+  // Rain/storm: white noise through highpass + occasional low boom
+  private addRainLayer() {
+    const white = this.makeWhiteNoise(3);
+    const hp = this.ctx.createBiquadFilter();
+    hp.type = "highpass"; hp.frequency.value = 2000;
+    const master = this.ctx.createGain(); master.gain.value = 0.25;
+    white.connect(hp); hp.connect(master); master.connect(this.ctx.destination);
+    white.start();
+    this.nodes.push(white, hp, master);
+    // Occasional thunder
+    const scheduleThunder = () => {
+      if (!this.running) return;
+      const now = this.ctx.currentTime;
+      const dur = 0.4 + Math.random() * 0.3;
+      const osc = this.ctx.createOscillator();
+      osc.type = "sine"; osc.frequency.value = 40 + Math.random() * 30;
+      const g = this.ctx.createGain();
+      g.gain.setValueAtTime(0.4, now);
+      g.gain.exponentialRampToValueAtTime(0.001, now + dur);
+      osc.connect(g); g.connect(this.ctx.destination);
+      osc.start(now); osc.stop(now + dur + 0.01);
+      this.nodes.push(osc, g);
+      const t = setTimeout(scheduleThunder, 6000 + Math.random() * 10000);
+      this.timeouts.push(t);
+    };
+    scheduleThunder();
+  }
+
+  // Wind: brown noise through slowly sweeping bandpass
+  private addWindLayer() {
+    const brown = this.makeBrownNoise(4);
+    const bp = this.ctx.createBiquadFilter();
+    bp.type = "bandpass"; bp.frequency.value = 400; bp.Q.value = 0.5;
+    const lfo = this.ctx.createOscillator();
+    lfo.type = "sine"; lfo.frequency.value = 0.15;
+    const lfoG = this.ctx.createGain(); lfoG.gain.value = 250;
+    lfo.connect(lfoG); lfoG.connect(bp.frequency);
+    const master = this.ctx.createGain(); master.gain.value = 0.3;
+    brown.connect(bp); bp.connect(master); master.connect(this.ctx.destination);
+    brown.start(); lfo.start();
+    this.nodes.push(brown, bp, lfo, lfoG, master);
+  }
+
+  // Crying/baby: high-pitched modulated tone
+  private addCryingLayer() {
+    const osc = this.ctx.createOscillator();
+    osc.type = "sine"; osc.frequency.value = 600;
+    const lfo = this.ctx.createOscillator();
+    lfo.type = "sine"; lfo.frequency.value = 4;
+    const lfoG = this.ctx.createGain(); lfoG.gain.value = 150;
+    lfo.connect(lfoG); lfoG.connect(osc.frequency);
+    const lfo2 = this.ctx.createOscillator();
+    lfo2.type = "sine"; lfo2.frequency.value = 0.5;
+    const lfoG2 = this.ctx.createGain(); lfoG2.gain.value = 0.15;
+    const master = this.ctx.createGain(); master.gain.value = 0.25;
+    lfo2.connect(lfoG2); lfoG2.connect(master.gain);
+    osc.connect(master); master.connect(this.ctx.destination);
+    osc.start(); lfo.start(); lfo2.start();
+    this.nodes.push(osc, lfo, lfoG, lfo2, lfoG2, master);
+  }
+
+  // Typing/keyboard: rapid short noise bursts at 2-3Hz
+  private addTypingLayer() {
+    const rate = 2 + Math.random();
     const scheduleNext = () => {
       if (!this.running) return;
       const now = this.ctx.currentTime;
-      const freq = toggle ? 800 : 1200;
-      toggle = !toggle;
-      const osc = this.ctx.createOscillator();
-      osc.type = "sine"; osc.frequency.value = freq;
+      const dur = 0.012 + Math.random() * 0.008;
+      const bufSize = Math.floor(this.ctx.sampleRate * dur);
+      const buf = this.ctx.createBuffer(1, bufSize, this.ctx.sampleRate);
+      const d = buf.getChannelData(0);
+      for (let i = 0; i < bufSize; i++) d[i] = Math.random() * 2 - 1;
+      const src = this.ctx.createBufferSource(); src.buffer = buf;
+      const bp = this.ctx.createBiquadFilter();
+      bp.type = "bandpass"; bp.frequency.value = 3000 + Math.random() * 2000; bp.Q.value = 1;
       const g = this.ctx.createGain();
-      g.gain.setValueAtTime(v, now);
-      g.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
-      osc.connect(g); g.connect(this.ctx.destination);
-      osc.start(now); osc.stop(now + 0.15);
-      this.nodes.push(osc, g);
-      const interval = 1000 + Math.random() * 2000;
+      g.gain.setValueAtTime(0.2, now);
+      g.gain.exponentialRampToValueAtTime(0.001, now + dur);
+      src.connect(bp); bp.connect(g); g.connect(this.ctx.destination);
+      src.start(now); src.stop(now + dur + 0.005);
+      this.nodes.push(src, bp, g);
+      const interval = (1000 / rate) * (0.8 + Math.random() * 0.4);
       const t = setTimeout(scheduleNext, interval);
       this.timeouts.push(t);
     };
     scheduleNext();
   }
 
-  // Crowd/mall: low rumble + mid noise + random voice bursts
-  private addCrowdFullLayer(load: number) {
-    const v = this.vol(load, 0.3);
-    // Low rumble
+  // Door/knock: low thump, occasional
+  private addDoorLayer() {
+    const scheduleNext = () => {
+      if (!this.running) return;
+      const now = this.ctx.currentTime;
+      const osc = this.ctx.createOscillator();
+      osc.type = "sine"; osc.frequency.value = 80;
+      osc.frequency.exponentialRampToValueAtTime(40, now + 0.12);
+      const g = this.ctx.createGain();
+      g.gain.setValueAtTime(0.5, now);
+      g.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+      osc.connect(g); g.connect(this.ctx.destination);
+      osc.start(now); osc.stop(now + 0.2);
+      this.nodes.push(osc, g);
+      const t = setTimeout(scheduleNext, 4000 + Math.random() * 6000);
+      this.timeouts.push(t);
+    };
+    scheduleNext();
+  }
+
+  // Vacuum/appliance: constant medium-frequency drone
+  private addVacuumLayer() {
+    const osc = this.ctx.createOscillator();
+    osc.type = "sawtooth"; osc.frequency.value = 180;
+    const lp = this.ctx.createBiquadFilter();
+    lp.type = "lowpass"; lp.frequency.value = 600;
+    const master = this.ctx.createGain(); master.gain.value = 0.22;
+    osc.connect(lp); lp.connect(master); master.connect(this.ctx.destination);
+    osc.start();
+    this.nodes.push(osc, lp, master);
+  }
+
+  // Crowd/mall: low rumble + mid noise + voice bursts
+  private addCrowdLayer(load: number) {
+    const v = this.vol(load, 0.28);
     const brown = this.makeBrownNoise(4);
     const lp = this.ctx.createBiquadFilter();
     lp.type = "lowpass"; lp.frequency.value = 300;
     const lfo = this.ctx.createOscillator();
-    lfo.frequency.value = 0.5 + Math.random() * 2.5;
-    const lfoG = this.ctx.createGain(); lfoG.gain.value = 0.06;
+    lfo.frequency.value = 0.5 + Math.random() * 2;
+    const lfoG = this.ctx.createGain(); lfoG.gain.value = 0.05;
     const rumbleG = this.ctx.createGain(); rumbleG.gain.value = v;
     lfo.connect(lfoG); lfoG.connect(rumbleG.gain);
     brown.connect(lp); lp.connect(rumbleG); rumbleG.connect(this.ctx.destination);
     brown.start(); lfo.start();
     this.nodes.push(brown, lp, lfo, lfoG, rumbleG);
-    // Mid noise
     const pink = this.makePinkNoise(3);
     const bp = this.ctx.createBiquadFilter();
     bp.type = "bandpass"; bp.frequency.value = 600; bp.Q.value = 0.8;
@@ -453,70 +583,37 @@ class EnvironmentSoundEngine {
     pink.connect(bp); bp.connect(midG); midG.connect(this.ctx.destination);
     pink.start();
     this.nodes.push(pink, bp, midG);
-    // Occasional voice bursts
-    this.addVoiceBursts(load);
-  }
-
-  private addVoiceBursts(load: number) {
-    const v = this.vol(load, 0.15);
-    const scheduleNext = () => {
+    // Voice bursts
+    const scheduleVoice = () => {
       if (!this.running) return;
       const now = this.ctx.currentTime;
-      const dur = 0.1 + Math.random() * 0.2;
+      const dur = 0.08 + Math.random() * 0.2;
       const bufSize = Math.floor(this.ctx.sampleRate * dur);
       const buf = this.ctx.createBuffer(1, bufSize, this.ctx.sampleRate);
       const d = buf.getChannelData(0);
       for (let i = 0; i < bufSize; i++) d[i] = Math.random() * 2 - 1;
       const src = this.ctx.createBufferSource(); src.buffer = buf;
-      const bp = this.ctx.createBiquadFilter();
-      bp.type = "bandpass"; bp.frequency.value = 300 + Math.random() * 500; bp.Q.value = 2;
+      const vbp = this.ctx.createBiquadFilter();
+      vbp.type = "bandpass"; vbp.frequency.value = 300 + Math.random() * 500; vbp.Q.value = 2;
       const g = this.ctx.createGain();
-      g.gain.setValueAtTime(0, now);
-      g.gain.linearRampToValueAtTime(v, now + 0.02);
+      g.gain.setValueAtTime(v * 0.6, now);
       g.gain.exponentialRampToValueAtTime(0.001, now + dur);
-      src.connect(bp); bp.connect(g); g.connect(this.ctx.destination);
+      src.connect(vbp); vbp.connect(g); g.connect(this.ctx.destination);
       src.start(now); src.stop(now + dur + 0.01);
-      this.nodes.push(src, bp, g);
-      const interval = 600 + Math.random() * 1400;
-      const t = setTimeout(scheduleNext, interval);
+      this.nodes.push(src, vbp, g);
+      const t = setTimeout(scheduleVoice, 500 + Math.random() * 1500);
       this.timeouts.push(t);
     };
-    scheduleNext();
+    scheduleVoice();
   }
 
-  // Music/party: bass pulse at 120BPM + mid noise
-  private addPartyLayer(load: number) {
-    const v = this.vol(load, 0.35);
-    const osc = this.ctx.createOscillator();
-    osc.type = "sine"; osc.frequency.value = 60;
-    const gate = this.ctx.createOscillator();
-    gate.type = "square"; gate.frequency.value = 2; // 120BPM = 2Hz
-    const gateG = this.ctx.createGain(); gateG.gain.value = v * 0.5;
-    const lp = this.ctx.createBiquadFilter();
-    lp.type = "lowpass"; lp.frequency.value = 120;
-    const master = this.ctx.createGain(); master.gain.value = v * 0.5;
-    gate.connect(gateG); gateG.connect(master.gain);
-    osc.connect(lp); lp.connect(master); master.connect(this.ctx.destination);
-    osc.start(); gate.start();
-    this.nodes.push(osc, gate, gateG, lp, master);
-    // Mid noise layer
-    const pink = this.makePinkNoise(3);
-    const bp = this.ctx.createBiquadFilter();
-    bp.type = "bandpass"; bp.frequency.value = 500; bp.Q.value = 1;
-    const midG = this.ctx.createGain(); midG.gain.value = v * 0.3;
-    pink.connect(bp); bp.connect(midG); midG.connect(this.ctx.destination);
-    pink.start();
-    this.nodes.push(pink, bp, midG);
-  }
-
-  // Traffic/outside: low rumble 40-100Hz with slow random amplitude changes
+  // Traffic: low rumble + road noise
   private addTrafficLayer(load: number) {
-    const v = this.vol(load, 0.3);
+    const v = this.vol(load, 0.28);
     const osc = this.ctx.createOscillator();
     osc.type = "sawtooth"; osc.frequency.value = 55 + Math.random() * 30;
     const lp = this.ctx.createBiquadFilter();
     lp.type = "lowpass"; lp.frequency.value = 100;
-    // Slow amplitude wobble (0.1-0.3Hz = slow vehicle passing)
     const lfo = this.ctx.createOscillator();
     lfo.frequency.value = 0.1 + Math.random() * 0.2;
     const lfoG = this.ctx.createGain(); lfoG.gain.value = v * 0.4;
@@ -525,49 +622,24 @@ class EnvironmentSoundEngine {
     osc.connect(lp); lp.connect(master); master.connect(this.ctx.destination);
     osc.start(); lfo.start();
     this.nodes.push(osc, lp, lfo, lfoG, master);
-    // Higher freq road noise
     const brown = this.makeBrownNoise(4);
     const bp = this.ctx.createBiquadFilter();
     bp.type = "bandpass"; bp.frequency.value = 200; bp.Q.value = 0.5;
-    const roadG = this.ctx.createGain(); roadG.gain.value = v * 0.25;
+    const roadG = this.ctx.createGain(); roadG.gain.value = v * 0.2;
     brown.connect(bp); bp.connect(roadG); roadG.connect(this.ctx.destination);
     brown.start();
     this.nodes.push(brown, bp, roadG);
   }
 
-  // Quiet/home: very soft pink noise + occasional creak (low-freq burst)
-  private addQuietLayer(load: number) {
-    const v = this.vol(load, 0.05);
+  // Quiet fallback
+  private addQuietLayer() {
     const pink = this.makePinkNoise(5);
     const lp = this.ctx.createBiquadFilter();
-    lp.type = "lowpass"; lp.frequency.value = 600;
-    const master = this.ctx.createGain(); master.gain.value = v;
+    lp.type = "lowpass"; lp.frequency.value = 500;
+    const master = this.ctx.createGain(); master.gain.value = 0.04;
     pink.connect(lp); lp.connect(master); master.connect(this.ctx.destination);
     pink.start();
     this.nodes.push(pink, lp, master);
-    // Occasional creak
-    const scheduleCreak = () => {
-      if (!this.running) return;
-      const now = this.ctx.currentTime;
-      const dur = 0.08 + Math.random() * 0.1;
-      const bufSize = Math.floor(this.ctx.sampleRate * dur);
-      const buf = this.ctx.createBuffer(1, bufSize, this.ctx.sampleRate);
-      const d = buf.getChannelData(0);
-      for (let i = 0; i < bufSize; i++) d[i] = Math.random() * 2 - 1;
-      const src = this.ctx.createBufferSource(); src.buffer = buf;
-      const bp = this.ctx.createBiquadFilter();
-      bp.type = "bandpass"; bp.frequency.value = 200 + Math.random() * 300; bp.Q.value = 5;
-      const g = this.ctx.createGain();
-      g.gain.setValueAtTime(v * 1.5, now);
-      g.gain.exponentialRampToValueAtTime(0.001, now + dur);
-      src.connect(bp); bp.connect(g); g.connect(this.ctx.destination);
-      src.start(now); src.stop(now + dur + 0.01);
-      this.nodes.push(src, bp, g);
-      const interval = 4000 + Math.random() * 8000;
-      const t = setTimeout(scheduleCreak, interval);
-      this.timeouts.push(t);
-    };
-    scheduleCreak();
   }
 
   start(situation: string, auditory: string, load: number) {
@@ -575,29 +647,61 @@ class EnvironmentSoundEngine {
     this.running = true;
     if (this.ctx.state === "suspended") this.ctx.resume();
 
-    const combined = (situation + " " + auditory).toLowerCase();
-    let layerAdded = false;
+    // Scan both situation and auditory in one combined string (Hebrew + English)
+    const t = (situation + " " + auditory).toLowerCase();
+    let matched = false;
 
-    if (/scream|cry|crying|shriek|yell|children scream/.test(combined)) {
-      this.addScreamLayer(load); layerAdded = true;
+    // Priority 1: alarm/siren/fire (loudest, most urgent)
+    if (/alarm|siren|fire|smoke|אזעק|אש|עשן|צופר|חירום|פצצ/.test(t)) {
+      this.addAlarmLayer(); matched = true;
     }
-    if (/talk|voice|voices|speaking|person.*talk|conversation/.test(combined)) {
-      this.addVoiceLayer(load); layerAdded = true;
+    // Phone/notification
+    if (/phone|ring|notification|call|buzz|טלפון|צלצול|הודעה|שיחה/.test(t)) {
+      this.addPhoneLayer(); matched = true;
     }
-    if (/beep|alarm|machine|mechanical|click|buzz|bleep/.test(combined)) {
-      this.addBeepAlternatingLayer(load); layerAdded = true;
+    // Dog/animal
+    if (/dog|bark|animal|cat|bird|כלב|נביחה|חתול|ציפור|חיה/.test(t)) {
+      this.addDogLayer(); matched = true;
     }
-    if (/crowd|mall|store|shop|supermarket|restaurant|cafe|people/.test(combined)) {
-      this.addCrowdFullLayer(load); layerAdded = true;
+    // Music/song/radio
+    if (/music|song|radio|sing|melody|מוזיקה|שיר|רדיו|שירה|מנגינה/.test(t)) {
+      this.addMusicLayer(); matched = true;
     }
-    if (/music|party|birthday|celebrat|bass|loud music/.test(combined)) {
-      this.addPartyLayer(load); layerAdded = true;
+    // Rain/storm/thunder
+    if (/rain|storm|thunder|lightning|גשם|סופה|רעם|ברק|מטר/.test(t)) {
+      this.addRainLayer(); matched = true;
     }
-    if (/traffic|car|street|outside|road|bus|train|transport/.test(combined)) {
-      this.addTrafficLayer(load); layerAdded = true;
+    // Wind
+    if (/wind|breeze|gust|רוח|נשיבה/.test(t)) {
+      this.addWindLayer(); matched = true;
     }
-    if (!layerAdded || /quiet|silent|home|alone|calm/.test(combined)) {
-      this.addQuietLayer(load);
+    // Crying/baby/infant
+    if (/cry|crying|baby|infant|sob|wail|בכי|תינוק|יילוד|יבבה/.test(t)) {
+      this.addCryingLayer(); matched = true;
+    }
+    // Typing/keyboard
+    if (/typing|keyboard|type|click|מקלדת|הקלדה/.test(t)) {
+      this.addTypingLayer(); matched = true;
+    }
+    // Door/knock
+    if (/door|knock|דלת|דפיקה|דפק/.test(t)) {
+      this.addDoorLayer(); matched = true;
+    }
+    // Vacuum/appliance
+    if (/vacuum|appliance|drill|blender|שואב|מכשיר|מקדחה|מיקסר/.test(t)) {
+      this.addVacuumLayer(); matched = true;
+    }
+    // Crowd/people
+    if (/crowd|mall|supermarket|restaurant|cafe|store|shop|people|קהל|קניון|סופר|מסעדה|בית קפה|אנשים/.test(t)) {
+      this.addCrowdLayer(load); matched = true;
+    }
+    // Traffic/vehicles
+    if (/traffic|car|street|road|bus|train|transport|תנועה|רחוב|אוטובוס|רכב|כביש/.test(t)) {
+      this.addTrafficLayer(load); matched = true;
+    }
+    // Fallback
+    if (!matched) {
+      this.addQuietLayer();
     }
   }
 
