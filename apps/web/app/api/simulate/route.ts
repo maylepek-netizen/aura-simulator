@@ -151,7 +151,7 @@ function buildSchema(age: number, gender: string, situation: string): string {
     '  "overall_load": 0,\n' +
     '  "visual_effect": "glitch_heavy",\n' +
     '  "scene_caption": "10-15 word ' + captionVoice(gender) + ', describing this exact moment in the situation",\n' +
-    '  "video_prompt": "' + buildVideoPromptInstructions(age, gender, situation).replace(/"/g, "'") + '",\n' +
+    '  "video_prompt": "' + buildVideoPromptInstructions(age, gender, situation).replace(/"/g, "'").replace(/[\r\n\t]/g, " ").replace(/  +/g, " ") + '",\n' +
     '  "monologue": ["thought1","thought2","thought3","thought4","thought5","thought6","thought7","thought8"],\n' +
     '  "sensory_channels": { "auditory": "description", "visual": "description", "tactile": "description", "interoception": "description" },\n' +
     '  "emotions": ["emotion1","emotion2","emotion3"],\n' +
