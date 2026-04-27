@@ -44,31 +44,6 @@ function buildVideoPromptInstructions(age: number, gender: string, situation: st
     "The entire video is one continuous slow drift with NO narrative arc, no beginning-middle-end structure. " +
     "Think of it as a 5-second window cut from an infinite loop — the last frame must visually match the first frame so the loop is completely invisible. " +
     "NO action that concludes. NO gesture that resolves. NO movement that arrives anywhere. The video simply IS, suspended in time.\n\n" +
-    "CONSISTENT CAMERA HEIGHT (absolute rule): The camera height NEVER changes throughout the entire video. " +
-    cameraHeight(age) + " — this height is locked for every single frame. " +
-    "No cuts to floor level, ceiling level, or any other height. The camera may drift and rotate slowly but always from the same height. Any cut that changes the camera height is forbidden.\n\n" +
-    "NO CUTS (absolute rule): The video must be ONE continuous slow drift with NO cuts whatsoever. No editing, no jump cuts, no scene changes. " +
-    "The camera moves like a person who is standing or moving slowly — smooth, continuous, weighted. The camera never teleports to a new position.\n\n" +
-    "SINGLE SCENE (absolute rule): The entire video takes place in ONE location. The camera never leaves the scene. " +
-    "It may drift, rotate, or focus on different details within the same space — but it never cuts to a different location.\n\n" +
-    "MONOLOGUE-TO-VISUAL TRANSLATION (critical): The video_prompt must be a direct visual translation of the monologue field. " +
-    "Read the monologue thoughts and translate each one into what the camera would see and focus on. " +
-    "If the monologue says 'the lights are too bright' — the camera lingers on overexposed lights. " +
-    "If it says 'I can't find the exit' — the camera drifts searching without finding. " +
-    "If it says 'her face looks wrong' — the camera focuses on a face that appears slightly distorted. " +
-    "The video IS the visual stream of consciousness of the monologue.\n\n" +
-    "SCENE STRUCTURE — COHERENT VISUAL STORY (always apply): The video must show a COMPLETE SCENE, not just one isolated detail. Follow this arc: " +
-    "(1) ESTABLISHING — first 1-2 seconds: show WHERE we are. Wide or mid shot, enough to understand the full space and situation. The viewer must understand the location and what is happening within 2 seconds. " +
-    "(2) DRIFT — camera slowly moves to details that support the emotional experience: textures, faces, objects, light sources that reflect the internal state. " +
-    "(3) RETURN — camera drifts back to a wider or mid shot, grounding us again in the space. " +
-    "(4) OBSESSIVE DETAIL — camera returns to the most disturbing or overwhelming element, lingering, unable to look away. " +
-    "Arc rhythm: WIDE → DETAIL → WIDE → OBSESSIVE DETAIL. Never start on an extreme close-up with no context.\n\n" +
-    "CHANGE/DISRUPTION SCENE DIRECTING (apply when situation involves moved objects, rearranged furniture, altered home, changed appearance, or anything 'wrong' in a familiar space): " +
-    "Start with the person's POV entering or scanning the familiar space — we see the WHOLE ROOM first, enough to recognise it as a known place. " +
-    "Camera scans slowly and then STOPS and HESITATES on the element that is wrong — a chair in the wrong position, a missing object, rearranged furniture, a face with a new haircut. " +
-    "The wrong element receives obsessive focus — camera drifts away to familiar correct elements, then is pulled back to the wrong element involuntarily, again and again. " +
-    "Familiar correct elements appear in warmer colour grading; the wrong element appears slightly desaturated, cold, slightly out of focus — like a foreign object in a known world. " +
-    "Never show ONLY a close-up of the wrong object in isolation — always provide the surrounding context so the viewer understands what should be there instead.\n\n" +
     "Write a specific Veo video prompt for THIS exact situation: \"" + situation + "\". " +
     "The prompt MUST include ALL of the following elements woven into one vivid paragraph:\n" +
     "CAMERA HEIGHT: " + cameraHeight(age) + ".\n" +
