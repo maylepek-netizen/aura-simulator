@@ -1058,300 +1058,282 @@ export default function ResultPage() {
         </div>
       )}
 
-      {/* Main result */}
+      {/* Main result — full-height three-column layout */}
       {result && !loading && (
-        <div className="flex flex-col flex-1 px-4 pb-8 pt-4 sm:px-6 gap-3">
+        <div className="flex flex-1 overflow-hidden" style={{ height: "calc(100vh - 57px)" }}>
 
-          {/* Top meters bar */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 px-1">
-            <Meter label="Sensory Load" value={load} color={load > 70 ? "#e05c5c" : load > 45 ? "#c8a882" : "#5ce08c"} />
-            <Meter label="Anxiety" value={anxiety} color="#e08c5c" />
-            <Meter label="Social Load" value={socialLoad} color="#8c5ce0" />
-            <Meter label="Masking" value={maskingLoad} color="#5c8ce0" />
-          </div>
+          {/* ── LEFT COLUMN ─────────────────────────────────────── */}
+          <div className="flex flex-col w-[175px] shrink-0 border-r border-foreground/10 bg-background">
 
-          {/* Main grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-[240px_1fr_240px] gap-3 flex-1">
-
-            {/* LEFT PANEL - Thoughts + Audio controls */}
-            <div className="flex flex-col gap-3">
-              <Panel title="Internal Monologue" icon="💭" defaultOpen={false}>
-                <div className="space-y-2">
-                  {result.monologue.map((t, i) => (
-                    <div key={i} className="text-[11px] leading-5 opacity-75 border-l border-foreground/15 pl-2">
-                      {t}
-                    </div>
-                  ))}
-                </div>
-              </Panel>
-
-              {/* Narration button (Gemini TTS) */}
+            {/* Sound indicators — stacked pills */}
+            <div className="flex flex-col gap-0 border-b border-foreground/10">
+              {/* Heartbeat */}
+              <div className={[
+                "flex items-center gap-2.5 px-4 py-3.5 border-b border-foreground/8 text-[10px] tracking-[0.12em] uppercase transition-colors",
+                ambientPlaying ? "bg-red-950/40 text-red-300" : "text-foreground/40",
+              ].join(" ")}>
+                <span className={ambientPlaying ? "animate-pulse" : ""}>♥</span>
+                <span>Sounds of Heart beat</span>
+              </div>
+              {/* Environment */}
+              <div className={[
+                "flex items-center gap-2.5 px-4 py-3.5 border-b border-foreground/8 text-[10px] tracking-[0.12em] uppercase transition-colors",
+                envPlaying ? "bg-green-950/40 text-green-300" : "text-foreground/40",
+              ].join(" ")}>
+                <span className={envPlaying ? "animate-pulse" : ""}>◎</span>
+                <span>Sounds of environment</span>
+              </div>
+              {/* Narration — clickable */}
               <button
                 type="button"
                 onClick={toggleNarration}
                 className={[
-                  "flex items-center justify-center gap-2 rounded-lg border px-4 py-3 text-[10px] uppercase tracking-[0.2em] transition-all",
-                  audioPlaying
-                    ? "border-white/40 bg-white/10 text-white"
-                    : "border-foreground/20 opacity-60 hover:opacity-100",
+                  "flex items-center gap-2.5 px-4 py-3.5 border-b border-foreground/8 text-[10px] tracking-[0.12em] uppercase text-left transition-colors hover:bg-foreground/5",
+                  audioPlaying ? "bg-blue-950/40 text-blue-300" : "text-foreground/40",
                 ].join(" ")}
               >
-                <span className={["text-base", audioPlaying ? "animate-pulse" : ""].join(" ")}>💭</span>
-                {audioPlaying ? "Playing…" : "Play thoughts"}
+                <span className={audioPlaying ? "animate-pulse" : ""}>◈</span>
+                <span>{audioPlaying ? "Playing…" : "Sounds of inner thoughts"}</span>
               </button>
-
-              {/* Heartbeat indicator — display only */}
-              <div
-                className={[
-                  "flex items-center justify-center gap-2 rounded-lg border px-4 py-3 text-[10px] uppercase tracking-[0.2em]",
-                  ambientPlaying
-                    ? "border-red-400/60 bg-red-400/10 text-red-300"
-                    : "border-foreground/20 opacity-40",
-                ].join(" ")}
-              >
-                <span className={["text-base", ambientPlaying ? "animate-pulse" : ""].join(" ")}>♥</span>
-                {ambientPlaying ? "Heartbeat" : "Heartbeat"}
+              {/* Stimming */}
+              <div className={[
+                "flex items-center gap-2.5 px-4 py-3.5 text-[10px] tracking-[0.12em] uppercase transition-colors",
+                hasStimming && !stimmingPaused ? "bg-purple-950/40 text-purple-300" : "text-foreground/40",
+              ].join(" ")}>
+                <span className={hasStimming && !stimmingPaused ? "animate-pulse" : ""}>⟳</span>
+                <span>Rocking movements</span>
               </div>
+            </div>
 
-              {/* Environment sound indicator — display only */}
-              <div
-                className={[
-                  "flex items-center justify-center gap-2 rounded-lg border px-4 py-3 text-[10px] uppercase tracking-[0.2em]",
-                  envPlaying
-                    ? "border-green-400/60 bg-green-400/10 text-green-300"
-                    : "border-foreground/20 opacity-40",
-                ].join(" ")}
-              >
-                <span className={["text-base", envPlaying ? "animate-pulse" : ""].join(" ")}>🌍</span>
-                {envPlaying ? "Environment" : "Environment"}
-              </div>
-
-              {/* Stimming pause button — only visible when stimming is active */}
-              {hasStimming && (
-                <button
-                  type="button"
-                  onClick={() => setStimmingPaused((v) => !v)}
-                  className={[
-                    "flex items-center justify-center gap-2 rounded-lg border px-4 py-3 text-[10px] uppercase tracking-[0.2em] transition-all",
-                    stimmingPaused
-                      ? "border-foreground/40 opacity-80"
-                      : "border-foreground/20 opacity-60 hover:opacity-100",
-                  ].join(" ")}
-                >
-                  <span className="text-base">⟳</span>
-                  {stimmingPaused ? "Resume stimming" : "Pause stimming"}
-                </button>
-              )}
-
-              <Panel title="Coping Actions" icon="🛡" defaultOpen={false}>
-                <ul className="space-y-2">
+            {/* Monologue scroll */}
+            <div className="flex-1 overflow-y-auto px-4 py-3">
+              <div className="text-[10px] leading-[1.8] text-foreground/50 space-y-1">
+                {result.monologue.map((t, i) => (
+                  <p key={i}>{t}</p>
+                ))}
+                {/* Coping actions appended */}
+                <div className="mt-4 pt-3 border-t border-foreground/10 space-y-1">
                   {result.coping_actions.map((a, i) => (
-                    <li key={i} className="text-[11px] leading-5 opacity-75 border-l border-foreground/15 pl-2">
-                      {a}
-                    </li>
+                    <p key={i} className="opacity-60">{a}</p>
                   ))}
-                </ul>
-              </Panel>
+                </div>
+              </div>
             </div>
 
-            {/* CENTER - Video */}
-            <div className={["relative rounded-xl overflow-hidden border border-foreground/15 bg-black min-h-[320px] lg:min-h-0", activeStimmingClass].join(" ")}>
-              {/* Black base — always present */}
-              <div className="absolute inset-0 bg-black" />
-
-              {/* Video — fades in when ready */}
-              {videoUrl && (
-                <video
-                  ref={videoRef}
-                  className="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000"
-                  style={{ opacity: videoVisible ? videoLoopOpacity : 0 }}
-                  src={videoUrl}
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
-                  onPlay={handleVideoPlay}
-                  onTimeUpdate={handleTimeUpdate}
-                />
-              )}
-
-              {/* Generating indicator — appears at T=15s, hides when video arrives */}
-              {!videoUrl && showGenerating && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 pointer-events-none">
-                  <div
-                    className="h-3 w-3 animate-pulse"
-                    style={{ background: "rgba(255,255,255,0.15)" }}
-                  />
-                  <div className="text-[9px] uppercase tracking-[0.2em] text-white/30 animate-pulse">
-                    Generating visual…
-                  </div>
-                </div>
-              )}
-
-              {/* Overlay effects */}
-              {videoUrl && (
-                <>
-                  <div
-                    className="pointer-events-none absolute inset-0"
-                    style={{
-                      background: `rgba(220,80,80,${load / 800})`,
-                      transform: `translateX(${load / 30}px)`,
-                      mixBlendMode: "screen",
-                    }}
-                  />
-                  <div
-                    className="pointer-events-none absolute inset-0"
-                    style={{
-                      background: `rgba(80,130,220,${load / 800})`,
-                      transform: `translateX(-${load / 30}px)`,
-                      mixBlendMode: "screen",
-                    }}
-                  />
-                  <div
-                    className="pointer-events-none absolute inset-0"
-                    style={{
-                      background: "radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.75) 100%)",
-                    }}
-                  />
-                </>
-              )}
-
-              {/* Caption */}
-              <div
-                className="absolute bottom-0 left-0 right-0 px-4 pb-4 pt-8 z-10"
-                style={{ background: "linear-gradient(0deg, rgba(0,0,0,0.8) 0%, transparent 100%)" }}
-              >
-                <p className="text-xs italic text-white/70 leading-5">{result.scene_caption}</p>
-              </div>
-
-              {/* Sensory bar */}
-              <div className="absolute top-3 left-3 right-14 z-10 flex items-center gap-2">
-                <div className="text-[8px] uppercase tracking-[0.2em] text-white/40 whitespace-nowrap">load</div>
-                <div className="flex-1 h-px bg-white/10 overflow-hidden">
-                  <div
-                    className="h-full transition-all duration-1000"
-                    style={{
-                      width: `${load}%`,
-                      background: load > 70 ? "#e05c5c" : load > 45 ? "#c8a882" : "#5ce08c",
-                    }}
-                  />
-                </div>
-                <div className="text-[8px] font-mono text-white/40">{load}%</div>
-              </div>
-
-              {/* Download button */}
-              {videoUrl && (
+            {/* Save + actions at bottom */}
+            <div className="border-t border-foreground/10 p-3 flex flex-col gap-2">
+              {result && videoUri && !saved && (
                 <button
                   type="button"
-                  onClick={downloadVideo}
-                  title="Download video"
-                  className="absolute top-3 right-3 z-10 flex items-center gap-1.5 rounded border border-white/20 bg-black/40 px-2.5 py-1.5 text-[9px] uppercase tracking-[0.15em] text-white/60 backdrop-blur-sm hover:border-white/40 hover:text-white/90 transition-all"
+                  onClick={handleSave}
+                  className="w-full h-8 rounded border border-foreground/30 text-[9px] uppercase tracking-[0.15em] hover:bg-foreground/10 transition-all"
                 >
-                  <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M6 1v7M3.5 5.5 6 8l2.5-2.5" />
-                    <path d="M1 10h10" />
-                  </svg>
-                  MP4
+                  Save
                 </button>
               )}
+              {saved && (
+                <div className="text-center text-[9px] uppercase tracking-[0.15em] text-green-400 opacity-80">Saved ✓</div>
+              )}
+              <div className="flex gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => router.push("/chat")}
+                  className="flex-1 h-7 rounded border border-foreground/20 text-[8px] uppercase tracking-[0.12em] hover:border-foreground/40 transition-all"
+                >
+                  New
+                </button>
+                <button
+                  type="button"
+                  onClick={() => router.push("/")}
+                  className="flex-1 h-7 rounded bg-foreground text-[8px] uppercase tracking-[0.12em] text-background hover:opacity-90 transition-all"
+                >
+                  Home
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* ── CENTER — Video (dominant, full height) ──────────── */}
+          <div className={["relative flex-1 bg-black overflow-hidden", activeStimmingClass].join(" ")}>
+            <div className="absolute inset-0 bg-black" />
+
+            {videoUrl && (
+              <video
+                ref={videoRef}
+                className="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000"
+                style={{ opacity: videoVisible ? videoLoopOpacity : 0 }}
+                src={videoUrl}
+                autoPlay
+                loop
+                muted
+                playsInline
+                onPlay={handleVideoPlay}
+                onTimeUpdate={handleTimeUpdate}
+              />
+            )}
+
+            {!videoUrl && showGenerating && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 pointer-events-none">
+                <div className="h-3 w-3 animate-pulse" style={{ background: "rgba(255,255,255,0.15)" }} />
+                <div className="text-[9px] uppercase tracking-[0.2em] text-white/30 animate-pulse">
+                  Generating visual…
+                </div>
+              </div>
+            )}
+
+            {/* Chromatic aberration overlays */}
+            {videoUrl && (
+              <>
+                <div className="pointer-events-none absolute inset-0"
+                  style={{ background: `rgba(220,80,80,${load / 800})`, transform: `translateX(${load / 30}px)`, mixBlendMode: "screen" }} />
+                <div className="pointer-events-none absolute inset-0"
+                  style={{ background: `rgba(80,130,220,${load / 800})`, transform: `translateX(-${load / 30}px)`, mixBlendMode: "screen" }} />
+                <div className="pointer-events-none absolute inset-0"
+                  style={{ background: "radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.75) 100%)" }} />
+              </>
+            )}
+
+            {/* Caption */}
+            <div className="absolute bottom-0 left-0 right-0 px-5 pb-5 pt-10 z-10"
+              style={{ background: "linear-gradient(0deg, rgba(0,0,0,0.85) 0%, transparent 100%)" }}>
+              <p className="text-xs italic text-white/65 leading-5">{result.scene_caption}</p>
             </div>
 
-            {/* RIGHT PANEL - Sensory + Emotions */}
-            <div className="flex flex-col gap-3">
-              <Panel title="Sensory Channels" icon="👁" defaultOpen={false}>
-                <div className="space-y-3">
-                  {Object.entries(result.sensory_channels).map(([key, val]) => (
-                    <div key={key}>
-                      <div className="text-[9px] uppercase tracking-[0.15em] opacity-40 mb-1">{key}</div>
-                      <div className="text-[11px] leading-5 opacity-75">{val}</div>
+            {/* Load bar top-left */}
+            <div className="absolute top-3 left-3 right-16 z-10 flex items-center gap-2">
+              <div className="text-[8px] uppercase tracking-[0.2em] text-white/35 whitespace-nowrap">load</div>
+              <div className="flex-1 h-px bg-white/10 overflow-hidden">
+                <div className="h-full transition-all duration-1000"
+                  style={{ width: `${load}%`, background: load > 70 ? "#e05c5c" : load > 45 ? "#c8a882" : "#5ce08c" }} />
+              </div>
+              <div className="text-[8px] font-mono text-white/35">{load}%</div>
+            </div>
+
+            {/* Download top-right */}
+            {videoUrl && (
+              <button type="button" onClick={downloadVideo} title="Download video"
+                className="absolute top-3 right-3 z-10 flex items-center gap-1.5 rounded border border-white/20 bg-black/40 px-2.5 py-1.5 text-[9px] uppercase tracking-[0.15em] text-white/55 backdrop-blur-sm hover:border-white/40 hover:text-white/90 transition-all">
+                <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M6 1v7M3.5 5.5 6 8l2.5-2.5" /><path d="M1 10h10" />
+                </svg>
+                MP4
+              </button>
+            )}
+          </div>
+
+          {/* ── RIGHT COLUMN ────────────────────────────────────── */}
+          <div className="flex flex-col w-[230px] shrink-0 border-l border-foreground/10 bg-background">
+
+            {/* "More crucial information" collapsible header */}
+            <details className="group flex-none border-b border-foreground/10">
+              <summary className="flex items-center justify-between px-4 py-3.5 cursor-pointer list-none select-none hover:bg-foreground/5 transition-colors">
+                <span className="text-[10px] uppercase tracking-[0.15em] opacity-70">More crucial information you can open up</span>
+                <svg className="w-4 h-4 opacity-40 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 16 16">
+                  <path d="M4 6l4 4 4-4" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </summary>
+              <div className="px-4 py-3 border-t border-foreground/8 space-y-3">
+                {Object.entries(result.sensory_channels).map(([key, val]) => (
+                  <div key={key}>
+                    <div className="text-[9px] uppercase tracking-[0.15em] opacity-35 mb-0.5">{key}</div>
+                    <div className="text-[10px] leading-[1.7] opacity-60">{val}</div>
+                  </div>
+                ))}
+                <div className="pt-2 border-t border-foreground/8">
+                  <div className="text-[9px] uppercase tracking-[0.15em] opacity-35 mb-1">Masking cost</div>
+                  <p className="text-[10px] leading-[1.7] opacity-60 italic">{result.masking_cost}</p>
+                </div>
+                <div className="pt-2 border-t border-foreground/8 flex flex-wrap gap-1">
+                  {result.research_tags.map((tag) => (
+                    <span key={tag} className="rounded border border-foreground/15 px-1.5 py-0.5 text-[8px] uppercase tracking-[0.1em] opacity-50">{tag}</span>
+                  ))}
+                </div>
+              </div>
+            </details>
+
+            {/* Emotions + extra data scrollable block */}
+            <div className="flex-1 overflow-y-auto px-4 py-3">
+              <div className="text-[10px] leading-[1.8] text-foreground/50 space-y-1">
+                {result.emotions.map((e, i) => (
+                  <p key={i}>{e}</p>
+                ))}
+                <div className="mt-4 pt-3 border-t border-foreground/10 space-y-2">
+                  {CITATIONS.map((c) => (
+                    <div key={c.id}>
+                      <div className="text-[8px] uppercase tracking-[0.12em] opacity-30 mb-0.5">[{c.id}] {c.label}</div>
+                      <div className="text-[9px] leading-[1.6] opacity-40">{c.excerpt}</div>
                     </div>
                   ))}
                 </div>
-              </Panel>
+              </div>
+            </div>
 
-              <Panel title="Emotions" icon="💚" defaultOpen={false}>
-                <ul className="space-y-2">
-                  {result.emotions.map((e, i) => (
-                    <li key={i} className="text-[11px] leading-5 opacity-75 border-l border-foreground/15 pl-2">
-                      {e}
-                    </li>
-                  ))}
-                </ul>
-              </Panel>
+            {/* Load slider (0.0 – 1.0) */}
+            <div className="border-t border-foreground/10 px-4 py-3">
+              <div className="relative h-px bg-foreground/15 rounded-full">
+                <div className="absolute top-1/2 -translate-y-1/2 h-2 rounded-full transition-all duration-1000"
+                  style={{ width: `${load}%`, background: load > 70 ? "#e05c5c" : load > 45 ? "#c8a882" : "#5ce08c" }} />
+                <div className="absolute top-1/2 -translate-y-1/2 w-2 h-2 rounded-full border border-foreground/40 bg-background transition-all duration-1000"
+                  style={{ left: `${load}%`, transform: "translate(-50%, -50%)" }} />
+              </div>
+              <div className="flex justify-between mt-1">
+                <span className="text-[8px] font-mono opacity-30">0.0</span>
+                <span className="text-[8px] font-mono opacity-30">1.0</span>
+              </div>
+            </div>
 
-              <Panel title="Masking Cost" icon="🎭" defaultOpen={false}>
-                <p className="text-[11px] leading-5 opacity-75 italic">{result.masking_cost}</p>
-              </Panel>
-
-              <Panel title="Research Tags" icon="🔬" defaultOpen={false}>
-                <div className="flex flex-wrap gap-1">
-                  {result.research_tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="rounded border border-foreground/15 px-2 py-0.5 text-[9px] uppercase tracking-[0.12em] opacity-60"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </Panel>
+            {/* Sensory score mini line graph */}
+            <div className="border-t border-foreground/10 px-4 pt-3 pb-4">
+              <div className="relative h-[80px]">
+                <svg viewBox="0 0 100 60" className="w-full h-full overflow-visible">
+                  {/* Grid lines */}
+                  <line x1="0" y1="0" x2="100" y2="0" stroke="currentColor" strokeOpacity="0.08" strokeWidth="0.5" />
+                  <line x1="0" y1="30" x2="100" y2="30" stroke="currentColor" strokeOpacity="0.08" strokeWidth="0.5" />
+                  <line x1="0" y1="60" x2="100" y2="60" stroke="currentColor" strokeOpacity="0.08" strokeWidth="0.5" />
+                  {/* Labels */}
+                  <text x="0" y="-3" fontSize="6" fill="currentColor" fillOpacity="0.3">1.0</text>
+                  <text x="0" y="33" fontSize="6" fill="currentColor" fillOpacity="0.3">0.5</text>
+                  {/* Score line: auditory, visual, tactile, social mapped to x positions */}
+                  {(() => {
+                    const scores = [
+                      result.sensory_scores.auditory,
+                      result.sensory_scores.visual,
+                      result.sensory_scores.tactile,
+                      result.sensory_scores.social,
+                    ];
+                    const pts = scores.map((s, i) => {
+                      const x = (i / (scores.length - 1)) * 100;
+                      const y = 60 - (s / 3) * 60;
+                      return `${x},${y}`;
+                    });
+                    const dotColor = load > 70 ? "#e05c5c" : load > 45 ? "#c8a882" : "#5ce08c";
+                    return (
+                      <>
+                        <polyline
+                          points={pts.join(" ")}
+                          fill="none"
+                          stroke={dotColor}
+                          strokeWidth="1.2"
+                          strokeOpacity="0.7"
+                        />
+                        {scores.map((s, i) => {
+                          const x = (i / (scores.length - 1)) * 100;
+                          const y = 60 - (s / 3) * 60;
+                          return <circle key={i} cx={x} cy={y} r="2" fill={dotColor} fillOpacity="0.9" />;
+                        })}
+                      </>
+                    );
+                  })()}
+                </svg>
+              </div>
+              <div className="flex justify-between mt-1">
+                {["aud","vis","tac","soc"].map((l) => (
+                  <span key={l} className="text-[7px] font-mono uppercase opacity-25">{l}</span>
+                ))}
+              </div>
             </div>
           </div>
 
-          {/* Citations */}
-          <details className="rounded-lg border border-foreground/10 px-4 py-3">
-            <summary className="cursor-pointer text-[10px] uppercase tracking-[0.2em] opacity-50">
-              Research Sources
-            </summary>
-            <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
-              {CITATIONS.map((c) => (
-                <div key={c.id} className="rounded border border-foreground/10 p-3">
-                  <div className="text-[10px] uppercase tracking-[0.2em] opacity-60 mb-1">
-                    [{c.id}] {c.label}
-                  </div>
-                  <div className="text-[11px] leading-5 opacity-60">{c.excerpt}</div>
-                </div>
-              ))}
-            </div>
-          </details>
-
-          {/* Save simulation */}
-          {result && videoUri && !saved && (
-            <div className="flex justify-center">
-              <button
-                type="button"
-                onClick={handleSave}
-                className="h-11 rounded-lg border border-foreground/40 bg-foreground/10 px-6 text-[11px] uppercase tracking-[0.22em] hover:bg-foreground/20 hover:border-foreground/60 transition-all"
-              >
-                Save this simulation
-              </button>
-            </div>
-          )}
-          {saved && (
-            <div className="flex justify-center">
-              <span className="text-[11px] uppercase tracking-[0.22em] text-green-400 opacity-80">
-                Saved ✓
-              </span>
-            </div>
-          )}
-
-          {/* Actions */}
-          <div className="flex gap-3 justify-between">
-            <button
-              type="button"
-              onClick={() => router.push("/chat")}
-              className="h-9 rounded border border-foreground/20 px-4 text-[10px] uppercase tracking-[0.2em] hover:border-foreground/40"
-            >
-              New Situation
-            </button>
-            <button
-              type="button"
-              onClick={() => router.push("/")}
-              className="h-9 rounded bg-foreground px-4 text-[10px] uppercase tracking-[0.2em] text-background hover:opacity-90"
-            >
-              Home
-            </button>
-          </div>
         </div>
       )}
     </div>
