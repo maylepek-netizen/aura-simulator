@@ -651,6 +651,7 @@ export default function ResultPage() {
   const [stimmingPaused, setStimmingPaused] = useState(false);
   // Reveal timeline: stimmingActive starts false, auto-enabled at T=30s
   const [stimmingActive, setStimmingActive] = useState(false);
+  const stimmingRafRef = useRef<number | null>(null);
 
   // Environment sound
   const [envPlaying, setEnvPlaying] = useState(false);
@@ -742,6 +743,39 @@ export default function ResultPage() {
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const narrationStartedRef = useRef(false);
+
+  // rAF-driven camera stimming on the video element itself
+  useEffect(() => {
+    const el = videoRef.current;
+    const active = stimmingActive && !stimmingPaused;
+    const currentLoad = result?.overall_load ?? 0;
+
+    if (stimmingRafRef.current !== null) {
+      cancelAnimationFrame(stimmingRafRef.current);
+      stimmingRafRef.current = null;
+    }
+    if (el) el.style.transform = "";
+
+    if (!active || currentLoad < 40 || !el) return;
+
+    const ampY  = currentLoad > 70 ? 10  : 4;
+    const ampR  = currentLoad > 70 ? 1   : 0;
+    const period = currentLoad > 70 ? 1000 : 3000;
+
+    const tick = (ts: number) => {
+      const t = (ts % period) / period * Math.PI * 2;
+      const y = ampY * Math.sin(t);
+      const r = ampR * Math.sin(t);
+      el.style.transform = `translateY(${y}px) rotate(${r}deg)`;
+      stimmingRafRef.current = requestAnimationFrame(tick);
+    };
+    stimmingRafRef.current = requestAnimationFrame(tick);
+
+    return () => {
+      if (stimmingRafRef.current !== null) cancelAnimationFrame(stimmingRafRef.current);
+      if (el) el.style.transform = "";
+    };
+  }, [stimmingActive, stimmingPaused, result?.overall_load]);
   const [videoLoopOpacity, setVideoLoopOpacity] = useState(1);
 
   const handleVideoPlay = useCallback(() => {
@@ -949,10 +983,6 @@ export default function ResultPage() {
 
   const load = result?.overall_load ?? 0;
 
-  const activeStimmingClass = (!stimmingActive || stimmingPaused) ? "" :
-    load > 70 ? "stimming-intense" :
-    load > 39 ? "stimming-medium" :
-    "stimming-slow";
   const hasStimming = stimmingActive;
 
   const anxiety = result ? Math.round((result.sensory_scores.auditory + result.sensory_scores.social) / 2 * 33) : 0;
@@ -961,32 +991,6 @@ export default function ResultPage() {
 
   return (
     <div className="relative flex-1 flex flex-col min-h-screen">
-      <style>{`
-        @keyframes stimming-slow {
-          0%   { transform: translateY(0px); }
-          25%  { transform: translateY(3px); }
-          50%  { transform: translateY(0px); }
-          75%  { transform: translateY(-3px); }
-          100% { transform: translateY(0px); }
-        }
-        @keyframes stimming-medium {
-          0%   { transform: translateY(0px)  rotate(0deg);    }
-          25%  { transform: translateY(6px)  rotate(0.5deg);  }
-          50%  { transform: translateY(0px)  rotate(0deg);    }
-          75%  { transform: translateY(-6px) rotate(-0.5deg); }
-          100% { transform: translateY(0px)  rotate(0deg);    }
-        }
-        @keyframes stimming-intense {
-          0%   { transform: translateY(0px)   rotate(0deg);    }
-          25%  { transform: translateY(12px)  rotate(1.5deg);  }
-          50%  { transform: translateY(0px)   rotate(0deg);    }
-          75%  { transform: translateY(-12px) rotate(-1.5deg); }
-          100% { transform: translateY(0px)   rotate(0deg);    }
-        }
-        .stimming-slow    { animation: stimming-slow    4s   ease-in-out infinite; }
-        .stimming-medium  { animation: stimming-medium  2s   ease-in-out infinite; }
-        .stimming-intense { animation: stimming-intense 0.8s ease-in-out infinite; }
-      `}</style>
 
       {/* Corner telemetry */}
       <div className="pointer-events-none absolute inset-0 z-20">
@@ -1154,14 +1158,14 @@ export default function ResultPage() {
           </div>
 
           {/* ── CENTER — Video (dominant, full height) ──────────── */}
-          <div className={["relative flex-1 bg-black overflow-hidden", activeStimmingClass].join(" ")}>
+          <div className="relative flex-1 bg-black overflow-hidden">
             <div className="absolute inset-0 bg-black" />
 
             {videoUrl && (
               <video
                 ref={videoRef}
                 className="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000"
-                style={{ opacity: videoVisible ? videoLoopOpacity : 0 }}
+                style={{ opacity: videoVisible ? videoLoopOpacity : 0, scale: "1.06" }}
                 src={videoUrl}
                 autoPlay
                 loop
