@@ -39,6 +39,11 @@ function loadVisuals(load: number): string {
 
 function buildVideoPromptInstructions(age: number, gender: string, situation: string): string {
   return (
+    "CRITICAL FOR SEAMLESS LOOP (most important rule — apply before everything else): " +
+    "The video must open AND close on an identical static shot — specifically an extreme close-up of a non-moving surface (floor texture, wall surface, fabric weave, skin texture, table grain). " +
+    "The entire video is one continuous slow drift with NO narrative arc, no beginning-middle-end structure. " +
+    "Think of it as a 5-second window cut from an infinite loop — the last frame must visually match the first frame so the loop is completely invisible. " +
+    "NO action that concludes. NO gesture that resolves. NO movement that arrives anywhere. The video simply IS, suspended in time.\n\n" +
     "Write a specific Veo video prompt for THIS exact situation: \"" + situation + "\". " +
     "The prompt MUST include ALL of the following elements woven into one vivid paragraph:\n" +
     "CAMERA HEIGHT: " + cameraHeight(age) + ".\n" +

@@ -319,389 +319,227 @@ class EnvironmentSoundEngine {
     this.ctx = new AudioContext();
   }
 
-  private vol(load: number, base: number) {
-    return Math.min(1.0, base * Math.max(0.4, 0.4 + (load / 100) * 0.6));
-  }
-
-  private makeWhiteNoise(seconds: number): AudioBufferSourceNode {
+  // Noise buffers — normalized output, no runaway amplification
+  private makeNoise(seconds: number, type: "white" | "brown"): AudioBufferSourceNode {
     const sr = this.ctx.sampleRate;
-    const buf = this.ctx.createBuffer(1, Math.floor(sr * seconds), sr);
+    const len = Math.floor(sr * seconds);
+    const buf = this.ctx.createBuffer(1, len, sr);
     const d = buf.getChannelData(0);
-    for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
-    const src = this.ctx.createBufferSource();
-    src.buffer = buf; src.loop = true;
-    return src;
-  }
-
-  private makeBrownNoise(seconds: number): AudioBufferSourceNode {
-    const sr = this.ctx.sampleRate;
-    const buf = this.ctx.createBuffer(1, Math.floor(sr * seconds), sr);
-    const d = buf.getChannelData(0);
-    let last = 0;
-    for (let i = 0; i < d.length; i++) {
-      const w = Math.random() * 2 - 1;
-      last = (last + 0.02 * w) / 1.02;
-      d[i] = last * 3.5;
+    if (type === "white") {
+      for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+    } else {
+      let last = 0;
+      for (let i = 0; i < len; i++) {
+        const w = Math.random() * 2 - 1;
+        last = (last + 0.02 * w) / 1.02;
+        d[i] = Math.max(-1, Math.min(1, last * 14));
+      }
     }
     const src = this.ctx.createBufferSource();
     src.buffer = buf; src.loop = true;
     return src;
   }
 
-  private makePinkNoise(seconds: number): AudioBufferSourceNode {
-    const sr = this.ctx.sampleRate;
-    const buf = this.ctx.createBuffer(1, Math.floor(sr * seconds), sr);
-    const d = buf.getChannelData(0);
-    let b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0;
-    for (let i = 0; i < d.length; i++) {
-      const w = Math.random() * 2 - 1;
-      b0=0.99886*b0+w*0.0555179; b1=0.99332*b1+w*0.0750759;
-      b2=0.96900*b2+w*0.1538520; b3=0.86650*b3+w*0.3104856;
-      b4=0.55000*b4+w*0.5329522; b5=-0.7616*b5-w*0.0168980;
-      d[i] = (b0+b1+b2+b3+b4+b5+b6+w*0.5362)*0.11;
-      b6 = w * 0.115926;
-    }
-    const src = this.ctx.createBufferSource();
-    src.buffer = buf; src.loop = true;
-    return src;
+  private gain(v: number): GainNode {
+    const g = this.ctx.createGain(); g.gain.value = v; return g;
   }
 
-  // Alarm/siren/fire: oscillating 800-1200Hz, fast 2Hz oscillation, loud
-  private addAlarmLayer() {
-    const lfo = this.ctx.createOscillator();
-    lfo.type = "sine"; lfo.frequency.value = 2;
-    const lfoG = this.ctx.createGain(); lfoG.gain.value = 200;
+  private connect(...chain: AudioNode[]) {
+    for (let i = 0; i < chain.length - 1; i++) chain[i].connect(chain[i + 1]);
+  }
+
+  // Children/screaming: rapid high-pitched noise bursts 2500-4000Hz every 0.3-1s
+  private addScreamLayer(vol: number) {
+    const fire = () => {
+      if (!this.running) return;
+      const now = this.ctx.currentTime;
+      const dur = 0.06 + Math.random() * 0.12;
+      const len = Math.floor(this.ctx.sampleRate * dur);
+      const buf = this.ctx.createBuffer(1, len, this.ctx.sampleRate);
+      const d = buf.getChannelData(0);
+      for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+      const src = this.ctx.createBufferSource(); src.buffer = buf;
+      const bp = this.ctx.createBiquadFilter();
+      bp.type = "bandpass"; bp.frequency.value = 2500 + Math.random() * 1500; bp.Q.value = 3;
+      const g = this.ctx.createGain();
+      g.gain.setValueAtTime(vol, now);
+      g.gain.exponentialRampToValueAtTime(0.001, now + dur);
+      this.connect(src, bp, g, this.ctx.destination);
+      src.start(now); src.stop(now + dur + 0.01);
+      this.nodes.push(src, bp, g);
+      const t = setTimeout(fire, 300 + Math.random() * 700);
+      this.timeouts.push(t);
+    };
+    fire();
+  }
+
+  // Alarm/siren: oscillating 800-1200Hz cycling every 0.4s
+  private addAlarmLayer(vol: number) {
     const osc = this.ctx.createOscillator();
-    osc.type = "sine"; osc.frequency.value = 1000;
+    osc.type = "square"; osc.frequency.value = 1000;
+    // Frequency sweeps between 800 and 1200 with a 2.5Hz LFO
+    const lfo = this.ctx.createOscillator();
+    lfo.type = "sine"; lfo.frequency.value = 2.5;
+    const lfoG = this.ctx.createGain(); lfoG.gain.value = 200;
     lfo.connect(lfoG); lfoG.connect(osc.frequency);
-    const master = this.ctx.createGain(); master.gain.value = 0.5;
-    osc.connect(master); master.connect(this.ctx.destination);
+    const master = this.gain(vol);
+    this.connect(osc, master, this.ctx.destination);
     osc.start(); lfo.start();
     this.nodes.push(osc, lfo, lfoG, master);
   }
 
-  // Phone/notification: short 1000Hz tone repeating every 3s
-  private addPhoneLayer() {
-    const scheduleNext = () => {
-      if (!this.running) return;
-      const now = this.ctx.currentTime;
-      const osc = this.ctx.createOscillator();
-      osc.type = "sine"; osc.frequency.value = 1000;
-      const g = this.ctx.createGain();
-      g.gain.setValueAtTime(0.35, now);
-      g.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
-      osc.connect(g); g.connect(this.ctx.destination);
-      osc.start(now); osc.stop(now + 0.35);
-      this.nodes.push(osc, g);
-      const t = setTimeout(scheduleNext, 3000);
-      this.timeouts.push(t);
-    };
-    scheduleNext();
-  }
+  // Crowd/mall: brown noise rumble + bandpass voice texture + voice bursts
+  private addCrowdLayer(vol: number) {
+    const brown = this.makeNoise(4, "brown");
+    const lp = this.ctx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 800;
+    const rumbleG = this.gain(vol);
+    this.connect(brown, lp, rumbleG, this.ctx.destination);
+    brown.start();
+    this.nodes.push(brown, lp, rumbleG);
 
-  // Dog/animal: rhythmic mid-frequency noise bursts
-  private addDogLayer() {
-    const scheduleNext = () => {
-      if (!this.running) return;
-      const now = this.ctx.currentTime;
-      const dur = 0.08 + Math.random() * 0.06;
-      const bufSize = Math.floor(this.ctx.sampleRate * dur);
-      const buf = this.ctx.createBuffer(1, bufSize, this.ctx.sampleRate);
-      const d = buf.getChannelData(0);
-      for (let i = 0; i < bufSize; i++) d[i] = Math.random() * 2 - 1;
-      const src = this.ctx.createBufferSource(); src.buffer = buf;
-      const bp = this.ctx.createBiquadFilter();
-      bp.type = "bandpass"; bp.frequency.value = 500 + Math.random() * 300; bp.Q.value = 2;
-      const g = this.ctx.createGain();
-      g.gain.setValueAtTime(0.3, now);
-      g.gain.exponentialRampToValueAtTime(0.001, now + dur);
-      src.connect(bp); bp.connect(g); g.connect(this.ctx.destination);
-      src.start(now); src.stop(now + dur + 0.01);
-      this.nodes.push(src, bp, g);
-      const interval = 600 + Math.random() * 800;
-      const t = setTimeout(scheduleNext, interval);
-      this.timeouts.push(t);
-    };
-    scheduleNext();
-  }
-
-  // Music/radio: layered sine chord (root + fifth + octave) with slow rhythm
-  private addMusicLayer() {
-    const freqs = [220, 330, 440]; // A3 chord
-    for (const freq of freqs) {
-      const osc = this.ctx.createOscillator();
-      osc.type = "sine"; osc.frequency.value = freq;
-      const lfo = this.ctx.createOscillator();
-      lfo.type = "sine"; lfo.frequency.value = 0.8;
-      const lfoG = this.ctx.createGain(); lfoG.gain.value = 0.06;
-      const master = this.ctx.createGain(); master.gain.value = 0.12;
-      lfo.connect(lfoG); lfoG.connect(master.gain);
-      osc.connect(master); master.connect(this.ctx.destination);
-      osc.start(); lfo.start();
-      this.nodes.push(osc, lfo, lfoG, master);
-    }
-  }
-
-  // Rain/storm: white noise through highpass + occasional low boom
-  private addRainLayer() {
-    const white = this.makeWhiteNoise(3);
-    const hp = this.ctx.createBiquadFilter();
-    hp.type = "highpass"; hp.frequency.value = 2000;
-    const master = this.ctx.createGain(); master.gain.value = 0.25;
-    white.connect(hp); hp.connect(master); master.connect(this.ctx.destination);
+    const white = this.makeNoise(3, "white");
+    const bp = this.ctx.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = 1200; bp.Q.value = 0.4;
+    const midG = this.gain(vol * 0.6);
+    this.connect(white, bp, midG, this.ctx.destination);
     white.start();
-    this.nodes.push(white, hp, master);
-    // Occasional thunder
-    const scheduleThunder = () => {
-      if (!this.running) return;
-      const now = this.ctx.currentTime;
-      const dur = 0.4 + Math.random() * 0.3;
-      const osc = this.ctx.createOscillator();
-      osc.type = "sine"; osc.frequency.value = 40 + Math.random() * 30;
-      const g = this.ctx.createGain();
-      g.gain.setValueAtTime(0.4, now);
-      g.gain.exponentialRampToValueAtTime(0.001, now + dur);
-      osc.connect(g); g.connect(this.ctx.destination);
-      osc.start(now); osc.stop(now + dur + 0.01);
-      this.nodes.push(osc, g);
-      const t = setTimeout(scheduleThunder, 6000 + Math.random() * 10000);
-      this.timeouts.push(t);
-    };
-    scheduleThunder();
-  }
+    this.nodes.push(white, bp, midG);
 
-  // Wind: brown noise through slowly sweeping bandpass
-  private addWindLayer() {
-    const brown = this.makeBrownNoise(4);
-    const bp = this.ctx.createBiquadFilter();
-    bp.type = "bandpass"; bp.frequency.value = 400; bp.Q.value = 0.5;
-    const lfo = this.ctx.createOscillator();
-    lfo.type = "sine"; lfo.frequency.value = 0.15;
-    const lfoG = this.ctx.createGain(); lfoG.gain.value = 250;
-    lfo.connect(lfoG); lfoG.connect(bp.frequency);
-    const master = this.ctx.createGain(); master.gain.value = 0.3;
-    brown.connect(bp); bp.connect(master); master.connect(this.ctx.destination);
-    brown.start(); lfo.start();
-    this.nodes.push(brown, bp, lfo, lfoG, master);
-  }
-
-  // Crying/baby: high-pitched modulated tone
-  private addCryingLayer() {
-    const osc = this.ctx.createOscillator();
-    osc.type = "sine"; osc.frequency.value = 600;
-    const lfo = this.ctx.createOscillator();
-    lfo.type = "sine"; lfo.frequency.value = 4;
-    const lfoG = this.ctx.createGain(); lfoG.gain.value = 150;
-    lfo.connect(lfoG); lfoG.connect(osc.frequency);
-    const lfo2 = this.ctx.createOscillator();
-    lfo2.type = "sine"; lfo2.frequency.value = 0.5;
-    const lfoG2 = this.ctx.createGain(); lfoG2.gain.value = 0.15;
-    const master = this.ctx.createGain(); master.gain.value = 0.25;
-    lfo2.connect(lfoG2); lfoG2.connect(master.gain);
-    osc.connect(master); master.connect(this.ctx.destination);
-    osc.start(); lfo.start(); lfo2.start();
-    this.nodes.push(osc, lfo, lfoG, lfo2, lfoG2, master);
-  }
-
-  // Typing/keyboard: rapid short noise bursts at 2-3Hz
-  private addTypingLayer() {
-    const rate = 2 + Math.random();
-    const scheduleNext = () => {
-      if (!this.running) return;
-      const now = this.ctx.currentTime;
-      const dur = 0.012 + Math.random() * 0.008;
-      const bufSize = Math.floor(this.ctx.sampleRate * dur);
-      const buf = this.ctx.createBuffer(1, bufSize, this.ctx.sampleRate);
-      const d = buf.getChannelData(0);
-      for (let i = 0; i < bufSize; i++) d[i] = Math.random() * 2 - 1;
-      const src = this.ctx.createBufferSource(); src.buffer = buf;
-      const bp = this.ctx.createBiquadFilter();
-      bp.type = "bandpass"; bp.frequency.value = 3000 + Math.random() * 2000; bp.Q.value = 1;
-      const g = this.ctx.createGain();
-      g.gain.setValueAtTime(0.2, now);
-      g.gain.exponentialRampToValueAtTime(0.001, now + dur);
-      src.connect(bp); bp.connect(g); g.connect(this.ctx.destination);
-      src.start(now); src.stop(now + dur + 0.005);
-      this.nodes.push(src, bp, g);
-      const interval = (1000 / rate) * (0.8 + Math.random() * 0.4);
-      const t = setTimeout(scheduleNext, interval);
-      this.timeouts.push(t);
-    };
-    scheduleNext();
-  }
-
-  // Door/knock: low thump, occasional
-  private addDoorLayer() {
-    const scheduleNext = () => {
-      if (!this.running) return;
-      const now = this.ctx.currentTime;
-      const osc = this.ctx.createOscillator();
-      osc.type = "sine"; osc.frequency.value = 80;
-      osc.frequency.exponentialRampToValueAtTime(40, now + 0.12);
-      const g = this.ctx.createGain();
-      g.gain.setValueAtTime(0.5, now);
-      g.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
-      osc.connect(g); g.connect(this.ctx.destination);
-      osc.start(now); osc.stop(now + 0.2);
-      this.nodes.push(osc, g);
-      const t = setTimeout(scheduleNext, 4000 + Math.random() * 6000);
-      this.timeouts.push(t);
-    };
-    scheduleNext();
-  }
-
-  // Vacuum/appliance: constant medium-frequency drone
-  private addVacuumLayer() {
-    const osc = this.ctx.createOscillator();
-    osc.type = "sawtooth"; osc.frequency.value = 180;
-    const lp = this.ctx.createBiquadFilter();
-    lp.type = "lowpass"; lp.frequency.value = 600;
-    const master = this.ctx.createGain(); master.gain.value = 0.22;
-    osc.connect(lp); lp.connect(master); master.connect(this.ctx.destination);
-    osc.start();
-    this.nodes.push(osc, lp, master);
-  }
-
-  // Crowd/mall: low rumble + mid noise + voice bursts
-  private addCrowdLayer(load: number) {
-    const v = this.vol(load, 0.28);
-    const brown = this.makeBrownNoise(4);
-    const lp = this.ctx.createBiquadFilter();
-    lp.type = "lowpass"; lp.frequency.value = 300;
-    const lfo = this.ctx.createOscillator();
-    lfo.frequency.value = 0.5 + Math.random() * 2;
-    const lfoG = this.ctx.createGain(); lfoG.gain.value = 0.05;
-    const rumbleG = this.ctx.createGain(); rumbleG.gain.value = v;
-    lfo.connect(lfoG); lfoG.connect(rumbleG.gain);
-    brown.connect(lp); lp.connect(rumbleG); rumbleG.connect(this.ctx.destination);
-    brown.start(); lfo.start();
-    this.nodes.push(brown, lp, lfo, lfoG, rumbleG);
-    const pink = this.makePinkNoise(3);
-    const bp = this.ctx.createBiquadFilter();
-    bp.type = "bandpass"; bp.frequency.value = 600; bp.Q.value = 0.8;
-    const midG = this.ctx.createGain(); midG.gain.value = v * 0.5;
-    pink.connect(bp); bp.connect(midG); midG.connect(this.ctx.destination);
-    pink.start();
-    this.nodes.push(pink, bp, midG);
     // Voice bursts
-    const scheduleVoice = () => {
+    const fire = () => {
       if (!this.running) return;
       const now = this.ctx.currentTime;
-      const dur = 0.08 + Math.random() * 0.2;
-      const bufSize = Math.floor(this.ctx.sampleRate * dur);
-      const buf = this.ctx.createBuffer(1, bufSize, this.ctx.sampleRate);
+      const dur = 0.1 + Math.random() * 0.25;
+      const len = Math.floor(this.ctx.sampleRate * dur);
+      const buf = this.ctx.createBuffer(1, len, this.ctx.sampleRate);
       const d = buf.getChannelData(0);
-      for (let i = 0; i < bufSize; i++) d[i] = Math.random() * 2 - 1;
+      for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
       const src = this.ctx.createBufferSource(); src.buffer = buf;
-      const vbp = this.ctx.createBiquadFilter();
-      vbp.type = "bandpass"; vbp.frequency.value = 300 + Math.random() * 500; vbp.Q.value = 2;
+      const vbp = this.ctx.createBiquadFilter(); vbp.type = "bandpass"; vbp.frequency.value = 400 + Math.random() * 400; vbp.Q.value = 2;
       const g = this.ctx.createGain();
-      g.gain.setValueAtTime(v * 0.6, now);
+      g.gain.setValueAtTime(vol * 0.7, now);
       g.gain.exponentialRampToValueAtTime(0.001, now + dur);
-      src.connect(vbp); vbp.connect(g); g.connect(this.ctx.destination);
+      this.connect(src, vbp, g, this.ctx.destination);
       src.start(now); src.stop(now + dur + 0.01);
       this.nodes.push(src, vbp, g);
-      const t = setTimeout(scheduleVoice, 500 + Math.random() * 1500);
+      const t = setTimeout(fire, 400 + Math.random() * 1200);
       this.timeouts.push(t);
     };
-    scheduleVoice();
+    fire();
   }
 
-  // Traffic: low rumble + road noise
-  private addTrafficLayer(load: number) {
-    const v = this.vol(load, 0.28);
+  // Party: bass pulse at 120BPM (60Hz) + crowd noise
+  private addPartyLayer(vol: number) {
+    const bpm = 120;
+    const fireBass = () => {
+      if (!this.running) return;
+      const now = this.ctx.currentTime;
+      const osc = this.ctx.createOscillator();
+      osc.type = "sine"; osc.frequency.value = 60;
+      const g = this.ctx.createGain();
+      g.gain.setValueAtTime(vol, now);
+      g.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+      this.connect(osc, g, this.ctx.destination);
+      osc.start(now); osc.stop(now + 0.3);
+      this.nodes.push(osc, g);
+      const t = setTimeout(fireBass, (60 / bpm) * 1000);
+      this.timeouts.push(t);
+    };
+    fireBass();
+    this.addCrowdLayer(vol * 0.7);
+  }
+
+  // Rain: white noise through lowpass
+  private addRainLayer(vol: number) {
+    const white = this.makeNoise(4, "white");
+    const lp = this.ctx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 4000;
+    const master = this.gain(vol);
+    this.connect(white, lp, master, this.ctx.destination);
+    white.start();
+    this.nodes.push(white, lp, master);
+  }
+
+  // Classroom: medium crowd murmur + occasional chair scrape
+  private addClassroomLayer(vol: number) {
+    this.addCrowdLayer(vol * 0.7);
+    // Chair scrape: low-mid broadband burst every 8-20s
+    const fireScrape = () => {
+      if (!this.running) return;
+      const now = this.ctx.currentTime;
+      const dur = 0.3 + Math.random() * 0.4;
+      const len = Math.floor(this.ctx.sampleRate * dur);
+      const buf = this.ctx.createBuffer(1, len, this.ctx.sampleRate);
+      const d = buf.getChannelData(0);
+      for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+      const src = this.ctx.createBufferSource(); src.buffer = buf;
+      const bp = this.ctx.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = 600 + Math.random() * 400; bp.Q.value = 0.5;
+      const g = this.ctx.createGain();
+      g.gain.setValueAtTime(vol * 0.8, now);
+      g.gain.exponentialRampToValueAtTime(0.001, now + dur);
+      this.connect(src, bp, g, this.ctx.destination);
+      src.start(now); src.stop(now + dur + 0.01);
+      this.nodes.push(src, bp, g);
+      const t = setTimeout(fireScrape, 8000 + Math.random() * 12000);
+      this.timeouts.push(t);
+    };
+    fireScrape();
+  }
+
+  // Train/bus: constant low rumble 40-80Hz
+  private addTransitLayer(vol: number) {
     const osc = this.ctx.createOscillator();
-    osc.type = "sawtooth"; osc.frequency.value = 55 + Math.random() * 30;
-    const lp = this.ctx.createBiquadFilter();
-    lp.type = "lowpass"; lp.frequency.value = 100;
-    const lfo = this.ctx.createOscillator();
-    lfo.frequency.value = 0.1 + Math.random() * 0.2;
-    const lfoG = this.ctx.createGain(); lfoG.gain.value = v * 0.4;
-    const master = this.ctx.createGain(); master.gain.value = v * 0.6;
+    osc.type = "sawtooth"; osc.frequency.value = 50 + Math.random() * 30;
+    const lp = this.ctx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 120;
+    // Slow amplitude wobble
+    const lfo = this.ctx.createOscillator(); lfo.type = "sine"; lfo.frequency.value = 0.3;
+    const lfoG = this.ctx.createGain(); lfoG.gain.value = vol * 0.2;
+    const master = this.gain(vol * 0.8);
     lfo.connect(lfoG); lfoG.connect(master.gain);
-    osc.connect(lp); lp.connect(master); master.connect(this.ctx.destination);
+    this.connect(osc, lp, master, this.ctx.destination);
     osc.start(); lfo.start();
     this.nodes.push(osc, lp, lfo, lfoG, master);
-    const brown = this.makeBrownNoise(4);
-    const bp = this.ctx.createBiquadFilter();
-    bp.type = "bandpass"; bp.frequency.value = 200; bp.Q.value = 0.5;
-    const roadG = this.ctx.createGain(); roadG.gain.value = v * 0.2;
-    brown.connect(bp); bp.connect(roadG); roadG.connect(this.ctx.destination);
+
+    // Brown noise road texture
+    const brown = this.makeNoise(3, "brown");
+    const brownG = this.gain(vol * 0.3);
+    this.connect(brown, brownG, this.ctx.destination);
     brown.start();
-    this.nodes.push(brown, bp, roadG);
+    this.nodes.push(brown, brownG);
   }
 
-  // Quiet fallback
-  private addQuietLayer() {
-    const pink = this.makePinkNoise(5);
-    const lp = this.ctx.createBiquadFilter();
-    lp.type = "lowpass"; lp.frequency.value = 500;
-    const master = this.ctx.createGain(); master.gain.value = 0.04;
-    pink.connect(lp); lp.connect(master); master.connect(this.ctx.destination);
-    pink.start();
-    this.nodes.push(pink, lp, master);
+  // Default: soft brown noise
+  private addDefaultLayer(vol: number) {
+    const brown = this.makeNoise(4, "brown");
+    const lp = this.ctx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 600;
+    const master = this.gain(vol);
+    this.connect(brown, lp, master, this.ctx.destination);
+    brown.start();
+    this.nodes.push(brown, lp, master);
   }
 
   start(situation: string, auditory: string, load: number) {
     if (this.running) return;
     this.running = true;
-    if (this.ctx.state === "suspended") this.ctx.resume();
+    if (this.ctx.state === "suspended") void this.ctx.resume();
 
-    // Scan both situation and auditory in one combined string (Hebrew + English)
+    const base = Math.min(0.6, 0.4 + (load / 100) * 0.2);
     const t = (situation + " " + auditory).toLowerCase();
-    let matched = false;
 
-    // Priority 1: alarm/siren/fire (loudest, most urgent)
-    if (/alarm|siren|fire|smoke|אזעק|אש|עשן|צופר|חירום|פצצ/.test(t)) {
-      this.addAlarmLayer(); matched = true;
-    }
-    // Phone/notification
-    if (/phone|ring|notification|call|buzz|טלפון|צלצול|הודעה|שיחה/.test(t)) {
-      this.addPhoneLayer(); matched = true;
-    }
-    // Dog/animal
-    if (/dog|bark|animal|cat|bird|כלב|נביחה|חתול|ציפור|חיה/.test(t)) {
-      this.addDogLayer(); matched = true;
-    }
-    // Music/song/radio
-    if (/music|song|radio|sing|melody|מוזיקה|שיר|רדיו|שירה|מנגינה/.test(t)) {
-      this.addMusicLayer(); matched = true;
-    }
-    // Rain/storm/thunder
-    if (/rain|storm|thunder|lightning|גשם|סופה|רעם|ברק|מטר/.test(t)) {
-      this.addRainLayer(); matched = true;
-    }
-    // Wind
-    if (/wind|breeze|gust|רוח|נשיבה/.test(t)) {
-      this.addWindLayer(); matched = true;
-    }
-    // Crying/baby/infant
-    if (/cry|crying|baby|infant|sob|wail|בכי|תינוק|יילוד|יבבה/.test(t)) {
-      this.addCryingLayer(); matched = true;
-    }
-    // Typing/keyboard
-    if (/typing|keyboard|type|click|מקלדת|הקלדה/.test(t)) {
-      this.addTypingLayer(); matched = true;
-    }
-    // Door/knock
-    if (/door|knock|דלת|דפיקה|דפק/.test(t)) {
-      this.addDoorLayer(); matched = true;
-    }
-    // Vacuum/appliance
-    if (/vacuum|appliance|drill|blender|שואב|מכשיר|מקדחה|מיקסר/.test(t)) {
-      this.addVacuumLayer(); matched = true;
-    }
-    // Crowd/people
-    if (/crowd|mall|supermarket|restaurant|cafe|store|shop|people|קהל|קניון|סופר|מסעדה|בית קפה|אנשים/.test(t)) {
-      this.addCrowdLayer(load); matched = true;
-    }
-    // Traffic/vehicles
-    if (/traffic|car|street|road|bus|train|transport|תנועה|רחוב|אוטובוס|רכב|כביש/.test(t)) {
-      this.addTrafficLayer(load); matched = true;
-    }
-    // Fallback
-    if (!matched) {
-      this.addQuietLayer();
+    if (/ילד|children|scream|צורח|צועק|שריקה|shriek|yell|kids/.test(t)) {
+      this.addScreamLayer(base);
+    } else if (/אזעק|alarm|siren|צופר|חירום/.test(t)) {
+      this.addAlarmLayer(base + 0.1);
+    } else if (/מסיבה|party|club|דיסקו|disco/.test(t)) {
+      this.addPartyLayer(base);
+    } else if (/קניון|mall|crowd|המון|supermarket|סופר|קהל|אנשים|people|restaurant|מסעדה|cafe|בית קפה/.test(t)) {
+      this.addCrowdLayer(base);
+    } else if (/כיתה|classroom|school|בית ספר|class/.test(t)) {
+      this.addClassroomLayer(base);
+    } else if (/רכבת|אוטובוס|train|bus|metro|subway/.test(t)) {
+      this.addTransitLayer(base);
+    } else if (/גשם|rain|storm|סופה|מטר/.test(t)) {
+      this.addRainLayer(base - 0.05);
+    } else {
+      this.addDefaultLayer(0.2);
     }
   }
 
@@ -884,27 +722,31 @@ export default function ResultPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [result !== null]);
 
-  // Fade in video when it becomes available
+  // Fade in video when it becomes available, start narration simultaneously
   useEffect(() => {
     if (videoUrl) {
-      // Small delay to let the video element mount before transitioning
-      const t = setTimeout(() => setVideoVisible(true), 50);
+      const t = setTimeout(() => {
+        setVideoVisible(true);
+        // Start narration at the same moment video fades in
+        if (!narrationStartedRef.current && result) {
+          narrationStartedRef.current = true;
+          void startNarration(result);
+        }
+      }, 50);
       return () => clearTimeout(t);
     } else {
       setVideoVisible(false);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [videoUrl]);
 
-  // Auto-start narration when video begins playing
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const narrationStartedRef = useRef(false);
   const [videoLoopOpacity, setVideoLoopOpacity] = useState(1);
 
   const handleVideoPlay = useCallback(() => {
-    if (narrationStartedRef.current || !result) return;
-    narrationStartedRef.current = true;
-    void startNarration(result);
-  }, [result]);
+    // Narration already started via videoUrl effect; this is a no-op fallback
+  }, []);
 
   const handleTimeUpdate = useCallback(() => {
     const el = videoRef.current;
