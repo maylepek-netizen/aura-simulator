@@ -1233,7 +1233,7 @@ export default function ResultPage() {
 
             {/* LEFT PANEL - Thoughts + Audio controls */}
             <div className="flex flex-col gap-3">
-              <Panel title="Internal Monologue" icon="💭">
+              <Panel title="Internal Monologue" icon="💭" defaultOpen={false}>
                 <div className="space-y-2">
                   {result.monologue.map((t, i) => (
                     <div key={i} className="text-[11px] leading-5 opacity-75 border-l border-foreground/15 pl-2">
@@ -1258,35 +1258,31 @@ export default function ResultPage() {
                 {audioPlaying ? "Playing…" : "Play thoughts"}
               </button>
 
-              {/* Heartbeat + breathing + ambient button */}
-              <button
-                type="button"
-                onClick={toggleAmbient}
+              {/* Heartbeat indicator — display only */}
+              <div
                 className={[
-                  "flex items-center justify-center gap-2 rounded-lg border px-4 py-3 text-[10px] uppercase tracking-[0.2em] transition-all",
+                  "flex items-center justify-center gap-2 rounded-lg border px-4 py-3 text-[10px] uppercase tracking-[0.2em]",
                   ambientPlaying
                     ? "border-red-400/60 bg-red-400/10 text-red-300"
-                    : "border-foreground/20 opacity-60 hover:opacity-100",
+                    : "border-foreground/20 opacity-40",
                 ].join(" ")}
               >
                 <span className={["text-base", ambientPlaying ? "animate-pulse" : ""].join(" ")}>♥</span>
-                {ambientPlaying ? "Stop heartbeat" : "Heartbeat"}
-              </button>
+                {ambientPlaying ? "Heartbeat" : "Heartbeat"}
+              </div>
 
-              {/* Environment sound button */}
-              <button
-                type="button"
-                onClick={toggleEnv}
+              {/* Environment sound indicator — display only */}
+              <div
                 className={[
-                  "flex items-center justify-center gap-2 rounded-lg border px-4 py-3 text-[10px] uppercase tracking-[0.2em] transition-all",
+                  "flex items-center justify-center gap-2 rounded-lg border px-4 py-3 text-[10px] uppercase tracking-[0.2em]",
                   envPlaying
                     ? "border-green-400/60 bg-green-400/10 text-green-300"
-                    : "border-foreground/20 opacity-60 hover:opacity-100",
+                    : "border-foreground/20 opacity-40",
                 ].join(" ")}
               >
                 <span className={["text-base", envPlaying ? "animate-pulse" : ""].join(" ")}>🌍</span>
-                {envPlaying ? "Stop environment" : "Environment"}
-              </button>
+                {envPlaying ? "Environment" : "Environment"}
+              </div>
 
               {/* Stimming pause button — only visible when stimming is active */}
               {hasStimming && (
@@ -1420,7 +1416,7 @@ export default function ResultPage() {
 
             {/* RIGHT PANEL - Sensory + Emotions */}
             <div className="flex flex-col gap-3">
-              <Panel title="Sensory Channels" icon="👁">
+              <Panel title="Sensory Channels" icon="👁" defaultOpen={false}>
                 <div className="space-y-3">
                   {Object.entries(result.sensory_channels).map(([key, val]) => (
                     <div key={key}>
@@ -1431,7 +1427,7 @@ export default function ResultPage() {
                 </div>
               </Panel>
 
-              <Panel title="Emotions" icon="💚">
+              <Panel title="Emotions" icon="💚" defaultOpen={false}>
                 <ul className="space-y-2">
                   {result.emotions.map((e, i) => (
                     <li key={i} className="text-[11px] leading-5 opacity-75 border-l border-foreground/15 pl-2">
