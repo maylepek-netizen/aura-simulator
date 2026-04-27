@@ -57,6 +57,18 @@ function buildVideoPromptInstructions(age: number, gender: string, situation: st
     "If it says 'I can't find the exit' — the camera drifts searching without finding. " +
     "If it says 'her face looks wrong' — the camera focuses on a face that appears slightly distorted. " +
     "The video IS the visual stream of consciousness of the monologue.\n\n" +
+    "SCENE STRUCTURE — COHERENT VISUAL STORY (always apply): The video must show a COMPLETE SCENE, not just one isolated detail. Follow this arc: " +
+    "(1) ESTABLISHING — first 1-2 seconds: show WHERE we are. Wide or mid shot, enough to understand the full space and situation. The viewer must understand the location and what is happening within 2 seconds. " +
+    "(2) DRIFT — camera slowly moves to details that support the emotional experience: textures, faces, objects, light sources that reflect the internal state. " +
+    "(3) RETURN — camera drifts back to a wider or mid shot, grounding us again in the space. " +
+    "(4) OBSESSIVE DETAIL — camera returns to the most disturbing or overwhelming element, lingering, unable to look away. " +
+    "Arc rhythm: WIDE → DETAIL → WIDE → OBSESSIVE DETAIL. Never start on an extreme close-up with no context.\n\n" +
+    "CHANGE/DISRUPTION SCENE DIRECTING (apply when situation involves moved objects, rearranged furniture, altered home, changed appearance, or anything 'wrong' in a familiar space): " +
+    "Start with the person's POV entering or scanning the familiar space — we see the WHOLE ROOM first, enough to recognise it as a known place. " +
+    "Camera scans slowly and then STOPS and HESITATES on the element that is wrong — a chair in the wrong position, a missing object, rearranged furniture, a face with a new haircut. " +
+    "The wrong element receives obsessive focus — camera drifts away to familiar correct elements, then is pulled back to the wrong element involuntarily, again and again. " +
+    "Familiar correct elements appear in warmer colour grading; the wrong element appears slightly desaturated, cold, slightly out of focus — like a foreign object in a known world. " +
+    "Never show ONLY a close-up of the wrong object in isolation — always provide the surrounding context so the viewer understands what should be there instead.\n\n" +
     "Write a specific Veo video prompt for THIS exact situation: \"" + situation + "\". " +
     "The prompt MUST include ALL of the following elements woven into one vivid paragraph:\n" +
     "CAMERA HEIGHT: " + cameraHeight(age) + ".\n" +
