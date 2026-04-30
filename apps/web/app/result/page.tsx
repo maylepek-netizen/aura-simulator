@@ -317,259 +317,6 @@ class AmbientSoundEngine {
   }
 }
 
-// ─── Environment Sound Engine ────────────────────────────────────────────────
-
-class EnvironmentSoundEngine {
-  private ctx: AudioContext;
-  private nodes: AudioNode[] = [];
-  private timeouts: ReturnType<typeof setTimeout>[] = [];
-  private running = false;
-
-  constructor() {
-    this.ctx = new AudioContext();
-  }
-
-  // Noise buffers — normalized output, no runaway amplification
-  private makeNoise(seconds: number, type: "white" | "brown"): AudioBufferSourceNode {
-    const sr = this.ctx.sampleRate;
-    const len = Math.floor(sr * seconds);
-    const buf = this.ctx.createBuffer(1, len, sr);
-    const d = buf.getChannelData(0);
-    if (type === "white") {
-      for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
-    } else {
-      let last = 0;
-      for (let i = 0; i < len; i++) {
-        const w = Math.random() * 2 - 1;
-        last = (last + 0.02 * w) / 1.02;
-        d[i] = Math.max(-1, Math.min(1, last * 14));
-      }
-    }
-    const src = this.ctx.createBufferSource();
-    src.buffer = buf; src.loop = true;
-    return src;
-  }
-
-  private gain(v: number): GainNode {
-    const g = this.ctx.createGain(); g.gain.value = v; return g;
-  }
-
-  private connect(...chain: AudioNode[]) {
-    for (let i = 0; i < chain.length - 1; i++) chain[i].connect(chain[i + 1]);
-  }
-
-  // Children/screaming: rapid high-pitched noise bursts 2500-4000Hz every 0.3-1s
-  private addScreamLayer(vol: number) {
-    const fire = () => {
-      if (!this.running) return;
-      const now = this.ctx.currentTime;
-      const dur = 0.06 + Math.random() * 0.12;
-      const len = Math.floor(this.ctx.sampleRate * dur);
-      const buf = this.ctx.createBuffer(1, len, this.ctx.sampleRate);
-      const d = buf.getChannelData(0);
-      for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
-      const src = this.ctx.createBufferSource(); src.buffer = buf;
-      const bp = this.ctx.createBiquadFilter();
-      bp.type = "bandpass"; bp.frequency.value = 2500 + Math.random() * 1500; bp.Q.value = 3;
-      const g = this.ctx.createGain();
-      g.gain.setValueAtTime(vol, now);
-      g.gain.exponentialRampToValueAtTime(0.001, now + dur);
-      this.connect(src, bp, g, this.ctx.destination);
-      src.start(now); src.stop(now + dur + 0.01);
-      this.nodes.push(src, bp, g);
-      const t = setTimeout(fire, 300 + Math.random() * 700);
-      this.timeouts.push(t);
-    };
-    fire();
-  }
-
-  // Alarm/siren: oscillating 800-1200Hz cycling every 0.4s
-  private addAlarmLayer(vol: number) {
-    const osc = this.ctx.createOscillator();
-    osc.type = "square"; osc.frequency.value = 1000;
-    // Frequency sweeps between 800 and 1200 with a 2.5Hz LFO
-    const lfo = this.ctx.createOscillator();
-    lfo.type = "sine"; lfo.frequency.value = 2.5;
-    const lfoG = this.ctx.createGain(); lfoG.gain.value = 200;
-    lfo.connect(lfoG); lfoG.connect(osc.frequency);
-    const master = this.gain(vol);
-    this.connect(osc, master, this.ctx.destination);
-    osc.start(); lfo.start();
-    this.nodes.push(osc, lfo, lfoG, master);
-  }
-
-  // Crowd/mall: brown noise rumble + bandpass voice texture + voice bursts
-  private addCrowdLayer(vol: number) {
-    const brown = this.makeNoise(4, "brown");
-    const lp = this.ctx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 800;
-    const rumbleG = this.gain(vol);
-    this.connect(brown, lp, rumbleG, this.ctx.destination);
-    brown.start();
-    this.nodes.push(brown, lp, rumbleG);
-
-    const white = this.makeNoise(3, "white");
-    const bp = this.ctx.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = 1200; bp.Q.value = 0.4;
-    const midG = this.gain(vol * 0.6);
-    this.connect(white, bp, midG, this.ctx.destination);
-    white.start();
-    this.nodes.push(white, bp, midG);
-
-    // Voice bursts
-    const fire = () => {
-      if (!this.running) return;
-      const now = this.ctx.currentTime;
-      const dur = 0.1 + Math.random() * 0.25;
-      const len = Math.floor(this.ctx.sampleRate * dur);
-      const buf = this.ctx.createBuffer(1, len, this.ctx.sampleRate);
-      const d = buf.getChannelData(0);
-      for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
-      const src = this.ctx.createBufferSource(); src.buffer = buf;
-      const vbp = this.ctx.createBiquadFilter(); vbp.type = "bandpass"; vbp.frequency.value = 400 + Math.random() * 400; vbp.Q.value = 2;
-      const g = this.ctx.createGain();
-      g.gain.setValueAtTime(vol * 0.7, now);
-      g.gain.exponentialRampToValueAtTime(0.001, now + dur);
-      this.connect(src, vbp, g, this.ctx.destination);
-      src.start(now); src.stop(now + dur + 0.01);
-      this.nodes.push(src, vbp, g);
-      const t = setTimeout(fire, 400 + Math.random() * 1200);
-      this.timeouts.push(t);
-    };
-    fire();
-  }
-
-  // Party: bass pulse at 120BPM (60Hz) + crowd noise
-  private addPartyLayer(vol: number) {
-    const bpm = 120;
-    const fireBass = () => {
-      if (!this.running) return;
-      const now = this.ctx.currentTime;
-      const osc = this.ctx.createOscillator();
-      osc.type = "sine"; osc.frequency.value = 60;
-      const g = this.ctx.createGain();
-      g.gain.setValueAtTime(vol, now);
-      g.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
-      this.connect(osc, g, this.ctx.destination);
-      osc.start(now); osc.stop(now + 0.3);
-      this.nodes.push(osc, g);
-      const t = setTimeout(fireBass, (60 / bpm) * 1000);
-      this.timeouts.push(t);
-    };
-    fireBass();
-    this.addCrowdLayer(vol * 0.7);
-  }
-
-  // Rain: white noise through lowpass
-  private addRainLayer(vol: number) {
-    const white = this.makeNoise(4, "white");
-    const lp = this.ctx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 4000;
-    const master = this.gain(vol);
-    this.connect(white, lp, master, this.ctx.destination);
-    white.start();
-    this.nodes.push(white, lp, master);
-  }
-
-  // Classroom: medium crowd murmur + occasional chair scrape
-  private addClassroomLayer(vol: number) {
-    this.addCrowdLayer(vol * 0.7);
-    // Chair scrape: low-mid broadband burst every 8-20s
-    const fireScrape = () => {
-      if (!this.running) return;
-      const now = this.ctx.currentTime;
-      const dur = 0.3 + Math.random() * 0.4;
-      const len = Math.floor(this.ctx.sampleRate * dur);
-      const buf = this.ctx.createBuffer(1, len, this.ctx.sampleRate);
-      const d = buf.getChannelData(0);
-      for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
-      const src = this.ctx.createBufferSource(); src.buffer = buf;
-      const bp = this.ctx.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = 600 + Math.random() * 400; bp.Q.value = 0.5;
-      const g = this.ctx.createGain();
-      g.gain.setValueAtTime(vol * 0.8, now);
-      g.gain.exponentialRampToValueAtTime(0.001, now + dur);
-      this.connect(src, bp, g, this.ctx.destination);
-      src.start(now); src.stop(now + dur + 0.01);
-      this.nodes.push(src, bp, g);
-      const t = setTimeout(fireScrape, 8000 + Math.random() * 12000);
-      this.timeouts.push(t);
-    };
-    fireScrape();
-  }
-
-  // Train/bus: constant low rumble 40-80Hz
-  private addTransitLayer(vol: number) {
-    const osc = this.ctx.createOscillator();
-    osc.type = "sawtooth"; osc.frequency.value = 50 + Math.random() * 30;
-    const lp = this.ctx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 120;
-    // Slow amplitude wobble
-    const lfo = this.ctx.createOscillator(); lfo.type = "sine"; lfo.frequency.value = 0.3;
-    const lfoG = this.ctx.createGain(); lfoG.gain.value = vol * 0.2;
-    const master = this.gain(vol * 0.8);
-    lfo.connect(lfoG); lfoG.connect(master.gain);
-    this.connect(osc, lp, master, this.ctx.destination);
-    osc.start(); lfo.start();
-    this.nodes.push(osc, lp, lfo, lfoG, master);
-
-    // Brown noise road texture
-    const brown = this.makeNoise(3, "brown");
-    const brownG = this.gain(vol * 0.3);
-    this.connect(brown, brownG, this.ctx.destination);
-    brown.start();
-    this.nodes.push(brown, brownG);
-  }
-
-  // Default: soft brown noise
-  private addDefaultLayer(vol: number) {
-    const brown = this.makeNoise(4, "brown");
-    const lp = this.ctx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 600;
-    const master = this.gain(vol);
-    this.connect(brown, lp, master, this.ctx.destination);
-    brown.start();
-    this.nodes.push(brown, lp, master);
-  }
-
-  start(situation: string, auditory: string, load: number) {
-    if (this.running) return;
-    this.running = true;
-    if (this.ctx.state === "suspended") void this.ctx.resume();
-
-    const base = Math.min(0.6, 0.4 + (load / 100) * 0.2);
-    const t = (situation + " " + auditory).toLowerCase();
-
-    if (/ילד|children|scream|צורח|צועק|שריקה|shriek|yell|kids/.test(t)) {
-      this.addScreamLayer(base);
-    } else if (/אזעק|alarm|siren|צופר|חירום/.test(t)) {
-      this.addAlarmLayer(base + 0.1);
-    } else if (/מסיבה|party|club|דיסקו|disco/.test(t)) {
-      this.addPartyLayer(base);
-    } else if (/קניון|mall|crowd|המון|supermarket|סופר|קהל|אנשים|people|restaurant|מסעדה|cafe|בית קפה/.test(t)) {
-      this.addCrowdLayer(base);
-    } else if (/כיתה|classroom|school|בית ספר|class/.test(t)) {
-      this.addClassroomLayer(base);
-    } else if (/רכבת|אוטובוס|train|bus|metro|subway/.test(t)) {
-      this.addTransitLayer(base);
-    } else if (/גשם|rain|storm|סופה|מטר/.test(t)) {
-      this.addRainLayer(base - 0.05);
-    } else {
-      this.addDefaultLayer(0.2);
-    }
-  }
-
-  stop() {
-    this.running = false;
-    for (const t of this.timeouts) clearTimeout(t);
-    this.timeouts = [];
-    for (const n of this.nodes) {
-      try { (n as AudioBufferSourceNode).stop?.(); } catch {}
-    }
-    this.nodes = [];
-    try { this.ctx.suspend(); } catch {}
-  }
-
-  destroy() {
-    this.stop();
-    try { this.ctx.close(); } catch {}
-  }
-}
-
 // ─── Animated Meter ───────────────────────────────────────────────────────────
 
 function Meter({ label, value, max = 100, color }: { label: string; value: number; max?: number; color: string }) {
@@ -664,10 +411,6 @@ export default function ResultPage() {
   const [stimmingActive, setStimmingActive] = useState(false);
   const stimmingRafRef = useRef<number | null>(null);
 
-  // Environment sound
-  const [envPlaying, setEnvPlaying] = useState(false);
-  const envEngineRef = useRef<EnvironmentSoundEngine | null>(null);
-
   // Timed reveal sequence
   const [videoVisible, setVideoVisible] = useState(false);
   const [showGenerating, setShowGenerating] = useState(false);
@@ -679,7 +422,6 @@ export default function ResultPage() {
   useEffect(() => {
     return () => {
       ambientEngineRef.current?.destroy();
-      envEngineRef.current?.destroy();
       ttsAudioRef.current?.pause();
       if (freesoundAudioRef.current) { freesoundAudioRef.current.pause(); freesoundAudioRef.current = null; }
       revealTimersRef.current.forEach(clearTimeout);
@@ -719,18 +461,9 @@ export default function ResultPage() {
       });
     }
 
-    // T=15s: show "Generating visual…" indicator + auto-start env sound
+    // T=15s: show "Generating visual…" indicator
     const t15 = setTimeout(() => {
       setShowGenerating(true);
-      if (!envEngineRef.current) {
-        envEngineRef.current = new EnvironmentSoundEngine();
-      }
-      envEngineRef.current.start(
-        snapshot.situation,
-        result.sensory_channels?.auditory ?? "",
-        result.overall_load ?? 0
-      );
-      setEnvPlaying(true);
     }, 15000);
 
     // T=30s: enable stimming on the video container
@@ -952,23 +685,6 @@ export default function ResultPage() {
     setAmbientPlaying(true);
   }
 
-  function toggleEnv() {
-    if (envPlaying) {
-      envEngineRef.current?.stop();
-      setEnvPlaying(false);
-      return;
-    }
-    if (!envEngineRef.current) {
-      envEngineRef.current = new EnvironmentSoundEngine();
-    }
-    envEngineRef.current.start(
-      snapshot.situation,
-      result?.sensory_channels?.auditory ?? "",
-      result?.overall_load ?? 0
-    );
-    setEnvPlaying(true);
-  }
-
   async function downloadVideo() {
     if (!videoUrl) return;
     try {
@@ -1025,7 +741,6 @@ export default function ResultPage() {
             src={videoUrl}
             autoPlay
             loop
-            muted
             playsInline
             onPlay={handleVideoPlay}
             onTimeUpdate={handleTimeUpdate}
@@ -1104,7 +819,6 @@ export default function ResultPage() {
         <div style={{ borderBottom: "1px solid rgba(255,255,255,0.08)", flexShrink: 0 }}>
           {[
             { icon: "♥", label: "Heartbeat", active: ambientPlaying, color: "rgba(252,165,165,0.9)" },
-            { icon: "◎", label: "Environment", active: envPlaying, color: "rgba(134,239,172,0.9)" },
             { icon: "◈", label: audioPlaying ? "Playing thoughts…" : "Inner thoughts", active: audioPlaying, color: "rgba(147,197,253,0.9)", onClick: toggleNarration },
             { icon: "⟳", label: "Rocking movements", active: hasStimming && !stimmingPaused, color: "rgba(216,180,254,0.9)" },
           ].map(({ icon, label, active, color, onClick }) => (
