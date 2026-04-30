@@ -4,9 +4,9 @@ const TTS_MODEL = "gemini-2.5-flash-preview-tts";
 
 function voiceForGender(gender: string): string {
   const g = gender.toLowerCase().trim();
-  if (g === "female" || g === "נקבה") return "Kore";
-  if (g === "male" || g === "זכר") return "Charon";
-  // other / אחר / non-binary / prefer not to say → neutral
+  if (g === "female" || g === "נקבה" || g === "woman") return "Kore";
+  if (g === "male" || g === "זכר" || g === "man") return "Charon";
+  // non-binary / prefer not to say / other / אחר → neutral
   return "Fenrir";
 }
 

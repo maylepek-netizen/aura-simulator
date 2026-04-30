@@ -801,6 +801,7 @@ export default function ResultPage() {
     const text = r.monologue.join(". ");
     setAudioPlaying(true);
     try {
+      console.log("[TTS] sending gender from localStorage:", JSON.stringify(snapshot.gender));
       const res = await fetch("/api/tts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
