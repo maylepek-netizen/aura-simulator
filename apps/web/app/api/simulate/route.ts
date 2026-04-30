@@ -37,13 +37,24 @@ function loadVisuals(load: number): string {
   return "severe chromatic aberration with red/blue fringing, extreme overexposure on light sources, faces completely distorted, fast jump cuts, flickering, panic-inducing camera movement";
 }
 
-function buildVideoPromptInstructions(_age: number, _gender: string, situation: string): string {
+function ageApproximateCameraHeight(age: number): string {
+  if (age >= 5 && age <= 12) return "approximately 1.0m";
+  if (age >= 13 && age <= 17) return "approximately 1.5m";
+  return "approximately 1.6-1.7m";
+}
+
+function buildVideoPromptInstructions(age: number, _gender: string, situation: string): string {
+  const camHeight = ageApproximateCameraHeight(age);
   return (
     "Write a Veo video prompt for this situation: \"" + situation + "\". " +
     "Use TWO layers: " +
     "LAYER 1 - REALISTIC SCENE: Describe the exact real location. Normal human camera movement at eye level. Natural lighting for the environment. People and objects that belong in this scene. Camera moves like a calm person standing or walking slowly — no dramatic movements. " +
     "LAYER 2 - BRAIN PROCESSING (subtle distortions on top of the realistic scene): Colors slightly oversaturated. Faces slightly soft/unfocused while objects stay sharp. One small random detail gets too much attention (a button, a tile, a crack in the wall). Peripheral edges slightly darker and blurred. " +
     "Scale both layers by overall_load: low load = almost normal with very subtle layer 2; medium load = noticeable but not overwhelming; high load = layer 2 stronger but scene stays fully recognizable. " +
+    "SCENE FOCUS RULE: First identify — are there people or a concrete event in this situation? " +
+    "IF PEOPLE OR EVENT PRESENT: Camera stays at realistic eye level throughout. Camera focuses on the people and what is happening — faces, bodies, movements, interactions. The autistic distortion happens ON the people: faces slightly unclear, expressions hard to read, bodies feel too close, movements feel threatening or unpredictable. Hyper-focus on one specific uncomfortable detail OF the person (their mouth moving, their hands, their eyes) — NOT on random objects or the floor. Camera does NOT escape to the floor or random objects when people are present. " +
+    "IF ALONE OR PASSIVE SITUATION: Camera may drift to small irrelevant details (floor, objects, textures). Environment becomes the subject. Time feels stretched. " +
+    "CAMERA HEIGHT RULE (always): Camera is fixed at " + camHeight + " for the entire video — the age-appropriate eye level for this person. NEVER drops to floor level unless the person is physically on the floor. Emotional state does not change camera height. " +
     "Write one short focused paragraph. Photorealistic, first-person POV."
   );
 }
