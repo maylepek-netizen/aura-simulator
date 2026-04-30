@@ -2,9 +2,18 @@ import { NextRequest, NextResponse } from "next/server";
 
 const GEMINI_MODEL = "gemini-2.5-flash";
 
+const RESEARCH_CONTEXT =
+  "Key research grounding this simulation:\n" +
+  "[DEP] Milton et al. — Double Empathy Problem (2022): 'the double empathy problem refers to a breakdown in mutual understanding — a problem for both parties — interaction between autistic and non-autistic people as a primarily mutual and interpersonal issue.' → Social situations feel confusing and unsafe not because of a deficit but because of a genuine mismatch in communication styles.\n" +
+  "[EPF] Mottron et al. — Enhanced Perceptual Functioning (2006): 'locally oriented visual and auditory perception, enhanced low-level discrimination… autonomy of low-level information processing toward higher-order operations.' → Small details are processed more intensely than the whole; a button or a texture may dominate over a face.\n" +
+  "[G-AUD] Grandin — Auditory experience: 'My hearing is like having a hearing aid with the volume control stuck on super loud… an open microphone that picks up everything… I can't modulate incoming auditory stimulation.' → All sounds arrive at equal volume; background noise competes with speech.\n" +
+  "[G-TAC] Grandin — Tactile experience: 'petticoats itched and scratched… Most people adapt… Even now… it takes me three to four days to fully adapt.' → Clothing, textures, physical contact remain consciously present rather than fading to background.\n" +
+  "Additional grounding concepts: monotropism (attention tunnels deeply into one thing, switching is costly); interoception differences (internal body signals — hunger, pain, heartbeat — are either amplified or absent); masking/camouflaging (constant conscious effort to perform neurotypical behavior drains cognitive resources); emotional processing differences (emotions are felt intensely but may not surface in expected facial expressions).";
+
 const SYSTEM_PROMPT =
   "You are a precise simulation engine that recreates the internal experience of an autistic person in a given situation. " +
-  "Your output is grounded in peer-reviewed autism research. Return ONLY valid JSON. All text in English.";
+  "Your output is grounded in peer-reviewed autism research. Return ONLY valid JSON. All text in English.\n\n" +
+  RESEARCH_CONTEXT;
 
 function cameraHeight(age: number): string {
   if (age >= 5 && age <= 12)
@@ -59,6 +68,7 @@ function buildVideoPromptInstructions(age: number, _gender: string, situation: s
     "MONOLOGUE-TO-VISUAL MAPPING: Read the monologue field carefully. Each thought is a visual cue for what the camera should show: 'his eyes are crinkling' means camera focuses on the eyes specifically; 'too close, I can smell his cologne' means the person steps closer and camera slightly backs away; 'my brain is searching' means camera drifts slightly, unfocused, searching; 'is this a threat?' means camera focuses on hands or posture; 'just walk away' means camera starts to turn slightly. Translate each monologue thought into a specific camera behavior or visual focus. The video IS the visual experience of these thoughts. " +
     "TRUE FIRST-PERSON POV: This is a strict first-person POV video. The camera IS the person's eyes. We never see the person who is experiencing this — no reflection, no shadow of themselves, no body parts of the protagonist visible unless looking down at their own hands. The viewer IS this person. Everything is seen through their eyes only. " +
     "SUBTLE ALIEN FEELING: Even though the scene is realistic, the world must still feel profoundly wrong and alien. People are real and recognizable BUT expressions look slightly off, eyes are too intense, movements feel slightly unpredictable. The environment is real BUT lighting is a fraction too harsh, colors a shade too saturated. The feeling is: I am in a real place but something about this world does not feel safe or familiar. Subtle wrongness, not horror. " +
+    "RESEARCH-GROUNDED DIRECTING: All visual directing decisions must be grounded in autism research. Reference the research citations provided — specifically: sensory processing differences (hyper/hypo sensitivity from Grandin and Mottron), monotropism (deep focus tunneling into single details), interoception differences (amplified awareness of one's own heartbeat or breathing), masking/camouflaging (the exhausting effort of performing normalcy visible in small hesitations), double empathy problem (social confusion as mutual mismatch, not deficit), and emotional processing differences. The video should feel like it was directed by someone who deeply understands the neuroscience of autistic perception — not a generic 'overwhelmed person' depiction. " +
     "Write one short focused paragraph. Photorealistic, first-person POV."
   );
 }
