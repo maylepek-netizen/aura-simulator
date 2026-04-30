@@ -775,7 +775,8 @@ export default function ResultPage() {
       if (stimmingRafRef.current !== null) cancelAnimationFrame(stimmingRafRef.current);
       if (el) el.style.transform = "";
     };
-  }, [stimmingActive, stimmingPaused, result?.overall_load]);
+  // videoUrl added so effect re-runs if video mounts after stimmingActive fires
+  }, [stimmingActive, stimmingPaused, result?.overall_load, videoUrl]);
   const [videoLoopOpacity, setVideoLoopOpacity] = useState(1);
 
   const handleVideoPlay = useCallback(() => {
