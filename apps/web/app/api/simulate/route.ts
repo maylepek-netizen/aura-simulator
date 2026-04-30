@@ -60,7 +60,8 @@ function buildVideoPromptInstructions(age: number, _gender: string, situation: s
     "RULE 2 - REALISTIC SCENE: Show exactly what belongs in this situation — the real location, real people, real objects. Camera moves slowly and naturally like a human standing or walking. No dramatic movements, no cinematic shots, no documentary style. " +
     "RULE 3 - MONOLOGUE-GROUNDED VISUALS: Read the monologue thoughts and use them as the visual script. Each thought tells you what the camera sees or does: if the thought mentions someone's eyes — focus on their eyes; if it mentions feeling trapped — camera drifts toward exits; if it mentions a specific detail — camera fixates on it. The video is the visual stream of the monologue, grounded in autism research (monotropism, sensory processing differences, interoception). " +
     "RULE 4 - SUBTLE ALIEN FEELING: The world feels slightly wrong but recognizable. Colors fractionally oversaturated. Lighting slightly too harsh. If people are present — faces loom uncomfortably close, expressions ambiguous, eyes too intense. Focus on the people and what is happening — not on the floor or random objects. Scale intensity by overall_load. " +
-    "RULE 5 - TECHNICAL: No subtitles, no text, no AI morphing artifacts. Human bodies anatomically correct. Photorealistic only. One short focused paragraph as output."
+    "RULE 5 - TECHNICAL: No subtitles, no text, no AI morphing artifacts. Human bodies anatomically correct. Photorealistic only. One short focused paragraph as output. " +
+    "SINGLE CONTINUOUS SHOT: The entire video must be ONE uninterrupted shot with NO cuts, NO scene changes, NO jump cuts. 5 seconds is very short — use all of it in one continuous slow movement within the same space. The camera may drift, rotate, or shift focus within the shot, but never cuts to a different location or angle. Think of it as one long breath, not a sequence of moments."
   );
 }
 
