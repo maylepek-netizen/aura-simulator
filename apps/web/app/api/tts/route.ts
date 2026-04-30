@@ -3,9 +3,10 @@ import { NextRequest, NextResponse } from "next/server";
 const TTS_MODEL = "gemini-2.5-flash-preview-tts";
 
 function voiceForGender(gender: string): string {
-  const g = gender.toLowerCase();
-  if (g === "female") return "Kore";
-  if (g === "male") return "Charon";
+  const g = gender.toLowerCase().trim();
+  if (g === "female" || g === "נקבה") return "Kore";
+  if (g === "male" || g === "זכר") return "Charon";
+  // other / אחר / non-binary / prefer not to say → neutral
   return "Fenrir";
 }
 
@@ -17,6 +18,7 @@ export async function POST(req: NextRequest) {
     if (!text) return NextResponse.json({ error: "Missing text" }, { status: 400 });
 
     const voice = voiceForGender(String(gender ?? ""));
+    console.log("[TTS] gender received:", gender, "→ voice:", voice);
 
     const res = await fetch(
       "https://generativelanguage.googleapis.com/v1beta/models/" + TTS_MODEL + ":generateContent?key=" + apiKey,
