@@ -78,7 +78,8 @@ function buildSchema(age: number, gender: string, situation: string): string {
     '  "emotions": ["emotion1","emotion2","emotion3"],\n' +
     '  "coping_actions": ["action1","action2","action3"],\n' +
     '  "masking_cost": "description",\n' +
-    '  "research_tags": ["tag1","tag2"]\n' +
+    '  "research_tags": ["tag1","tag2"],\n' +
+    '  "ambient_sound_query": "2-3 English keywords describing the dominant sound in this situation (e.g. \'children playground shouting\', \'thunderstorm rain\', \'shopping mall crowd\')"\n' +
     '}'
   );
 }

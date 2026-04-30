@@ -33,23 +33,33 @@ type SimulationResult = {
   coping_actions: string[];
   masking_cost: string;
   research_tags: string[];
+  ambient_sound_query?: string;
 };
 
 function nowIso() {
   return new Date().toISOString();
 }
 
-// ─── Ambient Sound Engine ─────────────────────────────────────────────────────
+// ─── Freesound Ambient Loader ─────────────────────────────────────────────────
+
+async function fetchFreesoundUrl(query: string): Promise<string | null> {
+  try {
+    const res = await fetch("/api/ambient-sound", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query }),
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.url ?? null;
+  } catch {
+    return null;
+  }
+}
+
+// ─── (Legacy — kept for environment engine) ───────────────────────────────────
 
 type AuditoryType = "scream" | "crowd" | "machine" | "default";
-
-function detectAuditoryType(text: string): AuditoryType {
-  const t = text.toLowerCase();
-  if (/scream|cry|crying|children|shriek|yell/.test(t)) return "scream";
-  if (/crowd|people|voices|chatter|noise|murmur|buzz/.test(t)) return "crowd";
-  if (/beep|machine|alarm|click|mechanical|buzz|hum/.test(t)) return "machine";
-  return "default";
-}
 
 class AmbientSoundEngine {
   private ctx: AudioContext;
@@ -643,9 +653,10 @@ export default function ResultPage() {
   const [audioPlaying, setAudioPlaying] = useState(false);
   const ttsAudioRef = useRef<HTMLAudioElement | null>(null);
 
-  // Ambient sound (heartbeat + breathing + soundscape)
+  // Freesound ambient audio
   const [ambientPlaying, setAmbientPlaying] = useState(false);
   const ambientEngineRef = useRef<AmbientSoundEngine | null>(null);
+  const freesoundAudioRef = useRef<HTMLAudioElement | null>(null);
 
   // Stimming pause
   const [stimmingPaused, setStimmingPaused] = useState(false);
@@ -670,6 +681,7 @@ export default function ResultPage() {
       ambientEngineRef.current?.destroy();
       envEngineRef.current?.destroy();
       ttsAudioRef.current?.pause();
+      if (freesoundAudioRef.current) { freesoundAudioRef.current.pause(); freesoundAudioRef.current = null; }
       revealTimersRef.current.forEach(clearTimeout);
     };
   }, []);
@@ -692,13 +704,20 @@ export default function ResultPage() {
     revealTimersRef.current.forEach(clearTimeout);
     revealTimersRef.current = [];
 
-    // T=0: auto-start heartbeat
-    if (!ambientEngineRef.current) {
-      ambientEngineRef.current = new AmbientSoundEngine();
+    // T=0: start Freesound ambient audio
+    const load = result.overall_load ?? 0;
+    const vol = Math.min(0.6, 0.35 + (load / 100) * 0.25);
+    if (result.ambient_sound_query) {
+      fetchFreesoundUrl(result.ambient_sound_query).then((url) => {
+        if (!url) return;
+        const el = new Audio(url);
+        el.loop = true;
+        el.volume = vol;
+        freesoundAudioRef.current = el;
+        el.play().catch(() => {});
+        setAmbientPlaying(true);
+      });
     }
-    const auditoryType = detectAuditoryType(result.sensory_channels?.auditory ?? "");
-    ambientEngineRef.current.start(result.overall_load ?? 0, auditoryType);
-    setAmbientPlaying(true);
 
     // T=15s: show "Generating visual…" indicator + auto-start env sound
     const t15 = setTimeout(() => {
@@ -851,6 +870,8 @@ export default function ResultPage() {
     revealTimersRef.current = [];
     narrationStartedRef.current = false;
     stopNarration();
+    if (freesoundAudioRef.current) { freesoundAudioRef.current.pause(); freesoundAudioRef.current = null; }
+    setAmbientPlaying(false);
 
     const msgs = [
       "Calibrating sensory channels…",
@@ -923,15 +944,11 @@ export default function ResultPage() {
 
   function toggleAmbient() {
     if (ambientPlaying) {
-      ambientEngineRef.current?.stop();
+      freesoundAudioRef.current?.pause();
       setAmbientPlaying(false);
       return;
     }
-    if (!ambientEngineRef.current) {
-      ambientEngineRef.current = new AmbientSoundEngine();
-    }
-    const auditoryType = detectAuditoryType(result?.sensory_channels?.auditory ?? "");
-    ambientEngineRef.current.start(result?.overall_load ?? 0, auditoryType);
+    freesoundAudioRef.current?.play().catch(() => {});
     setAmbientPlaying(true);
   }
 
