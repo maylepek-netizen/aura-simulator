@@ -575,8 +575,8 @@ export default function ResultPage() {
       setAmbientPlaying(true);
     }, 15000);
 
-    // T=25s after result: play local sound file based on ambient_sound field
-    const t25 = setTimeout(() => {
+    // T=30s after result: ambient environmental sound + stimming
+    const t30 = setTimeout(() => {
       const key = (result.ambient_sound ?? "none").toLowerCase().trim();
       const soundUrl = SOUND_MAP[key] ?? null;
       if (soundUrl) {
@@ -586,14 +586,10 @@ export default function ResultPage() {
         freesoundAudioRef.current = el;
         el.play().catch(() => {});
       }
-    }, 25000);
-
-    // T=30s after result: stimming activates
-    const t30 = setTimeout(() => {
       setStimmingActive(true);
     }, 30000);
 
-    revealTimersRef.current = [t5, t15, t25, t30];
+    revealTimersRef.current = [t5, t15, t30];
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [result !== null]);
 
