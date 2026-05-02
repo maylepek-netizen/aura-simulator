@@ -80,7 +80,7 @@ function buildSchema(age: number, gender: string, situation: string): string {
     '  "coping_actions": ["action1","action2","action3"],\n' +
     '  "masking_cost": "description",\n' +
     '  "research_tags": ["tag1","tag2"],\n' +
-    '  "ambient_sound_query": "2-3 English keywords describing the dominant sound in this situation (e.g. \'children playground shouting\', \'thunderstorm rain\', \'shopping mall crowd\')"\n' +
+    '  "ambient_sound": "Pick ONE value from this exact list based on the dominant sound in the situation: mall, children, storm, alarm, restaurant, train, nature, party, none"\n' +
     '}'
   );
 }

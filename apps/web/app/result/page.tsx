@@ -33,6 +33,7 @@ type SimulationResult = {
   coping_actions: string[];
   masking_cost: string;
   research_tags: string[];
+  ambient_sound?: string;
   ambient_sound_query?: string;
 };
 
@@ -42,20 +43,17 @@ function nowIso() {
 
 // ─── Freesound Ambient Loader ─────────────────────────────────────────────────
 
-async function fetchFreesoundUrl(query: string): Promise<string | null> {
-  try {
-    const res = await fetch("/api/ambient-sound", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ query }),
-    });
-    if (!res.ok) return null;
-    const data = await res.json();
-    return data.url ?? null;
-  } catch {
-    return null;
-  }
-}
+const SOUND_MAP: Record<string, string | null> = {
+  mall:       "/sounds/mall.wav",
+  children:   "/sounds/children.wav",
+  storm:      "/sounds/storm.wav",
+  alarm:      "/sounds/alarm.wav",
+  restaurant: "/sounds/restaurant.wav",
+  train:      "/sounds/train.wav",
+  nature:     "/sounds/nature.wav",
+  party:      "/sounds/party.wav",
+  none:       null,
+};
 
 // ─── (Legacy — kept for environment engine) ───────────────────────────────────
 
@@ -577,17 +575,16 @@ export default function ResultPage() {
       setAmbientPlaying(true);
     }, 15000);
 
-    // T=25s after result: start freesound ambient
+    // T=25s after result: play local sound file based on ambient_sound field
     const t25 = setTimeout(() => {
-      if (result.ambient_sound_query) {
-        fetchFreesoundUrl(result.ambient_sound_query).then((url) => {
-          if (!url) return;
-          const el = new Audio(url);
-          el.loop = true;
-          el.volume = vol;
-          freesoundAudioRef.current = el;
-          el.play().catch(() => {});
-        });
+      const key = (result.ambient_sound ?? "none").toLowerCase().trim();
+      const soundUrl = SOUND_MAP[key] ?? null;
+      if (soundUrl) {
+        const el = new Audio(soundUrl);
+        el.loop = true;
+        el.volume = Math.min(0.6, 0.4 + (load / 100) * 0.2);
+        freesoundAudioRef.current = el;
+        el.play().catch(() => {});
       }
     }, 25000);
 
