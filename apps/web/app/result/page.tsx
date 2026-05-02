@@ -578,13 +578,19 @@ export default function ResultPage() {
     // T=30s after result: ambient environmental sound + stimming
     const t30 = setTimeout(() => {
       const key = (result.ambient_sound ?? "none").toLowerCase().trim();
+      console.log("[ambient] ambient_sound value:", JSON.stringify(result.ambient_sound), "→ key:", key);
       const soundUrl = SOUND_MAP[key] ?? null;
+      console.log("[ambient] resolved soundUrl:", soundUrl);
       if (soundUrl) {
-        const el = new Audio(soundUrl);
-        el.loop = true;
-        el.volume = Math.min(0.6, 0.4 + (load / 100) * 0.2);
-        freesoundAudioRef.current = el;
-        el.play().catch(() => {});
+        const audio = new Audio(soundUrl);
+        audio.loop = true;
+        audio.volume = 0.4;
+        freesoundAudioRef.current = audio;
+        audio.play().then(() => {
+          console.log("[ambient] playing:", soundUrl);
+        }).catch((err) => {
+          console.log("[ambient] play() failed:", err);
+        });
       }
       setStimmingActive(true);
     }, 30000);
@@ -627,11 +633,11 @@ export default function ResultPage() {
     }
     if (el) el.style.transform = "";
 
-    if (!active || currentLoad < 40 || !el) return;
+    if (!active || !el) return;
 
-    const ampY  = currentLoad > 70 ? 10  : 4;
-    const ampR  = currentLoad > 70 ? 1   : 0;
-    const period = currentLoad > 70 ? 1000 : 3000;
+    const ampY   = currentLoad > 80 ? 12  : currentLoad > 65 ? 8  : currentLoad >= 40 ? 4  : 2;
+    const ampR   = currentLoad > 80 ? 1.5 : currentLoad > 65 ? 0.5 : 0;
+    const period = currentLoad > 80 ? 1000 : currentLoad > 65 ? 2000 : currentLoad >= 40 ? 3000 : 5000;
 
     const tick = (ts: number) => {
       const t = (ts % period) / period * Math.PI * 2;
