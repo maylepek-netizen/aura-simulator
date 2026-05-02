@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, useCallback } from "react";
+import React, { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { loadExperienceDraft, loadProfile } from "@/lib/experienceStorage";
 import { saveSimulation } from "@/lib/simulationStorage";
@@ -96,6 +96,7 @@ class AmbientSoundEngine {
   }
 
   private beatPulse(when: number, gain: number) {
+    gain = gain * 1.4;
     const osc = this.ctx.createOscillator();
     const gainNode = this.ctx.createGain();
     const filter = this.ctx.createBiquadFilter();
@@ -317,6 +318,60 @@ class AmbientSoundEngine {
   }
 }
 
+// ─── Processing Metrics (loading animation) ──────────────────────────────────
+
+const PROC_METRICS = [
+  { key: "NEURAL LOAD",        mode: "random",   speed: 200 },
+  { key: "SENSORY INPUT",      mode: "random",   speed: 150 },
+  { key: "PATTERN RECOGNITION",mode: "rise",     speed: 80  },
+  { key: "SOCIAL MAPPING",     mode: "erratic",  speed: 250 },
+  { key: "MEMORY SEARCH",      mode: "pulse",    speed: 300 },
+  { key: "THREAT ASSESSMENT",  mode: "wave",     speed: 180 },
+] as const;
+
+function ProcessingMetrics({ msg }: { msg: string }) {
+  const [vals, setVals] = React.useState<number[]>(PROC_METRICS.map(() => 0));
+
+  React.useEffect(() => {
+    let frame = 0;
+    const timers = PROC_METRICS.map((m, i) =>
+      setInterval(() => {
+        frame++;
+        setVals((prev) => {
+          const next = [...prev];
+          if (m.mode === "random")  next[i] = Math.round(Math.random() * 100);
+          if (m.mode === "erratic") next[i] = Math.round(20 + Math.random() * 80);
+          if (m.mode === "rise")    next[i] = Math.min(100, prev[i] + 2 + Math.random() * 3);
+          if (m.mode === "pulse")   next[i] = frame % 2 === 0 ? Math.round(30 + Math.random() * 50) : Math.round(60 + Math.random() * 40);
+          if (m.mode === "wave")    next[i] = Math.round(50 + 50 * Math.sin(frame / 8));
+          return next;
+        });
+      }, m.speed)
+    );
+    return () => timers.forEach(clearInterval);
+  }, []);
+
+  return (
+    <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 0, fontFamily: "monospace", background: "#000" }}>
+      <div style={{ fontSize: 9, letterSpacing: "0.35em", color: "rgba(0,255,80,0.7)", marginBottom: 28, textTransform: "uppercase", animation: "pulse 1s infinite" }}>{msg}</div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 10, width: 280 }}>
+        {PROC_METRICS.map((m, i) => (
+          <div key={m.key} style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <span style={{ fontSize: 8, letterSpacing: "0.2em", color: "rgba(0,255,80,0.5)" }}>{m.key}</span>
+              <span style={{ fontSize: 9, color: "rgba(0,255,80,0.9)", width: 32, textAlign: "right" }}>{Math.round(vals[i])}</span>
+            </div>
+            <div style={{ height: 2, background: "rgba(0,255,80,0.1)", borderRadius: 1, overflow: "hidden" }}>
+              <div style={{ height: "100%", width: `${vals[i]}%`, background: "rgba(0,255,80,0.8)", transition: "width 0.1s linear", borderRadius: 1 }} />
+            </div>
+          </div>
+        ))}
+      </div>
+      <div style={{ marginTop: 28, fontSize: 7, letterSpacing: "0.3em", color: "rgba(0,255,80,0.25)" }}>AURA SIMULATION ENGINE v2.5</div>
+    </div>
+  );
+}
+
 // ─── Animated Meter ───────────────────────────────────────────────────────────
 
 function Meter({ label, value, max = 100, color }: { label: string; value: number; max?: number; color: string }) {
@@ -466,31 +521,27 @@ export default function ResultPage() {
       setShowGenerating(true);
     }, 15000);
 
-    // T=30s: enable stimming on the video container
+    // T=30s: enable stimming + start narration together
     const t30 = setTimeout(() => {
       setStimmingActive(true);
+      if (!narrationStartedRef.current) {
+        narrationStartedRef.current = true;
+        void startNarration(result);
+      }
     }, 30000);
 
     revealTimersRef.current = [t15, t30];
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [result !== null]);
 
-  // Fade in video when it becomes available, start narration simultaneously
+  // Fade in video when it becomes available
   useEffect(() => {
     if (videoUrl) {
-      const t = setTimeout(() => {
-        setVideoVisible(true);
-        // Start narration at the same moment video fades in
-        if (!narrationStartedRef.current && result) {
-          narrationStartedRef.current = true;
-          void startNarration(result);
-        }
-      }, 50);
+      const t = setTimeout(() => setVideoVisible(true), 50);
       return () => clearTimeout(t);
     } else {
       setVideoVisible(false);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [videoUrl]);
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -758,10 +809,7 @@ export default function ResultPage() {
 
         {/* Loading overlay */}
         {(loading || (!videoUrl && !result)) && (
-          <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16 }}>
-            <div className="h-6 w-6 rounded-full border border-white/20 border-t-white/80 animate-spin" />
-            <div className="text-[10px] uppercase tracking-[0.22em] text-white/50">{loadMsg}</div>
-          </div>
+          <ProcessingMetrics msg={loadMsg} />
         )}
 
         {/* Generating indicator */}
