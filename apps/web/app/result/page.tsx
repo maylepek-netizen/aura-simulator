@@ -320,54 +320,105 @@ class AmbientSoundEngine {
 
 // ─── Processing Metrics (loading animation) ──────────────────────────────────
 
-const PROC_METRICS = [
-  { key: "NEURAL LOAD",        mode: "random",   speed: 200 },
-  { key: "SENSORY INPUT",      mode: "random",   speed: 150 },
-  { key: "PATTERN RECOGNITION",mode: "rise",     speed: 80  },
-  { key: "SOCIAL MAPPING",     mode: "erratic",  speed: 250 },
-  { key: "MEMORY SEARCH",      mode: "pulse",    speed: 300 },
-  { key: "THREAT ASSESSMENT",  mode: "wave",     speed: 180 },
+const LOADING_MESSAGES = [
+  "Initializing sensory mapping...",
+  "Analyzing social context...",
+  "Calibrating threat assessment...",
+  "Processing auditory input...",
+  "Mapping neural pathways...",
+  "Rendering internal experience...",
+];
+
+const PROC_METRICS_NEW = [
+  { key: "NEURAL LOAD",    mode: "random"  },
+  { key: "SENSORY INPUT",  mode: "random"  },
+  { key: "SOCIAL MAPPING", mode: "erratic" },
+  { key: "THREAT LEVEL",   mode: "wave"    },
 ] as const;
 
-function ProcessingMetrics({ msg }: { msg: string }) {
-  const [vals, setVals] = React.useState<number[]>(PROC_METRICS.map(() => 0));
+function ProcessingMetrics({ visible }: { visible: boolean }) {
+  const [msgIndex, setMsgIndex] = useState(0);
+  const [displayed, setDisplayed] = useState("");
+  const [fading, setFading] = useState(false);
+  const [vals, setVals] = useState<number[]>([67, 89, 41, 58]);
 
-  React.useEffect(() => {
+  // Typewriter effect for current message
+  useEffect(() => {
+    const msg = LOADING_MESSAGES[msgIndex];
+    setDisplayed("");
+    setFading(false);
+    let i = 0;
+    const typeTimer = setInterval(() => {
+      i++;
+      setDisplayed(msg.slice(0, i));
+      if (i >= msg.length) {
+        clearInterval(typeTimer);
+        // After fully typed, wait 1.2s then fade and advance
+        setTimeout(() => {
+          setFading(true);
+          setTimeout(() => {
+            setMsgIndex(prev => (prev + 1) % LOADING_MESSAGES.length);
+          }, 400);
+        }, 1200);
+      }
+    }, 35);
+    return () => clearInterval(typeTimer);
+  }, [msgIndex]);
+
+  // Metrics fluctuation
+  useEffect(() => {
     let frame = 0;
-    const timers = PROC_METRICS.map((m, i) =>
-      setInterval(() => {
-        frame++;
-        setVals((prev) => {
-          const next = [...prev];
-          if (m.mode === "random")  next[i] = Math.round(Math.random() * 100);
-          if (m.mode === "erratic") next[i] = Math.round(20 + Math.random() * 80);
-          if (m.mode === "rise")    next[i] = Math.min(100, prev[i] + 2 + Math.random() * 3);
-          if (m.mode === "pulse")   next[i] = frame % 2 === 0 ? Math.round(30 + Math.random() * 50) : Math.round(60 + Math.random() * 40);
-          if (m.mode === "wave")    next[i] = Math.round(50 + 50 * Math.sin(frame / 8));
-          return next;
-        });
-      }, m.speed)
-    );
-    return () => timers.forEach(clearInterval);
+    const timer = setInterval(() => {
+      frame++;
+      setVals([
+        Math.round(Math.random() * 100),
+        Math.round(Math.random() * 100),
+        Math.round(20 + Math.random() * 80),
+        Math.round(50 + 50 * Math.sin(frame / 8)),
+      ]);
+    }, 300);
+    return () => clearInterval(timer);
   }, []);
 
   return (
-    <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 0, fontFamily: "monospace", background: "#000" }}>
-      <div style={{ fontSize: 9, letterSpacing: "0.35em", color: "rgba(0,255,80,0.7)", marginBottom: 28, textTransform: "uppercase", animation: "pulse 1s infinite" }}>{msg}</div>
-      <div style={{ display: "flex", flexDirection: "column", gap: 10, width: 280 }}>
-        {PROC_METRICS.map((m, i) => (
+    <div style={{
+      position: "absolute", inset: 0,
+      display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+      gap: 0, fontFamily: "monospace", background: "#000",
+      opacity: visible ? 1 : 0, transition: "opacity 1.5s ease",
+      pointerEvents: visible ? "auto" : "none",
+      zIndex: 2,
+    }}>
+      {/* Typewriter message */}
+      <div style={{
+        fontSize: 11, letterSpacing: "0.25em", color: "rgba(0,255,80,0.85)",
+        marginBottom: 32, textTransform: "uppercase", minHeight: 18,
+        opacity: fading ? 0 : 1, transition: "opacity 0.4s",
+      }}>
+        {displayed}<span style={{ opacity: 0.5, animation: "none" }}>_</span>
+      </div>
+
+      {/* Metrics */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 12, width: 260 }}>
+        {PROC_METRICS_NEW.map((m, i) => (
           <div key={m.key} style={{ display: "flex", flexDirection: "column", gap: 3 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span style={{ fontSize: 8, letterSpacing: "0.2em", color: "rgba(0,255,80,0.5)" }}>{m.key}</span>
-              <span style={{ fontSize: 9, color: "rgba(0,255,80,0.9)", width: 32, textAlign: "right" }}>{Math.round(vals[i])}</span>
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <span style={{ fontSize: 8, letterSpacing: "0.18em", color: "rgba(0,255,80,0.45)" }}>{m.key}</span>
+              <span style={{ fontSize: 8, color: "rgba(0,255,80,0.8)", fontVariantNumeric: "tabular-nums" }}>{Math.round(vals[i])}%</span>
             </div>
-            <div style={{ height: 2, background: "rgba(0,255,80,0.1)", borderRadius: 1, overflow: "hidden" }}>
-              <div style={{ height: "100%", width: `${vals[i]}%`, background: "rgba(0,255,80,0.8)", transition: "width 0.1s linear", borderRadius: 1 }} />
+            <div style={{ height: 2, background: "rgba(0,255,80,0.1)", borderRadius: 1 }}>
+              <div style={{
+                height: "100%", width: `${vals[i]}%`,
+                background: "rgba(0,255,80,0.75)", transition: "width 0.25s linear", borderRadius: 1,
+              }} />
             </div>
           </div>
         ))}
       </div>
-      <div style={{ marginTop: 28, fontSize: 7, letterSpacing: "0.3em", color: "rgba(0,255,80,0.25)" }}>AURA SIMULATION ENGINE v2.5</div>
+
+      <div style={{ marginTop: 32, fontSize: 7, letterSpacing: "0.3em", color: "rgba(0,255,80,0.2)" }}>
+        AURA SIMULATION ENGINE v2.5
+      </div>
     </div>
   );
 }
@@ -445,11 +496,14 @@ export default function ResultPage() {
 
   const [result, setResult] = useState<SimulationResult | null>(null);
   const [loading, setLoading] = useState(false);
-  const [loadMsg, setLoadMsg] = useState("Initialising…");
   const [error, setError] = useState<string | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [videoLoading, setVideoLoading] = useState(false);
   const [videoUri, setVideoUri] = useState<string | null>(null);
+
+  // New state for timed reveal
+  const [panelsVisible, setPanelsVisible] = useState(false);
+  const [processingVisible, setProcessingVisible] = useState(true);
 
   // Gemini TTS narration
   const [audioPlaying, setAudioPlaying] = useState(false);
@@ -468,7 +522,6 @@ export default function ResultPage() {
 
   // Timed reveal sequence
   const [videoVisible, setVideoVisible] = useState(false);
-  const [showGenerating, setShowGenerating] = useState(false);
   const revealTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   // History save
@@ -501,47 +554,69 @@ export default function ResultPage() {
     revealTimersRef.current.forEach(clearTimeout);
     revealTimersRef.current = [];
 
-    // T=0: start Freesound ambient audio
     const load = result.overall_load ?? 0;
     const vol = Math.min(0.6, 0.35 + (load / 100) * 0.25);
-    if (result.ambient_sound_query) {
-      fetchFreesoundUrl(result.ambient_sound_query).then((url) => {
-        if (!url) return;
-        const el = new Audio(url);
-        el.loop = true;
-        el.volume = vol;
-        freesoundAudioRef.current = el;
-        el.play().catch(() => {});
-        setAmbientPlaying(true);
-      });
-    }
 
-    // T=15s: show "Generating visual…" indicator
+    // T=5s after result: panels appear
+    const t5 = setTimeout(() => {
+      setPanelsVisible(true);
+    }, 5000);
+
+    // T=15s after result: start heartbeat (ambientEngineRef)
     const t15 = setTimeout(() => {
-      setShowGenerating(true);
+      if (!ambientEngineRef.current) {
+        ambientEngineRef.current = new AmbientSoundEngine();
+      }
+      const auditoryText = result.sensory_channels?.auditory?.toLowerCase() ?? "";
+      const auditoryType: AuditoryType =
+        auditoryText.includes("scream") || auditoryText.includes("shout") ? "scream"
+        : auditoryText.includes("crowd") || auditoryText.includes("people") ? "crowd"
+        : auditoryText.includes("machine") || auditoryText.includes("buzz") || auditoryText.includes("hum") ? "machine"
+        : "default";
+      ambientEngineRef.current.start(load, auditoryType);
+      setAmbientPlaying(true);
     }, 15000);
 
-    // T=30s: enable stimming + start narration together
+    // T=25s after result: start freesound ambient
+    const t25 = setTimeout(() => {
+      if (result.ambient_sound_query) {
+        fetchFreesoundUrl(result.ambient_sound_query).then((url) => {
+          if (!url) return;
+          const el = new Audio(url);
+          el.loop = true;
+          el.volume = vol;
+          freesoundAudioRef.current = el;
+          el.play().catch(() => {});
+        });
+      }
+    }, 25000);
+
+    // T=30s after result: stimming activates
     const t30 = setTimeout(() => {
       setStimmingActive(true);
-      if (!narrationStartedRef.current) {
-        narrationStartedRef.current = true;
-        void startNarration(result);
-      }
     }, 30000);
 
-    revealTimersRef.current = [t15, t30];
+    revealTimersRef.current = [t5, t15, t25, t30];
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [result !== null]);
 
-  // Fade in video when it becomes available
+  // Video fade-in + narration when videoUrl arrives
   useEffect(() => {
     if (videoUrl) {
-      const t = setTimeout(() => setVideoVisible(true), 50);
+      setProcessingVisible(false);
+      const t = setTimeout(() => {
+        setVideoVisible(true);
+        if (!narrationStartedRef.current && result) {
+          narrationStartedRef.current = true;
+          void startNarration(result);
+        }
+      }, 50);
       return () => clearTimeout(t);
     } else {
       setVideoVisible(false);
+      setProcessingVisible(true);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [videoUrl]);
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -648,7 +723,8 @@ export default function ResultPage() {
     setVideoLoading(false);
     setSaved(false);
     setVideoVisible(false);
-    setShowGenerating(false);
+    setProcessingVisible(true);
+    setPanelsVisible(false);
     setStimmingActive(false);
     revealTimersRef.current.forEach(clearTimeout);
     revealTimersRef.current = [];
@@ -656,19 +732,6 @@ export default function ResultPage() {
     stopNarration();
     if (freesoundAudioRef.current) { freesoundAudioRef.current.pause(); freesoundAudioRef.current = null; }
     setAmbientPlaying(false);
-
-    const msgs = [
-      "Calibrating sensory channels…",
-      "Mapping internal state…",
-      "Synthesising experience…",
-      "Rendering perspective…",
-    ];
-    let mi = 0;
-    setLoadMsg(msgs[0]);
-    const ticker = setInterval(() => {
-      mi = Math.min(mi + 1, msgs.length - 1);
-      setLoadMsg(msgs[mi]);
-    }, 1800);
 
     try {
       const res = await fetch("/api/simulate", {
@@ -712,7 +775,6 @@ export default function ResultPage() {
     } catch (e) {
       setError(e instanceof Error ? e.message : "Unknown error");
     } finally {
-      clearInterval(ticker);
       setLoading(false);
     }
   }
@@ -807,22 +869,12 @@ export default function ResultPage() {
           </>
         )}
 
-        {/* Loading overlay */}
-        {(loading || (!videoUrl && !result)) && (
-          <ProcessingMetrics msg={loadMsg} />
-        )}
-
-        {/* Generating indicator */}
-        {!videoUrl && showGenerating && !loading && (
-          <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 12, pointerEvents: "none" }}>
-            <div className="h-3 w-3 animate-pulse" style={{ background: "rgba(255,255,255,0.15)" }} />
-            <div className="text-[9px] uppercase tracking-[0.2em] text-white/30 animate-pulse">Generating visual…</div>
-          </div>
-        )}
+        {/* Processing overlay — always rendered, fades in/out */}
+        <ProcessingMetrics visible={processingVisible} />
 
         {/* Error overlay */}
         {error && !loading && (
-          <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16 }}>
+          <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16, zIndex: 3 }}>
             <div className="text-[10px] uppercase tracking-[0.22em] text-white/60">Error</div>
             <p className="text-sm text-white/50 text-center px-8">{error}</p>
             <button type="button" onClick={() => void runSimulation()}
@@ -861,7 +913,7 @@ export default function ResultPage() {
       )}
 
       {/* ── LEFT GLASS PANEL (z-index 10) ────────────────────── */}
-      <div style={{ position: "fixed", top: 0, left: 0, bottom: 0, width: 280, zIndex: 10, ...glass, borderRight: "1px solid rgba(255,255,255,0.08)", display: "flex", flexDirection: "column" }}>
+      <div style={{ position: "fixed", top: 0, left: 0, bottom: 0, width: 280, zIndex: 10, ...glass, borderRight: "1px solid rgba(255,255,255,0.08)", display: "flex", flexDirection: "column", opacity: panelsVisible ? 1 : 0, transition: "opacity 0.8s ease" }}>
 
         {/* Sound status indicators */}
         <div style={{ borderBottom: "1px solid rgba(255,255,255,0.08)", flexShrink: 0 }}>
@@ -889,13 +941,23 @@ export default function ResultPage() {
             <div style={{ fontSize: 9, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.3)", marginBottom: 12 }}>Internal Monologue</div>
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               {result.monologue.map((t, i) => (
-                <p key={i} style={{ fontSize: 11, lineHeight: 1.75, color: "rgba(255,255,255,0.65)", borderLeft: "1px solid rgba(255,255,255,0.12)", paddingLeft: 10, margin: 0 }}>{t}</p>
+                <p key={i} style={{
+                  fontSize: 11, lineHeight: 1.75, color: "rgba(255,255,255,0.65)", borderLeft: "1px solid rgba(255,255,255,0.12)", paddingLeft: 10, margin: 0,
+                  opacity: panelsVisible ? 1 : 0,
+                  transform: panelsVisible ? "translateY(0)" : "translateY(8px)",
+                  transition: `opacity 0.5s ease ${i * 0.12}s, transform 0.5s ease ${i * 0.12}s`,
+                }}>{t}</p>
               ))}
             </div>
             <div style={{ marginTop: 20, paddingTop: 16, borderTop: "1px solid rgba(255,255,255,0.08)" }}>
               <div style={{ fontSize: 9, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.3)", marginBottom: 10 }}>Coping Actions</div>
               {result.coping_actions.map((a, i) => (
-                <p key={i} style={{ fontSize: 11, lineHeight: 1.75, color: "rgba(255,255,255,0.5)", borderLeft: "1px solid rgba(255,255,255,0.08)", paddingLeft: 10, margin: "0 0 8px" }}>{a}</p>
+                <p key={i} style={{
+                  fontSize: 11, lineHeight: 1.75, color: "rgba(255,255,255,0.5)", borderLeft: "1px solid rgba(255,255,255,0.08)", paddingLeft: 10, margin: "0 0 8px",
+                  opacity: panelsVisible ? 1 : 0,
+                  transform: panelsVisible ? "translateY(0)" : "translateY(8px)",
+                  transition: `opacity 0.5s ease ${(result.monologue.length + i) * 0.12}s, transform 0.5s ease ${(result.monologue.length + i) * 0.12}s`,
+                }}>{a}</p>
               ))}
             </div>
           </div>
@@ -939,14 +1001,18 @@ export default function ResultPage() {
 
       {/* ── RIGHT GLASS PANEL (z-index 10) ───────────────────── */}
       {result && (
-        <div style={{ position: "fixed", top: 0, right: 0, bottom: 0, width: 280, zIndex: 10, ...glass, borderLeft: "1px solid rgba(255,255,255,0.08)", display: "flex", flexDirection: "column", overflowY: "auto" }}>
+        <div style={{ position: "fixed", top: 0, right: 0, bottom: 0, width: 280, zIndex: 10, ...glass, borderLeft: "1px solid rgba(255,255,255,0.08)", display: "flex", flexDirection: "column", overflowY: "auto", opacity: panelsVisible ? 1 : 0, transition: "opacity 0.8s ease" }}>
           <div style={{ padding: "20px 20px 0", flex: 1 }}>
 
             {/* Sensory channels */}
             <Section title="Sensory Channels">
               <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                {Object.entries(result.sensory_channels).map(([key, val]) => (
-                  <div key={key}>
+                {Object.entries(result.sensory_channels).map(([key, val], i) => (
+                  <div key={key} style={{
+                    opacity: panelsVisible ? 1 : 0,
+                    transform: panelsVisible ? "translateY(0)" : "translateY(8px)",
+                    transition: `opacity 0.5s ease ${i * 0.12}s, transform 0.5s ease ${i * 0.12}s`,
+                  }}>
                     <div style={{ fontSize: 8, letterSpacing: "0.15em", textTransform: "uppercase", color: "rgba(255,255,255,0.25)", marginBottom: 3 }}>{key}</div>
                     <div style={{ fontSize: 11, lineHeight: 1.7, color: "rgba(255,255,255,0.6)" }}>{val}</div>
                   </div>
@@ -958,7 +1024,12 @@ export default function ResultPage() {
             <Section title="Emotions">
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                 {result.emotions.map((e, i) => (
-                  <div key={i} style={{ fontSize: 11, lineHeight: 1.7, color: "rgba(255,255,255,0.6)", borderLeft: "1px solid rgba(255,255,255,0.12)", paddingLeft: 10 }}>{e}</div>
+                  <div key={i} style={{
+                    fontSize: 11, lineHeight: 1.7, color: "rgba(255,255,255,0.6)", borderLeft: "1px solid rgba(255,255,255,0.12)", paddingLeft: 10,
+                    opacity: panelsVisible ? 1 : 0,
+                    transform: panelsVisible ? "translateY(0)" : "translateY(8px)",
+                    transition: `opacity 0.5s ease ${i * 0.12}s, transform 0.5s ease ${i * 0.12}s`,
+                  }}>{e}</div>
                 ))}
               </div>
             </Section>
