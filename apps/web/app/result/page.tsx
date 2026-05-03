@@ -581,9 +581,9 @@ export default function ResultPage() {
     const t30 = setTimeout(() => {
       const key = (result.ambient_sound ?? "none").toLowerCase().trim();
       const soundUrl = SOUND_MAP[key] ?? null;
-      console.log("[ambient] Step 1 - ambient_sound from Gemini:", JSON.stringify(result.ambient_sound));
-      console.log("[ambient] Step 2 - key after normalize:", key);
-      console.log("[ambient] Step 3 - resolved URL:", soundUrl);
+      console.log('[ambient] result.ambient_sound value:', result.ambient_sound);
+      console.log('[ambient] SOUND_MAP keys:', Object.keys(SOUND_MAP));
+      console.log('[ambient] resolved URL:', SOUND_MAP[result.ambient_sound as keyof typeof SOUND_MAP]);
       if (soundUrl) {
         console.log("[ambient] Step 4 - creating Audio element");
         const ambientAudio = new Audio(soundUrl);
@@ -594,9 +594,8 @@ export default function ResultPage() {
         const tryPlay = () => {
           console.log("[ambient] Step 5 - calling play()");
           ambientAudio.play()
-            .then(() => console.log("[ambient] Step 6 - play() SUCCESS"))
-            .catch((e) => {
-              console.log("[ambient] Step 6 - play() FAILED (autoplay blocked?):", e);
+            .then(() => console.log('[ambient] playing successfully'))
+            .catch(e => console.log('[ambient] play failed:', e.message));
               // Unlock on first user interaction
               const unlock = () => {
                 console.log("[ambient] Step 7 - unlocking via user interaction");
