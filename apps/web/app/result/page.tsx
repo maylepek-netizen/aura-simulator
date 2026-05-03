@@ -607,7 +607,6 @@ export default function ResultPage() {
               };
               document.addEventListener("click", unlock, { once: true });
               document.addEventListener("keydown", unlock, { once: true });
-            });
         };
         tryPlay();
       } else {
