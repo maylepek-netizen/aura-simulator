@@ -580,7 +580,8 @@ export default function ResultPage() {
     // T=30s after result: ambient environmental sound + stimming
     const t30 = setTimeout(() => {
       const key = (result.ambient_sound ?? "none").toLowerCase().trim();
-      const soundUrl = SOUND_MAP[key] ?? null;
+      const soundUrl = SOUND_MAP[result.ambient_sound as keyof typeof SOUND_MAP] ?? "/sounds/mall.wav";
+      const volume = result.ambient_sound === "quiet" || result.ambient_sound === "none" ? 0.1 : 0.35;
       console.log('[ambient] result.ambient_sound value:', result.ambient_sound);
       console.log('[ambient] SOUND_MAP keys:', Object.keys(SOUND_MAP));
       console.log('[ambient] resolved URL:', SOUND_MAP[result.ambient_sound as keyof typeof SOUND_MAP]);
@@ -588,7 +589,7 @@ export default function ResultPage() {
         console.log("[ambient] Step 4 - creating Audio element");
         const ambientAudio = new Audio(soundUrl);
         ambientAudio.loop = true;
-        ambientAudio.volume = 0.35;
+        ambientAudio.volume = volume;
         ambientAudioRef.current = ambientAudio;
 
         const tryPlay = () => {
