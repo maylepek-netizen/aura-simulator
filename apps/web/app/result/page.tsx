@@ -41,17 +41,18 @@ function nowIso() {
   return new Date().toISOString();
 }
 
-// ─── Freesound Ambient Loader ─────────────────────────────────────────────────
+// ─── Ambient Sound Map ────────────────────────────────────────────────────────
 
 const SOUND_MAP: Record<string, string | null> = {
-  mall:       "/sounds/mall.wav",
+  crowd:      "/sounds/mall.wav",
   children:   "/sounds/children.wav",
   storm:      "/sounds/storm.wav",
-  alarm:      "/sounds/alarm.wav",
-  restaurant: "/sounds/restaurant.wav",
-  train:      "/sounds/train.wav",
+  alarm:      "/sounds/alarm.mp3",
+  restaurant: "/sounds/resturant.mp3",
+  transport:  "/sounds/train.wav",
   nature:     "/sounds/nature.wav",
   party:      "/sounds/party.wav",
+  quiet:      null,
   none:       null,
 };
 
@@ -578,14 +579,40 @@ export default function ResultPage() {
 
     // T=30s after result: ambient environmental sound + stimming
     const t30 = setTimeout(() => {
-      const soundUrl = SOUND_MAP[result.ambient_sound as keyof typeof SOUND_MAP] ?? null;
-      console.log("[ambient] key:", result.ambient_sound, "→ url:", soundUrl);
+      const key = (result.ambient_sound ?? "none").toLowerCase().trim();
+      const soundUrl = SOUND_MAP[key] ?? null;
+      console.log("[ambient] Step 1 - ambient_sound from Gemini:", JSON.stringify(result.ambient_sound));
+      console.log("[ambient] Step 2 - key after normalize:", key);
+      console.log("[ambient] Step 3 - resolved URL:", soundUrl);
       if (soundUrl) {
+        console.log("[ambient] Step 4 - creating Audio element");
         const ambientAudio = new Audio(soundUrl);
         ambientAudio.loop = true;
         ambientAudio.volume = 0.35;
         ambientAudioRef.current = ambientAudio;
-        ambientAudio.play().catch((e) => console.log("[ambient] play() failed:", e));
+
+        const tryPlay = () => {
+          console.log("[ambient] Step 5 - calling play()");
+          ambientAudio.play()
+            .then(() => console.log("[ambient] Step 6 - play() SUCCESS"))
+            .catch((e) => {
+              console.log("[ambient] Step 6 - play() FAILED (autoplay blocked?):", e);
+              // Unlock on first user interaction
+              const unlock = () => {
+                console.log("[ambient] Step 7 - unlocking via user interaction");
+                ambientAudio.play()
+                  .then(() => console.log("[ambient] Step 8 - play() after unlock SUCCESS"))
+                  .catch((e2) => console.log("[ambient] Step 8 - play() after unlock FAILED:", e2));
+                document.removeEventListener("click", unlock);
+                document.removeEventListener("keydown", unlock);
+              };
+              document.addEventListener("click", unlock, { once: true });
+              document.addEventListener("keydown", unlock, { once: true });
+            });
+        };
+        tryPlay();
+      } else {
+        console.log("[ambient] Step 4 - no sound file for key:", key);
       }
       setStimmingActive(true);
     }, 30000);

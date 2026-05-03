@@ -81,7 +81,7 @@ function buildSchema(age: number, gender: string, situation: string): string {
     '  "coping_actions": ["action1","action2","action3"],\n' +
     '  "masking_cost": "description",\n' +
     '  "research_tags": ["tag1","tag2"],\n' +
-    '  "ambient_sound": "Pick ONE value from this exact list based on the dominant sound in the situation: mall, children, storm, alarm, restaurant, train, nature, party, none"\n' +
+    '  "ambient_sound": "Pick ONE value from this exact list based on the dominant sound in the situation: crowd (mall/street/market/many people), children (kids/playground/school/baby), storm (thunder/rain/wind/bad weather), alarm (fire alarm/siren/emergency), restaurant (cafe/dining/food court), transport (train/bus/car/traffic/airport), nature (forest/park/beach/birds), party (celebration/music/event), quiet (home/bedroom/library/alone indoors), none (truly silent)"\n' +
     '}'
   );
 }
