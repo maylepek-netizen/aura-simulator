@@ -81,7 +81,7 @@ function buildSchema(age: number, gender: string, situation: string): string {
     '  "coping_actions": ["action1","action2","action3"],\n' +
     '  "masking_cost": "description",\n' +
     '  "research_tags": ["tag1","tag2"],\n' +
-    '  "ambient_sound": "Pick ONE value from this exact list based on the dominant sound in the situation: crowd (mall/street/market/many people), children (kids/playground/school/baby), storm (thunder/rain/wind/bad weather), alarm (fire alarm/siren/emergency), restaurant (cafe/dining/food court), transport (train/bus/car/traffic/airport), nature (forest/park/beach/birds), party (celebration/music/event), quiet (home/bedroom/library/alone indoors), none (truly silent)"\n' +
+    '  "ambient_sound": "Pick ONE value from this exact list. NEVER return \"quiet\" or \"none\" unless the person is completely alone in a silent private space (e.g. alone in a bedroom at night). For ANY public, medical, commercial, urban, or social situation there is ALWAYS ambient sound — use an active category. Default to \"crowd\" for any situation involving other people or an urban/public environment. Options: crowd (mall/street/market/medical waiting room/any public space with people — USE THIS as default for most situations), children (kids/playground/school/baby), storm (thunder/rain/wind/bad weather), alarm (fire alarm/siren/emergency), restaurant (cafe/dining/food court), transport (train/bus/car/traffic/airport), nature (forest/park/beach/birds), party (celebration/music/event), quiet (ONLY if alone in a truly quiet private space), none (ONLY if truly completely silent — almost never appropriate)"\n' +
     '}'
   );
 }
