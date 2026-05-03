@@ -510,7 +510,8 @@ export default function ResultPage() {
   // Freesound ambient audio
   const [ambientPlaying, setAmbientPlaying] = useState(false);
   const ambientEngineRef = useRef<AmbientSoundEngine | null>(null);
-  const freesoundAudioRef = useRef<HTMLAudioElement | null>(null);
+  const ambientAudioRef = useRef<HTMLAudioElement | null>(null);
+
 
   // Stimming pause
   const [stimmingPaused, setStimmingPaused] = useState(false);
@@ -529,7 +530,7 @@ export default function ResultPage() {
     return () => {
       ambientEngineRef.current?.destroy();
       ttsAudioRef.current?.pause();
-      if (freesoundAudioRef.current) { freesoundAudioRef.current.pause(); freesoundAudioRef.current = null; }
+      if (ambientAudioRef.current) { ambientAudioRef.current.pause(); ambientAudioRef.current = null; }
       revealTimersRef.current.forEach(clearTimeout);
     };
   }, []);
@@ -577,20 +578,14 @@ export default function ResultPage() {
 
     // T=30s after result: ambient environmental sound + stimming
     const t30 = setTimeout(() => {
-      const key = (result.ambient_sound ?? "none").toLowerCase().trim();
-      console.log("[ambient] ambient_sound value:", JSON.stringify(result.ambient_sound), "→ key:", key);
-      const soundUrl = SOUND_MAP[key] ?? null;
-      console.log("[ambient] resolved soundUrl:", soundUrl);
+      const soundUrl = SOUND_MAP[result.ambient_sound as keyof typeof SOUND_MAP] ?? null;
+      console.log("[ambient] key:", result.ambient_sound, "→ url:", soundUrl);
       if (soundUrl) {
-        const audio = new Audio(soundUrl);
-        audio.loop = true;
-        audio.volume = 0.4;
-        freesoundAudioRef.current = audio;
-        audio.play().then(() => {
-          console.log("[ambient] playing:", soundUrl);
-        }).catch((err) => {
-          console.log("[ambient] play() failed:", err);
-        });
+        const ambientAudio = new Audio(soundUrl);
+        ambientAudio.loop = true;
+        ambientAudio.volume = 0.35;
+        ambientAudioRef.current = ambientAudio;
+        ambientAudio.play().catch((e) => console.log("[ambient] play() failed:", e));
       }
       setStimmingActive(true);
     }, 30000);
@@ -635,9 +630,9 @@ export default function ResultPage() {
 
     if (!active || !el) return;
 
-    const ampY   = currentLoad > 80 ? 12  : currentLoad > 65 ? 8  : currentLoad >= 40 ? 4  : 2;
+    const ampY   = currentLoad > 80 ? 12 : currentLoad > 65 ? 8  : currentLoad >= 40 ? 5  : 2;
     const ampR   = currentLoad > 80 ? 1.5 : currentLoad > 65 ? 0.5 : 0;
-    const period = currentLoad > 80 ? 1000 : currentLoad > 65 ? 2000 : currentLoad >= 40 ? 3000 : 5000;
+    const period = currentLoad > 80 ? 1000 : currentLoad > 65 ? 2000 : currentLoad >= 40 ? 3000 : 6000;
 
     const tick = (ts: number) => {
       const t = (ts % period) / period * Math.PI * 2;
@@ -729,7 +724,7 @@ export default function ResultPage() {
     revealTimersRef.current = [];
     narrationStartedRef.current = false;
     stopNarration();
-    if (freesoundAudioRef.current) { freesoundAudioRef.current.pause(); freesoundAudioRef.current = null; }
+    if (ambientAudioRef.current) { ambientAudioRef.current.pause(); ambientAudioRef.current = null; }
     setAmbientPlaying(false);
 
     try {
@@ -789,11 +784,11 @@ export default function ResultPage() {
 
   function toggleAmbient() {
     if (ambientPlaying) {
-      freesoundAudioRef.current?.pause();
+      ambientAudioRef.current?.pause();
       setAmbientPlaying(false);
       return;
     }
-    freesoundAudioRef.current?.play().catch(() => {});
+    ambientAudioRef.current?.play().catch(() => {});
     setAmbientPlaying(true);
   }
 
