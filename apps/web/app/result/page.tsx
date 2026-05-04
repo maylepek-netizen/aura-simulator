@@ -41,14 +41,14 @@ type SimulationResult = {
 // ─── Ambient Sound Map ────────────────────────────────────────────────────────
 
 const SOUND_MAP: Record<string, string | null> = {
-  crowd:      "/sounds/mall.wav",
-  children:   "/sounds/children.wav",
-  storm:      "/sounds/storm.wav",
+  crowd:      "/sounds/mall.m4a",
+  children:   "/sounds/mall.m4a",
+  storm:      "/sounds/storm.m4a",
   alarm:      "/sounds/alarm.mp3",
-  restaurant: "/sounds/resturant.mp3",
-  transport:  "/sounds/train.wav",
-  nature:     "/sounds/nature.wav",
-  party:      "/sounds/party.wav",
+  restaurant: "/sounds/resturant.m4a",
+  transport:  "/sounds/train.m4a",
+  nature:     "/sounds/nature.m4a",
+  party:      "/sounds/party.m4a",
   quiet:      null,
   none:       null,
 };
