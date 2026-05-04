@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useRef, useState, useCallback } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { loadExperienceDraft, loadProfile } from "@/lib/experienceStorage";
 import { saveSimulation } from "@/lib/simulationStorage";
@@ -37,9 +37,6 @@ type SimulationResult = {
   ambient_sound_query?: string;
 };
 
-function nowIso() {
-  return new Date().toISOString();
-}
 
 // ─── Ambient Sound Map ────────────────────────────────────────────────────────
 
@@ -440,43 +437,10 @@ function Meter({ label, value, max = 100, color }: { label: string; value: numbe
   );
 }
 
-// ─── Panel ────────────────────────────────────────────────────────────────────
-
-function Panel({
-  title,
-  icon,
-  children,
-  defaultOpen = true,
-}: {
-  title: string;
-  icon: string;
-  children: React.ReactNode;
-  defaultOpen?: boolean;
-}) {
-  const [open, setOpen] = useState(defaultOpen);
-  return (
-    <div className="border border-foreground/10 rounded-lg overflow-hidden">
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        className="w-full flex items-center justify-between px-3 py-2 bg-foreground/5 hover:bg-foreground/10 transition-colors"
-      >
-        <div className="flex items-center gap-2">
-          <span className="text-sm">{icon}</span>
-          <span className="text-[10px] uppercase tracking-[0.2em] opacity-70">{title}</span>
-        </div>
-        <span className="text-[10px] opacity-40">{open ? "▲" : "▼"}</span>
-      </button>
-      {open && <div className="px-3 py-3">{children}</div>}
-    </div>
-  );
-}
-
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function ResultPage() {
   const router = useRouter();
-  const iso = useMemo(() => nowIso(), []);
 
   const [snapshot] = useState(() => {
     if (typeof window === "undefined")
@@ -555,7 +519,6 @@ export default function ResultPage() {
     revealTimersRef.current = [];
 
     const load = result.overall_load ?? 0;
-    const vol = Math.min(0.6, 0.35 + (load / 100) * 0.25);
 
     // T=5s after result: panels appear
     const t5 = setTimeout(() => {
