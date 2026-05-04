@@ -613,6 +613,7 @@ export default function ResultPage() {
       } else {
         console.log("[ambient] Step 4 - no sound file for key:", key);
       }
+      setAmbientPlaying(true);
       setStimmingActive(true);
     }, 30000);
 
@@ -750,6 +751,7 @@ export default function ResultPage() {
     revealTimersRef.current = [];
     narrationStartedRef.current = false;
     stopNarration();
+    ambientEngineRef.current?.stop();
     if (ambientAudioRef.current) { ambientAudioRef.current.pause(); ambientAudioRef.current = null; }
     setAmbientPlaying(false);
 
