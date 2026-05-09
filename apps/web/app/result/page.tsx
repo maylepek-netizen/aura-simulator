@@ -41,16 +41,34 @@ type SimulationResult = {
 // ─── Ambient Sound Map ────────────────────────────────────────────────────────
 
 const SOUND_MAP: Record<string, string | null> = {
-  crowd:      "/sounds/mall.m4a",
-  children:   "/sounds/mall.m4a",
-  storm:      "/sounds/storm.m4a",
-  alarm:      "/sounds/alarm.mp3",
-  restaurant: "/sounds/resturant.m4a",
-  transport:  "/sounds/train.m4a",
-  nature:     "/sounds/nature.m4a",
-  party:      "/sounds/party.m4a",
-  quiet:      null,
-  none:       null,
+  crowd:        "/sounds/mall.wav",
+  children:     "/sounds/classroom.wav",
+  storm:        "/sounds/storm.wav",
+  alarm:        "/sounds/alarm.mp3",
+  restaurant:   "/sounds/cafe.m4a",
+  transport:    "/sounds/train.wav",
+  nature:       "/sounds/nature.wav",
+  party:        "/sounds/party.wav",
+  classroom:    "/sounds/classroom.wav",
+  street:       "/sounds/street.m4a",
+  hospital:     "/sounds/hospital.m4a",
+  home:         "/sounds/home.m4a",
+  supermarket:  "/sounds/supermarket.m4a",
+  office:       "/sounds/office.m4a",
+  beach:        "/sounds/beach.m4a",
+  construction: "/sounds/construction.m4a",
+  library:      "/sounds/library.m4a",
+  sports:       "/sounds/sports.wav",
+  airport:      "/sounds/airport.m4a",
+  cafe:         "/sounds/cafe.m4a",
+  nightclub:    "/sounds/nightclub.m4a",
+  traffic:      "/sounds/highway.m4a",
+  park:         "/sounds/birds.m4a",
+  baby:         "/sounds/baby.m4a",
+  dogs:         "/sounds/dogs.m4a",
+  forest:       "/sounds/forest.m4a",
+  rain:         "/sounds/rain.m4a",
+  none:         null,
 };
 
 // ─── (Legacy — kept for environment engine) ───────────────────────────────────
@@ -542,40 +560,28 @@ export default function ResultPage() {
 
     // T=30s after result: ambient environmental sound + stimming
     const t30 = setTimeout(() => {
-      const key = (result.ambient_sound ?? "none").toLowerCase().trim();
-      const soundUrl = SOUND_MAP[result.ambient_sound as keyof typeof SOUND_MAP] ?? "/sounds/mall.wav";
-      const volume = result.ambient_sound === "quiet" || result.ambient_sound === "none" ? 0.1 : 0.35;
-      console.log('[ambient] result.ambient_sound value:', result.ambient_sound);
-      console.log('[ambient] SOUND_MAP keys:', Object.keys(SOUND_MAP));
-      console.log('[ambient] resolved URL:', SOUND_MAP[result.ambient_sound as keyof typeof SOUND_MAP]);
-      if (soundUrl) {
-        console.log("[ambient] Step 4 - creating Audio element");
-        const ambientAudio = new Audio(soundUrl);
-        ambientAudio.loop = true;
-        ambientAudio.volume = volume;
-        ambientAudioRef.current = ambientAudio;
+      const key = (result.ambient_sound ?? "home").toLowerCase().trim();
+      const mapped = SOUND_MAP[key as keyof typeof SOUND_MAP];
+      // Always play something — fall back to home.wav (quiet hum) if not found or none
+      const soundUrl = (mapped !== undefined && mapped !== null) ? mapped : "/sounds/home.wav";
+      const volume = (mapped === null || mapped === undefined) ? 0.1 : 0.35;
+      const ambientAudio = new Audio(soundUrl);
+      ambientAudio.loop = true;
+      ambientAudio.volume = volume;
+      ambientAudioRef.current = ambientAudio;
 
-        const tryPlay = () => {
-          console.log("[ambient] Step 5 - calling play()");
-          ambientAudio.play()
-            .then(() => console.log('[ambient] playing successfully'))
-            .catch(e => console.log('[ambient] play failed:', e.message));
-              // Unlock on first user interaction
-              const unlock = () => {
-                console.log("[ambient] Step 7 - unlocking via user interaction");
-                ambientAudio.play()
-                  .then(() => console.log("[ambient] Step 8 - play() after unlock SUCCESS"))
-                  .catch((e2) => console.log("[ambient] Step 8 - play() after unlock FAILED:", e2));
-                document.removeEventListener("click", unlock);
-                document.removeEventListener("keydown", unlock);
-              };
-              document.addEventListener("click", unlock, { once: true });
-              document.addEventListener("keydown", unlock, { once: true });
-        };
-        tryPlay();
-      } else {
-        console.log("[ambient] Step 4 - no sound file for key:", key);
-      }
+      const tryPlay = () => {
+        ambientAudio.play().catch(() => {
+          const unlock = () => {
+            ambientAudio.play().catch(() => {});
+            document.removeEventListener("click", unlock);
+            document.removeEventListener("keydown", unlock);
+          };
+          document.addEventListener("click", unlock, { once: true });
+          document.addEventListener("keydown", unlock, { once: true });
+        });
+      };
+      tryPlay();
       setAmbientPlaying(true);
       setStimmingActive(true);
     }, 30000);
