@@ -586,20 +586,24 @@ export default function ResultPage() {
       setStimmingActive(true);
     }, 30000);
 
-    revealTimersRef.current = [t5, t15, t30];
+    // T=45s after result: start TTS narration (before video arrives)
+    const t45 = setTimeout(() => {
+      if (!narrationStartedRef.current && result) {
+        narrationStartedRef.current = true;
+        void startNarration(result);
+      }
+    }, 45000);
+
+    revealTimersRef.current = [t5, t15, t30, t45];
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [result !== null]);
 
-  // Video fade-in + narration when videoUrl arrives
+  // Video fade-in when videoUrl arrives
   useEffect(() => {
     if (videoUrl) {
       setProcessingVisible(false);
       const t = setTimeout(() => {
         setVideoVisible(true);
-        if (!narrationStartedRef.current && result) {
-          narrationStartedRef.current = true;
-          void startNarration(result);
-        }
       }, 50);
       return () => clearTimeout(t);
     } else {
