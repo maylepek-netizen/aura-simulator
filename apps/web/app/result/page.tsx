@@ -500,7 +500,7 @@ export default function ResultPage() {
   const [stimmingPaused, setStimmingPaused] = useState(false);
   // Reveal timeline: stimmingActive starts false, auto-enabled at T=30s
   const [stimmingActive, setStimmingActive] = useState(false);
-  const stimmingRafRef = useRef<number | null>(null);
+
 
   // Timed reveal sequence
   const [videoVisible, setVideoVisible] = useState(false);
@@ -558,43 +558,43 @@ export default function ResultPage() {
       setAmbientPlaying(true);
     }, 15000);
 
-    // T=30s after result: ambient environmental sound + stimming
+    // T=30s after result: ambient environmental sound + stimming + narration
     const t30 = setTimeout(() => {
+      // — Ambient sound —
       const key = (result.ambient_sound ?? "home").toLowerCase().trim();
       const mapped = SOUND_MAP[key as keyof typeof SOUND_MAP];
-      // Always play something — fall back to home.wav (quiet hum) if not found or none
-      const soundUrl = (mapped !== undefined && mapped !== null) ? mapped : "/sounds/home.wav";
+      const soundUrl = (mapped !== undefined && mapped !== null) ? mapped : "/sounds/home.m4a";
       const volume = (mapped === null || mapped === undefined) ? 0.1 : 0.35;
+      console.log("[ambient] key:", key, "| mapped:", mapped, "| soundUrl:", soundUrl);
       const ambientAudio = new Audio(soundUrl);
       ambientAudio.loop = true;
       ambientAudio.volume = volume;
       ambientAudioRef.current = ambientAudio;
-
-      const tryPlay = () => {
-        ambientAudio.play().catch(() => {
+      ambientAudio.play()
+        .then(() => console.log("[ambient] playing:", soundUrl))
+        .catch((e) => {
+          console.log("[ambient] autoplay blocked:", e.message, "— waiting for click");
           const unlock = () => {
-            ambientAudio.play().catch(() => {});
+            ambientAudio.play()
+              .then(() => console.log("[ambient] playing after unlock"))
+              .catch(() => {});
             document.removeEventListener("click", unlock);
             document.removeEventListener("keydown", unlock);
           };
           document.addEventListener("click", unlock, { once: true });
           document.addEventListener("keydown", unlock, { once: true });
         });
-      };
-      tryPlay();
       setAmbientPlaying(true);
       setStimmingActive(true);
-    }, 30000);
 
-    // T=45s after result: start TTS narration (before video arrives)
-    const t45 = setTimeout(() => {
+      // — Narration —
       if (!narrationStartedRef.current && result) {
         narrationStartedRef.current = true;
         void startNarration(result);
       }
-    }, 45000);
+    }, 30000);
 
-    revealTimersRef.current = [t5, t15, t30, t45];
+    revealTimersRef.current = [t5, t15, t30];
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [result !== null]);
 
@@ -616,39 +616,6 @@ export default function ResultPage() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const narrationStartedRef = useRef(false);
 
-  // rAF-driven camera stimming on the video element itself
-  useEffect(() => {
-    const el = videoRef.current;
-    const active = stimmingActive && !stimmingPaused;
-    const currentLoad = result?.overall_load ?? 0;
-
-    if (stimmingRafRef.current !== null) {
-      cancelAnimationFrame(stimmingRafRef.current);
-      stimmingRafRef.current = null;
-    }
-    if (el) el.style.transform = "";
-
-    if (!active || !el) return;
-
-    const ampY   = currentLoad > 80 ? 12 : currentLoad > 65 ? 8  : currentLoad >= 40 ? 5  : 2;
-    const ampR   = currentLoad > 80 ? 1.5 : currentLoad > 65 ? 0.5 : 0;
-    const period = currentLoad > 80 ? 1000 : currentLoad > 65 ? 2000 : currentLoad >= 40 ? 3000 : 6000;
-
-    const tick = (ts: number) => {
-      const t = (ts % period) / period * Math.PI * 2;
-      const y = ampY * Math.sin(t);
-      const r = ampR * Math.sin(t);
-      el.style.transform = `translateY(${y}px) rotate(${r}deg)`;
-      stimmingRafRef.current = requestAnimationFrame(tick);
-    };
-    stimmingRafRef.current = requestAnimationFrame(tick);
-
-    return () => {
-      if (stimmingRafRef.current !== null) cancelAnimationFrame(stimmingRafRef.current);
-      if (el) el.style.transform = "";
-    };
-  // videoUrl added so effect re-runs if video mounts after stimmingActive fires
-  }, [stimmingActive, stimmingPaused, result?.overall_load, videoUrl]);
   const [videoLoopOpacity, setVideoLoopOpacity] = useState(1);
 
   const handleVideoPlay = useCallback(() => {
@@ -837,15 +804,25 @@ export default function ResultPage() {
     WebkitBackdropFilter: "blur(12px)",
   } as React.CSSProperties;
 
+  const stimmingAnimation = !stimmingActive ? "none"
+    : load > 70 ? "stimming-high 1s ease-in-out infinite"
+    : load >= 40 ? "stimming-med 2.5s ease-in-out infinite"
+    : "stimming-low 5s ease-in-out infinite";
+
   return (
     <div style={{ position: "fixed", inset: 0, overflow: "hidden", background: "#000" }}>
+      <style>{`
+        @keyframes stimming-low { 0%,100% { transform: translateY(0px); } 50% { transform: translateY(-3px); } }
+        @keyframes stimming-med { 0%,100% { transform: translateY(0px) rotate(0deg); } 50% { transform: translateY(-6px) rotate(0.3deg); } }
+        @keyframes stimming-high { 0%,100% { transform: translateY(0px) rotate(0deg); } 50% { transform: translateY(-10px) rotate(0.8deg); } }
+      `}</style>
 
       {/* ── FULLSCREEN VIDEO (z-index 0) ─────────────────────── */}
       <div style={{ position: "fixed", inset: 0, zIndex: 0, overflow: "hidden", background: "#000" }}>
         {videoUrl && (
           <video
             ref={videoRef}
-            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: videoVisible ? videoLoopOpacity : 0, scale: "1.06", transition: "opacity 1s" }}
+            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: videoVisible ? videoLoopOpacity : 0, scale: "1.06", transition: "opacity 1s", animation: stimmingAnimation }}
             src={videoUrl}
             autoPlay
             loop
