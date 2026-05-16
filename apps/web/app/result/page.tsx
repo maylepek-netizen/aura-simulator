@@ -814,9 +814,9 @@ export default function ResultPage() {
   return (
     <div style={{ position: "fixed", inset: 0, overflow: "hidden", background: "#000" }}>
       <style>{`
-        @keyframes stimming-low { 0%,100% { transform: translateY(0px); } 50% { transform: translateY(-3px); } }
-        @keyframes stimming-med { 0%,100% { transform: translateY(0px) rotate(0deg); } 50% { transform: translateY(-6px) rotate(0.3deg); } }
-        @keyframes stimming-high { 0%,100% { transform: translateY(0px) rotate(0deg); } 50% { transform: translateY(-10px) rotate(0.8deg); } }
+        @keyframes stimming-low { 0%,100% { transform: translateY(0px); } 50% { transform: translateY(-4px); } }
+        @keyframes stimming-med { 0%,100% { transform: translateY(0px) rotate(0deg); } 50% { transform: translateY(-8px) rotate(0.4deg); } }
+        @keyframes stimming-high { 0%,100% { transform: translateY(0px) rotate(0deg); } 50% { transform: translateY(-14px) rotate(1deg); } }
       `}</style>
 
       {/* ── FULLSCREEN VIDEO (z-index 0) ─────────────────────── */}
