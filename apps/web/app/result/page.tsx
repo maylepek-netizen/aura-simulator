@@ -558,45 +558,47 @@ export default function ResultPage() {
       setAmbientPlaying(true);
     }, 15000);
 
-    // T=30s after result: ambient environmental sound + stimming + narration
+    // T=30s: stimming starts
     const t30 = setTimeout(() => {
-      // — Ambient sound —
-      const key = (result.ambient_sound ?? "home").toLowerCase().trim();
-      const mapped = SOUND_MAP[key as keyof typeof SOUND_MAP];
-      const soundUrl = (mapped !== undefined && mapped !== null) ? mapped : "/sounds/home.m4a";
-      const volume = (mapped === null || mapped === undefined) ? 0.1 : 0.35;
-      console.log("[ambient] key:", key, "| mapped:", mapped, "| soundUrl:", soundUrl);
-      const ambientAudio = new Audio(soundUrl);
-      ambientAudio.loop = true;
-      ambientAudio.volume = volume;
-      ambientAudioRef.current = ambientAudio;
-      ambientAudio.play()
-        .then(() => console.log("[ambient] playing:", soundUrl))
-        .catch((e) => {
-          console.log("[ambient] autoplay blocked:", e.message, "— waiting for click");
-          const unlock = () => {
-            ambientAudio.play()
-              .then(() => console.log("[ambient] playing after unlock"))
-              .catch(() => {});
-            document.removeEventListener("click", unlock);
-            document.removeEventListener("keydown", unlock);
-          };
-          document.addEventListener("click", unlock, { once: true });
-          document.addEventListener("keydown", unlock, { once: true });
-        });
-      setAmbientPlaying(true);
       setStimmingActive(true);
-
-      // — Narration —
-      if (!narrationStartedRef.current && result) {
-        narrationStartedRef.current = true;
-        void startNarration(result);
-      }
     }, 30000);
 
     revealTimersRef.current = [t5, t15, t30];
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [result !== null]);
+
+  // Ambient sound — starts immediately when result arrives, unlocks on first click if autoplay blocked
+  useEffect(() => {
+    if (!result) return;
+    const key = ((result.ambient_sound ?? "crowd") as keyof typeof SOUND_MAP);
+    const url = SOUND_MAP[key] ?? "/sounds/home.m4a";
+    console.log("[ambient] result.ambient_sound:", result.ambient_sound, "| key:", key, "| url:", url);
+    const audio = new Audio(url);
+    audio.loop = true;
+    audio.volume = 0.35;
+    ambientAudioRef.current = audio;
+    audio.play()
+      .then(() => console.log("[ambient] playing:", url))
+      .catch((e) => {
+        console.log("[ambient] autoplay blocked:", e.message, "— waiting for click");
+        document.addEventListener("click", () => audio.play().catch(() => {}), { once: true });
+      });
+    return () => { audio.pause(); ambientAudioRef.current = null; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [result]);
+
+  // Narration — starts at T=20s after result arrives, independent of video
+  useEffect(() => {
+    if (!result) return;
+    const timer = setTimeout(() => {
+      if (!narrationStartedRef.current) {
+        narrationStartedRef.current = true;
+        void startNarration(result);
+      }
+    }, 20000);
+    return () => clearTimeout(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [result]);
 
   // Video fade-in when videoUrl arrives
   useEffect(() => {
