@@ -575,7 +575,7 @@ export default function ResultPage() {
     console.log("[ambient] result.ambient_sound:", result.ambient_sound, "| key:", key, "| url:", url);
     const audio = new Audio(url);
     audio.loop = true;
-    audio.volume = 0.35;
+    audio.volume = Math.min(0.75, 0.55 + (result.overall_load / 100) * 0.2);
     ambientAudioRef.current = audio;
     audio.play()
       .then(() => console.log("[ambient] playing:", url))
