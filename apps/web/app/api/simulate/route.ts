@@ -36,7 +36,7 @@ async function geminiCall(apiKey: string, prompt: string): Promise<string> {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         contents: [{ role: "user", parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.8, maxOutputTokens: 4096 },
+        generationConfig: { temperature: 0.8, maxOutputTokens: 16000 },
       }),
     }
   );
@@ -46,7 +46,9 @@ async function geminiCall(apiKey: string, prompt: string): Promise<string> {
   }
   const data = await res.json();
   const raw = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
-  return raw.replace(/```json/gi, "").replace(/```/g, "").trim();
+  const cleaned = raw.replace(/```json/gi, "").replace(/```/g, "").trim();
+  const lastBrace = cleaned.lastIndexOf("}");
+  return lastBrace !== -1 ? cleaned.substring(0, lastBrace + 1) : cleaned;
 }
 
 function buildFilter1Prompt(age: number, gender: string, situation: string): string {
