@@ -147,8 +147,16 @@ export async function POST(req: NextRequest) {
     const filter2Raw = await geminiCall(apiKey, buildFilter2Prompt(filter1Raw, Number(age), String(situation)));
 
     // Parse all three
+    const filter1Output = JSON.parse(filter1Raw);
     const mainResult = JSON.parse(mainRaw);
     const filter2 = JSON.parse(filter2Raw);
+
+    console.log("=== FILTER 1 - Research Analysis ===");
+    console.log(JSON.stringify(filter1Output, null, 2));
+    console.log("=== FILTER 2 - Cinematic Direction ===");
+    console.log(JSON.stringify(filter2, null, 2));
+    console.log("=== FINAL VIDEO PROMPT ===");
+    console.log(filter2.final_veo_prompt ?? "(none)");
 
     // Attach video_prompt and cinematic metadata to the main result
     mainResult.video_prompt = filter2.final_veo_prompt ?? "";
