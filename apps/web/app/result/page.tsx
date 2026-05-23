@@ -539,41 +539,47 @@ export default function ResultPage() {
 
   // Ambient sound — fetch from Freesound via query, fallback to local file
   useEffect(() => {
-    if (!result) return;
-    let cancelled = false;
-    const volume = Math.min(0.75, 0.55 + (result.overall_load / 100) * 0.2);
-
-    function playUrl(url: string) {
-      if (cancelled) return;
-      const audio = new Audio(url);
-      audio.loop = true;
-      audio.volume = volume;
-      ambientAudioRef.current = audio;
-      audio.play().catch(() => {
-        document.addEventListener("click", () => audio.play().catch(() => {}), { once: true });
-      });
+    if (!result?.ambient_sound_query) {
+      console.log("[ambient] no ambient_sound_query in result, skipping");
+      return;
     }
 
     const query = result.ambient_sound_query;
-    if (query) {
-      fetch(`/api/ambient?query=${encodeURIComponent(query)}`)
-        .then((r) => r.ok ? r.json() : Promise.reject())
-        .then((data) => {
-          console.log("[ambient] Freesound url:", data.url);
-          playUrl(data.url);
-        })
-        .catch(() => {
-          console.log("[ambient] Freesound failed, using fallback");
-          playUrl(AMBIENT_FALLBACK);
-        });
-    } else {
-      playUrl(AMBIENT_FALLBACK);
-    }
+    console.log("[ambient] ambient_sound_query:", query);
 
-    return () => {
-      cancelled = true;
-      if (ambientAudioRef.current) { ambientAudioRef.current.pause(); ambientAudioRef.current = null; }
-    };
+    fetch(`/api/ambient?query=${encodeURIComponent(query)}`)
+      .then((r) => r.json())
+      .then((data) => {
+        console.log("[ambient] API response:", data);
+        if (!data.url) {
+          console.log("[ambient] no URL in response, using fallback");
+          data.url = AMBIENT_FALLBACK;
+        }
+        console.log("[ambient] playing url:", data.url);
+        const audio = new Audio(data.url);
+        audio.crossOrigin = "anonymous";
+        audio.loop = true;
+        audio.volume = Math.min(0.75, 0.55 + (result.overall_load / 100) * 0.2);
+        ambientAudioRef.current = audio;
+        audio.play()
+          .then(() => console.log("[ambient] play() succeeded"))
+          .catch((e) => {
+            console.log("[ambient] play() blocked:", e.message, "— waiting for click");
+            document.addEventListener("click", () => audio.play().catch(() => {}), { once: true });
+          });
+      })
+      .catch((e) => {
+        console.log("[ambient] fetch error:", e, "— using fallback");
+        const audio = new Audio(AMBIENT_FALLBACK);
+        audio.loop = true;
+        audio.volume = 0.4;
+        ambientAudioRef.current = audio;
+        audio.play().catch(() => {
+          document.addEventListener("click", () => audio.play().catch(() => {}), { once: true });
+        });
+      });
+
+    return () => { ambientAudioRef.current?.pause(); ambientAudioRef.current = null; };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [result]);
 
