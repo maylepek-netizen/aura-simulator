@@ -39,7 +39,7 @@ type SimulationResult = {
 
 // ─── Ambient Sound Map ────────────────────────────────────────────────────────
 
-const AMBIENT_FALLBACK = "/sounds/mall.m4a";
+const AMBIENT_FALLBACK = "/sounds/mall.wav";
 
 // ─── (Legacy — kept for environment engine) ───────────────────────────────────
 
@@ -581,7 +581,7 @@ export default function ResultPage() {
 
     return () => { ambientAudioRef.current?.pause(); ambientAudioRef.current = null; };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [result]);
+  }, [result?.ambient_sound_query]);
 
   // Narration — starts at T=20s after result arrives, independent of video
   useEffect(() => {
