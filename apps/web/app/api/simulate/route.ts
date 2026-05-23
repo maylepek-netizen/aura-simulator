@@ -28,7 +28,7 @@ function ageApproximateCameraHeight(age: number): string {
   return "approximately 1.6-1.7m";
 }
 
-async function geminiCall(apiKey: string, prompt: string): Promise<string> {
+async function geminiRaw(apiKey: string, prompt: string): Promise<string> {
   const res = await fetch(
     "https://generativelanguage.googleapis.com/v1/models/" + GEMINI_MODEL + ":generateContent?key=" + apiKey,
     {
@@ -45,10 +45,21 @@ async function geminiCall(apiKey: string, prompt: string): Promise<string> {
     throw new Error(err?.error?.message ?? "Gemini error");
   }
   const data = await res.json();
-  const raw = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+  return data.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+}
+
+// For JSON responses: strips markdown fences and trims to last closing brace
+async function geminiCall(apiKey: string, prompt: string): Promise<string> {
+  const raw = await geminiRaw(apiKey, prompt);
   const cleaned = raw.replace(/```json/gi, "").replace(/```/g, "").trim();
   const lastBrace = cleaned.lastIndexOf("}");
   return lastBrace !== -1 ? cleaned.substring(0, lastBrace + 1) : cleaned;
+}
+
+// For plain-text responses: strips markdown fences only, no brace trimming
+async function geminiCallText(apiKey: string, prompt: string): Promise<string> {
+  const raw = await geminiRaw(apiKey, prompt);
+  return raw.replace(/```/g, "").trim();
 }
 
 function buildFilter1Prompt(age: number, gender: string, situation: string): string {
@@ -183,11 +194,9 @@ export async function POST(req: NextRequest) {
     // Filter 2: cinematic directions from Filter 1 output
     const filter2Raw = await geminiCall(apiKey, buildFilter2Prompt(filter1Raw, Number(age), String(situation)));
 
-    // Filter 3: intensity amplifier — takes Filter 2 output, returns plain text prompt
+    // Filter 3: intensity amplifier — plain text response, use geminiCallText to avoid brace trimming
     const filter3Prompt = buildFilter3Prompt(String(situation), filter2Raw);
-    const filter3Raw = await geminiCall(apiKey, filter3Prompt);
-    // Filter 3 returns plain text (not JSON), so use as-is after basic cleanup
-    const finalVideoPrompt = filter3Raw.replace(/```/g, "").trim();
+    const finalVideoPrompt = await geminiCallText(apiKey, filter3Prompt);
 
     // Parse Filter 1, main, and Filter 2
     const filter1Output = JSON.parse(filter1Raw);
