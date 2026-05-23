@@ -33,43 +33,13 @@ type SimulationResult = {
   coping_actions: string[];
   masking_cost: string;
   research_tags: string[];
-  ambient_sound?: string;
   ambient_sound_query?: string;
 };
 
 
 // ─── Ambient Sound Map ────────────────────────────────────────────────────────
 
-const SOUND_MAP: Record<string, string | null> = {
-  crowd:        "/sounds/mall.wav",
-  children:     "/sounds/classroom.wav",
-  storm:        "/sounds/storm.wav",
-  alarm:        "/sounds/alarm.mp3",
-  restaurant:   "/sounds/cafe.m4a",
-  transport:    "/sounds/train.wav",
-  nature:       "/sounds/nature.wav",
-  party:        "/sounds/party.wav",
-  classroom:    "/sounds/classroom.wav",
-  street:       "/sounds/street.m4a",
-  hospital:     "/sounds/hospital.m4a",
-  home:         "/sounds/home.m4a",
-  supermarket:  "/sounds/supermarket.m4a",
-  office:       "/sounds/office.m4a",
-  beach:        "/sounds/beach.m4a",
-  construction: "/sounds/construction.m4a",
-  library:      "/sounds/library.m4a",
-  sports:       "/sounds/sports.wav",
-  airport:      "/sounds/airport.m4a",
-  cafe:         "/sounds/cafe.m4a",
-  nightclub:    "/sounds/nightclub.m4a",
-  traffic:      "/sounds/highway.m4a",
-  park:         "/sounds/birds.m4a",
-  baby:         "/sounds/baby.m4a",
-  dogs:         "/sounds/dogs.m4a",
-  forest:       "/sounds/forest.m4a",
-  rain:         "/sounds/rain.m4a",
-  none:         null,
-};
+const AMBIENT_FALLBACK = "/sounds/mall.m4a";
 
 // ─── (Legacy — kept for environment engine) ───────────────────────────────────
 
@@ -567,23 +537,43 @@ export default function ResultPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [result !== null]);
 
-  // Ambient sound — starts immediately when result arrives, unlocks on first click if autoplay blocked
+  // Ambient sound — fetch from Freesound via query, fallback to local file
   useEffect(() => {
     if (!result) return;
-    const key = ((result.ambient_sound ?? "crowd") as keyof typeof SOUND_MAP);
-    const url = SOUND_MAP[key] ?? "/sounds/home.m4a";
-    console.log("[ambient] result.ambient_sound:", result.ambient_sound, "| key:", key, "| url:", url);
-    const audio = new Audio(url);
-    audio.loop = true;
-    audio.volume = Math.min(0.75, 0.55 + (result.overall_load / 100) * 0.2);
-    ambientAudioRef.current = audio;
-    audio.play()
-      .then(() => console.log("[ambient] playing:", url))
-      .catch((e) => {
-        console.log("[ambient] autoplay blocked:", e.message, "— waiting for click");
+    let cancelled = false;
+    const volume = Math.min(0.75, 0.55 + (result.overall_load / 100) * 0.2);
+
+    function playUrl(url: string) {
+      if (cancelled) return;
+      const audio = new Audio(url);
+      audio.loop = true;
+      audio.volume = volume;
+      ambientAudioRef.current = audio;
+      audio.play().catch(() => {
         document.addEventListener("click", () => audio.play().catch(() => {}), { once: true });
       });
-    return () => { audio.pause(); ambientAudioRef.current = null; };
+    }
+
+    const query = result.ambient_sound_query;
+    if (query) {
+      fetch(`/api/ambient?query=${encodeURIComponent(query)}`)
+        .then((r) => r.ok ? r.json() : Promise.reject())
+        .then((data) => {
+          console.log("[ambient] Freesound url:", data.url);
+          playUrl(data.url);
+        })
+        .catch(() => {
+          console.log("[ambient] Freesound failed, using fallback");
+          playUrl(AMBIENT_FALLBACK);
+        });
+    } else {
+      playUrl(AMBIENT_FALLBACK);
+    }
+
+    return () => {
+      cancelled = true;
+      if (ambientAudioRef.current) { ambientAudioRef.current.pause(); ambientAudioRef.current = null; }
+    };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [result]);
 
