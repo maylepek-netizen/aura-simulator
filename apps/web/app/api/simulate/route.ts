@@ -82,9 +82,9 @@ function buildFilter2Prompt(filter1: string, age: number, situation: string): st
     "Apply these universal principles:\n" +
     "- Everything moves TOWARD the camera (threatening world closing in)\n" +
     "- Proportions distorted: threats appear larger, safe elements smaller\n" +
-    "- Involuntary focus: camera pulled to wrong/irrelevant details\n" +
+    "- MASKING: Camera has a slight delay after every stimulus - deliberate and calculated, never spontaneous. Brief micro-freeze before reacting. Always one beat behind - processing, performing, calculating.\n" +
     "- Time distortion: threatening = fast, boring = slow\n" +
-    "- Boundaries dissolve: people feel too close, objects feel like barriers\n" +
+    "- ALIEN WORLD: Colors slightly wrong, like reality was copied with a small error. People's movements look like an incomprehensible ritual. Ordinary objects appear strange and fascinating. Everyone knows a secret social rule except you.\n" +
     "- Direct eye contact from people = intense and threatening\n" +
     "- People walk TOWARD camera\n" +
     "- Faces fill more frame than reality\n" +
