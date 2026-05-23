@@ -118,7 +118,8 @@ function buildFilter2Prompt(filter1: string, age: number, situation: string): st
     "- Stimuli accumulate gradually\n" +
     "- Cuts get faster and more disorienting as overload builds\n" +
     "- Hard cut to silence at peak = dissociation moment\n\n" +
-    "🚫 ABSOLUTE: First-person POV only. Never show protagonist. No AI artifacts. Photorealistic. Single continuous shot.\n\n" +
+    "🚫 ABSOLUTE: First-person POV only. Never show protagonist. No AI artifacts. Photorealistic. Single continuous shot.\n" +
+    "⚠️ ABSOLUTE RULE: NO subtitles, NO captions, NO text overlays, NO written words of any kind anywhere in the video. The video is purely visual. No exceptions.\n\n" +
     "Return ONLY this JSON:\n" +
     "{\n" +
     '  "camera_behavior": "description",\n' +
@@ -149,6 +150,7 @@ function buildFilter3Prompt(situation: string, filter2Output: string): string {
     "- CLOSE (last 1 second): camera slowly returns to the EXACT same texture from the opening\n" +
     "This creates an invisible loop - the last frame matches the first frame exactly.\n" +
     "The texture chosen must be specific to THIS situation (ballet floor for dance class, supermarket tiles for store, etc.)\n\n" +
+    "⚠️ ABSOLUTE RULE: NO subtitles, NO captions, NO text overlays, NO written words of any kind anywhere in the video. The video is purely visual. No exceptions.\n\n" +
     "Return ONLY the improved final_veo_prompt as a single paragraph. No JSON, no labels, just the paragraph."
   );
 }
