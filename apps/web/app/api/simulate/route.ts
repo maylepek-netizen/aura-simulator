@@ -115,7 +115,7 @@ function buildFilter2Prompt(filter1: string, age: number, situation: string): st
     '  "masking_visuals": "description",\n' +
     '  "sensory_escalation": "description",\n' +
     '  "key_visual_moments": ["moment1", "moment2", "moment3"],\n' +
-    '  "final_veo_prompt": "ONE paragraph - the actual Veo prompt for this exact situation combining all techniques above. Photorealistic first-person POV. Single continuous shot. Include diegetic sound design."\n' +
+    '  "final_veo_prompt": "ONE paragraph - the actual Veo prompt for this exact situation combining all techniques above. Photorealistic first-person POV. Single continuous shot. Include diegetic sound design. STIMMING MOVEMENT: The entire video has a subtle continuous rhythmic sway - gentle forward/back rocking that reflects the body\'s self-regulation. Low overload = barely noticeable slow sway every 4-5 seconds. High overload = more pronounced rhythmic rocking every 1-2 seconds. Always smooth and repetitive, never random or jerky. SEAMLESS LOOP: Video must open AND close on the exact same static extreme close-up of a surface or texture (floor tile, fabric, wall). All movement between is one continuous slow drift. Last 2 seconds must visually match first 2 seconds. Loop must be completely invisible."\n' +
     "}"
   );
 }
