@@ -78,29 +78,44 @@ function buildFilter2Prompt(filter1: string, age: number, situation: string): st
   return (
     "Based on these autism research parameters for the situation \"" + situation + "\":\n" +
     filter1 + "\n\n" +
-    "Generate cinematic directing instructions for a Veo first-person POV video. Camera height: " + camHeight + ".\n\n" +
-    "Apply these universal principles:\n" +
-    "- Everything moves TOWARD the camera (threatening world closing in)\n" +
-    "- Proportions distorted: threats appear larger, safe elements smaller\n" +
-    "- MASKING: Camera has a slight delay after every stimulus - deliberate and calculated, never spontaneous. Brief micro-freeze before reacting. Always one beat behind - processing, performing, calculating.\n" +
-    "- Time distortion: threatening = fast, boring = slow\n" +
-    "- ALIEN WORLD: Colors slightly wrong, like reality was copied with a small error. People's movements look like an incomprehensible ritual. Ordinary objects appear strange and fascinating. Everyone knows a secret social rule except you.\n" +
-    "- Direct eye contact from people = intense and threatening\n" +
-    "- People walk TOWARD camera\n" +
-    "- Faces fill more frame than reality\n" +
-    "- Unsynced mouth movements\n" +
-    "- Ambiguous threatening expressions\n\n" +
-    "🚫 ABSOLUTE RULE: We NEVER see the protagonist. Camera IS their eyes facing OUTWARD. No face, body, reflection, or shadow of the protagonist.\n" +
-    "🚫 NO AI ARTIFACTS: No ghosting, no morphing, no walking through walls. Photorealistic only. If complex — simplify.\n\n" +
+    "You are a film director creating a first-person POV simulation of autistic sensory experience. Camera height: " + camHeight + ".\n\n" +
+    "Generate cinematic directing instructions based on these professional techniques:\n\n" +
+    "VISUAL LANGUAGE:\n" +
+    "- Focus hunting: camera fixates on irrelevant details (table texture, fabric, water drop) while faces of speaking people remain completely blurred\n" +
+    "- Overexposed fluorescent lighting that appears to attack the eyes with lens flares\n" +
+    "- As overwhelm builds: camera loses smooth movement, starts jumping and shaking\n" +
+    "- Tunnel vision effect: screen edges darken/blur as overload peaks\n" +
+    "- Depth of field: wrong things are sharp, important things are blurred\n\n" +
+    "MASKING (show the invisible effort):\n" +
+    "- Voiceover is calm and logical WHILE visuals are chaotic - showing effort to maintain thought\n" +
+    "- Hands visible in frame: clenched fists, nails digging into palm, fidgeting object (stimming)\n" +
+    "- Forced eye contact: camera drifts away from person's eyes, then forcibly returns - 3-4 times\n" +
+    "- Processing lag: 2 second silence after question before response, frame slightly shaking during processing\n" +
+    "- Forced gaze: camera keeps escaping to shoulder, floor, corner - then forcing itself back to eyes\n\n" +
+    "ALIEN WORLD:\n" +
+    "- Colors 2% too saturated - like reality was copied with a small error\n" +
+    "- People's movements look like an incomprehensible ritual\n" +
+    "- Ordinary objects appear fascinating like alien artifacts\n" +
+    "- Everyone knows a secret social rule except you\n\n" +
+    "SENSORY OVERLOAD (scale by sensory_overload_level):\n" +
+    "- Micro-sounds amplified disproportionately: footsteps, rustling bags, distant cough at equal volume to nearby speech\n" +
+    "- All audio layers at same volume = wall of sound impossible to decode\n" +
+    "- High frequency tinnitus undertone for physical discomfort\n" +
+    "- Camera shake increases with overload level\n\n" +
+    "ESCALATION PATTERN:\n" +
+    "- Start calm and slow\n" +
+    "- Stimuli accumulate gradually\n" +
+    "- Cuts get faster and more disorienting as overload builds\n" +
+    "- Hard cut to silence at peak = dissociation moment\n\n" +
+    "🚫 ABSOLUTE: First-person POV only. Never show protagonist. No AI artifacts. Photorealistic. Single continuous shot.\n\n" +
     "Return ONLY this JSON:\n" +
     "{\n" +
     '  "camera_behavior": "description",\n' +
     '  "focus_strategy": "description",\n' +
-    '  "proximity_effect": "description",\n' +
-    '  "time_perception": "description",\n' +
+    '  "masking_visuals": "description",\n' +
+    '  "sensory_escalation": "description",\n' +
     '  "key_visual_moments": ["moment1", "moment2", "moment3"],\n' +
-    '  "directing_rules": ["rule1", "rule2", "rule3"],\n' +
-    '  "final_veo_prompt": "ONE paragraph — the actual Veo prompt combining all the above into a single photorealistic first-person POV shot description for this exact situation. Single continuous shot, no cuts. Include diegetic audio."\n' +
+    '  "final_veo_prompt": "ONE paragraph - the actual Veo prompt for this exact situation combining all techniques above. Photorealistic first-person POV. Single continuous shot. Include diegetic sound design."\n' +
     "}"
   );
 }
@@ -163,10 +178,9 @@ export async function POST(req: NextRequest) {
     mainResult.cinematic_direction = {
       camera_behavior: filter2.camera_behavior,
       focus_strategy: filter2.focus_strategy,
-      proximity_effect: filter2.proximity_effect,
-      time_perception: filter2.time_perception,
+      masking_visuals: filter2.masking_visuals,
+      sensory_escalation: filter2.sensory_escalation,
       key_visual_moments: filter2.key_visual_moments,
-      directing_rules: filter2.directing_rules,
     };
 
     return NextResponse.json(mainResult);
