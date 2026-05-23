@@ -120,6 +120,28 @@ function buildFilter2Prompt(filter1: string, age: number, situation: string): st
   );
 }
 
+function buildFilter3Prompt(situation: string, filter2Output: string): string {
+  return (
+    "You have this situation: \"" + situation + "\"\n" +
+    "And this cinematic direction:\n" + filter2Output + "\n\n" +
+    "Your ONLY job is to make this overwhelming and intense.\n\n" +
+    "Answer these three questions for THIS specific situation:\n" +
+    "1. What is the single most threatening/frightening element in this scene? (be specific)\n" +
+    "2. How does the camera make the viewer feel physically trapped or overwhelmed by that element?\n" +
+    "3. What is the peak moment of intensity and how does the camera build to it?\n\n" +
+    "Then rewrite the final_veo_prompt to be MORE intense, MORE specific, and MORE overwhelming.\n" +
+    "Focus on: faces close and threatening, sounds amplified, nowhere safe to look, the specific threat of THIS situation dominating the frame.\n\n" +
+    "SEAMLESS LOOP RULE - this is critical:\n" +
+    "The video must work as a perfect loop. Structure it like this:\n" +
+    "- OPEN (first 1 second): slow extreme close-up of ONE specific texture in this scene (floor, fabric, wall, skin)\n" +
+    "- MIDDLE (seconds 1-4): the intense experience builds\n" +
+    "- CLOSE (last 1 second): camera slowly returns to the EXACT same texture from the opening\n" +
+    "This creates an invisible loop - the last frame matches the first frame exactly.\n" +
+    "The texture chosen must be specific to THIS situation (ballet floor for dance class, supermarket tiles for store, etc.)\n\n" +
+    "Return ONLY the improved final_veo_prompt as a single paragraph. No JSON, no labels, just the paragraph."
+  );
+}
+
 function buildMainSchema(_age: number, gender: string): string {
   return (
     '{\n' +
@@ -161,7 +183,13 @@ export async function POST(req: NextRequest) {
     // Filter 2: cinematic directions from Filter 1 output
     const filter2Raw = await geminiCall(apiKey, buildFilter2Prompt(filter1Raw, Number(age), String(situation)));
 
-    // Parse all three
+    // Filter 3: intensity amplifier — takes Filter 2 output, returns plain text prompt
+    const filter3Prompt = buildFilter3Prompt(String(situation), filter2Raw);
+    const filter3Raw = await geminiCall(apiKey, filter3Prompt);
+    // Filter 3 returns plain text (not JSON), so use as-is after basic cleanup
+    const finalVideoPrompt = filter3Raw.replace(/```/g, "").trim();
+
+    // Parse Filter 1, main, and Filter 2
     const filter1Output = JSON.parse(filter1Raw);
     const mainResult = JSON.parse(mainRaw);
     const filter2 = JSON.parse(filter2Raw);
@@ -170,11 +198,11 @@ export async function POST(req: NextRequest) {
     console.log(JSON.stringify(filter1Output, null, 2));
     console.log("=== FILTER 2 - Cinematic Direction ===");
     console.log(JSON.stringify(filter2, null, 2));
-    console.log("=== FINAL VIDEO PROMPT ===");
-    console.log(filter2.final_veo_prompt ?? "(none)");
+    console.log("=== FILTER 3 - Intensity Amplifier ===");
+    console.log(finalVideoPrompt);
 
     // Attach video_prompt and cinematic metadata to the main result
-    mainResult.video_prompt = filter2.final_veo_prompt ?? "";
+    mainResult.video_prompt = finalVideoPrompt;
     mainResult.cinematic_direction = {
       camera_behavior: filter2.camera_behavior,
       focus_strategy: filter2.focus_strategy,
