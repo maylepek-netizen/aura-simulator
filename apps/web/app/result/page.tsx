@@ -33,11 +33,41 @@ type SimulationResult = {
   coping_actions: string[];
   masking_cost: string;
   research_tags: string[];
-  ambient_sound_query?: string;
+  ambient_sound?: string;
 };
 
 
 // ─── Ambient Sound Map ────────────────────────────────────────────────────────
+
+const SOUND_MAP: Record<string, string> = {
+  crowd: "/sounds/mall.wav",
+  children: "/sounds/classroom.wav",
+  storm: "/sounds/storm.wav",
+  alarm: "/sounds/alarm.mp3",
+  restaurant: "/sounds/resturant.wav",
+  transport: "/sounds/train.wav",
+  nature: "/sounds/nature.wav",
+  party: "/sounds/party.wav",
+  classroom: "/sounds/classroom.wav",
+  street: "/sounds/street.m4a",
+  hospital: "/sounds/hospital.m4a",
+  home: "/sounds/home.m4a",
+  supermarket: "/sounds/supermarket.m4a",
+  office: "/sounds/office.m4a",
+  beach: "/sounds/beach.m4a",
+  construction: "/sounds/construction.m4a",
+  library: "/sounds/library.m4a",
+  sports: "/sounds/sports.wav",
+  airport: "/sounds/airport.m4a",
+  cafe: "/sounds/resturant.wav",
+  nightclub: "/sounds/nightclub.m4a",
+  traffic: "/sounds/highway.m4a",
+  park: "/sounds/birds.m4a",
+  baby: "/sounds/baby.m4a",
+  dogs: "/sounds/dogs.m4a",
+  forest: "/sounds/forest.m4a",
+  rain: "/sounds/rain.m4a",
+};
 
 const AMBIENT_FALLBACK = "/sounds/mall.wav";
 
@@ -537,51 +567,37 @@ export default function ResultPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [result !== null]);
 
-  // Ambient sound — fetch from Freesound via query, fallback to local file
+  // Ambient sound — pick local file from SOUND_MAP by category, fallback to mall.wav
   useEffect(() => {
-    if (!result?.ambient_sound_query) {
-      console.log("[ambient] no ambient_sound_query in result, skipping");
+    if (!result?.ambient_sound) {
+      console.log("[ambient] no ambient_sound in result, skipping");
       return;
     }
 
-    const query = result.ambient_sound_query;
-    console.log("[ambient] ambient_sound_query:", query);
+    const category = result.ambient_sound.toLowerCase().trim();
+    console.log("[ambient] category:", category);
 
-    fetch(`/api/ambient?query=${encodeURIComponent(query)}`)
-      .then((r) => r.json())
-      .then((data) => {
-        console.log("[ambient] API response:", data);
-        if (!data.url) {
-          console.log("[ambient] no URL in response, using fallback");
-          data.url = AMBIENT_FALLBACK;
-        }
-        console.log("[ambient] playing url:", data.url);
-        const audio = new Audio(data.url);
-        audio.crossOrigin = "anonymous";
-        audio.loop = true;
-        audio.volume = Math.min(0.75, 0.55 + (result.overall_load / 100) * 0.2);
-        ambientAudioRef.current = audio;
-        audio.play()
-          .then(() => console.log("[ambient] play() succeeded"))
-          .catch((e) => {
-            console.log("[ambient] play() blocked:", e.message, "— waiting for click");
-            document.addEventListener("click", () => audio.play().catch(() => {}), { once: true });
-          });
-      })
+    // Find best match: exact key, or first key that appears in the category string
+    const url =
+      SOUND_MAP[category] ??
+      Object.entries(SOUND_MAP).find(([key]) => category.includes(key))?.[1] ??
+      AMBIENT_FALLBACK;
+
+    console.log("[ambient] playing url:", url);
+    const audio = new Audio(url);
+    audio.loop = true;
+    audio.volume = Math.min(0.75, 0.55 + (result.overall_load / 100) * 0.2);
+    ambientAudioRef.current = audio;
+    audio.play()
+      .then(() => console.log("[ambient] play() succeeded"))
       .catch((e) => {
-        console.log("[ambient] fetch error:", e, "— using fallback");
-        const audio = new Audio(AMBIENT_FALLBACK);
-        audio.loop = true;
-        audio.volume = 0.4;
-        ambientAudioRef.current = audio;
-        audio.play().catch(() => {
-          document.addEventListener("click", () => audio.play().catch(() => {}), { once: true });
-        });
+        console.log("[ambient] play() blocked:", e.message, "— waiting for click");
+        document.addEventListener("click", () => audio.play().catch(() => {}), { once: true });
       });
 
     return () => { ambientAudioRef.current?.pause(); ambientAudioRef.current = null; };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [result?.ambient_sound_query]);
+  }, [result?.ambient_sound]);
 
   // Narration — starts at T=20s after result arrives, independent of video
   useEffect(() => {

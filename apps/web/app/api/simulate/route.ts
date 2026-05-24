@@ -169,6 +169,12 @@ function buildFilter3Prompt(situation: string, filter2Output: string, monologue:
     "- NO subtitles, NO text, NO AI artifacts\n" +
     "- Single continuous shot, photorealistic, first-person POV\n" +
     "- Subtle rhythmic camera sway throughout\n\n" +
+    "SINGLE SCENE ONLY: The entire 5 seconds takes place in ONE location with ONE continuous camera movement. No cutting to different locations, no different perspectives, no montage. One scene, one movement, one loop.\n" +
+    "LOOP STRUCTURE (strict):\n" +
+    "  Second 0-1: camera starts on static anchor (hands, floor texture, or fixed object).\n" +
+    "  Seconds 1-4: ONE slow continuous movement through the scene.\n" +
+    "  Second 4-5: camera returns to EXACT same anchor as second 0.\n" +
+    "  The path is: anchor → scene → anchor. Nothing else.\n\n" +
     "Return ONLY one paragraph. No JSON, no labels."
   );
 }
@@ -186,7 +192,7 @@ function buildMainSchema(_age: number, gender: string): string {
     '  "coping_actions": ["action1","action2","action3"],\n' +
     '  "masking_cost": "description",\n' +
     '  "research_tags": ["tag1","tag2"],\n' +
-    '  "ambient_sound_query": "3-5 specific English keywords for searching ambient sound that matches this exact situation (e.g. \'ballet studio girls laughing\', \'hospital waiting room quiet hum\', \'shopping mall crowd footsteps\'). Be specific to the actual environment and activity."\n' +
+    '  "ambient_sound": "one word category that best matches this situation — choose from: crowd, children, storm, alarm, restaurant, transport, nature, party, classroom, street, hospital, home, supermarket, office, beach, construction, library, sports, airport, cafe, nightclub, traffic, park, baby, dogs, forest, rain"\n' +
     '}'
   );
 }
