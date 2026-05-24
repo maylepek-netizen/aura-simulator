@@ -69,7 +69,9 @@ function buildVideoPromptInstructions(age: number, _gender: string, situation: s
     "ALIEN WORLD INTENSIFIED: Everything familiar looks slightly wrong — like a perfect replica that is off by 2%. Skin tones have an unusual hue. Proportions feel slightly distorted. The lighting has a quality that does not exist in normal reality — too clean, too harsh, too perfect. People's movements are slightly too slow or too fast. The overall feeling: I have seen this place before but I do not belong here and something is deeply wrong that I cannot name. " +
     "CONSTANT CAMERA TREMOR: The camera has a continuous subtle physiological tremor throughout - like hands shaking slightly from anxiety. Never completely still. " +
     "HIGH SATURATION: Colors are consistently oversaturated throughout - more vivid and intense than reality, slightly overwhelming to look at. " +
-    "FOCUS DRIFT: The camera constantly drifts in and out of focus - never perfectly sharp for more than a moment. Objects and faces phase between sharp and soft repeatedly, like eyes that cannot fully settle."
+    "FOCUS DRIFT: The camera constantly drifts in and out of focus - never perfectly sharp for more than a moment. Objects and faces phase between sharp and soft repeatedly, like eyes that cannot fully settle. " +
+    "ALIEN WORLD: The scene feels profoundly wrong - like a perfect replica of reality with small errors. Skin tones have an unusual hue. People's movements are slightly too slow or too fast. Ordinary objects appear monumentally strange. The feeling: I have been here before but I do not belong and something is deeply wrong that I cannot name. " +
+    "OVERWHELMING INTENSITY: Everything is one level more intense than realistic. Lights blinding. Colors aggressive. Faces too close. The world feels like it is pressing in from all sides."
   );
 }
 
