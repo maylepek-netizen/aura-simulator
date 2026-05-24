@@ -28,7 +28,7 @@ function ageApproximateCameraHeight(age: number): string {
   return "approximately 1.6-1.7m";
 }
 
-async function geminiRaw(apiKey: string, prompt: string): Promise<string> {
+async function geminiCall(apiKey: string, prompt: string): Promise<string> {
   const res = await fetch(
     "https://generativelanguage.googleapis.com/v1/models/" + GEMINI_MODEL + ":generateContent?key=" + apiKey,
     {
@@ -45,21 +45,10 @@ async function geminiRaw(apiKey: string, prompt: string): Promise<string> {
     throw new Error(err?.error?.message ?? "Gemini error");
   }
   const data = await res.json();
-  return data.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
-}
-
-// For JSON responses: strips markdown fences and trims to last closing brace
-async function geminiCall(apiKey: string, prompt: string): Promise<string> {
-  const raw = await geminiRaw(apiKey, prompt);
+  const raw = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
   const cleaned = raw.replace(/```json/gi, "").replace(/```/g, "").trim();
   const lastBrace = cleaned.lastIndexOf("}");
   return lastBrace !== -1 ? cleaned.substring(0, lastBrace + 1) : cleaned;
-}
-
-// For plain-text responses: strips markdown fences only, no brace trimming
-async function geminiCallText(apiKey: string, prompt: string): Promise<string> {
-  const raw = await geminiRaw(apiKey, prompt);
-  return raw.replace(/```/g, "").trim();
 }
 
 function buildFilter1Prompt(age: number, gender: string, situation: string): string {
@@ -126,56 +115,8 @@ function buildFilter2Prompt(filter1: string, age: number, situation: string): st
     '  "masking_visuals": "description",\n' +
     '  "sensory_escalation": "description",\n' +
     '  "key_visual_moments": ["moment1", "moment2", "moment3"],\n' +
-    '  "final_veo_prompt": "ONE paragraph - the actual Veo prompt for this exact situation combining all techniques above. Photorealistic first-person POV. Single continuous shot. Include diegetic sound design. LOOP: open and close on identical static texture shot. CONVERGENCE: people and elements move TOWARD camera, never past it. INTENSITY: The entire experience is one level more overwhelming than realistic - colors more saturated, lights more blinding, faces more threatening, sounds more amplified. Not horror, but the world at maximum sensory volume. MONOLOGUE: Video visually follows the internal monologue thoughts as a script - each thought corresponds to what the camera sees or focuses on. TREMOR: Camera has a constant subtle physiological tremor throughout - like held breath, like hands shaking slightly from anxiety. Scale with sensory_overload_level: low = barely noticeable, high = visible shake."\n' +
+    '  "final_veo_prompt": "ONE paragraph - the actual Veo prompt for this exact situation combining all techniques above. Photorealistic first-person POV. Single continuous shot. Include diegetic sound design."\n' +
     "}"
-  );
-}
-
-function buildFilter3Prompt(situation: string, filter2Output: string, overloadLevel: number, monologue: string[]): string {
-  return (
-    "You have this situation: \"" + situation + "\"\n" +
-    "And this cinematic direction: " + filter2Output + "\n\n" +
-    "The internal monologue for this situation is:\n" +
-    monologue.map((t, i) => (i + 1) + ". " + t).join("\n") + "\n\n" +
-    "Use the monologue as a visual script - each thought should correspond to what the camera sees:\n" +
-    "- If monologue mentions eyes → camera focuses on eyes\n" +
-    "- If monologue mentions lights → camera drifts to lights\n" +
-    "- If monologue mentions exit/escape → camera searches for exit\n" +
-    "- If monologue mentions a specific detail → camera fixates on it\n" +
-    "The video is the visual stream of these exact thoughts.\n\n" +
-    "Write the veo prompt as if YOU are the autistic person experiencing this. Not describing from outside - from inside.\n\n" +
-    "Your job is to rewrite the final_veo_prompt with these intensity layers, applied gradually based on overload level " + overloadLevel + "/10:\n\n" +
-    "LAYER 1 (always present, subtle):\n" +
-    "- Focus hunting: camera snaps between irrelevant textures, faces stay slightly blurred\n" +
-    "- Chromatic aberration: slight RGB color separation at edges of objects\n" +
-    "- Colors 10% more saturated than realistic\n\n" +
-    "LAYER 2 (overload 4+):\n" +
-    "- Fluorescent lights overexposed, bleeding white into the scene\n" +
-    "- Tunnel vision: dark vignette closing in from edges\n" +
-    "- Whip pans toward sudden sounds or movements\n" +
-    "- Chromatic aberration intensifies on loud sounds\n\n" +
-    "LAYER 3 (overload 7+):\n" +
-    "- Extreme tunnel vision\n" +
-    "- Camera shake constant and visible\n" +
-    "- Colors burning out to near-white in bright areas\n" +
-    "- Focus completely lost on faces\n\n" +
-    "CRITICAL RULES:\n" +
-    "- Start calm, build exponentially - not everything at 100% from the start\n" +
-    "- Single continuous shot, no cuts\n" +
-    "- First-person POV only, never show protagonist\n" +
-    "- No glitch effects, no digital artifacts, no text\n" +
-    "- Photorealistic only\n" +
-    "- LOOP: open and close on identical static texture\n" +
-    "- CONVERGENCE: people move TOWARD camera\n" +
-    "- SEAMLESS LOOP - PROFESSIONAL DIRECTING:\n" +
-    "  The video is structured as an accordion take:\n" +
-    "  ANCHOR POINT (second 0 and second 5): Camera rests on a static, controlled anchor - looking down at hands in lap, or at a fixed surface texture. Camera completely still. This is the loop join point.\n" +
-    "  MOVEMENT PATH: Camera rises from anchor → turns toward the threatening element (person/crowd/environment) → sensory overload builds → camera escapes sideways to wall/floor/window → camera falls back heavily to anchor position.\n" +
-    "  The first and last frame are IDENTICAL: same angle, same framing, same focus depth, same lighting.\n" +
-    "  Movement feels physiological - like breathing out and releasing muscles at start and end.\n" +
-    "- SINGLE SCENE ONLY: The entire 5 seconds takes place in ONE location with ONE continuous camera movement.\n" +
-    "- LOOP STRUCTURE (strict): anchor(0-1s) → scene(1-4s) → return to exact anchor(4-5s).\n\n" +
-    "Return ONLY one paragraph. No JSON, no labels."
   );
 }
 
@@ -225,22 +166,15 @@ export async function POST(req: NextRequest) {
     const mainResult = JSON.parse(mainRaw);
     const filter2 = JSON.parse(filter2Raw);
 
-    // Filter 3: intensity amplifier — plain text, uses overload level + monologue
-    const overloadLevel: number = filter1Output.sensory_overload_level ?? 5;
-    const finalVideoPrompt = await geminiCallText(
-      apiKey,
-      buildFilter3Prompt(String(situation), filter2Raw, overloadLevel, mainResult.monologue ?? [])
-    );
-
     console.log("=== FILTER 1 - Research Analysis ===");
     console.log(JSON.stringify(filter1Output, null, 2));
     console.log("=== FILTER 2 - Cinematic Direction ===");
     console.log(JSON.stringify(filter2, null, 2));
-    console.log("=== FILTER 3 - Intensity Amplifier ===");
-    console.log(finalVideoPrompt);
+    console.log("=== FINAL VIDEO PROMPT ===");
+    console.log(filter2.final_veo_prompt ?? "(none)");
 
     // Attach video_prompt and cinematic metadata to the main result
-    mainResult.video_prompt = finalVideoPrompt;
+    mainResult.video_prompt = filter2.final_veo_prompt ?? "";
     mainResult.cinematic_direction = {
       camera_behavior: filter2.camera_behavior,
       focus_strategy: filter2.focus_strategy,
