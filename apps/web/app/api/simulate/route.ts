@@ -98,7 +98,7 @@ function buildFilter2Prompt(filter1: string, age: number, situation: string): st
     '  "time_perception": "description",\n' +
     '  "key_visual_moments": ["moment1", "moment2", "moment3"],\n' +
     '  "directing_rules": ["rule1", "rule2", "rule3"],\n' +
-    '  "final_veo_prompt": "ONE paragraph — the actual Veo prompt combining all the above into a single photorealistic first-person POV shot description for this exact situation. Single continuous shot, no cuts. Include diegetic audio."\n' +
+    '  "final_veo_prompt": "ONE paragraph — the actual Veo prompt combining all the above into a single photorealistic first-person POV shot description for this exact situation. Single continuous shot, no cuts. Include diegetic audio. STRICT FIRST-PERSON POV: Camera IS the protagonist\'s eyes facing OUTWARD. Never a selfie angle. Never holding a camera. Never showing the protagonist\'s face or body. Like a GoPro on the forehead facing forward. STRANGER INTERACTION: When a stranger is talking to or approaching the protagonist - their face dominates 60-70% of the frame. Eyes look DIRECTLY into camera, intense and unblinking. Face is uncomfortably close. Expression is ambiguous and slightly threatening. Body leans TOWARD the camera. The camera cannot escape - it tries to look away but keeps being pulled back to their face. INTENSITY: The scene is one level more overwhelming than realistic. Lights blinding, colors too saturated, sounds amplified. Everything moves TOWARD the camera. The world feels threatening and closing in."\n' +
     "}"
   );
 }
