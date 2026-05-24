@@ -132,31 +132,34 @@ function buildFilter2Prompt(filter1: string, age: number, situation: string): st
   );
 }
 
-function buildFilter3Prompt(situation: string, filter2Output: string): string {
+function buildFilter3Prompt(situation: string, filter2Output: string, monologue: string[]): string {
   return (
     "You have this situation: \"" + situation + "\"\n" +
-    "And this cinematic direction:\n" + filter2Output + "\n\n" +
-    "Your ONLY job is to make this overwhelming and intense.\n\n" +
-    "Answer these three questions for THIS specific situation:\n" +
-    "1. What is the single most threatening/frightening element in this scene? (be specific)\n" +
-    "2. How does the camera make the viewer feel physically trapped or overwhelmed by that element?\n" +
-    "3. What is the peak moment of intensity and how does the camera build to it?\n\n" +
-    "Then rewrite the final_veo_prompt to be MORE intense, MORE specific, and MORE overwhelming.\n" +
-    "Focus on: faces close and threatening, sounds amplified, nowhere safe to look, the specific threat of THIS situation dominating the frame.\n\n" +
-    "SEAMLESS LOOP RULE - this is critical:\n" +
-    "The video must work as a perfect loop. Structure it like this:\n" +
-    "- OPEN (first 1 second): slow extreme close-up of ONE specific texture in this scene (floor, fabric, wall, skin)\n" +
-    "- MIDDLE (seconds 1-4): the intense experience builds\n" +
-    "- CLOSE (last 1 second): camera slowly returns to the EXACT same texture from the opening\n" +
-    "This creates an invisible loop - the last frame matches the first frame exactly.\n" +
-    "The texture chosen must be specific to THIS situation (ballet floor for dance class, supermarket tiles for store, etc.)\n\n" +
-    "SOCIAL THREAT DOMINATES FRAME: If ANY people are present in the situation - whether one person or a crowd - they must create an overwhelming sense of pressure directed AT the camera:\n" +
-    "ONE PERSON TALKING: Their face fills 60-70% of frame. Eyes look DIRECTLY into camera - intense, unblinking, too long. Mouth moves but words feel fragmented. Body leans TOWARD camera. Camera cannot escape their gaze.\n" +
-    "GROUP OR CROWD: Multiple faces turning TOWARD the camera simultaneously. Eyes from different directions all converging on the camera. People moving TOWARD the camera from multiple angles. The feeling of being surrounded and watched. No safe direction to look - every turn reveals more faces looking directly at you. Bodies closing in from all sides.\n" +
-    "FOR ALL SOCIAL SITUATIONS: People walk TOWARD camera, not past it. Eye contact feels like physical pressure. Personal space is constantly violated. The camera is the TARGET of all social attention. Environment blurs - people are the threat. Even strangers passing by glance directly at camera with uncomfortable intensity.\n\n" +
-    "OVERWHELMING SCALE AND ENVIRONMENT: Everything appears larger and more imposing than it really is. Buildings tower oppressively. Furniture and objects in rooms feel oversized and too close. Ceilings feel lower. Spaces feel simultaneously too large and too small. Lighting is too bright and too harsh - fluorescent lights bleed and bloom, natural light feels aggressive. Colors are too saturated and too loud. The physical world feels like it was designed for a different species - everything slightly wrong in scale, brightness and proportion. Even familiar objects feel monumental and strange.\n\n" +
-    "⚠️ ABSOLUTE RULE: NO subtitles, NO captions, NO text overlays, NO written words of any kind anywhere in the video. The video is purely visual. No exceptions.\n\n" +
-    "Return ONLY the improved final_veo_prompt as a single paragraph. No JSON, no labels, just the paragraph."
+    "And this cinematic direction: " + filter2Output + "\n\n" +
+    "The internal monologue for this situation is:\n" +
+    monologue.map((t, i) => (i + 1) + ". " + t).join("\n") + "\n\n" +
+    "Use the monologue as a visual script - each thought should correspond to what the camera sees:\n" +
+    "- If monologue mentions eyes → camera focuses on eyes\n" +
+    "- If monologue mentions lights → camera drifts to lights\n" +
+    "- If monologue mentions exit/escape → camera searches for exit\n" +
+    "- If monologue mentions a specific detail → camera fixates on it\n" +
+    "The video is the visual stream of these exact thoughts.\n\n" +
+    "Write the veo prompt as if YOU are the autistic person experiencing this. Not describing from outside - from inside. 'I see...', 'everything feels...', 'I cannot stop looking at...'\n\n" +
+    "Rewrite the final_veo_prompt as ONE specific paragraph for THIS exact situation.\n\n" +
+    "Rules:\n" +
+    "- Keep everything from Filter 2 but make it specific to this situation\n" +
+    "- If people are present: they are close, their eyes meet the camera directly, they move toward the camera\n" +
+    "- If alone: environment feels vast and strange, small details become hypnotic\n" +
+    "- Scale intensity by the social_threat_level and sensory_overload_level values\n" +
+    "- SEAMLESS LOOP - CRITICAL:\n" +
+    "  Second 0-1: extreme close-up of ONE specific texture from this scene (e.g. ballet floor wood grain, supermarket tile grout, street asphalt crack). Camera completely still.\n" +
+    "  Seconds 1-4: experience unfolds.\n" +
+    "  Second 4-5: camera slowly returns to EXACT same texture, same angle, same framing as second 0-1.\n" +
+    "  The first and last frame must be visually identical. This is the only way to create an invisible loop.\n" +
+    "- NO subtitles, NO text, NO AI artifacts\n" +
+    "- Single continuous shot, photorealistic, first-person POV\n" +
+    "- Subtle rhythmic camera sway throughout\n\n" +
+    "Return ONLY one paragraph. No JSON, no labels."
   );
 }
 
@@ -201,13 +204,15 @@ export async function POST(req: NextRequest) {
     // Filter 2: cinematic directions from Filter 1 output
     const filter2Raw = await geminiCall(apiKey, buildFilter2Prompt(filter1Raw, Number(age), String(situation)));
 
+    // Parse main result early so monologue is available for Filter 3
+    const mainResult = JSON.parse(mainRaw);
+
     // Filter 3: intensity amplifier — plain text response, use geminiCallText to avoid brace trimming
-    const filter3Prompt = buildFilter3Prompt(String(situation), filter2Raw);
+    const filter3Prompt = buildFilter3Prompt(String(situation), filter2Raw, mainResult.monologue ?? []);
     const finalVideoPrompt = await geminiCallText(apiKey, filter3Prompt);
 
-    // Parse Filter 1, main, and Filter 2
+    // Parse Filter 1 and Filter 2
     const filter1Output = JSON.parse(filter1Raw);
-    const mainResult = JSON.parse(mainRaw);
     const filter2 = JSON.parse(filter2Raw);
 
     console.log("=== FILTER 1 - Research Analysis ===");
