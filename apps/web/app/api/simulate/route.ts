@@ -151,11 +151,21 @@ function buildFilter3Prompt(situation: string, filter2Output: string, monologue:
     "- If people are present: they are close, their eyes meet the camera directly, they move toward the camera\n" +
     "- If alone: environment feels vast and strange, small details become hypnotic\n" +
     "- Scale intensity by the social_threat_level and sensory_overload_level values\n" +
-    "- SEAMLESS LOOP - CRITICAL:\n" +
-    "  Second 0-1: extreme close-up of ONE specific texture from this scene (e.g. ballet floor wood grain, supermarket tile grout, street asphalt crack). Camera completely still.\n" +
-    "  Seconds 1-4: experience unfolds.\n" +
-    "  Second 4-5: camera slowly returns to EXACT same texture, same angle, same framing as second 0-1.\n" +
-    "  The first and last frame must be visually identical. This is the only way to create an invisible loop.\n" +
+    "- SEAMLESS LOOP - PROFESSIONAL DIRECTING:\n" +
+    "  The video is structured as an 'accordion take':\n" +
+    "  ANCHOR POINT (second 0 and second 5): Camera rests on a static, controlled anchor - looking down at hands in lap, or at a fixed surface texture. Camera completely still. This is the loop join point.\n" +
+    "  MOVEMENT PATH: Camera rises from anchor → turns toward the threatening element (person/crowd/environment) → sensory overload builds → camera escapes sideways to wall/floor/window → camera falls back heavily to anchor position.\n" +
+    "  The first and last frame are IDENTICAL: same angle, same framing, same focus depth, same lighting.\n" +
+    "  Movement feels physiological - like breathing out and releasing muscles at start and end.\n" +
+    "- EVERYTHING MOVES TOWARD THE POV:\n" +
+    "  This is critical - the world moves AT the viewer, not past them.\n" +
+    "  People run TOWARD the camera, not across it.\n" +
+    "  Faces turn and look DIRECTLY at the camera.\n" +
+    "  Objects feel like they are approaching.\n" +
+    "  The environment closes in from all sides.\n" +
+    "  There is no safe direction - everything converges on the POV.\n" +
+    "  The viewer feels like the target of everything in the scene.\n" +
+    "  Scale the intensity of this convergence by social_threat_level and sensory_overload_level.\n" +
     "- NO subtitles, NO text, NO AI artifacts\n" +
     "- Single continuous shot, photorealistic, first-person POV\n" +
     "- Subtle rhythmic camera sway throughout\n\n" +
