@@ -51,27 +51,6 @@ async function geminiCall(apiKey: string, prompt: string): Promise<string> {
   return lastBrace !== -1 ? cleaned.substring(0, lastBrace + 1) : cleaned;
 }
 
-async function geminiCallText(apiKey: string, prompt: string): Promise<string> {
-  const res = await fetch(
-    "https://generativelanguage.googleapis.com/v1/models/" + GEMINI_MODEL + ":generateContent?key=" + apiKey,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ role: "user", parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.8, maxOutputTokens: 16000 },
-      }),
-    }
-  );
-  if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err?.error?.message ?? "Gemini error");
-  }
-  const data = await res.json();
-  const raw = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
-  return raw.replace(/```/g, "").trim();
-}
-
 function buildFilter1Prompt(age: number, gender: string, situation: string): string {
   return (
     "Analyze this situation through an autism research lens.\n" +
@@ -141,37 +120,6 @@ function buildFilter2Prompt(filter1: string, age: number, situation: string): st
   );
 }
 
-function buildFilter3Prompt(situation: string, filter2Prompt: string, overloadLevel: number): string {
-  return (
-    "You have this Veo video prompt:\n" + filter2Prompt + "\n\n" +
-    "Sensory overload level: " + overloadLevel + "/10\n\n" +
-    "Rewrite it with these visual effects scaled by overload level:\n\n" +
-    "ALWAYS (level 1+):\n" +
-    "- Subtle chromatic aberration at object edges\n" +
-    "- Colors slightly oversaturated\n" +
-    "- Constant subtle camera tremor\n\n" +
-    "LEVEL 4+:\n" +
-    "- Focus hunting between irrelevant textures\n" +
-    "- Fluorescent lights overexposed and bleeding\n" +
-    "- Vignette darkening from edges\n\n" +
-    "LEVEL 7+:\n" +
-    "- Strong chromatic aberration\n" +
-    "- Extreme tunnel vision vignette\n" +
-    "- Visible camera shake\n" +
-    "- Colors burning toward white in bright areas\n\n" +
-    "RULES:\n" +
-    "- Single continuous shot, no cuts\n" +
-    "- First-person POV, never show protagonist\n" +
-    "- No digital glitch effects, no text, photorealistic\n" +
-    "- LOOP: open and close on same static texture\n" +
-    "- Everything moves TOWARD camera\n" +
-    "- NATURAL SPEED: Camera movement must feel like a real human body - slow, weighted, physiological. No fast panning, no rapid movement unless the situation involves physical action. Speed of movement matches what a real person would do in this environment.\n" +
-    "- CONVERGENCE: Everything in the scene moves TOWARD the camera. People walk toward it, faces lean in, objects feel like they approach. There is no safe direction - everything converges on the POV.\n" +
-    "- CONSTANT MOVEMENT AND FOCUS: Camera is never completely still - always a subtle continuous drift or sway. Focus constantly shifts between sharp and slightly soft - like eyes that cannot fully settle. Not random, but restless and searching.\n\n" +
-    "Return ONLY one paragraph."
-  );
-}
-
 function buildMainSchema(_age: number, gender: string): string {
   return (
     '{\n' +
@@ -218,22 +166,15 @@ export async function POST(req: NextRequest) {
     const mainResult = JSON.parse(mainRaw);
     const filter2 = JSON.parse(filter2Raw);
 
-    // Filter 3: visual effects layer scaled by overload level
-    const filter3Raw = await geminiCallText(apiKey, buildFilter3Prompt(
-      String(situation),
-      filter2.final_veo_prompt ?? "",
-      filter1Output.sensory_overload_level ?? 5
-    ));
-
     console.log("=== FILTER 1 - Research Analysis ===");
     console.log(JSON.stringify(filter1Output, null, 2));
     console.log("=== FILTER 2 - Cinematic Direction ===");
     console.log(JSON.stringify(filter2, null, 2));
-    console.log("=== FILTER 3 - Visual Effects ===");
-    console.log(filter3Raw);
+    console.log("=== FINAL VIDEO PROMPT ===");
+    console.log(filter2.final_veo_prompt ?? "(none)");
 
     // Attach video_prompt and cinematic metadata to the main result
-    mainResult.video_prompt = filter3Raw;
+    mainResult.video_prompt = filter2.final_veo_prompt ?? "";
     mainResult.cinematic_direction = {
       camera_behavior: filter2.camera_behavior,
       focus_strategy: filter2.focus_strategy,
