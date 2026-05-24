@@ -55,6 +55,7 @@ function ageApproximateCameraHeight(age: number): string {
 function buildVideoPromptInstructions(age: number, _gender: string, situation: string): string {
   const camHeight = ageApproximateCameraHeight(age);
   return (
+    "ABSOLUTE FIRST-PERSON POV: This video is shot through the protagonist's eyes only. The camera IS their eyes facing outward. Never show the protagonist's face, body, or reflection. Never a selfie angle. If someone talks to them - we see THAT person's face. If they walk - we see the path ahead. Think GoPro on forehead facing forward. " +
     "Write a Veo video prompt for this situation: \"" + situation + "\". " +
     "🚫 ABSOLUTE NON-NEGOTIABLE RULE: We NEVER see the protagonist. NEVER. The camera IS their eyes. We see what THEY see - not them. No face, no body, no reflection, no shadow of the protagonist. If someone talks to them - we see that person's face. If they walk - we see the path. If they look at their hands - we see their hands from above. This is a GoPro on their forehead facing OUTWARD. Violating this rule makes the video completely wrong. " +
     "RULE 1 - FIRST-PERSON POV: Camera is at " + camHeight + ". Camera faces OUTWARD like real eyes — never inward toward the person themselves. " +
