@@ -73,7 +73,7 @@ function buildFilter1Prompt(age: number, gender: string, situation: string): str
   );
 }
 
-function buildFilter2Prompt(situation: string, filter1Output: string, cameraHeight: string): string {
+function buildFilter2Prompt(situation: string, filter1Output: string, cameraHeight: string, monologue: string[]): string {
   return (
     "Based on these autism research parameters:\n" + filter1Output + "\n\n" +
     "Situation: \"" + situation + "\"\n" +
@@ -114,6 +114,14 @@ function buildFilter2Prompt(situation: string, filter1Output: string, cameraHeig
     "- LOOP: open and close on identical static texture from this specific scene\n" +
     "- Colors slightly oversaturated, lighting slightly too harsh\n" +
     "- Subtle rhythmic camera sway throughout\n\n" +
+    "MONOLOGUE AS VISUAL SCRIPT: The internal monologue for this situation is:\n" +
+    monologue.map((t, i) => (i + 1) + ". " + t).join("\n") + "\n" +
+    "Each thought is a direct visual instruction. The video must show exactly what the monologue describes:\n" +
+    "- If monologue mentions dancing → show people dancing\n" +
+    "- If monologue mentions a specific person → show that person\n" +
+    "- If monologue mentions lights → show those lights\n" +
+    "- If monologue mentions an object → camera focuses on that object\n" +
+    "The scene in the video must match the situation described in the monologue. Not a generic scene - the exact situation.\n\n" +
     "Return ONLY this JSON:\n" +
     "{\n" +
     '  "camera_behavior": "description",\n' +
@@ -161,13 +169,15 @@ export async function POST(req: NextRequest) {
       ),
     ]);
 
-    // Filter 2: cinematic directions from Filter 1 output
-    const camHeight = ageApproximateCameraHeight(Number(age));
-    const filter2Raw = await geminiCall(apiKey, buildFilter2Prompt(String(situation), filter1Raw, camHeight));
-
-    // Parse all three
-    const filter1Output = JSON.parse(filter1Raw);
+    // Parse main result early so monologue is available for Filter 2
     const mainResult = JSON.parse(mainRaw);
+
+    // Filter 2: cinematic directions from Filter 1 output + monologue
+    const camHeight = ageApproximateCameraHeight(Number(age));
+    const filter2Raw = await geminiCall(apiKey, buildFilter2Prompt(String(situation), filter1Raw, camHeight, mainResult.monologue ?? []));
+
+    // Parse Filter 1 and Filter 2
+    const filter1Output = JSON.parse(filter1Raw);
     const filter2 = JSON.parse(filter2Raw);
 
     console.log("=== FILTER 1 - Research Analysis ===");
