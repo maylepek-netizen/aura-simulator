@@ -115,7 +115,7 @@ function buildFilter2Prompt(filter1: string, age: number, situation: string): st
     '  "masking_visuals": "description",\n' +
     '  "sensory_escalation": "description",\n' +
     '  "key_visual_moments": ["moment1", "moment2", "moment3"],\n' +
-    '  "final_veo_prompt": "ONE paragraph - the actual Veo prompt for this exact situation combining all techniques above. Photorealistic first-person POV. Single continuous shot. Include diegetic sound design. LOOP: open and close on identical static texture shot. CONVERGENCE: people and elements move TOWARD camera, never past it. HANDS: Protagonist hands occasionally visible at very bottom of frame only, fidgeting quietly together - subtle stimming, never dominant. MONOLOGUE: Video visually follows the internal monologue thoughts as a script - each thought corresponds to what the camera sees or focuses on."\n' +
+    '  "final_veo_prompt": "ONE paragraph - the actual Veo prompt for this exact situation combining all techniques above. Photorealistic first-person POV. Single continuous shot. Include diegetic sound design. LOOP: open and close on identical static texture shot. CONVERGENCE: people and elements move TOWARD camera, never past it. HANDS: Protagonist hands occasionally visible at very bottom of frame only, fidgeting quietly together - subtle stimming, never dominant. MONOLOGUE: Video visually follows the internal monologue thoughts as a script - each thought corresponds to what the camera sees or focuses on. TREMOR: Camera has a constant subtle physiological tremor throughout - like held breath, like hands shaking slightly from anxiety. Scale with sensory_overload_level: low = barely noticeable, high = visible shake."\n' +
     "}"
   );
 }
