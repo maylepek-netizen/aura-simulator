@@ -51,6 +51,27 @@ async function geminiCall(apiKey: string, prompt: string): Promise<string> {
   return lastBrace !== -1 ? cleaned.substring(0, lastBrace + 1) : cleaned;
 }
 
+async function geminiCallText(apiKey: string, prompt: string): Promise<string> {
+  const res = await fetch(
+    "https://generativelanguage.googleapis.com/v1/models/" + GEMINI_MODEL + ":generateContent?key=" + apiKey,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.8, maxOutputTokens: 16000 },
+      }),
+    }
+  );
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err?.error?.message ?? "Gemini error");
+  }
+  const data = await res.json();
+  const raw = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+  return raw.replace(/```/g, "").trim();
+}
+
 function buildFilter1Prompt(age: number, gender: string, situation: string): string {
   return (
     "Analyze this situation through an autism research lens.\n" +
@@ -120,6 +141,18 @@ function buildFilter2Prompt(filter1: string, age: number, situation: string): st
   );
 }
 
+function buildFilter3Prompt(veoPrompt: string, overloadLevel: number): string {
+  return (
+    "Rewrite this Veo prompt with these additions only:\n\n" +
+    veoPrompt + "\n\n" +
+    "Add these effects (scale by overload level " + overloadLevel + "/10):\n" +
+    "1. SPEED: All camera movement is slow and weighted like a real human body. No fast movement.\n" +
+    "2. ALIEN INTENSITY: The world feels profoundly wrong - colors too saturated, lighting too harsh, people's expressions unreadable and slightly threatening. Scale intensity with overload level.\n" +
+    "3. CONVERGENCE: Everything moves toward the camera. People approach, faces lean in, objects feel like they close in.\n\n" +
+    "Return ONLY one paragraph. Keep everything from the original prompt."
+  );
+}
+
 function buildMainSchema(_age: number, gender: string): string {
   return (
     '{\n' +
@@ -166,15 +199,21 @@ export async function POST(req: NextRequest) {
     const mainResult = JSON.parse(mainRaw);
     const filter2 = JSON.parse(filter2Raw);
 
+    // Filter 3: add speed, alien intensity, convergence
+    const filter3Raw = await geminiCallText(apiKey, buildFilter3Prompt(
+      filter2.final_veo_prompt ?? "",
+      filter1Output.sensory_overload_level ?? 5
+    ));
+
     console.log("=== FILTER 1 - Research Analysis ===");
     console.log(JSON.stringify(filter1Output, null, 2));
     console.log("=== FILTER 2 - Cinematic Direction ===");
     console.log(JSON.stringify(filter2, null, 2));
-    console.log("=== FINAL VIDEO PROMPT ===");
-    console.log(filter2.final_veo_prompt ?? "(none)");
+    console.log("=== FILTER 3 - Visual Effects ===");
+    console.log(filter3Raw);
 
     // Attach video_prompt and cinematic metadata to the main result
-    mainResult.video_prompt = filter2.final_veo_prompt ?? "";
+    mainResult.video_prompt = filter3Raw;
     mainResult.cinematic_direction = {
       camera_behavior: filter2.camera_behavior,
       focus_strategy: filter2.focus_strategy,
