@@ -71,7 +71,8 @@ function buildVideoPromptInstructions(age: number, _gender: string, situation: s
     "HIGH SATURATION: Colors are consistently oversaturated throughout - more vivid and intense than reality, slightly overwhelming to look at. " +
     "FOCUS DRIFT: The camera constantly drifts in and out of focus - never perfectly sharp for more than a moment. Objects and faces phase between sharp and soft repeatedly, like eyes that cannot fully settle. " +
     "ALIEN WORLD: The scene feels profoundly wrong - like a perfect replica of reality with small errors. Skin tones have an unusual hue. People's movements are slightly too slow or too fast. Ordinary objects appear monumentally strange. The feeling: I have been here before but I do not belong and something is deeply wrong that I cannot name. " +
-    "OVERWHELMING INTENSITY: Everything is one level more intense than realistic. Lights blinding. Colors aggressive. Faces too close. The world feels like it is pressing in from all sides."
+    "OVERWHELMING INTENSITY: Everything is one level more intense than realistic. Lights blinding. Colors aggressive. Faces too close. The world feels like it is pressing in from all sides. " +
+    "RESEARCH-GROUNDED AUTISTIC POV: Direct every visual decision as if you ARE an autistic person experiencing this - not observing one. Ground every effect in real autism research: monotropism (camera tunnels obsessively into one detail), sensory processing differences (everything amplified), masking (the exhausting effort to appear normal visible in hesitations), double empathy problem (social interactions feel alien and unreadable)."
   );
 }
 
