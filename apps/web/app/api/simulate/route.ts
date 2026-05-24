@@ -164,7 +164,10 @@ function buildFilter3Prompt(situation: string, filter2Prompt: string, overloadLe
     "- First-person POV, never show protagonist\n" +
     "- No digital glitch effects, no text, photorealistic\n" +
     "- LOOP: open and close on same static texture\n" +
-    "- Everything moves TOWARD camera\n\n" +
+    "- Everything moves TOWARD camera\n" +
+    "- NATURAL SPEED: Camera movement must feel like a real human body - slow, weighted, physiological. No fast panning, no rapid movement unless the situation involves physical action. Speed of movement matches what a real person would do in this environment.\n" +
+    "- CONVERGENCE: Everything in the scene moves TOWARD the camera. People walk toward it, faces lean in, objects feel like they approach. There is no safe direction - everything converges on the POV.\n" +
+    "- CONSTANT MOVEMENT AND FOCUS: Camera is never completely still - always a subtle continuous drift or sway. Focus constantly shifts between sharp and slightly soft - like eyes that cannot fully settle. Not random, but restless and searching.\n\n" +
     "Return ONLY one paragraph."
   );
 }
