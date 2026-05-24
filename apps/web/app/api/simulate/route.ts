@@ -36,7 +36,7 @@ async function geminiCall(apiKey: string, prompt: string): Promise<string> {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         contents: [{ role: "user", parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.8, maxOutputTokens: 16000 },
+        generationConfig: { temperature: 0.8, maxOutputTokens: 4096 },
       }),
     }
   );
@@ -46,30 +46,7 @@ async function geminiCall(apiKey: string, prompt: string): Promise<string> {
   }
   const data = await res.json();
   const raw = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
-  const cleaned = raw.replace(/```json/gi, "").replace(/```/g, "").trim();
-  const lastBrace = cleaned.lastIndexOf("}");
-  return lastBrace !== -1 ? cleaned.substring(0, lastBrace + 1) : cleaned;
-}
-
-async function geminiCallText(apiKey: string, prompt: string): Promise<string> {
-  const res = await fetch(
-    "https://generativelanguage.googleapis.com/v1/models/" + GEMINI_MODEL + ":generateContent?key=" + apiKey,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ role: "user", parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.8, maxOutputTokens: 16000 },
-      }),
-    }
-  );
-  if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err?.error?.message ?? "Gemini error");
-  }
-  const data = await res.json();
-  const raw = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
-  return raw.replace(/```/g, "").trim();
+  return raw.replace(/```json/gi, "").replace(/```/g, "").trim();
 }
 
 function buildFilter1Prompt(age: number, gender: string, situation: string): string {
@@ -99,57 +76,30 @@ function buildFilter2Prompt(filter1: string, age: number, situation: string): st
   return (
     "Based on these autism research parameters for the situation \"" + situation + "\":\n" +
     filter1 + "\n\n" +
-    "You are a film director creating a first-person POV simulation of autistic sensory experience. Camera height: " + camHeight + ".\n\n" +
-    "Generate cinematic directing instructions based on these professional techniques:\n\n" +
-    "VISUAL LANGUAGE:\n" +
-    "- Focus hunting: camera fixates on irrelevant details (table texture, fabric, water drop) while faces of speaking people remain completely blurred\n" +
-    "- Overexposed fluorescent lighting that appears to attack the eyes with lens flares\n" +
-    "- As overwhelm builds: camera loses smooth movement, starts jumping and shaking\n" +
-    "- Tunnel vision effect: screen edges darken/blur as overload peaks\n" +
-    "- Depth of field: wrong things are sharp, important things are blurred\n\n" +
-    "MASKING (show the invisible effort):\n" +
-    "- Voiceover is calm and logical WHILE visuals are chaotic - showing effort to maintain thought\n" +
-    "- Hands visible in frame: clenched fists, nails digging into palm, fidgeting object (stimming)\n" +
-    "- Forced eye contact: camera drifts away from person's eyes, then forcibly returns - 3-4 times\n" +
-    "- Processing lag: 2 second silence after question before response, frame slightly shaking during processing\n" +
-    "- Forced gaze: camera keeps escaping to shoulder, floor, corner - then forcing itself back to eyes\n\n" +
-    "ALIEN WORLD:\n" +
-    "- Colors 2% too saturated - like reality was copied with a small error\n" +
-    "- People's movements look like an incomprehensible ritual\n" +
-    "- Ordinary objects appear fascinating like alien artifacts\n" +
-    "- Everyone knows a secret social rule except you\n\n" +
-    "SENSORY OVERLOAD (scale by sensory_overload_level):\n" +
-    "- Micro-sounds amplified disproportionately: footsteps, rustling bags, distant cough at equal volume to nearby speech\n" +
-    "- All audio layers at same volume = wall of sound impossible to decode\n" +
-    "- High frequency tinnitus undertone for physical discomfort\n" +
-    "- Camera shake increases with overload level\n\n" +
-    "ESCALATION PATTERN:\n" +
-    "- Start calm and slow\n" +
-    "- Stimuli accumulate gradually\n" +
-    "- Cuts get faster and more disorienting as overload builds\n" +
-    "- Hard cut to silence at peak = dissociation moment\n\n" +
-    "🚫 ABSOLUTE: First-person POV only. Never show protagonist. No AI artifacts. Photorealistic. Single continuous shot.\n\n" +
+    "Generate cinematic directing instructions for a Veo first-person POV video. Camera height: " + camHeight + ".\n\n" +
+    "Apply these universal principles:\n" +
+    "- Everything moves TOWARD the camera (threatening world closing in)\n" +
+    "- Proportions distorted: threats appear larger, safe elements smaller\n" +
+    "- Involuntary focus: camera pulled to wrong/irrelevant details\n" +
+    "- Time distortion: threatening = fast, boring = slow\n" +
+    "- Boundaries dissolve: people feel too close, objects feel like barriers\n" +
+    "- Direct eye contact from people = intense and threatening\n" +
+    "- People walk TOWARD camera\n" +
+    "- Faces fill more frame than reality\n" +
+    "- Unsynced mouth movements\n" +
+    "- Ambiguous threatening expressions\n\n" +
+    "🚫 ABSOLUTE RULE: We NEVER see the protagonist. Camera IS their eyes facing OUTWARD. No face, body, reflection, or shadow of the protagonist.\n" +
+    "🚫 NO AI ARTIFACTS: No ghosting, no morphing, no walking through walls. Photorealistic only. If complex — simplify.\n\n" +
     "Return ONLY this JSON:\n" +
     "{\n" +
     '  "camera_behavior": "description",\n' +
     '  "focus_strategy": "description",\n' +
-    '  "masking_visuals": "description",\n' +
-    '  "sensory_escalation": "description",\n' +
+    '  "proximity_effect": "description",\n' +
+    '  "time_perception": "description",\n' +
     '  "key_visual_moments": ["moment1", "moment2", "moment3"],\n' +
-    '  "final_veo_prompt": "ONE paragraph - the actual Veo prompt for this exact situation combining all techniques above. Photorealistic first-person POV. Single continuous shot. Include diegetic sound design."\n' +
+    '  "directing_rules": ["rule1", "rule2", "rule3"],\n' +
+    '  "final_veo_prompt": "ONE paragraph — the actual Veo prompt combining all the above into a single photorealistic first-person POV shot description for this exact situation. Single continuous shot, no cuts. Include diegetic audio."\n' +
     "}"
-  );
-}
-
-function buildFilter3Prompt(veoPrompt: string, overloadLevel: number): string {
-  return (
-    "Rewrite this Veo prompt with these additions only:\n\n" +
-    veoPrompt + "\n\n" +
-    "Add these effects (scale by overload level " + overloadLevel + "/10):\n" +
-    "1. SPEED: All camera movement is slow and weighted like a real human body. No fast movement.\n" +
-    "2. ALIEN INTENSITY: The world feels profoundly wrong - colors too saturated, lighting too harsh, people's expressions unreadable and slightly threatening. Scale intensity with overload level.\n" +
-    "3. CONVERGENCE: Everything moves toward the camera. People approach, faces lean in, objects feel like they close in.\n\n" +
-    "Return ONLY one paragraph. Keep everything from the original prompt."
   );
 }
 
@@ -195,31 +145,18 @@ export async function POST(req: NextRequest) {
     const filter2Raw = await geminiCall(apiKey, buildFilter2Prompt(filter1Raw, Number(age), String(situation)));
 
     // Parse all three
-    const filter1Output = JSON.parse(filter1Raw);
     const mainResult = JSON.parse(mainRaw);
     const filter2 = JSON.parse(filter2Raw);
 
-    // Filter 3: add speed, alien intensity, convergence
-    const filter3Raw = await geminiCallText(apiKey, buildFilter3Prompt(
-      filter2.final_veo_prompt ?? "",
-      filter1Output.sensory_overload_level ?? 5
-    ));
-
-    console.log("=== FILTER 1 - Research Analysis ===");
-    console.log(JSON.stringify(filter1Output, null, 2));
-    console.log("=== FILTER 2 - Cinematic Direction ===");
-    console.log(JSON.stringify(filter2, null, 2));
-    console.log("=== FILTER 3 - Visual Effects ===");
-    console.log(filter3Raw);
-
     // Attach video_prompt and cinematic metadata to the main result
-    mainResult.video_prompt = filter3Raw;
+    mainResult.video_prompt = filter2.final_veo_prompt ?? "";
     mainResult.cinematic_direction = {
       camera_behavior: filter2.camera_behavior,
       focus_strategy: filter2.focus_strategy,
-      masking_visuals: filter2.masking_visuals,
-      sensory_escalation: filter2.sensory_escalation,
+      proximity_effect: filter2.proximity_effect,
+      time_perception: filter2.time_perception,
       key_visual_moments: filter2.key_visual_moments,
+      directing_rules: filter2.directing_rules,
     };
 
     return NextResponse.json(mainResult);
