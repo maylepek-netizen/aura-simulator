@@ -28,7 +28,7 @@ function ageApproximateCameraHeight(age: number): string {
   return "approximately 1.6-1.7m";
 }
 
-async function geminiRaw(apiKey: string, prompt: string): Promise<string> {
+async function geminiCall(apiKey: string, prompt: string): Promise<string> {
   const res = await fetch(
     "https://generativelanguage.googleapis.com/v1/models/" + GEMINI_MODEL + ":generateContent?key=" + apiKey,
     {
@@ -45,21 +45,10 @@ async function geminiRaw(apiKey: string, prompt: string): Promise<string> {
     throw new Error(err?.error?.message ?? "Gemini error");
   }
   const data = await res.json();
-  return data.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
-}
-
-// For JSON responses: strips markdown fences and trims to last closing brace
-async function geminiCall(apiKey: string, prompt: string): Promise<string> {
-  const raw = await geminiRaw(apiKey, prompt);
+  const raw = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
   const cleaned = raw.replace(/```json/gi, "").replace(/```/g, "").trim();
   const lastBrace = cleaned.lastIndexOf("}");
   return lastBrace !== -1 ? cleaned.substring(0, lastBrace + 1) : cleaned;
-}
-
-// For plain-text responses: strips markdown fences only, no brace trimming
-async function geminiCallText(apiKey: string, prompt: string): Promise<string> {
-  const raw = await geminiRaw(apiKey, prompt);
-  return raw.replace(/```/g, "").trim();
 }
 
 function buildFilter1Prompt(age: number, gender: string, situation: string): string {
@@ -118,8 +107,7 @@ function buildFilter2Prompt(filter1: string, age: number, situation: string): st
     "- Stimuli accumulate gradually\n" +
     "- Cuts get faster and more disorienting as overload builds\n" +
     "- Hard cut to silence at peak = dissociation moment\n\n" +
-    "🚫 ABSOLUTE: First-person POV only. Never show protagonist. No AI artifacts. Photorealistic. Single continuous shot.\n" +
-    "⚠️ ABSOLUTE RULE: NO subtitles, NO captions, NO text overlays, NO written words of any kind anywhere in the video. The video is purely visual. No exceptions.\n\n" +
+    "🚫 ABSOLUTE: First-person POV only. Never show protagonist. No AI artifacts. Photorealistic. Single continuous shot.\n\n" +
     "Return ONLY this JSON:\n" +
     "{\n" +
     '  "camera_behavior": "description",\n' +
@@ -127,55 +115,8 @@ function buildFilter2Prompt(filter1: string, age: number, situation: string): st
     '  "masking_visuals": "description",\n' +
     '  "sensory_escalation": "description",\n' +
     '  "key_visual_moments": ["moment1", "moment2", "moment3"],\n' +
-    '  "final_veo_prompt": "ONE paragraph - the actual Veo prompt for this exact situation combining all techniques above. Photorealistic first-person POV. Single continuous shot. Include diegetic sound design. STIMMING MOVEMENT: The entire video has a subtle continuous rhythmic sway - gentle forward/back rocking that reflects the body\'s self-regulation. Low overload = barely noticeable slow sway every 4-5 seconds. High overload = more pronounced rhythmic rocking every 1-2 seconds. Always smooth and repetitive, never random or jerky. SEAMLESS LOOP: Video must open AND close on the exact same static extreme close-up of a surface or texture (floor tile, fabric, wall). All movement between is one continuous slow drift. Last 2 seconds must visually match first 2 seconds. Loop must be completely invisible."\n' +
+    '  "final_veo_prompt": "ONE paragraph - the actual Veo prompt for this exact situation combining all techniques above. Photorealistic first-person POV. Single continuous shot. Include diegetic sound design."\n' +
     "}"
-  );
-}
-
-function buildFilter3Prompt(situation: string, filter2Output: string, monologue: string[]): string {
-  return (
-    "You have this situation: \"" + situation + "\"\n" +
-    "And this cinematic direction: " + filter2Output + "\n\n" +
-    "The internal monologue for this situation is:\n" +
-    monologue.map((t, i) => (i + 1) + ". " + t).join("\n") + "\n\n" +
-    "Use the monologue as a visual script - each thought should correspond to what the camera sees:\n" +
-    "- If monologue mentions eyes → camera focuses on eyes\n" +
-    "- If monologue mentions lights → camera drifts to lights\n" +
-    "- If monologue mentions exit/escape → camera searches for exit\n" +
-    "- If monologue mentions a specific detail → camera fixates on it\n" +
-    "The video is the visual stream of these exact thoughts.\n\n" +
-    "Write the veo prompt as if YOU are the autistic person experiencing this. Not describing from outside - from inside. 'I see...', 'everything feels...', 'I cannot stop looking at...'\n\n" +
-    "Rewrite the final_veo_prompt as ONE specific paragraph for THIS exact situation.\n\n" +
-    "Rules:\n" +
-    "- Keep everything from Filter 2 but make it specific to this situation\n" +
-    "- If people are present: they are close, their eyes meet the camera directly, they move toward the camera\n" +
-    "- If alone: environment feels vast and strange, small details become hypnotic\n" +
-    "- Scale intensity by the social_threat_level and sensory_overload_level values\n" +
-    "- SEAMLESS LOOP - PROFESSIONAL DIRECTING:\n" +
-    "  The video is structured as an 'accordion take':\n" +
-    "  ANCHOR POINT (second 0 and second 5): Camera rests on a static, controlled anchor - looking down at hands in lap, or at a fixed surface texture. Camera completely still. This is the loop join point.\n" +
-    "  MOVEMENT PATH: Camera rises from anchor → turns toward the threatening element (person/crowd/environment) → sensory overload builds → camera escapes sideways to wall/floor/window → camera falls back heavily to anchor position.\n" +
-    "  The first and last frame are IDENTICAL: same angle, same framing, same focus depth, same lighting.\n" +
-    "  Movement feels physiological - like breathing out and releasing muscles at start and end.\n" +
-    "- EVERYTHING MOVES TOWARD THE POV:\n" +
-    "  This is critical - the world moves AT the viewer, not past them.\n" +
-    "  People run TOWARD the camera, not across it.\n" +
-    "  Faces turn and look DIRECTLY at the camera.\n" +
-    "  Objects feel like they are approaching.\n" +
-    "  The environment closes in from all sides.\n" +
-    "  There is no safe direction - everything converges on the POV.\n" +
-    "  The viewer feels like the target of everything in the scene.\n" +
-    "  Scale the intensity of this convergence by social_threat_level and sensory_overload_level.\n" +
-    "- NO subtitles, NO text, NO AI artifacts\n" +
-    "- Single continuous shot, photorealistic, first-person POV\n" +
-    "- Subtle rhythmic camera sway throughout\n\n" +
-    "SINGLE SCENE ONLY: The entire 5 seconds takes place in ONE location with ONE continuous camera movement. No cutting to different locations, no different perspectives, no montage. One scene, one movement, one loop.\n" +
-    "LOOP STRUCTURE (strict):\n" +
-    "  Second 0-1: camera starts on static anchor (hands, floor texture, or fixed object).\n" +
-    "  Seconds 1-4: ONE slow continuous movement through the scene.\n" +
-    "  Second 4-5: camera returns to EXACT same anchor as second 0.\n" +
-    "  The path is: anchor → scene → anchor. Nothing else.\n\n" +
-    "Return ONLY one paragraph. No JSON, no labels."
   );
 }
 
@@ -192,7 +133,7 @@ function buildMainSchema(_age: number, gender: string): string {
     '  "coping_actions": ["action1","action2","action3"],\n' +
     '  "masking_cost": "description",\n' +
     '  "research_tags": ["tag1","tag2"],\n' +
-    '  "ambient_sound": "one word category that best matches this situation — choose from: crowd, children, storm, alarm, restaurant, transport, nature, party, classroom, street, hospital, home, supermarket, office, beach, construction, library, sports, airport, cafe, nightclub, traffic, park, baby, dogs, forest, rain"\n' +
+    '  "ambient_sound": "ALWAYS pick a sound category — never return null or omit this field. Even for alone in a quiet room or meditating — pick home which represents the subtle ambient hum of a quiet space. There is always some ambient sound in any environment. Pick ONE from this exact list: crowd (mall/market/waiting room/any public space with people), children (school/playground/kids nearby), storm (thunder/rain/wind/bad weather), alarm (fire alarm/siren/emergency), restaurant (dining/food court), transport (train/bus/car/airport transit), nature (forest/park/birds/outdoors), party (celebration/event/music), classroom (school lesson/lecture), street (urban street/pedestrians), hospital (medical facility/clinic), home (quiet home/bedroom/alone indoors — use for calm or solitary situations), supermarket (grocery store/shop), office (workplace/open plan), beach (seaside/waves), construction (building site/drilling), library (quiet library/study), sports (gym/stadium/game), airport (terminal/departures), cafe (coffee shop/small cafe), nightclub (club/loud music/dancing), traffic (highway/busy road/cars), park (outdoor park/families), baby (infant/baby sounds), dogs (barking/dog park), forest (deep woods/insects/birds), rain (rainfall/drizzle — no thunder)"\n' +
     '}'
   );
 }
@@ -220,26 +161,20 @@ export async function POST(req: NextRequest) {
     // Filter 2: cinematic directions from Filter 1 output
     const filter2Raw = await geminiCall(apiKey, buildFilter2Prompt(filter1Raw, Number(age), String(situation)));
 
-    // Parse main result early so monologue is available for Filter 3
-    const mainResult = JSON.parse(mainRaw);
-
-    // Filter 3: intensity amplifier — plain text response, use geminiCallText to avoid brace trimming
-    const filter3Prompt = buildFilter3Prompt(String(situation), filter2Raw, mainResult.monologue ?? []);
-    const finalVideoPrompt = await geminiCallText(apiKey, filter3Prompt);
-
-    // Parse Filter 1 and Filter 2
+    // Parse all three
     const filter1Output = JSON.parse(filter1Raw);
+    const mainResult = JSON.parse(mainRaw);
     const filter2 = JSON.parse(filter2Raw);
 
     console.log("=== FILTER 1 - Research Analysis ===");
     console.log(JSON.stringify(filter1Output, null, 2));
     console.log("=== FILTER 2 - Cinematic Direction ===");
     console.log(JSON.stringify(filter2, null, 2));
-    console.log("=== FILTER 3 - Intensity Amplifier ===");
-    console.log(finalVideoPrompt);
+    console.log("=== FINAL VIDEO PROMPT ===");
+    console.log(filter2.final_veo_prompt ?? "(none)");
 
     // Attach video_prompt and cinematic metadata to the main result
-    mainResult.video_prompt = finalVideoPrompt;
+    mainResult.video_prompt = filter2.final_veo_prompt ?? "";
     mainResult.cinematic_direction = {
       camera_behavior: filter2.camera_behavior,
       focus_strategy: filter2.focus_strategy,
