@@ -115,7 +115,7 @@ function buildFilter2Prompt(filter1: string, age: number, situation: string): st
     '  "masking_visuals": "description",\n' +
     '  "sensory_escalation": "description",\n' +
     '  "key_visual_moments": ["moment1", "moment2", "moment3"],\n' +
-    '  "final_veo_prompt": "ONE paragraph - the actual Veo prompt for this exact situation combining all techniques above. Photorealistic first-person POV. Single continuous shot. Include diegetic sound design."\n' +
+    '  "final_veo_prompt": "ONE paragraph - the actual Veo prompt for this exact situation combining all techniques above. Photorealistic first-person POV. Single continuous shot. Include diegetic sound design. LOOP: open and close on identical static texture shot. CONVERGENCE: people and elements move TOWARD camera, never past it."\n' +
     "}"
   );
 }
