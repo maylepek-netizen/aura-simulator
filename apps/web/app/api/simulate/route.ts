@@ -73,60 +73,49 @@ function buildFilter1Prompt(age: number, gender: string, situation: string): str
   );
 }
 
-function buildFilter2Prompt(situation: string, filter1Output: string, cameraHeight: string, monologue: string[]): string {
+function buildFilter2Prompt(filter1: string, age: number, situation: string): string {
+  const camHeight = ageApproximateCameraHeight(age);
   return (
-    "Based on these autism research parameters:\n" + filter1Output + "\n\n" +
-    "Situation: \"" + situation + "\"\n" +
-    "Camera height: " + cameraHeight + "\n\n" +
-    "You are a film director. Select ONE directing approach from each category below based on the research parameters, then write a single Veo video prompt paragraph.\n\n" +
-    "UNIVERSAL RULE (applies to everything): The world moves TOWARD the camera. People walk toward it, faces lean in, objects feel like they approach. The camera is the target of everything in the scene. No element moves away or past - everything converges.\n\n" +
-    "SOCIAL STATE - pick one based on people_present and social_threat_level:\n" +
-    "ALONE: camera drifts aimlessly, fixates on irrelevant details, time feels stretched, environment is the main character\n" +
-    "ONE FAMILIAR PERSON: subtle misalignment, expressions hard to read, silences feel heavy, searching for social cues\n" +
-    "ONE STRANGER: physical proximity overwhelming, eye contact threatening, movements unpredictable, uncertainty constant\n" +
-    "SMALL GROUP: camera jumps between faces rapidly, hard to track conversation, who speaks next? feeling of disconnection\n" +
-    "CROWD: faces from all directions, everyone too close, no safe direction to look, sense of being engulfed\n\n" +
-    "ENVIRONMENT - pick one:\n" +
-    "SMALL ENCLOSED: walls feel closer than they are, textures dominate, artificial light aggressive, physical pressure\n" +
-    "LARGE ENCLOSED: disorienting scale, repetitive architecture, multiple directions compete, hard to orient\n" +
-    "OPEN NATURE: vast and detached, no anchor points, natural patterns repeat, environment feels indifferent\n" +
-    "URBAN: stimulation from all directions, no boundary between elements, constant background activity\n" +
-    "TRANSITIONAL: no grounding, passing elements, in-between feeling, nothing stable\n\n" +
-    "ACTIVITY - pick one:\n" +
-    "PASSIVE: time stagnant, attention drifts, no progression\n" +
-    "FOCUSED TASK: hyper-detail on task elements, interruptions feel catastrophic\n" +
-    "REPETITIVE: rhythm becomes dominant, actions loop, no sense of progress\n" +
-    "DECISION: multiple options compete visually, paralysis, everything equal weight\n" +
-    "NAVIGATION: environment shifts, landmarks unclear, movement lacks confidence\n" +
-    "INTERACTION: timing off, responses delayed, expressions unreadable\n\n" +
-    "CONTROL LEVEL:\n" +
-    "HIGH: stable, predictable, cause and effect clear\n" +
-    "PARTIAL: minor inconsistencies, subtle wrongness\n" +
-    "LOW: events arbitrary, environment changes without reason\n\n" +
-    "PACING:\n" +
-    "SLOW: moments prolonged, details linger\n" +
-    "IRREGULAR: events out of sync, rhythm broken\n" +
-    "FAST: actions overlap, no pause, time compressed\n\n" +
-    "TECHNICAL RULES (always):\n" +
-    "- First-person POV only, never show protagonist\n" +
-    "- Single continuous shot, no cuts\n" +
-    "- Photorealistic, no AI artifacts, no text\n" +
-    "- LOOP: open and close on identical static texture from this specific scene\n" +
-    "- Colors slightly oversaturated, lighting slightly too harsh\n" +
-    "- Subtle rhythmic camera sway throughout\n\n" +
-    "MONOLOGUE AS VISUAL SCRIPT: The internal monologue for this situation is:\n" +
-    monologue.map((t, i) => (i + 1) + ". " + t).join("\n") + "\n" +
-    "Each thought is a direct visual instruction. The video must show exactly what the monologue describes:\n" +
-    "- If monologue mentions dancing → show people dancing\n" +
-    "- If monologue mentions a specific person → show that person\n" +
-    "- If monologue mentions lights → show those lights\n" +
-    "- If monologue mentions an object → camera focuses on that object\n" +
-    "The scene in the video must match the situation described in the monologue. Not a generic scene - the exact situation.\n\n" +
+    "Based on these autism research parameters for the situation \"" + situation + "\":\n" +
+    filter1 + "\n\n" +
+    "You are a film director creating a first-person POV simulation of autistic sensory experience. Camera height: " + camHeight + ".\n\n" +
+    "Generate cinematic directing instructions based on these professional techniques:\n\n" +
+    "VISUAL LANGUAGE:\n" +
+    "- Focus hunting: camera fixates on irrelevant details (table texture, fabric, water drop) while faces of speaking people remain completely blurred\n" +
+    "- Overexposed fluorescent lighting that appears to attack the eyes with lens flares\n" +
+    "- As overwhelm builds: camera loses smooth movement, starts jumping and shaking\n" +
+    "- Tunnel vision effect: screen edges darken/blur as overload peaks\n" +
+    "- Depth of field: wrong things are sharp, important things are blurred\n\n" +
+    "MASKING (show the invisible effort):\n" +
+    "- Voiceover is calm and logical WHILE visuals are chaotic - showing effort to maintain thought\n" +
+    "- Hands visible in frame: clenched fists, nails digging into palm, fidgeting object (stimming)\n" +
+    "- Forced eye contact: camera drifts away from person's eyes, then forcibly returns - 3-4 times\n" +
+    "- Processing lag: 2 second silence after question before response, frame slightly shaking during processing\n" +
+    "- Forced gaze: camera keeps escaping to shoulder, floor, corner - then forcing itself back to eyes\n\n" +
+    "ALIEN WORLD:\n" +
+    "- Colors 2% too saturated - like reality was copied with a small error\n" +
+    "- People's movements look like an incomprehensible ritual\n" +
+    "- Ordinary objects appear fascinating like alien artifacts\n" +
+    "- Everyone knows a secret social rule except you\n\n" +
+    "SENSORY OVERLOAD (scale by sensory_overload_level):\n" +
+    "- Micro-sounds amplified disproportionately: footsteps, rustling bags, distant cough at equal volume to nearby speech\n" +
+    "- All audio layers at same volume = wall of sound impossible to decode\n" +
+    "- High frequency tinnitus undertone for physical discomfort\n" +
+    "- Camera shake increases with overload level\n\n" +
+    "ESCALATION PATTERN:\n" +
+    "- Start calm and slow\n" +
+    "- Stimuli accumulate gradually\n" +
+    "- Cuts get faster and more disorienting as overload builds\n" +
+    "- Hard cut to silence at peak = dissociation moment\n\n" +
+    "🚫 ABSOLUTE: First-person POV only. Never show protagonist. No AI artifacts. Photorealistic. Single continuous shot.\n\n" +
     "Return ONLY this JSON:\n" +
     "{\n" +
     '  "camera_behavior": "description",\n' +
-    '  "selected_approach": "social/environment/activity/control/pacing choices made",\n' +
-    '  "final_veo_prompt": "ONE paragraph combining all selected approaches for this exact situation. First-person POV. Photorealistic. Single continuous shot."\n' +
+    '  "focus_strategy": "description",\n' +
+    '  "masking_visuals": "description",\n' +
+    '  "sensory_escalation": "description",\n' +
+    '  "key_visual_moments": ["moment1", "moment2", "moment3"],\n' +
+    '  "final_veo_prompt": "ONE paragraph - the actual Veo prompt for this exact situation combining all techniques above. Photorealistic first-person POV. Single continuous shot. Include diegetic sound design."\n' +
     "}"
   );
 }
@@ -169,15 +158,12 @@ export async function POST(req: NextRequest) {
       ),
     ]);
 
-    // Parse main result early so monologue is available for Filter 2
-    const mainResult = JSON.parse(mainRaw);
+    // Filter 2: cinematic directions from Filter 1 output
+    const filter2Raw = await geminiCall(apiKey, buildFilter2Prompt(filter1Raw, Number(age), String(situation)));
 
-    // Filter 2: cinematic directions from Filter 1 output + monologue
-    const camHeight = ageApproximateCameraHeight(Number(age));
-    const filter2Raw = await geminiCall(apiKey, buildFilter2Prompt(String(situation), filter1Raw, camHeight, mainResult.monologue ?? []));
-
-    // Parse Filter 1 and Filter 2
+    // Parse all three
     const filter1Output = JSON.parse(filter1Raw);
+    const mainResult = JSON.parse(mainRaw);
     const filter2 = JSON.parse(filter2Raw);
 
     console.log("=== FILTER 1 - Research Analysis ===");
@@ -191,7 +177,10 @@ export async function POST(req: NextRequest) {
     mainResult.video_prompt = filter2.final_veo_prompt ?? "";
     mainResult.cinematic_direction = {
       camera_behavior: filter2.camera_behavior,
-      selected_approach: filter2.selected_approach,
+      focus_strategy: filter2.focus_strategy,
+      masking_visuals: filter2.masking_visuals,
+      sensory_escalation: filter2.sensory_escalation,
+      key_visual_moments: filter2.key_visual_moments,
     };
 
     return NextResponse.json(mainResult);
