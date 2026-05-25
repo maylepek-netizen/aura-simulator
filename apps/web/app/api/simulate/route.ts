@@ -75,7 +75,9 @@ function buildVideoPromptInstructions(age: number, _gender: string, situation: s
     "OVERWHELMING INTENSITY: Everything is one level more intense than realistic. Lights blinding. Colors aggressive. Faces too close. The world feels like it is pressing in from all sides. " +
     "RESEARCH-GROUNDED AUTISTIC POV: Direct every visual decision as if you ARE an autistic person experiencing this - not observing one. Ground every effect in real autism research: monotropism (camera tunnels obsessively into one detail), sensory processing differences (everything amplified), masking (the exhausting effort to appear normal visible in hesitations), double empathy problem (social interactions feel alien and unreadable). " +
     "DIEGETIC SOUND: Include realistic ambient sound that matches the exact situation - crowd noise, music, rain, voices, whatever belongs in this scene. The sound should feel overwhelming and amplified. " +
-    "CONSTANT SWAY: Camera has a continuous gentle side-to-side rhythmic sway throughout - like a person rocking slightly. Never completely still. This is stimming movement."
+    "CONSTANT SWAY: Camera has a continuous gentle side-to-side rhythmic sway throughout - like a person rocking slightly. Never completely still. This is stimming movement. " +
+    "SEAMLESS LOOP: Video must open AND close on the exact same static close-up of one specific texture from this scene. The last frame must be visually identical to the first frame so the loop is invisible. " +
+    "MAXIMUM ALIEN INTENSITY: Push the alien feeling to maximum - reality is wrong, familiar things look foreign, people move like they are performing an incomprehensible ritual. Colors are aggressively wrong. The viewer should feel genuinely unsettled and disoriented."
   );
 }
 
