@@ -59,7 +59,7 @@ const SOUND_MAP: Record<string, string> = {
   library: "/sounds/library.m4a",
   sports: "/sounds/sports.wav",
   airport: "/sounds/airport.m4a",
-  cafe: "/sounds/resturant.wav",
+  cafe: "/sounds/cafe.m4a",
   nightclub: "/sounds/nightclub.m4a",
   traffic: "/sounds/highway.m4a",
   park: "/sounds/birds.m4a",
