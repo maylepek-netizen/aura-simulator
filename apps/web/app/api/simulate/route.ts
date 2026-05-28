@@ -77,7 +77,8 @@ function buildVideoPromptInstructions(age: number, _gender: string, situation: s
     "DIEGETIC SOUND: Include realistic ambient sound that matches the exact situation - crowd noise, music, rain, voices, whatever belongs in this scene. The sound should feel overwhelming and amplified. " +
     "CONSTANT SWAY: Camera has a continuous gentle side-to-side rhythmic sway throughout - like a person rocking slightly. Never completely still. This is stimming movement. " +
     "SEAMLESS LOOP: Video must open AND close on the exact same static close-up of one specific texture from this scene. The last frame must be visually identical to the first frame so the loop is invisible. " +
-    "MAXIMUM ALIEN INTENSITY: Push the alien feeling to maximum - reality is wrong, familiar things look foreign, people move like they are performing an incomprehensible ritual. Colors are aggressively wrong. The viewer should feel genuinely unsettled and disoriented."
+    "MAXIMUM ALIEN INTENSITY: Push the alien feeling to maximum - reality is wrong, familiar things look foreign, people move like they are performing an incomprehensible ritual. Colors are aggressively wrong. The viewer should feel genuinely unsettled and disoriented. " +
+    "MONOTROPISM FOCUS: When there are multiple people or stimuli in the scene - ONE element is in sharp focus while everything else is heavily blurred. The camera cannot process multiple things simultaneously. It locks onto one detail obsessively (a mouth moving, a flickering light, a texture) while the rest of the scene becomes soft and indistinct. This is not artistic blur - it is the visual experience of a brain that can only truly attend to one thing at a time."
   );
 }
 
