@@ -1,0 +1,8 @@
+<svg width="52" height="36" viewBox="0 0 52 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Outer eye shape -->
+  <path d="M2 18 C2 18 10 4 26 4 C42 4 50 18 50 18 C50 18 42 32 26 32 C10 32 2 18 2 18Z" stroke="white" stroke-width="1.4" fill="none" stroke-linejoin="round"/>
+  <!-- Iris circle -->
+  <circle cx="26" cy="18" r="8" stroke="white" stroke-width="1.4" fill="none"/>
+  <!-- Pupil dot -->
+  <circle cx="26" cy="18" r="2.5" fill="white"/>
+</svg>
