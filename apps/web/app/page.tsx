@@ -141,6 +141,12 @@ export default function LandingPage() {
             position: "absolute", inset: 0,
             display: "flex", alignItems: "center", justifyContent: "center",
           }}>
+            <div style={{
+              position: "absolute",
+              inset: 0,
+              background: "rgba(0,0,0,0.4)",
+              zIndex: 1,
+            }} />
             <button
               type="button"
               className="begin-btn aura-fade-in"
@@ -148,7 +154,7 @@ export default function LandingPage() {
               style={{
                 display: "flex", flexDirection: "column", alignItems: "center",
                 gap: 10, background: "none", border: "none", cursor: "pointer",
-                padding: 0,
+                padding: 0, zIndex: 2, position: "relative",
               }}
             >
               <img
