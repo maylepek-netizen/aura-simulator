@@ -145,94 +145,73 @@ export default function LandingPage() {
 
         {/* ── SCREEN 01 — LANDING ── */}
         {screen === "landing" && (
-          <div style={{
-            position: "absolute", inset: 0,
-            display: "flex", alignItems: "center", justifyContent: "center",
-          }}>
+          <div style={{ position: "absolute", inset: 0 }}>
+
             {/* Dark overlay */}
             <div style={{
-              position: "absolute",
-              inset: 0,
-              background: "rgba(0,0,0,0.4)",
+              position: "absolute", inset: 0,
+              background: "rgba(0,0,0,0.45)",
               zIndex: 1,
             }} />
 
             {/* Left sidebar */}
             <div style={{
-              position: "absolute", left: 0, top: 0, bottom: 0,
-              width: 105,
+              position: "fixed", left: 0, top: 0,
+              width: 135,
+              height: "100vh",
+              padding: "8px 0",
               background: "rgba(0,0,0,0.38)",
               backdropFilter: "blur(12px)",
               WebkitBackdropFilter: "blur(12px)",
-              borderRight: "1px solid rgba(255,255,255,0.07)",
+              borderRight: "1px solid rgba(255,255,255,0.08)",
               zIndex: 3,
               display: "flex", flexDirection: "column",
+              justifyContent: "center",
               alignItems: "center",
-              paddingTop: 24, paddingBottom: 24,
-              gap: 8,
+              gap: 613,
             }}>
-              {/* Top: experience icon + label (active) */}
-              <div style={{
-                display: "flex", flexDirection: "column", alignItems: "center",
-                gap: 6, padding: "10px 0", width: "100%", cursor: "default",
-              }}>
-                <img src="/icons/experience.svg" alt="Experience" style={{ width: 28, opacity: 1 }} />
-                <span style={{ fontSize: 9, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.85)" }}>Experience</span>
+              {/* Experience — active (top group) */}
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+                <img src="/icons/Exeprience.svg" alt="Experience" style={{ width: 30 }} />
+                <span style={{ fontSize: 12, letterSpacing: "0.08em", color: "rgba(255,255,255,0.9)" }}>Experience</span>
               </div>
 
-              {/* Bank */}
-              <div style={{
-                display: "flex", flexDirection: "column", alignItems: "center",
-                gap: 6, padding: "10px 0", width: "100%", cursor: "default",
-              }}>
-                <img src="/icons/bank.svg" alt="Bank" style={{ width: 28, opacity: 0.45 }} />
-                <span style={{ fontSize: 9, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.45)" }}>Bank</span>
-              </div>
-
-              {/* Insights */}
-              <div style={{
-                display: "flex", flexDirection: "column", alignItems: "center",
-                gap: 6, padding: "10px 0", width: "100%", cursor: "default",
-              }}>
-                <img src="/icons/insights.svg" alt="Insights" style={{ width: 28, opacity: 0.45 }} />
-                <span style={{ fontSize: 9, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.45)" }}>Insights</span>
-              </div>
-
-              {/* Sensory Channels */}
-              <div style={{
-                display: "flex", flexDirection: "column", alignItems: "center",
-                gap: 6, padding: "10px 0", width: "100%", cursor: "default",
-              }}>
-                <img src="/icons/sensory channeles.svg" alt="Sensory Channels" style={{ width: 28, opacity: 0.45 }} />
-                <span style={{ fontSize: 9, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.45)", textAlign: "center", lineHeight: 1.3 }}>Sensory<br/>Channels</span>
-              </div>
-
-              {/* Bottom: experience icon again (footer) */}
-              <div style={{ marginTop: "auto" }}>
-                <img src="/icons/experience.svg" alt="" style={{ width: 28, opacity: 0.35 }} />
+              {/* Bottom group: Bank, Insights, Sensory Channels stacked */}
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 32 }}>
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+                  <img src="/icons/bank.svg" alt="Bank" style={{ width: 30, opacity: 0.45 }} />
+                  <span style={{ fontSize: 12, letterSpacing: "0.08em", color: "rgba(255,255,255,0.45)" }}>Bank</span>
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+                  <img src="/icons/insights.svg" alt="Insights" style={{ width: 30, opacity: 0.45 }} />
+                  <span style={{ fontSize: 12, letterSpacing: "0.08em", color: "rgba(255,255,255,0.45)" }}>Insights</span>
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+                  <img src="/icons/sensory channeles.svg" alt="Sensory Channels" style={{ width: 30, opacity: 0.45 }} />
+                  <span style={{ fontSize: 12, letterSpacing: "0.08em", color: "rgba(255,255,255,0.45)", textAlign: "center", lineHeight: 1.3 }}>Sensory<br />Channels</span>
+                </div>
+                {/* Bottom eye icon */}
+                <img src="/icons/experience.svg" alt="" style={{ width: 30, opacity: 0.4 }} />
               </div>
             </div>
 
             {/* Top header */}
             <div style={{
-              position: "absolute", top: 0, left: 105, right: 0,
-              height: 56,
+              position: "absolute", top: 0, left: 135, right: 0,
+              height: 60,
               display: "flex", alignItems: "center", justifyContent: "space-between",
               padding: "0 28px",
               zIndex: 3,
             }}>
               <div>
-                <span style={{ fontSize: 11, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.9)", fontWeight: 500 }}>
-                  STEP 00 /&nbsp;
-                </span>
-                <span style={{ fontSize: 11, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.9)", fontWeight: 500 }}>
-                  INTRODUCTION
-                </span>
-                <div style={{ fontSize: 10, letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.45)", marginTop: 3 }}>
+                <div style={{ fontSize: 12, letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.9)", fontWeight: 500 }}>
+                  STEP 00 / INTRODUCTION
+                </div>
+                <div style={{ fontSize: 11, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.45)", marginTop: 3 }}>
                   Autism Simulator Experience
                 </div>
               </div>
-              <div style={{ fontSize: 11, letterSpacing: "0.14em", color: "rgba(255,255,255,0.7)" }}>
+              <div style={{ fontSize: 12, letterSpacing: "0.12em", color: "rgba(255,255,255,0.7)" }}>
                 Simulation&nbsp;|&nbsp;<span style={{ textDecoration: "underline", cursor: "pointer" }}>Exit</span>
               </div>
             </div>
@@ -240,7 +219,7 @@ export default function LandingPage() {
             {/* Bottom-right serial */}
             <div style={{
               position: "absolute", bottom: 20, right: 24,
-              fontSize: 11, letterSpacing: "0.18em",
+              fontSize: 12, letterSpacing: "0.16em",
               color: "rgba(255,255,255,0.35)",
               zIndex: 3,
             }}>
@@ -248,30 +227,49 @@ export default function LandingPage() {
             </div>
 
             {/* Center content */}
-            <button
-              type="button"
-              className="begin-btn aura-fade-in"
-              onClick={() => setScreen("intro")}
-              style={{
-                display: "flex", flexDirection: "column", alignItems: "center",
-                gap: 10, background: "none", border: "none", cursor: "pointer",
-                padding: 0, zIndex: 2, position: "relative",
-                marginLeft: 105,
-              }}
-            >
-              <img
-                src="/icons/experience.svg"
-                alt="Eye icon"
-                className="begin-icon"
-                style={{ width: 52 }}
-              />
-              <span style={{
-                fontSize: 10, letterSpacing: "0.4em", fontWeight: 300,
-                textTransform: "uppercase", color: "white",
+            <div className="aura-fade-in" style={{
+              position: "absolute", inset: 0, left: 135,
+              display: "flex", flexDirection: "column",
+              alignItems: "center", justifyContent: "center",
+              gap: 20, zIndex: 2,
+            }}>
+              <img src="/icons/experience.svg" alt="" style={{ width: 48, opacity: 0.9 }} />
+
+              <h1 style={{
+                fontFamily: "'Amiri', serif",
+                fontSize: "clamp(2.4rem, 5vw, 4rem)",
+                color: "white",
+                margin: 0,
+                textAlign: "center",
+                lineHeight: 1.15,
+                fontWeight: 400,
               }}>
-                BEGIN
-              </span>
-            </button>
+                Aura Simulator
+              </h1>
+
+              <p style={{
+                fontSize: 14, letterSpacing: "0.18em",
+                color: "rgba(255,255,255,0.7)",
+                margin: 0, textAlign: "center",
+              }}>
+                Enter another perception
+              </p>
+
+              <button
+                type="button"
+                onClick={() => setScreen("intro")}
+                style={{
+                  marginTop: 24,
+                  background: "#FFC99D", color: "#000",
+                  border: "none", borderRadius: 50,
+                  padding: "16px 48px",
+                  fontSize: 13, letterSpacing: "0.12em",
+                  fontWeight: 600, cursor: "pointer",
+                }}
+              >
+                Begin Experience
+              </button>
+            </div>
           </div>
         )}
 
