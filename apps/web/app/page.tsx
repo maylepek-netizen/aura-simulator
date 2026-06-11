@@ -78,7 +78,7 @@ export default function LandingPage() {
         style={{ position: "fixed", inset: 0, overflow: "hidden", background: "#000" }}
         onClick={screen === "idle" ? wakeUp : undefined}
       >
-        {/* Background video */}
+        {/* Background video — always present */}
         <video
           src="https://res.cloudinary.com/duhsqezo3/video/upload/v1781117441/%D7%9C%D7%90_%D7%A6%D7%A8%D7%99%D7%9A_%D7%9C%D7%94%D7%99%D7%95%D7%AA_%D7%9E%D7%A1%D7%95%D7%9B%D7%9F_%D7%90%D7%95_%D7%9E%D7%91%D7%99%D7%9A_%D7%A4%D7%A9_wo1ecc.mp4"
           autoPlay
@@ -100,6 +100,7 @@ export default function LandingPage() {
           position: "absolute", inset: 0,
           background: "radial-gradient(ellipse at center, transparent 25%, rgba(0,0,0,0.52) 100%)",
           pointerEvents: "none",
+          zIndex: 0,
         }} />
 
         {/* ── SCREEN 00 — IDLE ── */}
@@ -110,14 +111,8 @@ export default function LandingPage() {
             alignItems: "center", justifyContent: "center",
             gap: 16, cursor: "pointer",
           }}>
-            <div style={{
-              position: "absolute",
-              inset: 0,
-              background: "rgba(0,0,0,0.4)",
-              zIndex: 1,
-            }} />
+            <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.4)", zIndex: 1 }} />
             <div className="aura-scanline" style={{ zIndex: 2 }} />
-
             <span className="aura-breathe" style={{
               fontFamily: "'Amiri', serif",
               fontSize: "clamp(3rem, 7vw, 5rem)",
@@ -129,7 +124,6 @@ export default function LandingPage() {
             }}>
               AURA
             </span>
-
             <span className="aura-breathe-delay" style={{
               fontSize: 9,
               letterSpacing: "0.45em",
@@ -143,181 +137,42 @@ export default function LandingPage() {
           </div>
         )}
 
-        {/* ── SCREEN 01 — LANDING ── */}
+        {/* ── SCREEN 01 — LANDING: eye icon + BEGIN only, no sidebar ── */}
         {screen === "landing" && (
-          <div style={{ position: "absolute", inset: 0 }}>
-
-            {/* Dark overlay */}
-            <div style={{
-              position: "absolute", inset: 0,
-              background: "rgba(0,0,0,0.45)",
-              zIndex: 1,
-            }} />
-
-            {/* Left sidebar */}
-            <div style={{
-              position: "fixed", left: 0, top: 0,
-              width: 135,
-              height: "100vh",
-              padding: "8px 0",
-              background: "rgba(0,0,0,0.38)",
-              backdropFilter: "blur(12px)",
-              WebkitBackdropFilter: "blur(12px)",
-              borderRight: "1px solid rgba(255,255,255,0.08)",
-              zIndex: 3,
-              display: "flex", flexDirection: "column",
-              justifyContent: "center",
-              alignItems: "center",
-              gap: 613,
-            }}>
-              {/* Experience — active (top group) */}
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
-                <img src="/icons/Exeprience.svg" alt="Experience" style={{ width: 30 }} />
-                <span style={{ fontSize: 12, letterSpacing: "0.08em", color: "rgba(255,255,255,0.9)" }}>Experience</span>
-              </div>
-
-              {/* Bottom group: Bank, Insights, Sensory Channels stacked */}
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 32 }}>
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
-                  <img src="/icons/bank.svg" alt="Bank" style={{ width: 30, opacity: 0.45 }} />
-                  <span style={{ fontSize: 12, letterSpacing: "0.08em", color: "rgba(255,255,255,0.45)" }}>Bank</span>
-                </div>
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
-                  <img src="/icons/insights.svg" alt="Insights" style={{ width: 30, opacity: 0.45 }} />
-                  <span style={{ fontSize: 12, letterSpacing: "0.08em", color: "rgba(255,255,255,0.45)" }}>Insights</span>
-                </div>
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
-                  <img src="/icons/sensory channeles.svg" alt="Sensory Channels" style={{ width: 30, opacity: 0.45 }} />
-                  <span style={{ fontSize: 12, letterSpacing: "0.08em", color: "rgba(255,255,255,0.45)", textAlign: "center", lineHeight: 1.3 }}>Sensory<br />Channels</span>
-                </div>
-                {/* Bottom eye icon */}
-                <img src="/icons/experience.svg" alt="" style={{ width: 30, opacity: 0.4 }} />
-              </div>
-            </div>
-
-            {/* Top header */}
-            <div style={{
-              position: "absolute", top: 0, left: 135, right: 0,
-              height: 60,
-              display: "flex", alignItems: "center", justifyContent: "space-between",
-              padding: "0 28px",
-              zIndex: 3,
-            }}>
-              <div>
-                <div style={{ fontSize: 12, letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.9)", fontWeight: 500 }}>
-                  STEP 00 / INTRODUCTION
-                </div>
-                <div style={{ fontSize: 11, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.45)", marginTop: 3 }}>
-                  Autism Simulator Experience
-                </div>
-              </div>
-              <div style={{ fontSize: 12, letterSpacing: "0.12em", color: "rgba(255,255,255,0.7)" }}>
-                Simulation&nbsp;|&nbsp;<span style={{ textDecoration: "underline", cursor: "pointer" }}>Exit</span>
-              </div>
-            </div>
-
-            {/* Bottom-right serial */}
-            <div style={{
-              position: "absolute", bottom: 20, right: 24,
-              fontSize: 12, letterSpacing: "0.16em",
-              color: "rgba(255,255,255,0.35)",
-              zIndex: 3,
-            }}>
-              Simulation NO. 792734-04
-            </div>
-
-            {/* Center content */}
-            <div className="aura-fade-in" style={{
-              position: "absolute", inset: 0, left: 135,
-              display: "flex", flexDirection: "column",
-              alignItems: "center", justifyContent: "center",
-              gap: 20, zIndex: 2,
-            }}>
-              <img src="/icons/experience.svg" alt="" style={{ width: 48, opacity: 0.9 }} />
-
-              <h1 style={{
-                fontFamily: "'Amiri', serif",
-                fontSize: "clamp(2.4rem, 5vw, 4rem)",
-                color: "white",
-                margin: 0,
-                textAlign: "center",
-                lineHeight: 1.15,
-                fontWeight: 400,
+          <div style={{
+            position: "absolute", inset: 0,
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}>
+            <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.45)", zIndex: 1 }} />
+            <button
+              type="button"
+              className="begin-btn aura-fade-in"
+              onClick={() => setScreen("intro")}
+              style={{
+                display: "flex", flexDirection: "column", alignItems: "center",
+                gap: 10, background: "none", border: "none", cursor: "pointer",
+                padding: 0, position: "relative", zIndex: 2,
+              }}
+            >
+              <img
+                src="/icons/Exeprience.svg"
+                alt="Eye icon"
+                className="begin-icon"
+                style={{ width: 52 }}
+              />
+              <span style={{
+                fontSize: 10, letterSpacing: "0.4em", fontWeight: 300,
+                textTransform: "uppercase", color: "white",
               }}>
-                Aura Simulator
-              </h1>
-
-              <p style={{
-                fontSize: 14, letterSpacing: "0.18em",
-                color: "rgba(255,255,255,0.7)",
-                margin: 0, textAlign: "center",
-              }}>
-                Enter another perception
-              </p>
-
-              <button
-                type="button"
-                onClick={() => setScreen("intro")}
-                style={{
-                  marginTop: 24,
-                  background: "#FFC99D", color: "#000",
-                  border: "none", borderRadius: 50,
-                  padding: "16px 48px",
-                  fontSize: 13, letterSpacing: "0.12em",
-                  fontWeight: 600, cursor: "pointer",
-                }}
-              >
-                Begin Experience
-              </button>
-            </div>
+                BEGIN
+              </span>
+            </button>
           </div>
         )}
 
-        {/* ── SCREEN 02 — INTRO ── */}
+        {/* ── SCREEN 02 — INTRO: placeholder, routes to /onboard ── */}
         {screen === "intro" && (
-          <div className="aura-fade-in" style={{
-            position: "absolute", inset: 0,
-            display: "flex", flexDirection: "column",
-            alignItems: "center", justifyContent: "center",
-            gap: 32, padding: "0 24px",
-          }}>
-            <img src="/logo.svg" alt="Aura" style={{ height: 40 }} />
-
-            <h1 style={{
-              fontFamily: "'Amiri', serif",
-              fontSize: "clamp(2rem, 5vw, 3.5rem)",
-              color: "white",
-              textAlign: "center",
-              lineHeight: 1.2,
-              margin: 0,
-              maxWidth: 640,
-            }}>
-              What does the world feel like from the inside?
-            </h1>
-
-            <p style={{
-              fontSize: 14, color: "rgba(255,255,255,0.7)",
-              textAlign: "center", lineHeight: 1.7,
-              maxWidth: 480, margin: 0,
-            }}>
-              An immersive simulation of the autistic sensory experience — grounded in peer-reviewed research.
-            </p>
-
-            <button
-              type="button"
-              onClick={() => router.push("/onboard")}
-              style={{
-                background: "#FFC99D", color: "#000",
-                border: "none", borderRadius: 8,
-                padding: "14px 40px",
-                fontSize: 11, letterSpacing: "0.25em",
-                textTransform: "uppercase",
-                fontWeight: 500, cursor: "pointer",
-              }}
-            >
-              Enter
-            </button>
-          </div>
+          <div style={{ position: "absolute", inset: 0 }} onClick={() => router.push("/onboard")} />
         )}
       </div>
     </>
