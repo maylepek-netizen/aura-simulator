@@ -113,17 +113,17 @@ export default function LandingPage() {
           }}>
             <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.4)", zIndex: 1 }} />
             <div className="aura-scanline" style={{ zIndex: 2 }} />
-            <span className="aura-breathe" style={{
-              fontFamily: "'Amiri', serif",
-              fontSize: "clamp(3rem, 7vw, 5rem)",
-              color: "rgba(255,255,255,0.32)",
-              letterSpacing: "0.55em",
-              lineHeight: 1,
-              userSelect: "none",
-              position: "relative", zIndex: 2,
-            }}>
-              AURA
-            </span>
+            <img
+              className="aura-breathe"
+              src="/icons/Exeprience.svg"
+              alt=""
+              style={{
+                width: 52,
+                filter: "brightness(0) invert(1)",
+                position: "relative", zIndex: 2,
+                userSelect: "none",
+              }}
+            />
             <span className="aura-breathe-delay" style={{
               fontSize: 9,
               letterSpacing: "0.45em",
