@@ -35,7 +35,7 @@ export default function OnboardingPage() {
     setError(null);
     saveProfile(profile);
     clearExperienceDraft();
-    router.push("/chat");
+    router.push("/question");
   }
 
   return (
