@@ -194,7 +194,7 @@ export default function OnboardingPage() {
               color: "rgba(255,255,255,0.5)",
               lineHeight: 1.8, margin: 0, maxWidth: 380,
             }}>
-              Before we begin tell us about yourself Before we begin tell us about yourself Before we begin tell us about yourself Before we begin tell us about yourself
+              Before we begin, we&apos;d like to learn a little about you. Every experience is shaped by who we are, our memories, and the way we see the world.
             </p>
           </div>
 
