@@ -110,7 +110,13 @@ export default function LandingPage() {
             alignItems: "center", justifyContent: "center",
             gap: 16, cursor: "pointer",
           }}>
-            <div className="aura-scanline" />
+            <div style={{
+              position: "absolute",
+              inset: 0,
+              background: "rgba(0,0,0,0.4)",
+              zIndex: 1,
+            }} />
+            <div className="aura-scanline" style={{ zIndex: 2 }} />
 
             <span className="aura-breathe" style={{
               fontFamily: "'Amiri', serif",
@@ -119,6 +125,7 @@ export default function LandingPage() {
               letterSpacing: "0.55em",
               lineHeight: 1,
               userSelect: "none",
+              position: "relative", zIndex: 2,
             }}>
               AURA
             </span>
@@ -129,6 +136,7 @@ export default function LandingPage() {
               color: "rgba(255,255,255,0.16)",
               textTransform: "uppercase",
               userSelect: "none",
+              position: "relative", zIndex: 2,
             }}>
               move to begin
             </span>
