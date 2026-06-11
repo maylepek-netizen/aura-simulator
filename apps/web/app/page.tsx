@@ -170,9 +170,116 @@ export default function LandingPage() {
           </div>
         )}
 
-        {/* ── SCREEN 02 — INTRO: placeholder, routes to /onboard ── */}
+        {/* ── SCREEN 02 — INTRO: sidebar + heading + CTA ── */}
         {screen === "intro" && (
-          <div style={{ position: "absolute", inset: 0 }} onClick={() => router.push("/onboard")} />
+          <div className="aura-fade-in" style={{ position: "absolute", inset: 0 }}>
+
+            {/* Dark overlay */}
+            <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.45)", zIndex: 1 }} />
+
+            {/* Left sidebar */}
+            <div style={{
+              position: "fixed", left: 0, top: 0,
+              width: 135, height: "100vh", padding: "8px 0",
+              background: "rgba(0,0,0,0.38)",
+              backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)",
+              borderRight: "1px solid rgba(255,255,255,0.08)",
+              zIndex: 3,
+              display: "flex", flexDirection: "column",
+              justifyContent: "center", alignItems: "center",
+              gap: 613,
+            }}>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+                <img src="/icons/Exeprience.svg" alt="Experience" style={{ width: 28 }} />
+                <span style={{ fontSize: 12, letterSpacing: "0.08em", color: "rgba(255,255,255,0.9)" }}>Experience</span>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 32 }}>
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+                  <img src="/icons/bank.svg" alt="Bank" style={{ width: 33, opacity: 0.45 }} />
+                  <span style={{ fontSize: 12, letterSpacing: "0.08em", color: "rgba(255,255,255,0.45)" }}>Bank</span>
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+                  <img src="/icons/insights.svg" alt="Insights" style={{ width: 30, opacity: 0.45 }} />
+                  <span style={{ fontSize: 12, letterSpacing: "0.08em", color: "rgba(255,255,255,0.45)" }}>Insights</span>
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+                  <img src="/icons/sensory-channels.svg" alt="Sensory Channels" style={{ width: 27, opacity: 0.45 }} />
+                  <span style={{ fontSize: 12, letterSpacing: "0.08em", color: "rgba(255,255,255,0.45)", textAlign: "center", lineHeight: 1.3 }}>Sensory<br />Channels</span>
+                </div>
+                <img src="/icons/Exeprience.svg" alt="" style={{ width: 28, opacity: 0.35 }} />
+              </div>
+            </div>
+
+            {/* Top header */}
+            <div style={{
+              position: "absolute", top: 0, left: 135, right: 0, height: 60,
+              display: "flex", alignItems: "center", justifyContent: "space-between",
+              padding: "0 28px", zIndex: 3,
+            }}>
+              <div>
+                <div style={{ fontSize: 12, letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.9)", fontWeight: 500 }}>
+                  STEP 00 / INTRODUCTION
+                </div>
+                <div style={{ fontSize: 11, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.45)", marginTop: 3 }}>
+                  Autism Simulator Experience
+                </div>
+              </div>
+              <div style={{ fontSize: 12, letterSpacing: "0.12em", color: "rgba(255,255,255,0.7)" }}>
+                Simulation&nbsp;|&nbsp;<span style={{ textDecoration: "underline", cursor: "pointer" }}>Exit</span>
+              </div>
+            </div>
+
+            {/* Bottom-right serial */}
+            <div style={{
+              position: "absolute", bottom: 20, right: 24,
+              fontSize: 12, letterSpacing: "0.16em",
+              color: "rgba(255,255,255,0.35)", zIndex: 3,
+            }}>
+              Simulation NO. 792734-04
+            </div>
+
+            {/* Center content */}
+            <div style={{
+              position: "absolute", top: 0, bottom: 0, left: 135, right: 0,
+              display: "flex", flexDirection: "column",
+              alignItems: "center", justifyContent: "center",
+              gap: 20, zIndex: 2,
+            }}>
+              <img src="/logo.svg" alt="Aura" style={{ height: 40 }} />
+
+              <h1 style={{
+                fontFamily: "'Amiri', serif",
+                fontSize: "clamp(2.4rem, 5vw, 4rem)",
+                color: "white", margin: 0,
+                textAlign: "center", lineHeight: 1.15, fontWeight: 400,
+              }}>
+                Aura Simulator
+              </h1>
+
+              <p style={{
+                fontSize: 14, letterSpacing: "0.18em",
+                color: "rgba(255,255,255,0.7)",
+                margin: 0, textAlign: "center",
+              }}>
+                Enter another perception
+              </p>
+
+              <button
+                type="button"
+                onClick={() => router.push("/onboard")}
+                style={{
+                  marginTop: 24,
+                  background: "#FFC99D", color: "#000",
+                  border: "none", borderRadius: 50,
+                  padding: "16px 48px",
+                  fontSize: 13, letterSpacing: "0.12em",
+                  fontWeight: 600, cursor: "pointer",
+                }}
+              >
+                Begin Experience
+              </button>
+            </div>
+          </div>
         )}
       </div>
     </>
