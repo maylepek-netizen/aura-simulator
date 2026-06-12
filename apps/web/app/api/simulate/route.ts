@@ -52,18 +52,80 @@ function ageApproximateCameraHeight(age: number): string {
   return "approximately 1.6-1.7m";
 }
 
-function buildVideoPromptInstructions(age: number, _gender: string, situation: string): string {
+function buildVideoPromptInstructions(age: number, gender: string, situation: string): string {
   const camHeight = ageApproximateCameraHeight(age);
+
   return (
-    "Write a Veo video prompt for: \"" + situation + "\". Camera height: " + camHeight + ".\n\n" +
-    "POV: Strict first-person. Camera IS the protagonist's eyes facing outward. Never show protagonist's face, body, or reflection. Never a selfie angle.\n\n" +
-    "SCENE: Show the real location with real people and objects. Camera moves slowly like a calm human. Single continuous shot, no cuts.\n\n" +
-    "AUTISTIC FOCUS: One element is in sharp focus while everything else is blurred - the brain cannot attend to multiple things simultaneously. Camera drifts involuntarily to irrelevant details then returns. Focus phases between sharp and soft constantly.\n\n" +
-    "ALIEN FEELING: Reality feels slightly wrong - like a perfect copy with small errors. Colors 10% too saturated. Skin tones unusual. People's movements slightly too slow or fast. Lighting too harsh. The feeling: I have been here before but something is deeply wrong.\n\n" +
-    "SOCIAL: When people are present - faces loom uncomfortably close, eyes too intense, expressions ambiguous and hard to read. Eye contact feels like physical pressure.\n\n" +
-    "MOVEMENT: Subtle continuous rhythmic sway throughout - gentle rocking like a person self-regulating. Constant slight physiological tremor. Never completely still.\n\n" +
-    "LOOP: Open and close on the exact same static close-up texture from this scene. First and last frame identical.\n\n" +
-    "TECHNICAL: No subtitles, no text, no AI artifacts. Photorealistic. Anatomically correct humans. One focused paragraph output only."
+    "Write a single photorealistic Veo video prompt for: \"" + situation + "\". Camera height: " + camHeight + ".\n\n" +
+
+    "ABSOLUTE RULES (never break these):\n" +
+    "- Strict first-person POV. Camera IS the protagonist's eyes. Never show their face, body, or reflection.\n" +
+    "- Single continuous shot. No cuts. No scene changes.\n" +
+    "- Photorealistic. No morphing, no ghosting, no AI artifacts. Anatomically correct humans.\n" +
+    "- No subtitles, no text overlays.\n" +
+    "- LOOP: Open and close on the exact same static close-up texture. First and last frame identical.\n\n" +
+
+    "SITUATION ANALYSIS - choose the approach that fits:\n\n" +
+
+    "IF ALONE INDOORS (office, room, library, home):\n" +
+    "- Camera drifts slowly across the space, never urgent\n" +
+    "- Hyper-focus on irrelevant details: a pen, a crack in the wall, dust in light\n" +
+    "- Fluorescent lights feel slightly too bright\n" +
+    "- Silence feels thick and present\n" +
+    "- Time feels stretched\n\n" +
+
+    "IF ALONE OUTDOORS (street, park, bus stop):\n" +
+    "- Camera moves at walking pace, stable\n" +
+    "- Ground texture, pavement cracks, shoe soles get attention\n" +
+    "- Heat or cold feels physical and present\n" +
+    "- Passing strangers feel slightly threatening\n\n" +
+
+    "IF WITH ONE FAMILIAR PERSON:\n" +
+    "- Their face is visible but expressions hard to decode\n" +
+    "- Camera drifts away from their eyes, then forces itself back\n" +
+    "- Processing delay: slight hesitation before camera responds to them\n" +
+    "- Their proximity feels slightly too close\n\n" +
+
+    "IF WITH A STRANGER:\n" +
+    "- Their face fills 50-60% of frame, uncomfortably close\n" +
+    "- Eyes too intense, direct, unblinking\n" +
+    "- Mouth movements feel slightly out of sync\n" +
+    "- Camera wants to look away but keeps returning\n" +
+    "- Their body leans toward camera\n\n" +
+
+    "IF IN A SMALL GROUP (2-5 people):\n" +
+    "- Camera jumps between faces, cannot settle\n" +
+    "- Hard to track who is speaking\n" +
+    "- Multiple voices feel like overlapping noise\n" +
+    "- One irrelevant detail (a button, a sound) competes with the social scene\n\n" +
+
+    "IF IN A CROWD (mall, party, classroom, event):\n" +
+    "- Faces from all directions, all too close\n" +
+    "- Everything at equal visual volume - no hierarchy\n" +
+    "- Lights overexposed, colors too saturated\n" +
+    "- Camera shakes slightly more with overload\n" +
+    "- Tunnel vision: center sharp, edges blur\n\n" +
+
+    "IF UNEXPECTED CHANGE OR DISRUPTION:\n" +
+    "- Camera fixates obsessively on the wrong/changed element\n" +
+    "- Cannot look away even when trying\n" +
+    "- Everything else feels suddenly foreign\n" +
+    "- The changed thing dominates 60% of frame\n\n" +
+
+    "IF IN NATURE OR QUIET SPACE:\n" +
+    "- Slow drifting camera, unhurried\n" +
+    "- Natural textures get close attention: leaves, bark, water\n" +
+    "- Sounds feel present but non-threatening\n" +
+    "- A rare moment of sensory peace\n\n" +
+
+    "ALWAYS APPLY:\n" +
+    "- Focus drifts in and out - never perfectly sharp\n" +
+    "- Subtle rhythmic sway throughout (stimming)\n" +
+    "- Colors slightly oversaturated\n" +
+    "- Slight physiological tremor - never completely still\n" +
+    "- Reality feels like a perfect copy with small errors\n\n" +
+
+    "Output: one short focused paragraph. No labels, no lists."
   );
 }
 
