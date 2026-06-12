@@ -267,7 +267,8 @@ export default function ChatPage() {
 
           {/* Eye icon + subtitle + heading */}
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, marginBottom: 32 }}>
-            <img src="/icons/eye.svg" alt="" style={{ width: 55 }} />
+            <img src="/icons/eye.svg" alt="" style={{ width: 48 }}
+              onError={(e) => { (e.target as HTMLImageElement).src = "/icons/Exeprience.svg"; }} />
             <p style={{ fontSize: 13, letterSpacing: "0.18em", color: "rgba(255,255,255,0.55)", margin: 0 }}>
               Before we begin tell us about yourself
             </p>
@@ -361,14 +362,16 @@ export default function ChatPage() {
               {/* Help me think — pink border + pink icon */}
               <button className="helper-btn" type="button" onClick={handleHelpMe}
                 style={{ border: "1px solid #FFC1BB", color: "#FFC1BB" }}>
-                <img src="/icons/brain.svg" alt="" style={{ width: 18 }} />
+                <img src="/icons/brain.svg" alt="" style={{ width: 18 }}
+                  onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
                 Help me think
               </button>
 
               {/* Write for me — purple border + purple icon */}
               <button className="helper-btn" type="button" onClick={handleWriteForMe}
                 style={{ border: "1px solid #BCC2FF", color: "#BCC2FF" }}>
-                <img src="/icons/pen.svg" alt="" style={{ width: 13 }} />
+                <img src="/icons/pen.svg" alt="" style={{ width: 13 }}
+                  onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
                 Write for me
               </button>
 
@@ -380,7 +383,8 @@ export default function ChatPage() {
                 style={{ border: "1px solid #FFC99D", color: "#FFC99D" }}
               >
                 Show me examples
-                <img src="/icons/Vector.svg" alt="" style={{ width: 6 }} />
+                <img src="/icons/Vector.svg" alt="" style={{ width: 6 }}
+                  onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
               </button>
             </div>
           </div>
