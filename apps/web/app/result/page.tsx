@@ -7,6 +7,10 @@ import { loadExperienceDraft, loadProfile } from "@/lib/experienceStorage";
 import { saveSimulation } from "@/lib/simulationStorage";
 import { CITATIONS } from "@/lib/researchCitations";
 
+declare global {
+  interface Window { backgroundMusic: HTMLAudioElement; }
+}
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type SensoryScores = {
@@ -857,6 +861,21 @@ export default function ResultPage() {
         setSaved(true);
       } catch {}
     }
+
+    // Fade background music back in over 3 seconds
+    if (typeof window !== "undefined" && window.backgroundMusic) {
+      window.backgroundMusic.volume = 0;
+      window.backgroundMusic.play().catch(() => {});
+      const fadeIn = setInterval(() => {
+        if (window.backgroundMusic && window.backgroundMusic.volume < 0.38) {
+          window.backgroundMusic.volume += 0.02;
+        } else {
+          if (window.backgroundMusic) window.backgroundMusic.volume = 0.4;
+          clearInterval(fadeIn);
+        }
+      }, 100);
+    }
+
     setFadingOut(true);
     setTimeout(() => navigate("/summary"), 1500);
   };

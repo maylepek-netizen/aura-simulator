@@ -9,6 +9,10 @@ import {
   type ExperienceDraft,
 } from "@/lib/experienceStorage";
 
+declare global {
+  interface Window { backgroundMusic: HTMLAudioElement; }
+}
+
 function nowIso() {
   return new Date().toISOString();
 }
@@ -91,6 +95,19 @@ export default function ChatPage() {
     setProcessing(true);
     const draft: ExperienceDraft = { situation: trimmed, createdAtIso: nowIso() };
     saveExperienceDraft(draft);
+
+    // Fade out background music over 3 seconds
+    if (typeof window !== "undefined" && window.backgroundMusic) {
+      const fadeOut = setInterval(() => {
+        if (window.backgroundMusic && window.backgroundMusic.volume > 0.02) {
+          window.backgroundMusic.volume -= 0.02;
+        } else {
+          clearInterval(fadeOut);
+          window.backgroundMusic?.pause();
+        }
+      }, 100);
+    }
+
     await new Promise((r) => setTimeout(r, 600));
     navigate("/result");
   }
