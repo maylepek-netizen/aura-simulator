@@ -518,32 +518,6 @@ function ProcessingMetrics({ visible }: { visible: boolean }) {
         gap: 48, zIndex: 4,
       }}>
 
-        {/* Blurred "generating visual..." rectangle */}
-        <div style={{
-          background: "rgba(255,255,255,0.06)",
-          backdropFilter: "blur(20px)",
-          WebkitBackdropFilter: "blur(20px)",
-          border: "1px solid rgba(255,255,255,0.1)",
-          borderRadius: 12,
-          padding: "20px 40px",
-          display: "flex", alignItems: "center", gap: 12,
-          animation: "loading-breathe 3s ease-in-out infinite",
-        }}>
-          <div style={{
-            width: 6, height: 6, borderRadius: "50%",
-            background: "#FFC99D",
-            animation: "loading-breathe 1.8s ease-in-out infinite",
-          }} />
-          <span style={{
-            fontSize: 11, letterSpacing: "0.28em",
-            textTransform: "uppercase",
-            color: "rgba(255,255,255,0.55)",
-            fontFamily: "monospace",
-          }}>
-            generating visual...
-          </span>
-        </div>
-
         {/* Metrics bars */}
         <div style={{ display: "flex", flexDirection: "column", gap: 16, width: 280 }}>
           {PROC_METRICS_NEW.map((m, i) => (
