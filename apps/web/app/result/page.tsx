@@ -334,104 +334,240 @@ class AmbientSoundEngine {
 
 // ─── Processing Metrics (loading animation) ──────────────────────────────────
 
-const LOADING_MESSAGES = [
-  "Initializing sensory mapping...",
-  "Analyzing social context...",
-  "Calibrating threat assessment...",
-  "Processing auditory input...",
-  "Mapping neural pathways...",
-  "Rendering internal experience...",
-];
-
 const PROC_METRICS_NEW = [
-  { key: "NEURAL LOAD",    mode: "random"  },
-  { key: "SENSORY INPUT",  mode: "random"  },
-  { key: "SOCIAL MAPPING", mode: "erratic" },
-  { key: "THREAT LEVEL",   mode: "wave"    },
+  { key: "NEURAL LOAD",    color: "#FFC99D" },
+  { key: "SENSORY INPUT",  color: "#BCC2FF" },
+  { key: "SOCIAL MAPPING", color: "#FFC1BB" },
+  { key: "THREAT LEVEL",   color: "rgba(255,255,255,0.7)" },
 ] as const;
 
+const FLOATING_THOUGHTS = [
+  "Processing sensory input...",
+  "Mapping neural pathways...",
+  "Calibrating threat response...",
+  "Reading the room...",
+  "Too many signals at once...",
+  "Filtering background noise...",
+  "Encoding emotional context...",
+  "Simulating perception...",
+];
+
 function ProcessingMetrics({ visible }: { visible: boolean }) {
-  const [msgIndex, setMsgIndex] = useState(0);
-  const [displayed, setDisplayed] = useState("");
-  const [fading, setFading] = useState(false);
   const [vals, setVals] = useState<number[]>([67, 89, 41, 58]);
+  const [thoughtIndex, setThoughtIndex] = useState(0);
+  const [thoughtOpacity, setThoughtOpacity] = useState(1);
+  const [thoughtPos, setThoughtPos] = useState({ x: 50, y: 30 });
 
-  // Typewriter effect for current message
-  useEffect(() => {
-    const msg = LOADING_MESSAGES[msgIndex];
-    setDisplayed("");
-    setFading(false);
-    let i = 0;
-    const typeTimer = setInterval(() => {
-      i++;
-      setDisplayed(msg.slice(0, i));
-      if (i >= msg.length) {
-        clearInterval(typeTimer);
-        // After fully typed, wait 1.2s then fade and advance
-        setTimeout(() => {
-          setFading(true);
-          setTimeout(() => {
-            setMsgIndex(prev => (prev + 1) % LOADING_MESSAGES.length);
-          }, 400);
-        }, 1200);
-      }
-    }, 35);
-    return () => clearInterval(typeTimer);
-  }, [msgIndex]);
-
-  // Metrics fluctuation
+  // Metrics fluctuation — slower, more deliberate
   useEffect(() => {
     let frame = 0;
     const timer = setInterval(() => {
       frame++;
       setVals([
-        Math.round(Math.random() * 100),
-        Math.round(Math.random() * 100),
-        Math.round(20 + Math.random() * 80),
-        Math.round(50 + 50 * Math.sin(frame / 8)),
+        Math.round(40 + Math.random() * 55),
+        Math.round(50 + Math.random() * 45),
+        Math.round(20 + Math.random() * 70),
+        Math.round(50 + 45 * Math.sin(frame / 10)),
       ]);
-    }, 300);
+    }, 800);
+    return () => clearInterval(timer);
+  }, []);
+
+  // Floating thoughts — fade in, hold, fade out, move to new position
+  useEffect(() => {
+    const cycle = () => {
+      setThoughtOpacity(0);
+      setTimeout(() => {
+        setThoughtIndex(prev => (prev + 1) % FLOATING_THOUGHTS.length);
+        setThoughtPos({
+          x: 20 + Math.random() * 55,
+          y: 18 + Math.random() * 50,
+        });
+        setThoughtOpacity(1);
+      }, 700);
+    };
+    const timer = setInterval(cycle, 3200);
     return () => clearInterval(timer);
   }, []);
 
   return (
     <div style={{
-      position: "absolute", inset: 0,
-      display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-      gap: 0, fontFamily: "monospace", background: "#000",
-      opacity: visible ? 1 : 0, transition: "opacity 1.5s ease",
+      position: "fixed", inset: 0,
+      opacity: visible ? 1 : 0,
+      transition: "opacity 1.5s ease",
       pointerEvents: visible ? "auto" : "none",
-      zIndex: 2,
+      zIndex: 20,
     }}>
-      {/* Typewriter message */}
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Amiri:ital@0;1&display=swap');
+        @keyframes loading-breathe {
+          0%, 100% { opacity: 0.35; }
+          50% { opacity: 0.65; }
+        }
+      `}</style>
+
+      {/* Background video */}
+      <video
+        src="https://res.cloudinary.com/duhsqezo3/video/upload/v1781117441/%D7%9C%D7%90_%D7%A6%D7%A8%D7%99%D7%9A_%D7%9C%D7%94%D7%99%D7%95%D7%AA_%D7%9E%D7%A1%D7%95%D7%9B%D7%9F_%D7%90%D7%95_%D7%9E%D7%91%D7%99%D7%9A_%D7%A4%D7%A9_wo1ecc.mp4"
+        autoPlay loop muted playsInline
+        style={{
+          position: "absolute", inset: 0,
+          width: "100%", height: "100%", objectFit: "cover",
+          filter: "blur(24px) brightness(0.6)",
+          transform: "scale(1.05)",
+        }}
+      />
+
+      {/* Black overlay */}
+      <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.45)" }} />
+
+      {/* Radial gradient */}
       <div style={{
-        fontSize: 11, letterSpacing: "0.25em", color: "rgba(0,255,80,0.85)",
-        marginBottom: 32, textTransform: "uppercase", minHeight: 18,
-        opacity: fading ? 0 : 1, transition: "opacity 0.4s",
+        position: "absolute", inset: 0,
+        background: "radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.8) 100%)",
+        pointerEvents: "none",
+      }} />
+
+      {/* LEFT SIDEBAR */}
+      <div style={{
+        position: "absolute", left: 0, top: 0,
+        width: 105, height: "100%", padding: "8px 0",
+        background: "rgba(0,0,0,0.38)",
+        backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)",
+        borderRight: "1px solid rgba(255,255,255,0.08)",
+        zIndex: 5,
+        display: "flex", flexDirection: "column",
+        justifyContent: "center", alignItems: "center",
+        gap: 613,
       }}>
-        {displayed}<span style={{ opacity: 0.5, animation: "none" }}>_</span>
-      </div>
-
-      {/* Metrics */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 12, width: 260 }}>
-        {PROC_METRICS_NEW.map((m, i) => (
-          <div key={m.key} style={{ display: "flex", flexDirection: "column", gap: 3 }}>
-            <div style={{ display: "flex", justifyContent: "space-between" }}>
-              <span style={{ fontSize: 8, letterSpacing: "0.18em", color: "rgba(0,255,80,0.45)" }}>{m.key}</span>
-              <span style={{ fontSize: 8, color: "rgba(0,255,80,0.8)", fontVariantNumeric: "tabular-nums" }}>{Math.round(vals[i])}%</span>
-            </div>
-            <div style={{ height: 2, background: "rgba(0,255,80,0.1)", borderRadius: 1 }}>
-              <div style={{
-                height: "100%", width: `${vals[i]}%`,
-                background: "rgba(0,255,80,0.75)", transition: "width 0.25s linear", borderRadius: 1,
-              }} />
-            </div>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+          <img src="/icons/eye.svg" alt="Experience" style={{ width: 28 }} />
+          <span style={{ fontSize: 12, letterSpacing: "0.08em", color: "rgba(255,255,255,0.9)" }}>Experience</span>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 28 }}>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+            <img src="/icons/bank.svg" alt="Bank" style={{ width: 28, opacity: 0.4 }} />
+            <span style={{ fontSize: 12, letterSpacing: "0.08em", color: "rgba(255,255,255,0.4)" }}>Bank</span>
           </div>
-        ))}
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+            <img src="/icons/insights.svg" alt="Insights" style={{ width: 28, opacity: 0.4 }} />
+            <span style={{ fontSize: 12, letterSpacing: "0.08em", color: "rgba(255,255,255,0.4)" }}>Insights</span>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+            <img src="/icons/sensory-channels.svg" alt="Sensory Channels" style={{ width: 27, opacity: 0.4 }} />
+            <span style={{ fontSize: 12, letterSpacing: "0.08em", color: "rgba(255,255,255,0.4)", textAlign: "center", lineHeight: 1.3 }}>Sensory<br />Channels</span>
+          </div>
+          <img src="/icons/eye.svg" alt="" style={{ width: 28, opacity: 0.3 }} />
+        </div>
       </div>
 
-      <div style={{ marginTop: 32, fontSize: 7, letterSpacing: "0.3em", color: "rgba(0,255,80,0.2)" }}>
-        AURA SIMULATION ENGINE v2.5
+      {/* TOP HEADER */}
+      <div style={{
+        position: "absolute", top: 0, left: 105, right: 0, height: 60,
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        padding: "0 40px", zIndex: 5,
+      }}>
+        <div>
+          <div style={{ fontSize: 12, letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.9)", fontWeight: 500 }}>
+            STEP 03 / GENERATING EXPERIENCE
+          </div>
+          <div style={{ fontSize: 11, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.4)", marginTop: 3 }}>
+            Autism Simulator Experience
+          </div>
+        </div>
+        <div style={{ fontSize: 12, letterSpacing: "0.12em", color: "rgba(255,255,255,0.6)" }}>
+          Simulation&nbsp;|&nbsp;<span style={{ textDecoration: "underline", cursor: "pointer" }}>Exit</span>
+        </div>
+      </div>
+
+      {/* BOTTOM RIGHT SERIAL */}
+      <div style={{
+        position: "absolute", bottom: 20, right: 28,
+        fontSize: 12, letterSpacing: "0.16em",
+        color: "rgba(255,255,255,0.3)", zIndex: 5,
+      }}>
+        Simulation NO. 792734-04
+      </div>
+
+      {/* Floating internal monologue thought */}
+      <div style={{
+        position: "absolute",
+        left: `${thoughtPos.x}%`,
+        top: `${thoughtPos.y}%`,
+        opacity: thoughtOpacity * 0.45,
+        transition: "opacity 0.7s ease, left 0s, top 0s",
+        pointerEvents: "none",
+        zIndex: 4,
+      }}>
+        <span style={{
+          fontFamily: "'Amiri', serif",
+          fontStyle: "italic",
+          fontSize: "clamp(0.9rem, 1.4vw, 1.15rem)",
+          color: "white",
+          whiteSpace: "nowrap",
+        }}>
+          {FLOATING_THOUGHTS[thoughtIndex]}
+        </span>
+      </div>
+
+      {/* CENTER — metrics + blurred rectangle */}
+      <div style={{
+        position: "absolute", top: 60, bottom: 0, left: 105, right: 0,
+        display: "flex", flexDirection: "column",
+        alignItems: "center", justifyContent: "center",
+        gap: 48, zIndex: 4,
+      }}>
+
+        {/* Blurred "generating visual..." rectangle */}
+        <div style={{
+          background: "rgba(255,255,255,0.06)",
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
+          border: "1px solid rgba(255,255,255,0.1)",
+          borderRadius: 12,
+          padding: "20px 40px",
+          display: "flex", alignItems: "center", gap: 12,
+          animation: "loading-breathe 3s ease-in-out infinite",
+        }}>
+          <div style={{
+            width: 6, height: 6, borderRadius: "50%",
+            background: "#FFC99D",
+            animation: "loading-breathe 1.8s ease-in-out infinite",
+          }} />
+          <span style={{
+            fontSize: 11, letterSpacing: "0.28em",
+            textTransform: "uppercase",
+            color: "rgba(255,255,255,0.55)",
+            fontFamily: "monospace",
+          }}>
+            generating visual...
+          </span>
+        </div>
+
+        {/* Metrics bars */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 16, width: 280 }}>
+          {PROC_METRICS_NEW.map((m, i) => (
+            <div key={m.key} style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+                <span style={{ fontSize: 8, letterSpacing: "0.22em", color: "rgba(255,255,255,0.35)", textTransform: "uppercase" }}>{m.key}</span>
+                <span style={{ fontSize: 9, color: m.color, fontFamily: "monospace", opacity: 0.85 }}>{Math.round(vals[i])}%</span>
+              </div>
+              <div style={{ height: 2, background: "rgba(255,255,255,0.08)", borderRadius: 1 }}>
+                <div style={{
+                  height: "100%", width: `${vals[i]}%`,
+                  background: m.color,
+                  transition: "width 0.7s ease",
+                  borderRadius: 1,
+                  opacity: 0.75,
+                }} />
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div style={{ fontSize: 7, letterSpacing: "0.3em", color: "rgba(255,255,255,0.2)", textTransform: "uppercase" }}>
+          AURA SIMULATION ENGINE v2.5
+        </div>
       </div>
     </div>
   );
