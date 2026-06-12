@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useParams } from "next/navigation";
+import { useNavigate } from "../../TransitionProvider";
 import { CITATIONS } from "@/lib/researchCitations";
 import { getSimulationById } from "@/lib/simulationStorage";
 import type { SimulationRecord } from "@/lib/simulationStorage";
@@ -61,7 +62,7 @@ function Panel({ title, icon, children, defaultOpen = true }: {
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function ReplayPage() {
-  const router = useRouter();
+  const navigate = useNavigate();
   const params = useParams();
   const id = params.id as string;
   const iso = useMemo(() => nowIso(), []);
@@ -102,7 +103,7 @@ export default function ReplayPage() {
     return (
       <div className="flex flex-1 flex-col items-center justify-center min-h-screen gap-4">
         <p className="text-sm opacity-50">{error ?? "Not found"}</p>
-        <button type="button" onClick={() => router.push("/history")}
+        <button type="button" onClick={() => navigate("/history")}
           className="text-[10px] uppercase tracking-[0.2em] border border-foreground/20 rounded px-4 py-2">
           Back to history
         </button>
@@ -182,7 +183,7 @@ export default function ReplayPage() {
           <span className="text-[9px] uppercase tracking-[0.15em] opacity-30">replay</span>
           <button
             type="button"
-            onClick={() => router.push("/history")}
+            onClick={() => navigate("/history")}
             className="text-[10px] uppercase tracking-[0.2em] opacity-50 hover:opacity-100 border border-foreground/20 rounded px-3 py-1"
           >
             ← History
@@ -330,11 +331,11 @@ export default function ReplayPage() {
 
         {/* Actions */}
         <div className="flex gap-3 justify-between">
-          <button type="button" onClick={() => router.push("/history")}
+          <button type="button" onClick={() => navigate("/history")}
             className="h-9 rounded border border-foreground/20 px-4 text-[10px] uppercase tracking-[0.2em] hover:border-foreground/40">
             ← History
           </button>
-          <button type="button" onClick={() => router.push("/")}
+          <button type="button" onClick={() => navigate("/")}
             className="h-9 rounded bg-foreground px-4 text-[10px] uppercase tracking-[0.2em] text-background hover:opacity-90">
             New simulation
           </button>

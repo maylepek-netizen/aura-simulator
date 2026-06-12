@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useNavigate } from "../TransitionProvider";
 import {
   loadProfile,
   saveExperienceDraft,
@@ -71,6 +72,7 @@ function getExamples(age: number, gender: string): string[] {
 
 export default function ChatPage() {
   const router = useRouter();
+  const navigate = useNavigate();
   const [input, setInput] = useState("");
   const [processing, setProcessing] = useState(false);
   const [showExamples, setShowExamples] = useState(false);
@@ -90,7 +92,7 @@ export default function ChatPage() {
     const draft: ExperienceDraft = { situation: trimmed, createdAtIso: nowIso() };
     saveExperienceDraft(draft);
     await new Promise((r) => setTimeout(r, 600));
-    router.push("/result");
+    navigate("/result");
   }
 
   function handleHelpMe() {
@@ -237,7 +239,7 @@ export default function ChatPage() {
             </div>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            <button className="sim-bank-btn" type="button" onClick={() => router.push("/bank")}>
+            <button className="sim-bank-btn" type="button" onClick={() => navigate("/bank")}>
               <img src="/icons/bank.svg" alt="" style={{ width: 16, filter: "brightness(0) saturate(100%) invert(83%) sepia(19%) saturate(800%) hue-rotate(330deg)" }} />
               Simulation Bank
             </button>

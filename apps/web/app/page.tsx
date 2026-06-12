@@ -1,12 +1,12 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useNavigate } from "./TransitionProvider";
 
 type Screen = "idle" | "landing" | "intro";
 
 export default function LandingPage() {
-  const router = useRouter();
+  const navigate = useNavigate();
   const [screen, setScreen] = useState<Screen>("landing");
   const idleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const currentScreen = useRef<Screen>("landing");
@@ -271,7 +271,7 @@ export default function LandingPage() {
               <button
                 type="button"
                 className="aura-btn"
-                onClick={() => router.push("/onboard")}
+                onClick={() => navigate("/onboard")}
                 style={{
                   marginTop: 24,
                   background: "#FFC99D", color: "#000",

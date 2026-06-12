@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useParams } from "next/navigation";
+import { useNavigate } from "../../TransitionProvider";
 import { CITATIONS } from "@/lib/researchCitations";
 import { getSimulationById } from "@/lib/simulationStorage";
 import type { SimulationRecord } from "@/lib/simulationStorage";
@@ -57,7 +58,7 @@ function Panel({ title, icon, children, defaultOpen = true }: {
 }
 
 export default function BankReplayPage() {
-  const router = useRouter();
+  const navigate = useNavigate();
   const params = useParams();
   const id = params.id as string;
   const iso = useMemo(() => nowIso(), []);
@@ -98,7 +99,7 @@ export default function BankReplayPage() {
     return (
       <div className="flex flex-1 flex-col items-center justify-center min-h-screen gap-4">
         <p className="text-sm opacity-50">{error ?? "Not found"}</p>
-        <button type="button" onClick={() => router.push("/bank")}
+        <button type="button" onClick={() => navigate("/bank")}
           className="text-[10px] uppercase tracking-[0.2em] border border-foreground/20 rounded px-4 py-2">
           ← Back to Bank
         </button>
@@ -187,7 +188,7 @@ export default function BankReplayPage() {
           <span className="text-[9px] uppercase tracking-[0.15em] opacity-30">replay · free</span>
           <button
             type="button"
-            onClick={() => router.push("/bank")}
+            onClick={() => navigate("/bank")}
             className="text-[10px] uppercase tracking-[0.2em] opacity-50 hover:opacity-100 border border-foreground/20 rounded px-3 py-1"
           >
             ← Bank
@@ -335,11 +336,11 @@ export default function BankReplayPage() {
 
         {/* Actions */}
         <div className="flex gap-3 justify-between">
-          <button type="button" onClick={() => router.push("/bank")}
+          <button type="button" onClick={() => navigate("/bank")}
             className="h-9 rounded border border-foreground/20 px-4 text-[10px] uppercase tracking-[0.2em] hover:border-foreground/40">
             ← Back to Bank
           </button>
-          <button type="button" onClick={() => router.push("/chat")}
+          <button type="button" onClick={() => navigate("/chat")}
             className="h-9 rounded bg-foreground px-4 text-[10px] uppercase tracking-[0.2em] text-background hover:opacity-90">
             New simulation
           </button>

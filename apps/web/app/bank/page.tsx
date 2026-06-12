@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useNavigate } from "../TransitionProvider";
 import { loadSimulations } from "@/lib/simulationStorage";
 import type { SimulationRecord } from "@/lib/simulationStorage";
 
@@ -97,7 +97,7 @@ function SimCard({ rec, index, x, y, onOpen }: {
 }
 
 export default function BankPage() {
-  const router = useRouter();
+  const navigate = useNavigate();
   const [records, setRecords] = useState<SimulationRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [positions, setPositions] = useState<{ x: number; y: number }[]>([]);
@@ -202,10 +202,10 @@ export default function BankPage() {
         </div>
 
         <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
-          <button type="button" className="filter-btn" onClick={() => router.push("/chat")} style={{ height: 30, padding: "0 14px", borderRadius: 5, border: "1px solid rgba(255,255,255,0.15)", background: "transparent", fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.55)", cursor: "pointer" }}>
+          <button type="button" className="filter-btn" onClick={() => navigate("/chat")} style={{ height: 30, padding: "0 14px", borderRadius: 5, border: "1px solid rgba(255,255,255,0.15)", background: "transparent", fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.55)", cursor: "pointer" }}>
             New Simulation
           </button>
-          <button type="button" className="filter-btn" onClick={() => router.push("/")} style={{ height: 30, padding: "0 14px", borderRadius: 5, border: "1px solid rgba(255,255,255,0.15)", background: "transparent", fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.55)", cursor: "pointer" }}>
+          <button type="button" className="filter-btn" onClick={() => navigate("/")} style={{ height: 30, padding: "0 14px", borderRadius: 5, border: "1px solid rgba(255,255,255,0.15)", background: "transparent", fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.55)", cursor: "pointer" }}>
             ← Home
           </button>
         </div>
@@ -237,7 +237,7 @@ export default function BankPage() {
                   index={i}
                   x={pos.x}
                   y={pos.y}
-                  onOpen={(id) => router.push("/bank/" + id)}
+                  onOpen={(id) => navigate("/bank/" + id)}
                 />
               </div>
             );
@@ -250,7 +250,7 @@ export default function BankPage() {
         <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 20, zIndex: 10 }}>
           <img src="/icons/bank.svg" alt="" style={{ width: 40, opacity: 0.25 }} />
           <p style={{ fontSize: 11, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.3)" }}>No simulations saved yet</p>
-          <button type="button" onClick={() => router.push("/chat")} style={{ height: 36, padding: "0 24px", borderRadius: 6, border: "1px solid rgba(255,255,255,0.2)", background: "transparent", fontSize: 10, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.5)", cursor: "pointer" }}>
+          <button type="button" onClick={() => navigate("/chat")} style={{ height: 36, padding: "0 24px", borderRadius: 6, border: "1px solid rgba(255,255,255,0.2)", background: "transparent", fontSize: 10, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.5)", cursor: "pointer" }}>
             Start a simulation
           </button>
         </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useNavigate } from "../TransitionProvider";
 import type { Gender, OnboardingProfile } from "@/lib/experienceStorage";
 import { saveProfile, clearExperienceDraft } from "@/lib/experienceStorage";
 
@@ -10,7 +10,7 @@ function clamp(n: number, min: number, max: number) {
 }
 
 export default function OnboardingPage() {
-  const router = useRouter();
+  const navigate = useNavigate();
 
   const [name, setName] = useState("");
   const [age, setAge] = useState<number>(22);
@@ -35,7 +35,7 @@ export default function OnboardingPage() {
     setError(null);
     saveProfile(profile);
     clearExperienceDraft();
-    router.push("/question");
+    navigate("/question");
   }
 
   return (

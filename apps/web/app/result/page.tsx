@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { useNavigate } from "../TransitionProvider";
 import { loadExperienceDraft, loadProfile } from "@/lib/experienceStorage";
 import { saveSimulation } from "@/lib/simulationStorage";
 import { CITATIONS } from "@/lib/researchCitations";
@@ -529,6 +530,7 @@ function Sparkline({ color, label }: { color: string; label: string }) {
 
 export default function ResultPage() {
   const router = useRouter();
+  const navigate = useNavigate();
 
   const [snapshot] = useState(() => {
     if (typeof window === "undefined")
@@ -856,7 +858,7 @@ export default function ResultPage() {
       } catch {}
     }
     setFadingOut(true);
-    setTimeout(() => router.push("/summary"), 1500);
+    setTimeout(() => navigate("/summary"), 1500);
   };
 
   return (
@@ -916,10 +918,10 @@ export default function ResultPage() {
 
         {/* Nav buttons */}
         <div style={{ padding: "14px 16px 12px", display: "flex", gap: 8, flexShrink: 0 }}>
-          <button type="button" className="nav-btn" onClick={() => router.push("/")} style={{ flex: 1, height: 32, borderRadius: 6, border: "1px solid rgba(255,255,255,0.18)", background: "rgba(255,255,255,0.05)", fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.7)", cursor: "pointer" }}>
+          <button type="button" className="nav-btn" onClick={() => navigate("/")} style={{ flex: 1, height: 32, borderRadius: 6, border: "1px solid rgba(255,255,255,0.18)", background: "rgba(255,255,255,0.05)", fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.7)", cursor: "pointer" }}>
             Home
           </button>
-          <button type="button" className="nav-btn" onClick={() => router.push("/chat")} style={{ flex: 1, height: 32, borderRadius: 6, border: "1px solid rgba(255,255,255,0.18)", background: "rgba(255,255,255,0.05)", fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.7)", cursor: "pointer" }}>
+          <button type="button" className="nav-btn" onClick={() => navigate("/chat")} style={{ flex: 1, height: 32, borderRadius: 6, border: "1px solid rgba(255,255,255,0.18)", background: "rgba(255,255,255,0.05)", fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.7)", cursor: "pointer" }}>
             New Simulation
           </button>
         </div>
@@ -1002,7 +1004,7 @@ export default function ResultPage() {
         <div className="result-scroll" style={{ flex: 1, overflowY: "auto", padding: "16px 16px 0" }}>
 
           {/* Simulation Bank button */}
-          <button type="button" onClick={() => router.push("/bank")} style={{ width: "100%", height: 36, borderRadius: 6, border: "1px solid rgba(255,255,255,0.2)", background: "rgba(255,255,255,0.04)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.7)", cursor: "pointer", marginBottom: 14 }} className="sound-btn">
+          <button type="button" onClick={() => navigate("/bank")} style={{ width: "100%", height: 36, borderRadius: 6, border: "1px solid rgba(255,255,255,0.2)", background: "rgba(255,255,255,0.04)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.7)", cursor: "pointer", marginBottom: 14 }} className="sound-btn">
             <img src="/icons/bank.svg" alt="" style={{ width: 16, opacity: 0.6 }} />
             Simulation Bank
           </button>

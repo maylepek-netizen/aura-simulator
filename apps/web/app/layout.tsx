@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
+import { TransitionProvider } from "./TransitionProvider";
 
 const ibmPlexMono = IBM_Plex_Mono({
   variable: "--font-ibm-plex-mono",
@@ -24,9 +25,11 @@ export default function RootLayout({
       className={`${ibmPlexMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground font-mono selection:bg-foreground selection:text-background">
-        <div className="page-fade" style={{ display: "contents" }}>
-          {children}
-        </div>
+        <TransitionProvider>
+          <div className="page-fade" style={{ display: "contents" }}>
+            {children}
+          </div>
+        </TransitionProvider>
       </body>
     </html>
   );

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useNavigate } from "../TransitionProvider";
 import { loadSimulations } from "@/lib/simulationStorage";
 import type { SimulationRecord } from "@/lib/simulationStorage";
 
@@ -17,7 +17,7 @@ function LoadBar({ value, color }: { value: number; color: string }) {
 }
 
 export default function HistoryPage() {
-  const router = useRouter();
+  const navigate = useNavigate();
   const [records, setRecords] = useState<SimulationRecord[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -40,7 +40,7 @@ export default function HistoryPage() {
         </div>
         <button
           type="button"
-          onClick={() => router.push("/")}
+          onClick={() => navigate("/")}
           className="text-[10px] uppercase tracking-[0.2em] opacity-50 hover:opacity-100 border border-foreground/20 rounded px-3 py-1"
         >
           Home
@@ -59,7 +59,7 @@ export default function HistoryPage() {
             <div className="text-[10px] uppercase tracking-[0.2em] opacity-40">No simulations saved yet</div>
             <button
               type="button"
-              onClick={() => router.push("/")}
+              onClick={() => navigate("/")}
               className="text-[10px] uppercase tracking-[0.2em] border border-foreground/20 rounded px-4 py-2 hover:border-foreground/40"
             >
               Start a simulation
@@ -82,7 +82,7 @@ export default function HistoryPage() {
                 <button
                   key={rec.id}
                   type="button"
-                  onClick={() => router.push("/history/" + rec.id)}
+                  onClick={() => navigate("/history/" + rec.id)}
                   className="group text-left rounded-xl border border-foreground/15 bg-foreground/[0.02] hover:bg-foreground/[0.05] hover:border-foreground/30 transition-all p-4 flex flex-col gap-3"
                 >
                   {/* Situation */}

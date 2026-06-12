@@ -19,20 +19,75 @@ body {
     Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
 
-@keyframes fadeIn {
+/* ── Page dissolve ── */
+@keyframes auraFadeIn {
   from { opacity: 0; }
   to   { opacity: 1; }
 }
 
 .page-fade {
-  animation: fadeIn 0.8s ease-in-out forwards;
+  animation: auraFadeIn 1.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
+/* ── Button hover ── */
 .aura-btn {
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  transition: opacity 0.4s ease, transform 0.4s ease;
   cursor: pointer;
 }
 .aura-btn:hover {
-  opacity: 0.85;
-  transform: scale(1.02);
+  opacity: 0.82;
+  transform: scale(1.025);
+}
+
+/* ── Calming micro-animations ── */
+
+/* Slow breathing pulse — use on ambient elements */
+@keyframes auraBreathe {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50%       { opacity: 0.85; transform: scale(1.012); }
+}
+.aura-breathe-slow {
+  animation: auraBreathe 6s ease-in-out infinite;
+}
+
+/* Very gentle float — for floating UI elements */
+@keyframes auraFloat {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-5px); }
+}
+.aura-float {
+  animation: auraFloat 7s ease-in-out infinite;
+}
+
+/* Soft glow pulse — for icon/badge accents */
+@keyframes auraGlow {
+  0%, 100% { box-shadow: 0 0 0px rgba(255,201,157,0); }
+  50%       { box-shadow: 0 0 18px rgba(255,201,157,0.22); }
+}
+.aura-glow {
+  animation: auraGlow 5s ease-in-out infinite;
+}
+
+/* Fade-up entrance — for content that appears after page load */
+@keyframes auraRise {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.aura-rise {
+  animation: auraRise 1.4s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+.aura-rise-2 { animation: auraRise 1.4s cubic-bezier(0.4, 0, 0.2, 1) 0.25s both; }
+.aura-rise-3 { animation: auraRise 1.4s cubic-bezier(0.4, 0, 0.2, 1) 0.5s both; }
+.aura-rise-4 { animation: auraRise 1.4s cubic-bezier(0.4, 0, 0.2, 1) 0.75s both; }
+
+/* Slow horizontal scan line */
+@keyframes auraScan {
+  0%   { top: -2%; }
+  100% { top: 102%; }
+}
+.aura-scan {
+  position: absolute; left: 0; right: 0; height: 1px;
+  background: linear-gradient(to right, transparent, rgba(255,255,255,0.04), transparent);
+  animation: auraScan 10s linear infinite;
+  pointer-events: none;
 }

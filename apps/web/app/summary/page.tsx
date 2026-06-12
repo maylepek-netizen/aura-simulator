@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useNavigate } from "../TransitionProvider";
 
 export default function SummaryPage() {
-  const router = useRouter();
+  const navigate = useNavigate();
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -100,7 +100,7 @@ export default function SummaryPage() {
             <button
               type="button"
               className="aura-btn"
-              onClick={() => router.push("/")}
+              onClick={() => navigate("/")}
               style={{
                 background: "#FFC99D",
                 color: "#1a0f00",
@@ -120,7 +120,7 @@ export default function SummaryPage() {
             <button
               type="button"
               className="aura-btn"
-              onClick={() => router.push("/bank")}
+              onClick={() => navigate("/bank")}
               style={{
                 background: "transparent",
                 color: "white",

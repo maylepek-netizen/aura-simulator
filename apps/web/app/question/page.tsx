@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useNavigate } from "../TransitionProvider";
 
 export default function QuestionPage() {
-  const router = useRouter();
+  const navigate = useNavigate();
   const [name, setName] = useState("Friend");
   const [transitioning, setTransitioning] = useState(false);
 
@@ -49,7 +49,7 @@ export default function QuestionPage() {
 
     // Phase 5 (9→10s): navigate
     setTimeout(() => {
-      router.push("/chat");
+      navigate("/chat");
     }, 9000);
   }
 
