@@ -571,6 +571,7 @@ export default function ResultPage() {
   const revealTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   const [saved, setSaved] = useState(false);
+  const [fadingOut, setFadingOut] = useState(false);
 
   // Live animated metric values
   const [liveLoad, setLiveLoad] = useState(0);
@@ -846,8 +847,13 @@ export default function ResultPage() {
     WebkitBackdropFilter: "blur(18px)",
   };
 
+  const handleEndSimulation = () => {
+    setFadingOut(true);
+    setTimeout(() => router.push("/summary"), 1500);
+  };
+
   return (
-    <div style={{ position: "fixed", inset: 0, overflow: "hidden", background: "#0d0a08" }}>
+    <div style={{ position: "fixed", inset: 0, overflow: "hidden", background: "#0d0a08", opacity: fadingOut ? 0 : 1, transition: "opacity 1.5s ease-in-out" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Amiri:ital@0;1&display=swap');
         @keyframes stimming-low  { 0%,100%{transform:translateY(0px)} 50%{transform:translateY(-4px)} }
@@ -1073,10 +1079,10 @@ export default function ResultPage() {
           )}
         </div>
 
-        {/* Stop Simulation CTA */}
+        {/* End Simulation CTA */}
         <div style={{ padding: "14px 16px", borderTop: "1px solid rgba(255,255,255,0.07)", flexShrink: 0 }}>
-          <button type="button" className="stop-btn" onClick={() => router.push("/chat")} style={{ width: "100%", height: 44, borderRadius: 6, border: "1px solid rgba(255,255,255,0.25)", background: "rgba(255,255,255,0.06)", fontSize: 11, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.85)", cursor: "pointer" }}>
-            Stop Simulation
+          <button type="button" className="stop-btn" onClick={handleEndSimulation} style={{ width: "100%", height: 44, borderRadius: 6, border: "1px solid rgba(255,255,255,0.25)", background: "rgba(255,255,255,0.06)", fontSize: 11, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.85)", cursor: "pointer" }}>
+            End Simulation
           </button>
         </div>
       </div>
