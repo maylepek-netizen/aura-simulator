@@ -36,7 +36,6 @@ type SimulationResult = {
   ambient_sound?: string;
 };
 
-
 // ─── Ambient Sound Map ────────────────────────────────────────────────────────
 
 const SOUND_MAP: Record<string, string> = {
@@ -70,8 +69,6 @@ const SOUND_MAP: Record<string, string> = {
 };
 
 const AMBIENT_FALLBACK = "/sounds/mall.wav";
-
-// ─── (Legacy — kept for environment engine) ───────────────────────────────────
 
 type AuditoryType = "scream" | "crowd" | "machine" | "default";
 
@@ -160,9 +157,6 @@ class AmbientSoundEngine {
     this.breathTimeout = setTimeout(() => this.playBreath(load, !inhale), period / 2);
   }
 
-  // ── Situational ambient soundscapes ──────────────────────────────────────
-
-  // Creates a looping brown noise buffer (low-rumble crowd base)
   private makeBrownNoiseSource(seconds: number): AudioBufferSourceNode {
     const sr = this.ctx.sampleRate;
     const buf = this.ctx.createBuffer(1, Math.floor(sr * seconds), sr);
@@ -171,7 +165,7 @@ class AmbientSoundEngine {
     for (let i = 0; i < d.length; i++) {
       const white = Math.random() * 2 - 1;
       last = (last + 0.02 * white) / 1.02;
-      d[i] = last * 3.5; // amplify
+      d[i] = last * 3.5;
     }
     const src = this.ctx.createBufferSource();
     src.buffer = buf;
@@ -179,7 +173,6 @@ class AmbientSoundEngine {
     return src;
   }
 
-  // Creates a looping pink noise buffer (gentler hiss)
   private makePinkNoiseSource(seconds: number): AudioBufferSourceNode {
     const sr = this.ctx.sampleRate;
     const buf = this.ctx.createBuffer(1, Math.floor(sr * seconds), sr);
@@ -203,12 +196,10 @@ class AmbientSoundEngine {
 
   private startCrowdAmbient(load: number) {
     const vol = Math.min(0.25, 0.12 + (load / 100) * 0.13);
-    // Brown noise base (crowd rumble)
     const brownSrc = this.makeBrownNoiseSource(4);
     const lowpass = this.ctx.createBiquadFilter();
     lowpass.type = "lowpass";
     lowpass.frequency.value = 900;
-    // LFO for crowd amplitude swell (2–8 Hz)
     const lfo = this.ctx.createOscillator();
     lfo.frequency.value = 2 + Math.random() * 6;
     const lfoGain = this.ctx.createGain();
@@ -227,13 +218,11 @@ class AmbientSoundEngine {
 
   private startScreamAmbient(load: number) {
     const vol = Math.min(0.25, 0.12 + (load / 100) * 0.13);
-    // Pink noise base
     const pinkSrc = this.makePinkNoiseSource(3);
     const highpass = this.ctx.createBiquadFilter();
     highpass.type = "highpass";
     highpass.frequency.value = 2500;
     highpass.Q.value = 1.5;
-    // Fast LFO for sharp amplitude bursts
     const lfo = this.ctx.createOscillator();
     lfo.type = "sawtooth";
     lfo.frequency.value = load > 70 ? 1.8 : 0.9;
@@ -252,7 +241,6 @@ class AmbientSoundEngine {
   }
 
   private startMachineAmbient(load: number) {
-    // Low mechanical hum — brown noise through narrow lowpass, no electronic beeps
     const vol = Math.min(0.22, 0.10 + (load / 100) * 0.12);
     const brownSrc = this.makeBrownNoiseSource(4);
     const lowpass = this.ctx.createBiquadFilter();
@@ -332,7 +320,7 @@ class AmbientSoundEngine {
   }
 }
 
-// ─── Processing Metrics (loading animation) ──────────────────────────────────
+// ─── Processing Metrics (loading screen) ─────────────────────────────────────
 
 const PROC_METRICS_NEW = [
   { key: "NEURAL LOAD",    color: "#FFC99D" },
@@ -358,7 +346,6 @@ function ProcessingMetrics({ visible }: { visible: boolean }) {
   const [thoughtOpacity, setThoughtOpacity] = useState(1);
   const [thoughtPos, setThoughtPos] = useState({ x: 50, y: 30 });
 
-  // Metrics fluctuation — slower, more deliberate
   useEffect(() => {
     let frame = 0;
     const timer = setInterval(() => {
@@ -373,16 +360,12 @@ function ProcessingMetrics({ visible }: { visible: boolean }) {
     return () => clearInterval(timer);
   }, []);
 
-  // Floating thoughts — fade in, hold, fade out, move to new position
   useEffect(() => {
     const cycle = () => {
       setThoughtOpacity(0);
       setTimeout(() => {
         setThoughtIndex(prev => (prev + 1) % FLOATING_THOUGHTS.length);
-        setThoughtPos({
-          x: 20 + Math.random() * 55,
-          y: 18 + Math.random() * 50,
-        });
+        setThoughtPos({ x: 20 + Math.random() * 55, y: 18 + Math.random() * 50 });
         setThoughtOpacity(1);
       }, 700);
     };
@@ -391,55 +374,17 @@ function ProcessingMetrics({ visible }: { visible: boolean }) {
   }, []);
 
   return (
-    <div style={{
-      position: "fixed", inset: 0,
-      opacity: visible ? 1 : 0,
-      transition: "opacity 1.5s ease",
-      pointerEvents: visible ? "auto" : "none",
-      zIndex: 20,
-    }}>
+    <div style={{ position: "fixed", inset: 0, opacity: visible ? 1 : 0, transition: "opacity 1.5s ease", pointerEvents: visible ? "auto" : "none", zIndex: 20 }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Amiri:ital@0;1&display=swap');
-        @keyframes loading-breathe {
-          0%, 100% { opacity: 0.35; }
-          50% { opacity: 0.65; }
-        }
+        @keyframes loading-breathe { 0%,100%{opacity:0.35} 50%{opacity:0.65} }
       `}</style>
-
-      {/* Background video */}
-      <video
-        src="https://res.cloudinary.com/duhsqezo3/video/upload/v1781117441/%D7%9C%D7%90_%D7%A6%D7%A8%D7%99%D7%9A_%D7%9C%D7%94%D7%99%D7%95%D7%AA_%D7%9E%D7%A1%D7%95%D7%9B%D7%9F_%D7%90%D7%95_%D7%9E%D7%91%D7%99%D7%9A_%D7%A4%D7%A9_wo1ecc.mp4"
+      <video src="https://res.cloudinary.com/duhsqezo3/video/upload/v1781117441/%D7%9C%D7%90_%D7%A6%D7%A8%D7%99%D7%9A_%D7%9C%D7%94%D7%99%D7%95%D7%AA_%D7%9E%D7%A1%D7%95%D7%9B%D7%9F_%D7%90%D7%95_%D7%9E%D7%91%D7%99%D7%9A_%D7%A4%D7%A9_wo1ecc.mp4"
         autoPlay loop muted playsInline
-        style={{
-          position: "absolute", inset: 0,
-          width: "100%", height: "100%", objectFit: "cover",
-          filter: "blur(24px) brightness(0.6)",
-          transform: "scale(1.05)",
-        }}
-      />
-
-      {/* Black overlay */}
+        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", filter: "blur(24px) brightness(0.6)", transform: "scale(1.05)" }} />
       <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.45)" }} />
-
-      {/* Radial gradient */}
-      <div style={{
-        position: "absolute", inset: 0,
-        background: "radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.8) 100%)",
-        pointerEvents: "none",
-      }} />
-
-      {/* LEFT SIDEBAR */}
-      <div style={{
-        position: "absolute", left: 0, top: 0,
-        width: 105, height: "100%", padding: "8px 0",
-        background: "rgba(0,0,0,0.38)",
-        backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)",
-        borderRight: "1px solid rgba(255,255,255,0.08)",
-        zIndex: 5,
-        display: "flex", flexDirection: "column",
-        justifyContent: "center", alignItems: "center",
-        gap: 613,
-      }}>
+      <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.8) 100%)", pointerEvents: "none" }} />
+      <div style={{ position: "absolute", left: 0, top: 0, width: 105, height: "100%", padding: "8px 0", background: "rgba(0,0,0,0.38)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", borderRight: "1px solid rgba(255,255,255,0.08)", zIndex: 5, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", gap: 613 }}>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
           <img src="/icons/eye.svg" alt="Experience" style={{ width: 28 }} />
           <span style={{ fontSize: 12, letterSpacing: "0.08em", color: "rgba(255,255,255,0.9)" }}>Experience</span>
@@ -460,65 +405,18 @@ function ProcessingMetrics({ visible }: { visible: boolean }) {
           <img src="/icons/eye.svg" alt="" style={{ width: 28, opacity: 0.3 }} />
         </div>
       </div>
-
-      {/* TOP HEADER */}
-      <div style={{
-        position: "absolute", top: 0, left: 105, right: 0, height: 60,
-        display: "flex", alignItems: "center", justifyContent: "space-between",
-        padding: "0 40px", zIndex: 5,
-      }}>
+      <div style={{ position: "absolute", top: 0, left: 105, right: 0, height: 60, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 40px", zIndex: 5 }}>
         <div>
-          <div style={{ fontSize: 12, letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.9)", fontWeight: 500 }}>
-            STEP 03 / GENERATING EXPERIENCE
-          </div>
-          <div style={{ fontSize: 11, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.4)", marginTop: 3 }}>
-            Autism Simulator Experience
-          </div>
+          <div style={{ fontSize: 12, letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.9)", fontWeight: 500 }}>STEP 03 / GENERATING EXPERIENCE</div>
+          <div style={{ fontSize: 11, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.4)", marginTop: 3 }}>Autism Simulator Experience</div>
         </div>
-        <div style={{ fontSize: 12, letterSpacing: "0.12em", color: "rgba(255,255,255,0.6)" }}>
-          Simulation&nbsp;|&nbsp;<span style={{ textDecoration: "underline", cursor: "pointer" }}>Exit</span>
-        </div>
+        <div style={{ fontSize: 12, letterSpacing: "0.12em", color: "rgba(255,255,255,0.6)" }}>Simulation&nbsp;|&nbsp;<span style={{ textDecoration: "underline", cursor: "pointer" }}>Exit</span></div>
       </div>
-
-      {/* BOTTOM RIGHT SERIAL */}
-      <div style={{
-        position: "absolute", bottom: 20, right: 28,
-        fontSize: 12, letterSpacing: "0.16em",
-        color: "rgba(255,255,255,0.3)", zIndex: 5,
-      }}>
-        Simulation NO. 792734-04
+      <div style={{ position: "absolute", bottom: 20, right: 28, fontSize: 12, letterSpacing: "0.16em", color: "rgba(255,255,255,0.3)", zIndex: 5 }}>Simulation NO. 792734-04</div>
+      <div style={{ position: "absolute", left: `${thoughtPos.x}%`, top: `${thoughtPos.y}%`, opacity: thoughtOpacity * 0.45, transition: "opacity 0.7s ease", pointerEvents: "none", zIndex: 4 }}>
+        <span style={{ fontFamily: "'Amiri', serif", fontStyle: "italic", fontSize: "clamp(0.9rem, 1.4vw, 1.15rem)", color: "white", whiteSpace: "nowrap" }}>{FLOATING_THOUGHTS[thoughtIndex]}</span>
       </div>
-
-      {/* Floating internal monologue thought */}
-      <div style={{
-        position: "absolute",
-        left: `${thoughtPos.x}%`,
-        top: `${thoughtPos.y}%`,
-        opacity: thoughtOpacity * 0.45,
-        transition: "opacity 0.7s ease, left 0s, top 0s",
-        pointerEvents: "none",
-        zIndex: 4,
-      }}>
-        <span style={{
-          fontFamily: "'Amiri', serif",
-          fontStyle: "italic",
-          fontSize: "clamp(0.9rem, 1.4vw, 1.15rem)",
-          color: "white",
-          whiteSpace: "nowrap",
-        }}>
-          {FLOATING_THOUGHTS[thoughtIndex]}
-        </span>
-      </div>
-
-      {/* CENTER — metrics + blurred rectangle */}
-      <div style={{
-        position: "absolute", top: 60, bottom: 0, left: 105, right: 0,
-        display: "flex", flexDirection: "column",
-        alignItems: "center", justifyContent: "center",
-        gap: 48, zIndex: 4,
-      }}>
-
-        {/* Metrics bars */}
+      <div style={{ position: "absolute", top: 60, bottom: 0, left: 105, right: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 48, zIndex: 4 }}>
         <div style={{ display: "flex", flexDirection: "column", gap: 16, width: 280 }}>
           {PROC_METRICS_NEW.map((m, i) => (
             <div key={m.key} style={{ display: "flex", flexDirection: "column", gap: 5 }}>
@@ -527,40 +425,131 @@ function ProcessingMetrics({ visible }: { visible: boolean }) {
                 <span style={{ fontSize: 9, color: m.color, fontFamily: "monospace", opacity: 0.85 }}>{Math.round(vals[i])}%</span>
               </div>
               <div style={{ height: 2, background: "rgba(255,255,255,0.08)", borderRadius: 1 }}>
-                <div style={{
-                  height: "100%", width: `${vals[i]}%`,
-                  background: m.color,
-                  transition: "width 0.7s ease",
-                  borderRadius: 1,
-                  opacity: 0.75,
-                }} />
+                <div style={{ height: "100%", width: `${vals[i]}%`, background: m.color, transition: "width 0.7s ease", borderRadius: 1, opacity: 0.75 }} />
               </div>
             </div>
           ))}
         </div>
-
-        <div style={{ fontSize: 7, letterSpacing: "0.3em", color: "rgba(255,255,255,0.2)", textTransform: "uppercase" }}>
-          AURA SIMULATION ENGINE v2.5
-        </div>
+        <div style={{ fontSize: 7, letterSpacing: "0.3em", color: "rgba(255,255,255,0.2)", textTransform: "uppercase" }}>AURA SIMULATION ENGINE v2.5</div>
       </div>
     </div>
   );
 }
 
-// ─── Animated Meter ───────────────────────────────────────────────────────────
+// ─── Tooltip wrapper ──────────────────────────────────────────────────────────
 
-function Meter({ label, value, max = 100, color }: { label: string; value: number; max?: number; color: string }) {
-  const pct = Math.round((value / max) * 100);
+function Tooltip({ text, children }: { text: string; children: React.ReactNode }) {
+  const [show, setShow] = useState(false);
   return (
-    <div className="flex items-center gap-2 min-w-0">
-      <span className="text-[9px] uppercase tracking-[0.2em] opacity-50 whitespace-nowrap">{label}</span>
-      <div className="flex-1 h-0.5 bg-white/10 rounded-full overflow-hidden min-w-[40px]">
-        <div
-          className="h-full rounded-full transition-all duration-1000"
-          style={{ width: `${pct}%`, background: color }}
-        />
+    <div style={{ position: "relative", display: "inline-flex" }}
+      onMouseEnter={() => setShow(true)} onMouseLeave={() => setShow(false)}>
+      {children}
+      {show && (
+        <div style={{
+          position: "absolute", bottom: "calc(100% + 6px)", left: "50%", transform: "translateX(-50%)",
+          background: "rgba(0,0,0,0.85)", border: "1px solid rgba(255,255,255,0.12)",
+          borderRadius: 6, padding: "6px 10px", whiteSpace: "nowrap",
+          fontSize: 10, letterSpacing: "0.06em", color: "rgba(255,255,255,0.75)",
+          pointerEvents: "none", zIndex: 50,
+        }}>
+          {text}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Cycling monologue ────────────────────────────────────────────────────────
+
+function CyclingMonologue({ lines }: { lines: string[] }) {
+  const [idx, setIdx] = useState(0);
+  const [opacity, setOpacity] = useState(1);
+
+  useEffect(() => {
+    if (lines.length < 2) return;
+    const cycle = () => {
+      setOpacity(0);
+      setTimeout(() => {
+        setIdx(prev => (prev + 1) % lines.length);
+        setOpacity(1);
+      }, 600);
+    };
+    const t = setInterval(cycle, 4000);
+    return () => clearInterval(t);
+  }, [lines.length]);
+
+  if (!lines.length) return null;
+  return (
+    <p style={{
+      fontSize: 11, lineHeight: 1.75, color: "rgba(255,255,255,0.55)",
+      fontStyle: "italic", margin: 0,
+      opacity, transition: "opacity 0.6s ease",
+    }}>
+      &ldquo;{lines[idx]}&rdquo;
+    </p>
+  );
+}
+
+// ─── Live metric bar ──────────────────────────────────────────────────────────
+
+function LiveMetricBar({ label, value, color, tooltip }: { label: string; value: number; color: string; tooltip: string }) {
+  return (
+    <Tooltip text={tooltip}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 4, width: "100%", cursor: "default" }}>
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <span style={{ fontSize: 8, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.4)" }}>{label}</span>
+          <span style={{ fontSize: 8, fontFamily: "monospace", color: "rgba(255,255,255,0.35)" }}>{value}%</span>
+        </div>
+        <div style={{ height: 2, background: "rgba(255,255,255,0.08)", borderRadius: 1, overflow: "hidden" }}>
+          <div style={{ height: "100%", width: `${value}%`, background: color, transition: "width 2s ease", borderRadius: 1 }} />
+        </div>
       </div>
-      <span className="text-[9px] font-mono opacity-50 whitespace-nowrap">{pct}%</span>
+    </Tooltip>
+  );
+}
+
+// ─── Waveform decoration ──────────────────────────────────────────────────────
+
+function WaveformBars({ active }: { active: boolean }) {
+  const [heights, setHeights] = useState(() => Array.from({ length: 32 }, () => Math.random() * 20 + 4));
+  useEffect(() => {
+    if (!active) return;
+    const t = setInterval(() => {
+      setHeights(Array.from({ length: 32 }, () => Math.random() * 20 + 4));
+    }, 150);
+    return () => clearInterval(t);
+  }, [active]);
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 2, height: 28 }}>
+      {heights.map((h, i) => (
+        <div key={i} style={{ width: 2, height: h, background: "rgba(255,255,255,0.25)", borderRadius: 1, transition: active ? "height 0.15s ease" : "none" }} />
+      ))}
+    </div>
+  );
+}
+
+// ─── Sparkline (stats graph) ──────────────────────────────────────────────────
+
+function Sparkline({ color, label }: { color: string; label: string }) {
+  const [pts, setPts] = useState(() => Array.from({ length: 8 }, () => 30 + Math.random() * 60));
+  useEffect(() => {
+    const t = setInterval(() => {
+      setPts(prev => [...prev.slice(1), 30 + Math.random() * 60]);
+    }, 2500);
+    return () => clearInterval(t);
+  }, []);
+  const w = 120, h = 36;
+  const max = Math.max(...pts), min = Math.min(...pts);
+  const range = max - min || 1;
+  const toX = (i: number) => (i / (pts.length - 1)) * w;
+  const toY = (v: number) => h - ((v - min) / range) * (h - 4) - 2;
+  const d = pts.map((v, i) => `${i === 0 ? "M" : "L"}${toX(i).toFixed(1)},${toY(v).toFixed(1)}`).join(" ");
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+      <span style={{ fontSize: 8, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)" }}>{label}</span>
+      <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`}>
+        <path d={d} fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" opacity="0.7" />
+      </svg>
     </div>
   );
 }
@@ -591,33 +580,32 @@ export default function ResultPage() {
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [videoLoading, setVideoLoading] = useState(false);
   const [videoUri, setVideoUri] = useState<string | null>(null);
+  const [videoPaused, setVideoPaused] = useState(false);
 
-  // New state for timed reveal
   const [panelsVisible, setPanelsVisible] = useState(false);
   const [processingVisible, setProcessingVisible] = useState(true);
 
-  // Gemini TTS narration
   const [audioPlaying, setAudioPlaying] = useState(false);
   const ttsAudioRef = useRef<HTMLAudioElement | null>(null);
 
-  // Freesound ambient audio
   const [ambientPlaying, setAmbientPlaying] = useState(false);
   const ambientEngineRef = useRef<AmbientSoundEngine | null>(null);
   const ambientAudioRef = useRef<HTMLAudioElement | null>(null);
+  const [heartbeatPlaying, setHeartbeatPlaying] = useState(false);
 
-
-  // Stimming pause
-  const [stimmingPaused, setStimmingPaused] = useState(false);
-  // Reveal timeline: stimmingActive starts false, auto-enabled at T=30s
+  const [stimmingPaused] = useState(false);
   const [stimmingActive, setStimmingActive] = useState(false);
 
-
-  // Timed reveal sequence
   const [videoVisible, setVideoVisible] = useState(false);
   const revealTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
 
-  // History save
   const [saved, setSaved] = useState(false);
+
+  // Live animated metric values
+  const [liveLoad, setLiveLoad] = useState(0);
+  const [liveAnxiety, setLiveAnxiety] = useState(0);
+  const [liveSocial, setLiveSocial] = useState(0);
+  const [liveMasking, setLiveMasking] = useState(0);
 
   useEffect(() => {
     return () => {
@@ -637,23 +625,18 @@ export default function ResultPage() {
     if (snapshot.hasProfile && snapshot.hasDraft) {
       void runSimulation();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Timed reveal sequence — fires once when simulation result arrives
+  // Timed reveal sequence
   useEffect(() => {
     if (!result) return;
-    // Clear any previous timers
     revealTimersRef.current.forEach(clearTimeout);
     revealTimersRef.current = [];
-
     const load = result.overall_load ?? 0;
 
-    // T=5s after result: panels appear
-    const t5 = setTimeout(() => {
-      setPanelsVisible(true);
-    }, 5000);
+    const t5 = setTimeout(() => { setPanelsVisible(true); }, 5000);
 
-    // T=15s after result: start heartbeat (ambientEngineRef)
     const t15 = setTimeout(() => {
       if (!ambientEngineRef.current) {
         ambientEngineRef.current = new AmbientSoundEngine();
@@ -666,50 +649,50 @@ export default function ResultPage() {
         : "default";
       ambientEngineRef.current.start(load, auditoryType);
       setAmbientPlaying(true);
+      setHeartbeatPlaying(true);
     }, 15000);
 
-    // T=30s: stimming starts
-    const t30 = setTimeout(() => {
-      setStimmingActive(true);
-    }, 30000);
+    const t30 = setTimeout(() => { setStimmingActive(true); }, 30000);
 
     revealTimersRef.current = [t5, t15, t30];
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [result !== null]);
 
-  // Ambient sound — pick local file from SOUND_MAP by category, fallback to mall.wav
+  // Live metric animation — subtle fluctuation every 2.5s
   useEffect(() => {
-    if (!result?.ambient_sound) {
-      console.log("[ambient] no ambient_sound in result, skipping");
-      return;
-    }
+    if (!result) return;
+    const base = result.overall_load;
+    const aBase = Math.round((result.sensory_scores.auditory + result.sensory_scores.social) / 2 * 33);
+    const sBase = Math.round(result.sensory_scores.social * 33);
+    const mBase = Math.min(100, base + 10);
+    setLiveLoad(base); setLiveAnxiety(aBase); setLiveSocial(sBase); setLiveMasking(mBase);
+    const t = setInterval(() => {
+      const jitter = () => Math.round((Math.random() - 0.5) * 8);
+      setLiveLoad(Math.max(0, Math.min(100, base + jitter())));
+      setLiveAnxiety(Math.max(0, Math.min(100, aBase + jitter())));
+      setLiveSocial(Math.max(0, Math.min(100, sBase + jitter())));
+      setLiveMasking(Math.max(0, Math.min(100, mBase + jitter())));
+    }, 2500);
+    return () => clearInterval(t);
+  }, [result]);
 
+  // Ambient sound
+  useEffect(() => {
+    if (!result?.ambient_sound) return;
     const category = result.ambient_sound.toLowerCase().trim();
-    console.log("[ambient] category:", category);
-
-    // Find best match: exact key, or first key that appears in the category string
-    const url =
-      SOUND_MAP[category] ??
-      Object.entries(SOUND_MAP).find(([key]) => category.includes(key))?.[1] ??
-      AMBIENT_FALLBACK;
-
-    console.log("[ambient] playing url:", url);
+    const url = SOUND_MAP[category] ?? Object.entries(SOUND_MAP).find(([key]) => category.includes(key))?.[1] ?? AMBIENT_FALLBACK;
     const audio = new Audio(url);
     audio.loop = true;
     audio.volume = Math.min(0.75, 0.55 + (result.overall_load / 100) * 0.2);
     ambientAudioRef.current = audio;
-    audio.play()
-      .then(() => console.log("[ambient] play() succeeded"))
-      .catch((e) => {
-        console.log("[ambient] play() blocked:", e.message, "— waiting for click");
-        document.addEventListener("click", () => audio.play().catch(() => {}), { once: true });
-      });
-
+    audio.play().catch(() => {
+      document.addEventListener("click", () => audio.play().catch(() => {}), { once: true });
+    });
     return () => { ambientAudioRef.current?.pause(); ambientAudioRef.current = null; };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [result?.ambient_sound]);
 
-  // Narration — starts at T=20s after result arrives, independent of video
+  // Narration at T=20s
   useEffect(() => {
     if (!result) return;
     const timer = setTimeout(() => {
@@ -722,13 +705,11 @@ export default function ResultPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [result]);
 
-  // Video fade-in when videoUrl arrives
+  // Video fade-in
   useEffect(() => {
     if (videoUrl) {
       setProcessingVisible(false);
-      const t = setTimeout(() => {
-        setVideoVisible(true);
-      }, 50);
+      const t = setTimeout(() => { setVideoVisible(true); }, 50);
       return () => clearTimeout(t);
     } else {
       setVideoVisible(false);
@@ -739,24 +720,16 @@ export default function ResultPage() {
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const narrationStartedRef = useRef(false);
-
   const [videoLoopOpacity, setVideoLoopOpacity] = useState(1);
 
-  const handleVideoPlay = useCallback(() => {
-    // Narration already started via videoUrl effect; this is a no-op fallback
-  }, []);
+  const handleVideoPlay = useCallback(() => {}, []);
 
   const handleTimeUpdate = useCallback(() => {
     const el = videoRef.current;
     if (!el || !el.duration) return;
     const remaining = el.duration - el.currentTime;
-    if (remaining <= 1.5) {
-      // Fade down toward end
-      setVideoLoopOpacity(0.7);
-    } else if (el.currentTime < 0.5) {
-      // Just looped — fade back up
-      setVideoLoopOpacity(1);
-    }
+    if (remaining <= 1.5) setVideoLoopOpacity(0.7);
+    else if (el.currentTime < 0.5) setVideoLoopOpacity(1);
   }, []);
 
   async function startNarration(r: SimulationResult) {
@@ -764,7 +737,6 @@ export default function ResultPage() {
     const text = r.monologue.join(". ");
     setAudioPlaying(true);
     try {
-      console.log("[TTS] sending gender from localStorage:", JSON.stringify(snapshot.gender));
       const res = await fetch("/api/tts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -775,17 +747,13 @@ export default function ResultPage() {
       const src = "data:" + mimeType + ";base64," + audio;
       const el = new Audio(src);
       ttsAudioRef.current = el;
-      // Play once, no loop
       el.loop = false;
       el.onended = () => { ttsAudioRef.current = null; setAudioPlaying(false); };
       el.onerror = () => { ttsAudioRef.current = null; setAudioPlaying(false); };
       await el.play();
     } catch {
-      // Fallback: Web Speech API, play once
       const utt = new SpeechSynthesisUtterance(text);
-      utt.lang = "en-US";
-      utt.rate = 0.85;
-      utt.pitch = 0.9;
+      utt.lang = "en-US"; utt.rate = 0.85; utt.pitch = 0.9;
       utt.onend = () => setAudioPlaying(false);
       utt.onerror = () => setAudioPlaying(false);
       window.speechSynthesis.cancel();
@@ -811,6 +779,7 @@ export default function ResultPage() {
     setProcessingVisible(true);
     setPanelsVisible(false);
     setStimmingActive(false);
+    setVideoPaused(false);
     revealTimersRef.current.forEach(clearTimeout);
     revealTimersRef.current = [];
     narrationStartedRef.current = false;
@@ -818,46 +787,30 @@ export default function ResultPage() {
     ambientEngineRef.current?.stop();
     if (ambientAudioRef.current) { ambientAudioRef.current.pause(); ambientAudioRef.current = null; }
     setAmbientPlaying(false);
+    setHeartbeatPlaying(false);
 
     try {
       const res = await fetch("/api/simulate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: snapshot.name,
-          age: snapshot.age,
-          gender: snapshot.gender,
-          situation: snapshot.situation,
-        }),
+        body: JSON.stringify({ name: snapshot.name, age: snapshot.age, gender: snapshot.gender, situation: snapshot.situation }),
       });
-
-      if (!res.ok) {
-        const e = await res.json();
-        throw new Error(e.error ?? `HTTP ${res.status}`);
-      }
-
+      if (!res.ok) { const e = await res.json(); throw new Error(e.error ?? `HTTP ${res.status}`); }
       const data = (await res.json()) as SimulationResult;
       setResult(data);
 
-      // Generate video
       setVideoLoading(true);
       fetch("/api/video", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          prompt: data.video_prompt || `First-person POV through the eyes of a person in ${snapshot.situation}. Cinematic handheld camera, overexposed fluorescent lighting, tunnel vision effect, photorealistic.`,
-        }),
+        body: JSON.stringify({ prompt: data.video_prompt || `First-person POV through the eyes of a person in ${snapshot.situation}. Cinematic handheld camera, overexposed fluorescent lighting, tunnel vision effect, photorealistic.` }),
       })
-        .then((r) => r.json())
-        .then((v) => {
-          if (v.uri) {
-            setVideoUrl("/api/video-proxy?uri=" + encodeURIComponent(v.uri));
-            setVideoUri(v.uri);
-          }
+        .then(r => r.json())
+        .then(v => {
+          if (v.uri) { setVideoUrl("/api/video-proxy?uri=" + encodeURIComponent(v.uri)); setVideoUri(v.uri); }
           setVideoLoading(false);
         })
         .catch(() => setVideoLoading(false));
-
     } catch (e) {
       setError(e instanceof Error ? e.message : "Unknown error");
     } finally {
@@ -867,10 +820,7 @@ export default function ResultPage() {
 
   function toggleNarration() {
     if (!result) return;
-    if (audioPlaying) {
-      stopNarration();
-      return;
-    }
+    if (audioPlaying) { stopNarration(); return; }
     void startNarration(result);
   }
 
@@ -878,37 +828,34 @@ export default function ResultPage() {
     if (ambientPlaying) {
       ambientAudioRef.current?.pause();
       setAmbientPlaying(false);
-      return;
+    } else {
+      ambientAudioRef.current?.play().catch(() => {});
+      setAmbientPlaying(true);
     }
-    ambientAudioRef.current?.play().catch(() => {});
-    setAmbientPlaying(true);
   }
 
-  async function downloadVideo() {
-    if (!videoUrl) return;
-    try {
-      const res = await fetch(videoUrl);
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "aura-simulation.mp4";
-      a.click();
-      URL.revokeObjectURL(url);
-    } catch {}
+  function toggleHeartbeat() {
+    if (heartbeatPlaying) {
+      ambientEngineRef.current?.stop();
+      setHeartbeatPlaying(false);
+    } else {
+      if (!ambientEngineRef.current) ambientEngineRef.current = new AmbientSoundEngine();
+      ambientEngineRef.current.start(result?.overall_load ?? 50);
+      setHeartbeatPlaying(true);
+    }
+  }
+
+  function toggleVideo() {
+    const el = videoRef.current;
+    if (!el) return;
+    if (videoPaused) { el.play().catch(() => {}); setVideoPaused(false); }
+    else { el.pause(); setVideoPaused(true); }
   }
 
   async function handleSave() {
     if (!result || !videoUri || saved) return;
     try {
-      saveSimulation({
-        situation: snapshot.situation,
-        name: snapshot.name,
-        age: snapshot.age,
-        gender: snapshot.gender,
-        result,
-        videoUri,
-      });
+      saveSimulation({ situation: snapshot.situation, name: snapshot.name, age: snapshot.age, gender: snapshot.gender, result, videoUri });
       setSaved(true);
     } catch {}
   }
@@ -916,290 +863,305 @@ export default function ResultPage() {
   if (!snapshot.hasProfile || !snapshot.hasDraft) return null;
 
   const load = result?.overall_load ?? 0;
-  const hasStimming = stimmingActive;
-  const loadColor = load > 70 ? "#e05c5c" : load > 45 ? "#c8a882" : "#5ce08c";
-  const anxiety = result ? Math.round((result.sensory_scores.auditory + result.sensory_scores.social) / 2 * 33) : 0;
-  const socialLoad = result ? Math.round(result.sensory_scores.social * 33) : 0;
-  const maskingLoad = result ? Math.min(100, load + 10) : 0;
-
-  const glass = {
-    background: "rgba(0,0,0,0.45)",
-    backdropFilter: "blur(12px)",
-    WebkitBackdropFilter: "blur(12px)",
-  } as React.CSSProperties;
-
+  const loadColor = load > 70 ? "#e05c5c" : load > 45 ? "#FFC99D" : "#5ce08c";
   const stimmingAnimation = !stimmingActive ? "none"
     : load > 70 ? "stimming-high 1s ease-in-out infinite"
     : load >= 40 ? "stimming-med 2.5s ease-in-out infinite"
     : "stimming-low 5s ease-in-out infinite";
 
+  const panelBg: React.CSSProperties = {
+    background: "rgba(10,8,6,0.72)",
+    backdropFilter: "blur(18px)",
+    WebkitBackdropFilter: "blur(18px)",
+  };
+
   return (
-    <div style={{ position: "fixed", inset: 0, overflow: "hidden", background: "#000" }}>
+    <div style={{ position: "fixed", inset: 0, overflow: "hidden", background: "#0d0a08" }}>
       <style>{`
-        @keyframes stimming-low { 0%,100% { transform: translateY(0px); } 50% { transform: translateY(-4px); } }
-        @keyframes stimming-med { 0%,100% { transform: translateY(0px) rotate(0deg); } 50% { transform: translateY(-8px) rotate(0.4deg); } }
-        @keyframes stimming-high { 0%,100% { transform: translateY(0px) rotate(0deg); } 50% { transform: translateY(-14px) rotate(1deg); } }
+        @import url('https://fonts.googleapis.com/css2?family=Amiri:ital@0;1&display=swap');
+        @keyframes stimming-low  { 0%,100%{transform:translateY(0px)} 50%{transform:translateY(-4px)} }
+        @keyframes stimming-med  { 0%,100%{transform:translateY(0px) rotate(0deg)} 50%{transform:translateY(-8px) rotate(0.4deg)} }
+        @keyframes stimming-high { 0%,100%{transform:translateY(0px) rotate(0deg)} 50%{transform:translateY(-14px) rotate(1deg)} }
+        @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:0.3} }
+        .sound-btn { transition: background 0.2s, border-color 0.2s; }
+        .sound-btn:hover { background: rgba(255,255,255,0.08) !important; }
+        .stop-btn:hover { background: rgba(255,255,255,0.12) !important; }
+        .nav-btn:hover { background: rgba(255,255,255,0.06) !important; }
+        .result-scroll::-webkit-scrollbar { width: 2px; }
+        .result-scroll::-webkit-scrollbar-track { background: transparent; }
+        .result-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius:2px; }
       `}</style>
 
-      {/* ── FULLSCREEN VIDEO (z-index 0) ─────────────────────── */}
-      <div style={{ position: "fixed", inset: 0, zIndex: 0, overflow: "hidden", background: "#000" }}>
+      {/* ── FAR LEFT SIDEBAR (105px) ──────────────────────────── */}
+      <div style={{ position: "fixed", left: 0, top: 0, bottom: 0, width: 105, zIndex: 30, ...panelBg, borderRight: "1px solid rgba(255,255,255,0.07)", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", gap: 613 }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+          <img src="/icons/eye.svg" alt="Experience" style={{ width: 28 }} />
+          <span style={{ fontSize: 12, letterSpacing: "0.08em", color: "rgba(255,255,255,0.9)" }}>Experience</span>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 28 }}>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+            <img src="/icons/bank.svg" alt="Bank" style={{ width: 28, opacity: 0.4 }} />
+            <span style={{ fontSize: 12, letterSpacing: "0.08em", color: "rgba(255,255,255,0.4)" }}>Bank</span>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+            <img src="/icons/insights.svg" alt="Insights" style={{ width: 28, opacity: 0.4 }} />
+            <span style={{ fontSize: 12, letterSpacing: "0.08em", color: "rgba(255,255,255,0.4)" }}>Insights</span>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+            <img src="/icons/sensory-channels.svg" alt="Sensory Channels" style={{ width: 27, opacity: 0.4 }} />
+            <span style={{ fontSize: 12, letterSpacing: "0.08em", color: "rgba(255,255,255,0.4)", textAlign: "center", lineHeight: 1.3 }}>Sensory<br />Channels</span>
+          </div>
+          <img src="/icons/eye.svg" alt="" style={{ width: 28, opacity: 0.3 }} />
+        </div>
+      </div>
+
+      {/* ── FULLSCREEN VIDEO (center) ─────────────────────────── */}
+      <div style={{ position: "fixed", inset: 0, zIndex: 0, background: "#000" }}>
         {videoUrl && (
-          <video
-            ref={videoRef}
-            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: videoVisible ? videoLoopOpacity : 0, scale: "1.06", transition: "opacity 1s", animation: stimmingAnimation }}
-            src={videoUrl}
-            autoPlay
-            loop
-            playsInline
-            onPlay={handleVideoPlay}
-            onTimeUpdate={handleTimeUpdate}
+          <video ref={videoRef}
+            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: videoVisible ? videoLoopOpacity : 0, transform: "scale(1.06)", transition: "opacity 1s", animation: stimmingAnimation }}
+            src={videoUrl} autoPlay loop playsInline
+            onPlay={handleVideoPlay} onTimeUpdate={handleTimeUpdate}
           />
         )}
-
-        {/* Chromatic aberration overlays */}
         {videoUrl && (
           <>
             <div style={{ position: "absolute", inset: 0, background: `rgba(220,80,80,${load / 800})`, transform: `translateX(${load / 30}px)`, mixBlendMode: "screen", pointerEvents: "none" }} />
             <div style={{ position: "absolute", inset: 0, background: `rgba(80,130,220,${load / 800})`, transform: `translateX(-${load / 30}px)`, mixBlendMode: "screen", pointerEvents: "none" }} />
-            <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.6) 100%)", pointerEvents: "none" }} />
+            <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.55) 100%)", pointerEvents: "none" }} />
           </>
         )}
-
-        {/* Processing overlay — always rendered, fades in/out */}
+        {/* Video play/pause overlay button */}
+        {videoUrl && (
+          <button type="button" onClick={toggleVideo} style={{ position: "absolute", bottom: 24, left: "50%", transform: "translateX(-50%)", background: "rgba(0,0,0,0.45)", border: "1px solid rgba(255,255,255,0.2)", borderRadius: 50, width: 40, height: 40, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", zIndex: 5, backdropFilter: "blur(8px)" }}>
+            {videoPaused
+              ? <svg width="12" height="14" viewBox="0 0 12 14" fill="white"><path d="M0 0l12 7-12 7V0z"/></svg>
+              : <svg width="12" height="14" viewBox="0 0 12 14" fill="white"><rect x="0" y="0" width="4" height="14"/><rect x="8" y="0" width="4" height="14"/></svg>
+            }
+          </button>
+        )}
         <ProcessingMetrics visible={processingVisible} />
-
-        {/* Error overlay */}
         {error && !loading && (
           <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16, zIndex: 3 }}>
-            <div className="text-[10px] uppercase tracking-[0.22em] text-white/60">Error</div>
-            <p className="text-sm text-white/50 text-center px-8">{error}</p>
-            <button type="button" onClick={() => void runSimulation()}
-              className="text-[10px] uppercase tracking-[0.22em] border border-white/20 rounded px-4 py-2 text-white/60 hover:border-white/40">
-              Retry
-            </button>
-          </div>
-        )}
-
-        {/* Caption at bottom center */}
-        {result && (
-          <div style={{ position: "absolute", bottom: 0, left: 280, right: 280, padding: "0 20px 20px", background: "linear-gradient(0deg,rgba(0,0,0,0.7) 0%,transparent 100%)", zIndex: 1 }}>
-            <p className="text-xs italic text-white/60 leading-5 text-center">{result.scene_caption}</p>
+            <div style={{ fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.6)" }}>Error</div>
+            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", textAlign: "center", padding: "0 32px" }}>{error}</p>
+            <button type="button" onClick={() => void runSimulation()} style={{ fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", border: "1px solid rgba(255,255,255,0.2)", borderRadius: 4, padding: "8px 16px", color: "rgba(255,255,255,0.6)", background: "transparent", cursor: "pointer" }}>Retry</button>
           </div>
         )}
       </div>
 
-      {/* ── TOP METRICS BAR (z-index 10) ─────────────────────── */}
-      {result && (
-        <div style={{ position: "fixed", top: 0, left: 280, right: 280, height: 48, zIndex: 10, ...glass, borderBottom: "1px solid rgba(255,255,255,0.08)", display: "flex", alignItems: "center", gap: 24, padding: "0 24px" }}>
-          {[
-            { label: "Sensory Load", value: load, color: loadColor },
-            { label: "Anxiety", value: anxiety, color: "#e08c5c" },
-            { label: "Social Load", value: socialLoad, color: "#8c5ce0" },
-            { label: "Masking", value: maskingLoad, color: "#5c8ce0" },
-          ].map(({ label, value, color }) => (
-            <div key={label} className="flex items-center gap-2 flex-1 min-w-0">
-              <span className="text-[8px] uppercase tracking-[0.18em] text-white/40 whitespace-nowrap">{label}</span>
-              <div className="flex-1 h-0.5 bg-white/10 rounded-full overflow-hidden">
-                <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${value}%`, background: color }} />
-              </div>
-              <span className="text-[8px] font-mono text-white/35">{value}%</span>
-            </div>
-          ))}
-        </div>
-      )}
+      {/* ── LEFT DATA PANEL (280px) ───────────────────────────── */}
+      <div style={{ position: "fixed", top: 0, left: 105, bottom: 0, width: 280, zIndex: 10, ...panelBg, borderRight: "1px solid rgba(255,255,255,0.07)", display: "flex", flexDirection: "column", opacity: panelsVisible ? 1 : 0, transition: "opacity 0.8s ease" }}>
 
-      {/* ── LEFT GLASS PANEL (z-index 10) ────────────────────── */}
-      <div style={{ position: "fixed", top: 0, left: 0, bottom: 0, width: 280, zIndex: 10, ...glass, borderRight: "1px solid rgba(255,255,255,0.08)", display: "flex", flexDirection: "column", opacity: panelsVisible ? 1 : 0, transition: "opacity 0.8s ease" }}>
-
-        {/* Sound status indicators */}
-        <div style={{ borderBottom: "1px solid rgba(255,255,255,0.08)", flexShrink: 0 }}>
-          {[
-            { icon: "♥", label: "Heartbeat", active: ambientPlaying, color: "rgba(252,165,165,0.9)" },
-            { icon: "◈", label: audioPlaying ? "Playing thoughts…" : "Inner thoughts", active: audioPlaying, color: "rgba(147,197,253,0.9)", onClick: toggleNarration },
-            { icon: "⟳", label: "Rocking movements", active: hasStimming && !stimmingPaused, color: "rgba(216,180,254,0.9)" },
-          ].map(({ icon, label, active, color, onClick }) => (
-            <div
-              key={label}
-              onClick={onClick}
-              role={onClick ? "button" : undefined}
-              style={{ display: "flex", alignItems: "center", gap: 10, padding: "11px 20px", borderBottom: "1px solid rgba(255,255,255,0.05)", cursor: onClick ? "pointer" : "default" }}
-              className={onClick ? "hover:bg-white/5 transition-colors" : ""}
-            >
-              <span style={{ fontSize: 12, color: active ? color : "rgba(255,255,255,0.25)", transition: "color 0.3s" }} className={active ? "animate-pulse" : ""}>{icon}</span>
-              <span style={{ fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: active ? color : "rgba(255,255,255,0.3)", transition: "color 0.3s" }}>{label}</span>
-            </div>
-          ))}
+        {/* Nav buttons */}
+        <div style={{ padding: "14px 16px 12px", display: "flex", gap: 8, flexShrink: 0 }}>
+          <button type="button" className="nav-btn" onClick={() => router.push("/")} style={{ flex: 1, height: 32, borderRadius: 6, border: "1px solid rgba(255,255,255,0.18)", background: "rgba(255,255,255,0.05)", fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.7)", cursor: "pointer" }}>
+            Home
+          </button>
+          <button type="button" className="nav-btn" onClick={() => router.push("/chat")} style={{ flex: 1, height: 32, borderRadius: 6, border: "1px solid rgba(255,255,255,0.18)", background: "rgba(255,255,255,0.05)", fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.7)", cursor: "pointer" }}>
+            New Simulation
+          </button>
         </div>
 
-        {/* Internal monologue — scrollable */}
-        {result && (
-          <div style={{ flex: 1, overflowY: "auto", padding: "20px 20px 0" }}>
-            <div style={{ fontSize: 9, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.3)", marginBottom: 12 }}>Internal Monologue</div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              {result.monologue.map((t, i) => (
-                <p key={i} style={{
-                  fontSize: 11, lineHeight: 1.75, color: "rgba(255,255,255,0.65)", borderLeft: "1px solid rgba(255,255,255,0.12)", paddingLeft: 10, margin: 0,
-                  opacity: panelsVisible ? 1 : 0,
-                  transform: panelsVisible ? "translateY(0)" : "translateY(8px)",
-                  transition: `opacity 0.5s ease ${i * 0.12}s, transform 0.5s ease ${i * 0.12}s`,
-                }}>{t}</p>
-              ))}
-            </div>
-            <div style={{ marginTop: 20, paddingTop: 16, borderTop: "1px solid rgba(255,255,255,0.08)" }}>
-              <div style={{ fontSize: 9, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.3)", marginBottom: 10 }}>Coping Actions</div>
-              {result.coping_actions.map((a, i) => (
-                <p key={i} style={{
-                  fontSize: 11, lineHeight: 1.75, color: "rgba(255,255,255,0.5)", borderLeft: "1px solid rgba(255,255,255,0.08)", paddingLeft: 10, margin: "0 0 8px",
-                  opacity: panelsVisible ? 1 : 0,
-                  transform: panelsVisible ? "translateY(0)" : "translateY(8px)",
-                  transition: `opacity 0.5s ease ${(result.monologue.length + i) * 0.12}s, transform 0.5s ease ${(result.monologue.length + i) * 0.12}s`,
-                }}>{a}</p>
-              ))}
-            </div>
+        {/* Situation quote */}
+        {snapshot.situation && (
+          <div style={{ padding: "0 20px 16px", flexShrink: 0, borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+            <p style={{ fontSize: 13, lineHeight: 1.65, color: "rgba(255,255,255,0.75)", margin: 0, fontFamily: "'Amiri', serif" }}>
+              &ldquo;{snapshot.situation}&rdquo;
+            </p>
           </div>
         )}
 
-        {/* Bottom actions */}
-        <div style={{ padding: 16, borderTop: "1px solid rgba(255,255,255,0.08)", flexShrink: 0, display: "flex", flexDirection: "column", gap: 8 }}>
-          {videoUrl && (
-            <button type="button" onClick={downloadVideo}
-              style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, height: 34, borderRadius: 6, border: "1px solid rgba(255,255,255,0.18)", background: "rgba(255,255,255,0.05)", fontSize: 9, letterSpacing: "0.15em", textTransform: "uppercase", color: "rgba(255,255,255,0.55)", cursor: "pointer", width: "100%" }}
-              className="hover:bg-white/10 transition-colors">
-              <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M6 1v7M3.5 5.5 6 8l2.5-2.5" /><path d="M1 10h10" />
-              </svg>
-              Download MP4
+        {/* Scrollable content */}
+        <div className="result-scroll" style={{ flex: 1, overflowY: "auto", padding: "16px 20px" }}>
+
+          {/* Current Situation */}
+          {result && (
+            <div style={{ marginBottom: 20 }}>
+              <div style={{ fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)", marginBottom: 8 }}>Current Situation</div>
+              <p style={{ fontSize: 11, lineHeight: 1.75, color: "rgba(255,255,255,0.6)", margin: 0 }}>{result.sensory_channels.auditory}</p>
+            </div>
+          )}
+
+          {/* Social Anxiety */}
+          {result && (
+            <div style={{ marginBottom: 20 }}>
+              <div style={{ fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)", marginBottom: 8 }}>Social Anxiety</div>
+              <p style={{ fontSize: 11, lineHeight: 1.75, color: "rgba(255,255,255,0.6)", margin: 0 }}>{result.masking_cost}</p>
+            </div>
+          )}
+
+          {/* Inner Voices — cycling */}
+          {result && (
+            <div style={{ marginBottom: 20 }}>
+              <div style={{ fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)", marginBottom: 8 }}>Inner Voices</div>
+              <CyclingMonologue lines={result.monologue} />
+            </div>
+          )}
+
+          {/* Emotions */}
+          {result && (
+            <div style={{ marginBottom: 20 }}>
+              <div style={{ fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)", marginBottom: 8 }}>Emotions</div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
+                {result.emotions.map((e, i) => (
+                  <span key={i} style={{ fontSize: 10, letterSpacing: "0.06em", color: "rgba(255,201,157,0.8)", border: "1px solid rgba(255,201,157,0.2)", borderRadius: 4, padding: "2px 8px" }}>{e}</span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Coping actions */}
+          {result && (
+            <div style={{ marginBottom: 8 }}>
+              <div style={{ fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)", marginBottom: 8 }}>Coping Actions</div>
+              {result.coping_actions.map((a, i) => (
+                <p key={i} style={{ fontSize: 11, lineHeight: 1.65, color: "rgba(255,255,255,0.45)", margin: "0 0 6px", borderLeft: "1px solid rgba(255,255,255,0.08)", paddingLeft: 8 }}>{a}</p>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Bottom waveform + sounds label */}
+        <div style={{ padding: "12px 20px", borderTop: "1px solid rgba(255,255,255,0.06)", flexShrink: 0 }}>
+          <div style={{ fontSize: 8, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.25)", marginBottom: 8 }}>Sounds Interruption</div>
+          <WaveformBars active={ambientPlaying || heartbeatPlaying} />
+          {/* save button */}
+          {result && videoUri && (
+            <button type="button" onClick={handleSave} style={{ marginTop: 10, width: "100%", height: 30, borderRadius: 5, border: "1px solid rgba(255,255,255,0.12)", background: saved ? "rgba(134,239,172,0.1)" : "transparent", fontSize: 9, letterSpacing: "0.12em", textTransform: "uppercase", color: saved ? "rgba(134,239,172,0.8)" : "rgba(255,255,255,0.4)", cursor: saved ? "default" : "pointer" }}>
+              {saved ? "Saved ✓" : "Save Simulation"}
             </button>
           )}
-          {result && videoUri && !saved ? (
-            <button type="button" onClick={handleSave}
-              style={{ height: 34, borderRadius: 6, border: "1px solid rgba(255,255,255,0.18)", background: "rgba(255,255,255,0.05)", fontSize: 9, letterSpacing: "0.15em", textTransform: "uppercase", color: "rgba(255,255,255,0.55)", cursor: "pointer", width: "100%" }}
-              className="hover:bg-white/10 transition-colors">
-              Save simulation
-            </button>
-          ) : saved ? (
-            <div style={{ textAlign: "center", fontSize: 9, letterSpacing: "0.15em", textTransform: "uppercase", color: "rgba(134,239,172,0.8)" }}>Saved ✓</div>
-          ) : null}
-          <div style={{ display: "flex", gap: 8 }}>
-            <button type="button" onClick={() => router.push("/chat")}
-              style={{ flex: 1, height: 30, borderRadius: 6, border: "1px solid rgba(255,255,255,0.12)", background: "transparent", fontSize: 8, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.4)", cursor: "pointer" }}
-              className="hover:bg-white/5 transition-colors">
-              New
-            </button>
-            <button type="button" onClick={() => router.push("/")}
-              style={{ flex: 1, height: 30, borderRadius: 6, border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.08)", fontSize: 8, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.6)", cursor: "pointer" }}
-              className="hover:bg-white/15 transition-colors">
-              Home
-            </button>
-          </div>
         </div>
       </div>
 
-      {/* ── RIGHT GLASS PANEL (z-index 10) ───────────────────── */}
-      {result && (
-        <div style={{ position: "fixed", top: 0, right: 0, bottom: 0, width: 280, zIndex: 10, ...glass, borderLeft: "1px solid rgba(255,255,255,0.08)", display: "flex", flexDirection: "column", overflowY: "auto", opacity: panelsVisible ? 1 : 0, transition: "opacity 0.8s ease" }}>
-          <div style={{ padding: "20px 20px 0", flex: 1 }}>
+      {/* ── RIGHT CONTROL PANEL (280px) ──────────────────────── */}
+      <div style={{ position: "fixed", top: 0, right: 0, bottom: 0, width: 280, zIndex: 10, ...panelBg, borderLeft: "1px solid rgba(255,255,255,0.07)", display: "flex", flexDirection: "column", opacity: panelsVisible ? 1 : 0, transition: "opacity 0.8s ease" }}>
 
-            {/* Sensory channels */}
-            <Section title="Sensory Channels">
-              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                {Object.entries(result.sensory_channels).map(([key, val], i) => (
-                  <div key={key} style={{
-                    opacity: panelsVisible ? 1 : 0,
-                    transform: panelsVisible ? "translateY(0)" : "translateY(8px)",
-                    transition: `opacity 0.5s ease ${i * 0.12}s, transform 0.5s ease ${i * 0.12}s`,
-                  }}>
-                    <div style={{ fontSize: 8, letterSpacing: "0.15em", textTransform: "uppercase", color: "rgba(255,255,255,0.25)", marginBottom: 3 }}>{key}</div>
-                    <div style={{ fontSize: 11, lineHeight: 1.7, color: "rgba(255,255,255,0.6)" }}>{val}</div>
-                  </div>
-                ))}
-              </div>
-            </Section>
+        <div className="result-scroll" style={{ flex: 1, overflowY: "auto", padding: "16px 16px 0" }}>
 
-            {/* Emotions */}
-            <Section title="Emotions">
-              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                {result.emotions.map((e, i) => (
-                  <div key={i} style={{
-                    fontSize: 11, lineHeight: 1.7, color: "rgba(255,255,255,0.6)", borderLeft: "1px solid rgba(255,255,255,0.12)", paddingLeft: 10,
-                    opacity: panelsVisible ? 1 : 0,
-                    transform: panelsVisible ? "translateY(0)" : "translateY(8px)",
-                    transition: `opacity 0.5s ease ${i * 0.12}s, transform 0.5s ease ${i * 0.12}s`,
-                  }}>{e}</div>
-                ))}
-              </div>
-            </Section>
+          {/* Simulation Bank button */}
+          <button type="button" onClick={() => router.push("/bank")} style={{ width: "100%", height: 36, borderRadius: 6, border: "1px solid rgba(255,255,255,0.2)", background: "rgba(255,255,255,0.04)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.7)", cursor: "pointer", marginBottom: 14 }} className="sound-btn">
+            <img src="/icons/bank.svg" alt="" style={{ width: 16, opacity: 0.6 }} />
+            Simulation Bank
+          </button>
 
-            {/* Masking cost */}
-            <Section title="Masking Cost">
-              <p style={{ fontSize: 11, lineHeight: 1.75, color: "rgba(255,255,255,0.55)", fontStyle: "italic", margin: 0 }}>{result.masking_cost}</p>
-            </Section>
-
-            {/* Research tags */}
-            <Section title="Research Tags">
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
-                {result.research_tags.map((tag) => (
-                  <span key={tag} style={{ border: "1px solid rgba(255,255,255,0.12)", borderRadius: 3, padding: "2px 7px", fontSize: 8, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.4)" }}>{tag}</span>
-                ))}
-              </div>
-            </Section>
-
-            {/* Sensory scores bar chart */}
-            <Section title="Sensory Scores">
-              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                {[
-                  { label: "Auditory", value: result.sensory_scores.auditory },
-                  { label: "Visual", value: result.sensory_scores.visual },
-                  { label: "Tactile", value: result.sensory_scores.tactile },
-                  { label: "Social", value: result.sensory_scores.social },
-                ].map(({ label, value }) => (
-                  <div key={label} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <span style={{ fontSize: 9, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.3)", width: 52, flexShrink: 0 }}>{label}</span>
-                    <div style={{ flex: 1, height: 2, background: "rgba(255,255,255,0.08)", borderRadius: 2, overflow: "hidden" }}>
-                      <div style={{ height: "100%", width: `${(value / 3) * 100}%`, background: loadColor, transition: "width 1s", borderRadius: 2 }} />
-                    </div>
-                    <span style={{ fontSize: 8, fontFamily: "monospace", color: "rgba(255,255,255,0.3)", width: 16 }}>{value}</span>
-                  </div>
-                ))}
-              </div>
-            </Section>
-
+          {/* Sound controls */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 20 }}>
+            <Tooltip text="Hear the narrator's inner thoughts">
+              <button type="button" onClick={toggleNarration} style={{ width: "100%", height: 38, borderRadius: 6, border: `1px solid ${audioPlaying ? "rgba(188,194,255,0.5)" : "rgba(255,255,255,0.14)"}`, background: audioPlaying ? "rgba(188,194,255,0.08)" : "rgba(255,255,255,0.03)", display: "flex", alignItems: "center", gap: 10, padding: "0 14px", fontSize: 11, letterSpacing: "0.08em", color: audioPlaying ? "#BCC2FF" : "rgba(255,255,255,0.6)", cursor: "pointer" }} className="sound-btn">
+                <img src="/icons/brain.svg" alt="" style={{ width: 16, flexShrink: 0 }} />
+                Inner thoughts Sound
+                {audioPlaying && <div style={{ marginLeft: "auto", width: 6, height: 6, borderRadius: "50%", background: "#BCC2FF", animation: "pulse-dot 1s infinite" }} />}
+              </button>
+            </Tooltip>
+            <Tooltip text="Environmental sounds from the scene">
+              <button type="button" onClick={toggleAmbient} style={{ width: "100%", height: 38, borderRadius: 6, border: `1px solid ${ambientPlaying ? "rgba(255,201,157,0.5)" : "rgba(255,255,255,0.14)"}`, background: ambientPlaying ? "rgba(255,201,157,0.06)" : "rgba(255,255,255,0.03)", display: "flex", alignItems: "center", gap: 10, padding: "0 14px", fontSize: 11, letterSpacing: "0.08em", color: ambientPlaying ? "#FFC99D" : "rgba(255,255,255,0.6)", cursor: "pointer" }} className="sound-btn">
+                <img src="/icons/ear.svg" alt="" style={{ width: 14, flexShrink: 0, opacity: ambientPlaying ? 1 : 0.6 }} />
+                Environment Sound
+                {ambientPlaying && <div style={{ marginLeft: "auto", width: 6, height: 6, borderRadius: "50%", background: "#FFC99D", animation: "pulse-dot 1s infinite" }} />}
+              </button>
+            </Tooltip>
+            <Tooltip text="Simulated heartbeat matching sensory load">
+              <button type="button" onClick={toggleHeartbeat} style={{ width: "100%", height: 38, borderRadius: 6, border: `1px solid ${heartbeatPlaying ? "rgba(255,193,187,0.5)" : "rgba(255,255,255,0.14)"}`, background: heartbeatPlaying ? "rgba(255,193,187,0.06)" : "rgba(255,255,255,0.03)", display: "flex", alignItems: "center", gap: 10, padding: "0 14px", fontSize: 11, letterSpacing: "0.08em", color: heartbeatPlaying ? "#FFC1BB" : "rgba(255,255,255,0.6)", cursor: "pointer" }} className="sound-btn">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
+                  <path d="M8 14s-6-4.5-6-8a4 4 0 0 1 6-3.46A4 4 0 0 1 14 6c0 3.5-6 8-6 8z" stroke={heartbeatPlaying ? "#FFC1BB" : "rgba(255,255,255,0.4)"} strokeWidth="1.2" fill="none"/>
+                </svg>
+                Heartbeat Sound
+                {heartbeatPlaying && <div style={{ marginLeft: "auto", width: 6, height: 6, borderRadius: "50%", background: "#FFC1BB", animation: "pulse-dot 0.7s infinite" }} />}
+              </button>
+            </Tooltip>
           </div>
 
-          {/* Citations collapsed at bottom */}
-          <details style={{ borderTop: "1px solid rgba(255,255,255,0.08)", flexShrink: 0 }}>
-            <summary style={{ padding: "12px 20px", fontSize: 9, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.3)", cursor: "pointer", userSelect: "none" }}>
-              Research Sources
-            </summary>
-            <div style={{ padding: "0 20px 16px", display: "flex", flexDirection: "column", gap: 10 }}>
-              {CITATIONS.map((c) => (
-                <div key={c.id}>
-                  <div style={{ fontSize: 8, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.2)", marginBottom: 2 }}>[{c.id}] {c.label}</div>
-                  <div style={{ fontSize: 9, lineHeight: 1.6, color: "rgba(255,255,255,0.35)" }}>{c.excerpt}</div>
-                </div>
-              ))}
+          {/* Sensory Overload section */}
+          {result && (
+            <div style={{ marginBottom: 20 }}>
+              <div style={{ fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)", marginBottom: 12 }}>Sensory Overload</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                <LiveMetricBar label="Sensory Load" value={liveLoad} color={loadColor} tooltip="How overwhelmed the senses are right now" />
+                <LiveMetricBar label="Anxiety" value={liveAnxiety} color="#e08c5c" tooltip="Physiological and social anxiety level" />
+                <LiveMetricBar label="Overstimulation" value={liveMasking} color="#BCC2FF" tooltip="Total sensory overload accumulation" />
+              </div>
             </div>
-          </details>
+          )}
+
+          {/* Sparkline chart */}
+          {result && (
+            <div style={{ marginBottom: 20, padding: "12px 14px", background: "rgba(255,255,255,0.03)", borderRadius: 8, border: "1px solid rgba(255,255,255,0.06)" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                <Sparkline color="#FFC99D" label="Sensory" />
+                <Sparkline color="#BCC2FF" label="Social" />
+                <Sparkline color="#FFC1BB" label="Overstimulation" />
+              </div>
+            </div>
+          )}
+
+          {/* Social Anxiety detail */}
+          {result && (
+            <div style={{ marginBottom: 20 }}>
+              <div style={{ fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)", marginBottom: 8 }}>Social Anxiety</div>
+              <p style={{ fontSize: 11, lineHeight: 1.75, color: "rgba(255,255,255,0.55)", margin: 0 }}>{result.masking_cost}</p>
+            </div>
+          )}
+
+          {/* Second section repeated per screenshot */}
+          {result && (
+            <div style={{ marginBottom: 20 }}>
+              <div style={{ fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)", marginBottom: 8 }}>Social Anxiety</div>
+              <p style={{ fontSize: 11, lineHeight: 1.75, color: "rgba(255,255,255,0.55)", margin: 0 }}>{result.sensory_channels.visual}</p>
+            </div>
+          )}
+
+          {/* Research tags */}
+          {result && (
+            <div style={{ marginBottom: 20 }}>
+              <div style={{ fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)", marginBottom: 8 }}>Research Tags</div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+                {result.research_tags.map(tag => (
+                  <span key={tag} style={{ border: "1px solid rgba(255,255,255,0.1)", borderRadius: 3, padding: "2px 6px", fontSize: 8, letterSpacing: "0.08em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)" }}>{tag}</span>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Stop Simulation CTA */}
+        <div style={{ padding: "14px 16px", borderTop: "1px solid rgba(255,255,255,0.07)", flexShrink: 0 }}>
+          <button type="button" className="stop-btn" onClick={() => router.push("/chat")} style={{ width: "100%", height: 44, borderRadius: 6, border: "1px solid rgba(255,255,255,0.25)", background: "rgba(255,255,255,0.06)", fontSize: 11, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.85)", cursor: "pointer" }}>
+            Stop Simulation
+          </button>
+        </div>
+      </div>
+
+      {/* Bottom timeline bar */}
+      {result && (
+        <div style={{ position: "fixed", bottom: 0, left: 385, right: 280, height: 56, zIndex: 10, ...panelBg, borderTop: "1px solid rgba(255,255,255,0.07)", display: "flex", alignItems: "center", gap: 32, padding: "0 28px", opacity: panelsVisible ? 1 : 0, transition: "opacity 0.8s ease" }}>
+          <Tooltip text="Time elapsed in simulation">
+            <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              <span style={{ fontSize: 8, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.3)" }}>Timeline</span>
+              <span style={{ fontSize: 11, color: "rgba(255,255,255,0.7)", fontFamily: "monospace" }}>1.3 / 5.00</span>
+            </div>
+          </Tooltip>
+          <Tooltip text="Physiological and social anxiety level">
+            <div style={{ display: "flex", flexDirection: "column", gap: 4, flex: 1 }}>
+              <span style={{ fontSize: 8, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.3)" }}>○ Anxiety</span>
+              <div style={{ height: 2, background: "rgba(255,255,255,0.08)", borderRadius: 1 }}><div style={{ height: "100%", width: `${liveAnxiety}%`, background: "#e08c5c", transition: "width 2s ease", borderRadius: 1 }} /></div>
+            </div>
+          </Tooltip>
+          <Tooltip text="How overwhelmed the senses are right now">
+            <div style={{ display: "flex", flexDirection: "column", gap: 4, flex: 1 }}>
+              <span style={{ fontSize: 8, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.3)" }}>⊕ Sound</span>
+              <div style={{ height: 2, background: "rgba(255,255,255,0.08)", borderRadius: 1 }}><div style={{ height: "100%", width: `${liveLoad}%`, background: "#BCC2FF", transition: "width 2s ease", borderRadius: 1 }} /></div>
+            </div>
+          </Tooltip>
+          <Tooltip text="The energy spent performing neurotypicality">
+            <div style={{ display: "flex", flexDirection: "column", gap: 4, flex: 1 }}>
+              <span style={{ fontSize: 8, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.3)" }}>≡ Overstimulation</span>
+              <div style={{ height: 2, background: "rgba(255,255,255,0.08)", borderRadius: 1 }}><div style={{ height: "100%", width: `${liveMasking}%`, background: "#FFC1BB", transition: "width 2s ease", borderRadius: 1 }} /></div>
+            </div>
+          </Tooltip>
         </div>
       )}
-
-    </div>
-  );
-}
-
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  const [open, setOpen] = useState(true);
-  return (
-    <div style={{ marginBottom: 20 }}>
-      <button
-        type="button"
-        onClick={() => setOpen(v => !v)}
-        style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", marginBottom: open ? 10 : 0, background: "none", border: "none", cursor: "pointer", padding: 0 }}
-      >
-        <span style={{ fontSize: 9, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.3)" }}>{title}</span>
-        <span style={{ fontSize: 9, color: "rgba(255,255,255,0.2)" }}>{open ? "▲" : "▼"}</span>
-      </button>
-      {open && children}
     </div>
   );
 }
