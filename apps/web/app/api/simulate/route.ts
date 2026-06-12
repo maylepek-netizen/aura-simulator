@@ -56,82 +56,48 @@ function buildVideoPromptInstructions(age: number, gender: string, situation: st
   const camHeight = ageApproximateCameraHeight(age);
 
   return (
-    "Write a single photorealistic Veo video prompt for: \"" + situation + "\". Camera height: " + camHeight + ".\n\n" +
+    "You are writing a prompt for a 5-second cinematic first-person POV video. Think of it as a short film fragment - every frame intentional, every detail meaningful.\n\n" +
+    "SITUATION: \"" + situation + "\"\n" +
+    "CAMERA HEIGHT: " + camHeight + "\n\n" +
 
-    "SEAMLESS LOOP - THIS IS CRITICAL: The video must be designed as a perfect loop. Structure:\n" +
-    "Second 0-1: Camera rests on a specific static texture or surface from this scene (floor tiles, desk surface, fabric, pavement). Camera completely still. This is the anchor point.\n" +
-    "Seconds 1-4: The experience unfolds - camera moves through the scene\n" +
-    "Second 4-5: Camera slowly returns to the EXACT same texture and angle as second 0-1. Same framing, same focus, same lighting.\n" +
-    "The first frame and last frame must be visually identical so the loop is completely invisible. Think of it as a breath: exhale at start, inhale through the experience, exhale again at end.\n\n" +
+    "NON-NEGOTIABLE RULES:\n" +
+    "- First-person POV only. Camera IS the eyes. Never show protagonist.\n" +
+    "- Single continuous shot. No cuts.\n" +
+    "- Photorealistic. No morphing, no ghosting, no artifacts.\n" +
+    "- No text, no subtitles.\n\n" +
 
-    "ABSOLUTE RULES (never break these):\n" +
-    "- Strict first-person POV. Camera IS the protagonist's eyes. Never show their face, body, or reflection.\n" +
-    "- Single continuous shot. No cuts. No scene changes.\n" +
-    "- Photorealistic. No morphing, no ghosting, no AI artifacts. Anatomically correct humans.\n" +
-    "- No subtitles, no text overlays.\n" +
-    "- LOOP: Open and close on the exact same static close-up texture. First and last frame identical.\n\n" +
+    "SEAMLESS LOOP:\n" +
+    "Second 0-1: static close-up of one specific texture (floor, desk, fabric). Still.\n" +
+    "Seconds 1-4: experience unfolds.\n" +
+    "Second 4-5: camera returns to exact same texture, same framing. Loop invisible.\n\n" +
 
-    "SITUATION ANALYSIS - choose the approach that fits:\n\n" +
-
-    "IF ALONE INDOORS (office, room, library, home):\n" +
-    "- Camera drifts slowly across the space, never urgent\n" +
-    "- Hyper-focus on irrelevant details: a pen, a crack in the wall, dust in light\n" +
-    "- Fluorescent lights feel slightly too bright\n" +
-    "- Silence feels thick and present\n" +
-    "- Time feels stretched\n\n" +
-
-    "IF ALONE OUTDOORS (street, park, bus stop):\n" +
-    "- Camera moves at walking pace, stable\n" +
-    "- Ground texture, pavement cracks, shoe soles get attention\n" +
-    "- Heat or cold feels physical and present\n" +
-    "- Passing strangers feel slightly threatening\n\n" +
-
-    "IF WITH ONE FAMILIAR PERSON:\n" +
-    "- Their face is visible but expressions hard to decode\n" +
-    "- Camera drifts away from their eyes, then forces itself back\n" +
-    "- Processing delay: slight hesitation before camera responds to them\n" +
-    "- Their proximity feels slightly too close\n\n" +
-
-    "IF WITH A STRANGER:\n" +
-    "- Their face fills 50-60% of frame, uncomfortably close\n" +
-    "- Eyes too intense, direct, unblinking\n" +
-    "- Mouth movements feel slightly out of sync\n" +
-    "- Camera wants to look away but keeps returning\n" +
-    "- Their body leans toward camera\n\n" +
-
-    "IF IN A SMALL GROUP (2-5 people):\n" +
-    "- Camera jumps between faces, cannot settle\n" +
-    "- Hard to track who is speaking\n" +
-    "- Multiple voices feel like overlapping noise\n" +
-    "- One irrelevant detail (a button, a sound) competes with the social scene\n\n" +
-
-    "IF IN A CROWD (mall, party, classroom, event):\n" +
-    "- Faces from all directions, all too close\n" +
-    "- Everything at equal visual volume - no hierarchy\n" +
-    "- Lights overexposed, colors too saturated\n" +
-    "- Camera shakes slightly more with overload\n" +
-    "- Tunnel vision: center sharp, edges blur\n\n" +
-
-    "IF UNEXPECTED CHANGE OR DISRUPTION:\n" +
-    "- Camera fixates obsessively on the wrong/changed element\n" +
-    "- Cannot look away even when trying\n" +
-    "- Everything else feels suddenly foreign\n" +
-    "- The changed thing dominates 60% of frame\n\n" +
-
-    "IF IN NATURE OR QUIET SPACE:\n" +
-    "- Slow drifting camera, unhurried\n" +
-    "- Natural textures get close attention: leaves, bark, water\n" +
-    "- Sounds feel present but non-threatening\n" +
-    "- A rare moment of sensory peace\n\n" +
-
-    "ALWAYS APPLY:\n" +
-    "- Focus drifts in and out - never perfectly sharp\n" +
-    "- Subtle rhythmic sway throughout (stimming)\n" +
+    "VISUAL STYLE - always present:\n" +
+    "- Subtle fisheye distortion at frame edges - center normal, edges curve slightly outward\n" +
+    "- Dark circular vignette - bright center, edges fade to near-black\n" +
     "- Colors slightly oversaturated\n" +
-    "- Slight physiological tremor - never completely still\n" +
-    "- Reality feels like a perfect copy with small errors\n\n" +
+    "- Subtle physiological tremor - never completely still\n" +
+    "- Focus drifts in and out periodically - world goes soft then refocuses\n\n" +
 
-    "Output: one short focused paragraph. No labels, no lists."
+    "ALIEN IN THE WORLD:\n" +
+    "Reality feels like a perfect replica with small errors. Skin tones slightly wrong. Movements slightly too slow or fast. Familiar places feel foreign. The feeling: I have been here but I do not belong.\n\n" +
+
+    "CONVERGENCE - everyone moves toward the camera:\n" +
+    "- People walk TOWARD the camera, not past it\n" +
+    "- Faces turn and look DIRECTLY into camera - eyes too intense, unblinking\n" +
+    "- Bodies lean toward the viewer\n" +
+    "- The world closes in from all sides\n" +
+    "- Camera is the target of all attention\n\n" +
+
+    "SITUATION-SPECIFIC APPROACH:\n" +
+    "Alone indoors → slow drift, hyper-focus on irrelevant details, silence feels thick\n" +
+    "Alone outdoors → stable walking pace, ground textures, strangers feel threatening\n" +
+    "One stranger → face fills 50-60% of frame, mouth slightly out of sync, camera drifts away then returns\n" +
+    "Small group → camera jumps between faces, cannot settle, one irrelevant detail competes\n" +
+    "Crowd → faces from all directions, lights overexposed, tunnel vision, edges blur\n" +
+    "Unexpected change → camera fixates obsessively on the wrong element, cannot look away\n" +
+    "Nature/quiet → slow drift, textures get attention, rare moment of peace\n\n" +
+
+    "Write one short cinematic paragraph. Describe what the camera sees and feels. Make it feel like a real film."
   );
 }
 

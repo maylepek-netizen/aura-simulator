@@ -384,39 +384,10 @@ function ProcessingMetrics({ visible }: { visible: boolean }) {
         style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", filter: "blur(24px) brightness(0.6)", transform: "scale(1.05)" }} />
       <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.45)" }} />
       <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.8) 100%)", pointerEvents: "none" }} />
-      <div style={{ position: "absolute", left: 0, top: 0, width: 105, height: "100%", padding: "8px 0", background: "rgba(0,0,0,0.38)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", borderRight: "1px solid rgba(255,255,255,0.08)", zIndex: 5, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", gap: 613 }}>
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
-          <img src="/icons/eye.svg" alt="Experience" style={{ width: 28 }} />
-          <span style={{ fontSize: 12, letterSpacing: "0.08em", color: "rgba(255,255,255,0.9)" }}>Experience</span>
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 28 }}>
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
-            <img src="/icons/bank.svg" alt="Bank" style={{ width: 28, opacity: 0.4 }} />
-            <span style={{ fontSize: 12, letterSpacing: "0.08em", color: "rgba(255,255,255,0.4)" }}>Bank</span>
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
-            <img src="/icons/insights.svg" alt="Insights" style={{ width: 28, opacity: 0.4 }} />
-            <span style={{ fontSize: 12, letterSpacing: "0.08em", color: "rgba(255,255,255,0.4)" }}>Insights</span>
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
-            <img src="/icons/sensory-channels.svg" alt="Sensory Channels" style={{ width: 27, opacity: 0.4 }} />
-            <span style={{ fontSize: 12, letterSpacing: "0.08em", color: "rgba(255,255,255,0.4)", textAlign: "center", lineHeight: 1.3 }}>Sensory<br />Channels</span>
-          </div>
-          <img src="/icons/eye.svg" alt="" style={{ width: 28, opacity: 0.3 }} />
-        </div>
-      </div>
-      <div style={{ position: "absolute", top: 0, left: 105, right: 0, height: 60, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 40px", zIndex: 5 }}>
-        <div>
-          <div style={{ fontSize: 12, letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.9)", fontWeight: 500 }}>STEP 03 / GENERATING EXPERIENCE</div>
-          <div style={{ fontSize: 11, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.4)", marginTop: 3 }}>Autism Simulator Experience</div>
-        </div>
-        <div style={{ fontSize: 12, letterSpacing: "0.12em", color: "rgba(255,255,255,0.6)" }}>Simulation&nbsp;|&nbsp;<span style={{ textDecoration: "underline", cursor: "pointer" }}>Exit</span></div>
-      </div>
-      <div style={{ position: "absolute", bottom: 20, right: 28, fontSize: 12, letterSpacing: "0.16em", color: "rgba(255,255,255,0.3)", zIndex: 5 }}>Simulation NO. 792734-04</div>
       <div style={{ position: "absolute", left: `${thoughtPos.x}%`, top: `${thoughtPos.y}%`, opacity: thoughtOpacity * 0.45, transition: "opacity 0.7s ease", pointerEvents: "none", zIndex: 4 }}>
         <span style={{ fontFamily: "'Amiri', serif", fontStyle: "italic", fontSize: "clamp(0.9rem, 1.4vw, 1.15rem)", color: "white", whiteSpace: "nowrap" }}>{FLOATING_THOUGHTS[thoughtIndex]}</span>
       </div>
-      <div style={{ position: "absolute", top: 60, bottom: 0, left: 105, right: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 48, zIndex: 4 }}>
+      <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 48, zIndex: 4 }}>
         <div style={{ display: "flex", flexDirection: "column", gap: 16, width: 280 }}>
           {PROC_METRICS_NEW.map((m, i) => (
             <div key={m.key} style={{ display: "flex", flexDirection: "column", gap: 5 }}>
@@ -892,29 +863,6 @@ export default function ResultPage() {
         .result-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius:2px; }
       `}</style>
 
-      {/* ── FAR LEFT SIDEBAR (105px) ──────────────────────────── */}
-      <div style={{ position: "fixed", left: 0, top: 0, bottom: 0, width: 105, zIndex: 30, ...panelBg, borderRight: "1px solid rgba(255,255,255,0.07)", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", gap: 613 }}>
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
-          <img src="/icons/eye.svg" alt="Experience" style={{ width: 28 }} />
-          <span style={{ fontSize: 12, letterSpacing: "0.08em", color: "rgba(255,255,255,0.9)" }}>Experience</span>
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 28 }}>
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
-            <img src="/icons/bank.svg" alt="Bank" style={{ width: 28, opacity: 0.4 }} />
-            <span style={{ fontSize: 12, letterSpacing: "0.08em", color: "rgba(255,255,255,0.4)" }}>Bank</span>
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
-            <img src="/icons/insights.svg" alt="Insights" style={{ width: 28, opacity: 0.4 }} />
-            <span style={{ fontSize: 12, letterSpacing: "0.08em", color: "rgba(255,255,255,0.4)" }}>Insights</span>
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
-            <img src="/icons/sensory-channels.svg" alt="Sensory Channels" style={{ width: 27, opacity: 0.4 }} />
-            <span style={{ fontSize: 12, letterSpacing: "0.08em", color: "rgba(255,255,255,0.4)", textAlign: "center", lineHeight: 1.3 }}>Sensory<br />Channels</span>
-          </div>
-          <img src="/icons/eye.svg" alt="" style={{ width: 28, opacity: 0.3 }} />
-        </div>
-      </div>
-
       {/* ── FULLSCREEN VIDEO (center) ─────────────────────────── */}
       <div style={{ position: "fixed", inset: 0, zIndex: 0, background: "#000" }}>
         {videoUrl && (
@@ -951,7 +899,7 @@ export default function ResultPage() {
       </div>
 
       {/* ── LEFT DATA PANEL (280px) ───────────────────────────── */}
-      <div style={{ position: "fixed", top: 0, left: 105, bottom: 0, width: 280, zIndex: 10, ...panelBg, borderRight: "1px solid rgba(255,255,255,0.07)", display: "flex", flexDirection: "column", opacity: panelsVisible ? 1 : 0, transition: "opacity 0.8s ease" }}>
+      <div style={{ position: "fixed", top: 0, left: 0, bottom: 0, width: 280, zIndex: 10, ...panelBg, borderRight: "1px solid rgba(255,255,255,0.07)", display: "flex", flexDirection: "column", opacity: panelsVisible ? 1 : 0, transition: "opacity 0.8s ease" }}>
 
         {/* Nav buttons */}
         <div style={{ padding: "14px 16px 12px", display: "flex", gap: 8, flexShrink: 0 }}>
@@ -1135,7 +1083,7 @@ export default function ResultPage() {
 
       {/* Bottom timeline bar */}
       {result && (
-        <div style={{ position: "fixed", bottom: 0, left: 385, right: 280, height: 56, zIndex: 10, ...panelBg, borderTop: "1px solid rgba(255,255,255,0.07)", display: "flex", alignItems: "center", gap: 32, padding: "0 28px", opacity: panelsVisible ? 1 : 0, transition: "opacity 0.8s ease" }}>
+        <div style={{ position: "fixed", bottom: 0, left: 280, right: 280, height: 56, zIndex: 10, ...panelBg, borderTop: "1px solid rgba(255,255,255,0.07)", display: "flex", alignItems: "center", gap: 32, padding: "0 28px", opacity: panelsVisible ? 1 : 0, transition: "opacity 0.8s ease" }}>
           <Tooltip text="Time elapsed in simulation">
             <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
               <span style={{ fontSize: 8, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.3)" }}>Timeline</span>
