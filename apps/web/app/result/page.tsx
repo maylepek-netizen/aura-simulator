@@ -848,6 +848,13 @@ export default function ResultPage() {
   };
 
   const handleEndSimulation = () => {
+    // Auto-save before leaving if not already saved
+    if (result && videoUri && !saved) {
+      try {
+        saveSimulation({ situation: snapshot.situation, name: snapshot.name, age: snapshot.age, gender: snapshot.gender, result, videoUri });
+        setSaved(true);
+      } catch {}
+    }
     setFadingOut(true);
     setTimeout(() => router.push("/summary"), 1500);
   };
