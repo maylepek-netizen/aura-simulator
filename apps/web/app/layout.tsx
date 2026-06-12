@@ -24,15 +24,6 @@ export default function RootLayout({
       className={`${ibmPlexMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground font-mono selection:bg-foreground selection:text-background">
-        <style>{`
-          @keyframes fadeIn {
-            from { opacity: 0; }
-            to   { opacity: 1; }
-          }
-          .page-fade {
-            animation: fadeIn 0.8s ease-in-out;
-          }
-        `}</style>
         <div className="page-fade" style={{ display: "contents" }}>
           {children}
         </div>

@@ -99,6 +99,7 @@ export default function SummaryPage() {
           <div style={{ display: "flex", gap: 20, alignItems: "center" }}>
             <button
               type="button"
+              className="aura-btn"
               onClick={() => router.push("/")}
               style={{
                 background: "#FFC99D",
@@ -118,6 +119,7 @@ export default function SummaryPage() {
 
             <button
               type="button"
+              className="aura-btn"
               onClick={() => router.push("/bank")}
               style={{
                 background: "transparent",

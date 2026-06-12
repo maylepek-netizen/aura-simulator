@@ -18,3 +18,21 @@ body {
   font-family: var(--font-ibm-plex-mono), ui-monospace, SFMono-Regular, Menlo,
     Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.page-fade {
+  animation: fadeIn 0.8s ease-in-out forwards;
+}
+
+.aura-btn {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  cursor: pointer;
+}
+.aura-btn:hover {
+  opacity: 0.85;
+  transform: scale(1.02);
+}

@@ -259,6 +259,7 @@ export default function OnboardingPage() {
             {/* CTA */}
             <button
               type="button"
+              className="aura-btn"
               onClick={onStart}
               style={{
                 alignSelf: "flex-start",

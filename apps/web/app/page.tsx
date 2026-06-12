@@ -117,8 +117,10 @@ export default function LandingPage() {
               className="aura-breathe"
               src="/icons/eye.svg"
               alt=""
+              width={52}
+              height={28}
               style={{
-                width: 52,
+                width: 52, height: 28, display: "block",
                 filter: "brightness(0) invert(1)",
                 position: "relative", zIndex: 2,
                 userSelect: "none",
@@ -156,9 +158,11 @@ export default function LandingPage() {
             >
               <img
                 src="/icons/eye.svg"
-                alt="Eye icon"
+                alt=""
                 className="begin-icon"
-                style={{ width: 52 }}
+                width={52}
+                height={28}
+                style={{ width: 52, height: 28, display: "block" }}
               />
               <span style={{
                 fontSize: 10, letterSpacing: "0.4em", fontWeight: 300,
@@ -266,6 +270,7 @@ export default function LandingPage() {
 
               <button
                 type="button"
+                className="aura-btn"
                 onClick={() => router.push("/onboard")}
                 style={{
                   marginTop: 24,
