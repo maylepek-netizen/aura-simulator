@@ -128,18 +128,20 @@ export default function ChatPage() {
         .chat-textarea::placeholder { color: rgba(255,255,255,0.3); }
 
         .helper-btn {
-          display: flex; align-items: center; gap: 8px;
-          background: transparent;
-          border: 1px solid rgba(255,255,255,0.2);
-          border-radius: 50px;
-          padding: 10px 20px;
-          color: rgba(255,255,255,0.7);
+          width: 199px; height: 41px;
+          padding: 9px 17px 8px 13px;
+          display: flex; flex-direction: row;
+          justify-content: center; align-items: center;
+          gap: 10px;
+          border-radius: 8px;
+          border: none;
           font-size: 13px; letter-spacing: 0.04em;
+          font-weight: 500; color: #1a0f00;
           cursor: pointer;
-          transition: border-color 0.2s, color 0.2s;
+          transition: opacity 0.2s;
           white-space: nowrap;
         }
-        .helper-btn:hover { border-color: rgba(255,255,255,0.45); color: white; }
+        .helper-btn:hover { opacity: 0.85; }
 
         .example-chip {
           background: rgba(255,255,255,0.06);
@@ -356,11 +358,11 @@ export default function ChatPage() {
               Need Some Help?
             </p>
             <div style={{ display: "flex", gap: 12, flexWrap: "wrap", justifyContent: "center" }}>
-              <button className="helper-btn" type="button" onClick={handleHelpMe}>
+              <button className="helper-btn" type="button" onClick={handleHelpMe} style={{ background: "#FFC1BB" }}>
                 <img src="/icons/brain.svg" alt="" style={{ width: 18 }} />
                 Help me think
               </button>
-              <button className="helper-btn" type="button" onClick={handleWriteForMe}>
+              <button className="helper-btn" type="button" onClick={handleWriteForMe} style={{ background: "#BCC2FF" }}>
                 <img src="/icons/pen.svg" alt="" style={{ width: 13 }} />
                 Write for me
               </button>
@@ -368,6 +370,7 @@ export default function ChatPage() {
                 className="helper-btn"
                 type="button"
                 onClick={() => { setShowExamples((v) => !v); setHelpHint(null); }}
+                style={{ background: "#FFC99D" }}
               >
                 Show me examples
                 <img src="/icons/Vector.svg" alt="" style={{ width: 6 }} />
