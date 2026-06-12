@@ -56,48 +56,29 @@ function buildVideoPromptInstructions(age: number, gender: string, situation: st
   const camHeight = ageApproximateCameraHeight(age);
 
   return (
-    "You are writing a prompt for a 5-second cinematic first-person POV video. Think of it as a short film fragment - every frame intentional, every detail meaningful.\n\n" +
+    "Create a 5-second photorealistic first-person POV video.\n\n" +
     "SITUATION: \"" + situation + "\"\n" +
-    "CAMERA HEIGHT: " + camHeight + "\n\n" +
-
-    "NON-NEGOTIABLE RULES:\n" +
-    "- First-person POV only. Camera IS the eyes. Never show protagonist.\n" +
-    "- Single continuous shot. No cuts.\n" +
-    "- Photorealistic. No morphing, no ghosting, no artifacts.\n" +
-    "- No text, no subtitles.\n\n" +
-
-    "SEAMLESS LOOP:\n" +
-    "Second 0-1: static close-up of one specific texture (floor, desk, fabric). Still.\n" +
-    "Seconds 1-4: experience unfolds.\n" +
-    "Second 4-5: camera returns to exact same texture, same framing. Loop invisible.\n\n" +
-
-    "VISUAL STYLE - always present:\n" +
-    "- Subtle fisheye distortion at frame edges - center normal, edges curve slightly outward\n" +
-    "- Dark circular vignette - bright center, edges fade to near-black\n" +
-    "- Colors slightly oversaturated\n" +
-    "- Subtle physiological tremor - never completely still\n" +
-    "- Focus drifts in and out periodically - world goes soft then refocuses\n\n" +
-
-    "ALIEN IN THE WORLD:\n" +
-    "Reality feels like a perfect replica with small errors. Skin tones slightly wrong. Movements slightly too slow or fast. Familiar places feel foreign. The feeling: I have been here but I do not belong.\n\n" +
-
-    "CONVERGENCE - everyone moves toward the camera:\n" +
-    "- People walk TOWARD the camera, not past it\n" +
-    "- Faces turn and look DIRECTLY into camera - eyes too intense, unblinking\n" +
-    "- Bodies lean toward the viewer\n" +
-    "- The world closes in from all sides\n" +
-    "- Camera is the target of all attention\n\n" +
-
-    "SITUATION-SPECIFIC APPROACH:\n" +
-    "Alone indoors → slow drift, hyper-focus on irrelevant details, silence feels thick\n" +
-    "Alone outdoors → stable walking pace, ground textures, strangers feel threatening\n" +
-    "One stranger → face fills 50-60% of frame, mouth slightly out of sync, camera drifts away then returns\n" +
-    "Small group → camera jumps between faces, cannot settle, one irrelevant detail competes\n" +
-    "Crowd → faces from all directions, lights overexposed, tunnel vision, edges blur\n" +
-    "Unexpected change → camera fixates obsessively on the wrong element, cannot look away\n" +
-    "Nature/quiet → slow drift, textures get attention, rare moment of peace\n\n" +
-
-    "Write one short cinematic paragraph. Describe what the camera sees and feels. Make it feel like a real film."
+    "Camera height: " + camHeight + " (eye level).\n\n" +
+    "INTERNAL MONOLOGUE (use the monologue array you generated above as visual direction):\n" +
+    "Translate each thought into what the camera sees:\n" +
+    "- If monologue mentions eyes/faces → camera focuses on faces\n" +
+    "- If monologue mentions sound/noise → camera reacts to audio source\n" +
+    "- If monologue mentions escape/exit → camera searches for exit\n" +
+    "- If monologue mentions a specific detail → camera fixates on it\n\n" +
+    "AUTISM RESEARCH GROUNDING:\n" +
+    "- Monotropism: camera tunnels into one detail obsessively\n" +
+    "- Sensory processing: everything amplified, lights too bright, sounds implied\n" +
+    "- Masking: slight hesitation before camera responds, processing delay visible\n" +
+    "- Double empathy: social interactions feel alien and unreadable\n\n" +
+    "RULES:\n" +
+    "1. First-person POV - camera IS the eyes, never show protagonist\n" +
+    "2. Single continuous shot - no cuts\n" +
+    "3. Photorealistic - real location, real people, no AI artifacts\n" +
+    "4. No text, no subtitles\n" +
+    "5. Colors slightly oversaturated, lighting slightly too harsh\n" +
+    "6. If people present - they look DIRECTLY at camera, faces close and intense\n" +
+    "7. Open and close on same static texture for seamless loop\n\n" +
+    "Write ONE short cinematic paragraph. Specific to this situation and monologue."
   );
 }
 
@@ -108,8 +89,8 @@ function buildSchema(age: number, gender: string, situation: string): string {
     '  "overall_load": 0,\n' +
     '  "visual_effect": "glitch_heavy",\n' +
     '  "scene_caption": "10-15 word ' + captionVoice(gender) + ', describing this exact moment in the situation",\n' +
-    '  "video_prompt": "' + buildVideoPromptInstructions(age, gender, situation).replace(/"/g, "'").replace(/[\r\n\t]/g, " ").replace(/  +/g, " ") + '",\n' +
     '  "monologue": ["thought1","thought2","thought3","thought4","thought5","thought6","thought7","thought8"],\n' +
+    '  "video_prompt": "' + buildVideoPromptInstructions(age, gender, situation).replace(/"/g, "'").replace(/[\r\n\t]/g, " ").replace(/  +/g, " ") + '",\n' +
     '  "sensory_channels": { "auditory": "description", "visual": "description", "tactile": "description", "interoception": "description" },\n' +
     '  "emotions": ["emotion1","emotion2","emotion3"],\n' +
     '  "coping_actions": ["action1","action2","action3"],\n' +
