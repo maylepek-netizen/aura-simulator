@@ -202,7 +202,7 @@ export default function ChatPage() {
           gap: 613,
         }}>
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
-            <img src="/icons/Exeprience.svg" alt="Experience" style={{ width: 28 }} />
+            <img src="/icons/eye.svg" alt="Experience" style={{ width: 28 }} />
             <span style={{ fontSize: 12, letterSpacing: "0.08em", color: "rgba(255,255,255,0.9)" }}>Experience</span>
           </div>
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 28 }}>
@@ -218,7 +218,7 @@ export default function ChatPage() {
               <img src="/icons/sensory-channels.svg" alt="Sensory Channels" style={{ width: 27, opacity: 0.4 }} />
               <span style={{ fontSize: 12, letterSpacing: "0.08em", color: "rgba(255,255,255,0.4)", textAlign: "center", lineHeight: 1.3 }}>Sensory<br />Channels</span>
             </div>
-            <img src="/icons/Exeprience.svg" alt="" style={{ width: 28, opacity: 0.3 }} />
+            <img src="/icons/eye.svg" alt="" style={{ width: 28, opacity: 0.3 }} />
           </div>
         </div>
 
@@ -268,7 +268,7 @@ export default function ChatPage() {
           {/* Eye icon + subtitle + heading */}
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, marginBottom: 32 }}>
             <img src="/icons/eye.svg" alt="" style={{ width: 48 }}
-              onError={(e) => { (e.target as HTMLImageElement).src = "/icons/Exeprience.svg"; }} />
+              onError={(e) => { (e.target as HTMLImageElement).src = "/icons/eye.svg"; }} />
             <p style={{ fontSize: 13, letterSpacing: "0.18em", color: "rgba(255,255,255,0.55)", margin: 0 }}>
               Before we begin tell us about yourself
             </p>
