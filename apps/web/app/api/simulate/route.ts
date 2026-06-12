@@ -58,6 +58,12 @@ function buildVideoPromptInstructions(age: number, gender: string, situation: st
   return (
     "Write a single photorealistic Veo video prompt for: \"" + situation + "\". Camera height: " + camHeight + ".\n\n" +
 
+    "SEAMLESS LOOP - THIS IS CRITICAL: The video must be designed as a perfect loop. Structure:\n" +
+    "Second 0-1: Camera rests on a specific static texture or surface from this scene (floor tiles, desk surface, fabric, pavement). Camera completely still. This is the anchor point.\n" +
+    "Seconds 1-4: The experience unfolds - camera moves through the scene\n" +
+    "Second 4-5: Camera slowly returns to the EXACT same texture and angle as second 0-1. Same framing, same focus, same lighting.\n" +
+    "The first frame and last frame must be visually identical so the loop is completely invisible. Think of it as a breath: exhale at start, inhale through the experience, exhale again at end.\n\n" +
+
     "ABSOLUTE RULES (never break these):\n" +
     "- Strict first-person POV. Camera IS the protagonist's eyes. Never show their face, body, or reflection.\n" +
     "- Single continuous shot. No cuts. No scene changes.\n" +
