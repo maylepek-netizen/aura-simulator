@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   loadProfile,
@@ -8,276 +8,393 @@ import {
   type ExperienceDraft,
 } from "@/lib/experienceStorage";
 
-type ChatItem =
-  | { role: "system"; text: string }
-  | { role: "user"; text: string }
-  | { role: "assistant"; text: string };
-
-const SITUATION_BANK: { category: string; items: string[] }[] = [
-  {
-    category: "Daily Life",
-    items: [
-      "Waiting at the doctor's office",
-      "Supermarket with bright fluorescent lights",
-      "Morning routine disrupted",
-      "Eating at a noisy restaurant",
-      "Getting a haircut from a new person",
-      "Crowded public bathroom",
-    ],
-  },
-  {
-    category: "Social",
-    items: [
-      "Birthday party with strangers",
-      "Meeting someone new for the first time",
-      "Group conversation at school",
-      "Unexpected phone call",
-      "Being asked a question in front of the class",
-      "Family dinner with many relatives",
-    ],
-  },
-  {
-    category: "Sensory",
-    items: [
-      "Crowded mall on a weekend",
-      "Loud construction nearby",
-      "Scratchy clothing tag",
-      "Strong perfume in a small elevator",
-      "Sudden fire alarm",
-      "Flickering fluorescent light",
-    ],
-  },
-  {
-    category: "Change & Unexpected",
-    items: [
-      "Mom changed her haircut",
-      "Furniture moved at home",
-      "Different route to school",
-      "Plans cancelled last minute",
-      "Substitute teacher unexpectedly",
-      "Power outage at home",
-    ],
-  },
-  {
-    category: "Nature & Alone",
-    items: [
-      "Walking alone in a park",
-      "Beach with a crowd",
-      "Empty room at night",
-      "Forest path alone",
-      "Sitting by the sea at sunset",
-      "Thunderstorm outside",
-    ],
-  },
-];
-
 function nowIso() {
   return new Date().toISOString();
 }
 
+const HELP_QUESTIONS = [
+  "What did you do yesterday at noon?",
+  "Where were you this morning?",
+  "Think of a place that felt overwhelming recently.",
+  "Was there a moment this week that felt too loud or too much?",
+  "When did you last feel misunderstood?",
+  "Think of a routine you do every day — what does it feel like?",
+  "Where do you go that makes you feel anxious?",
+  "What was the last crowded place you visited?",
+];
+
+function generateSituation(age: number, gender: string): string {
+  const g = gender.toLowerCase();
+  if (age >= 5 && age <= 12) {
+    const child = g === "female"
+      ? ["a birthday party with classmates", "school lunch in a noisy cafeteria", "a crowded playground at recess"]
+      : ["football practice with the team", "a school assembly in the gym", "a crowded birthday party"];
+    return child[Math.floor(Math.random() * child.length)];
+  }
+  if (age >= 13 && age <= 17) {
+    const teen = g === "female"
+      ? ["shopping at the mall with friends", "a loud school hallway between classes", "a house party with unfamiliar people"]
+      : ["football training after school", "a crowded school corridor", "a gaming session that got interrupted"];
+    return teen[Math.floor(Math.random() * teen.length)];
+  }
+  if (age >= 18 && age <= 30) {
+    const young = g === "female"
+      ? ["grocery shopping at a busy supermarket", "commuting on a packed train", "a work meeting with many people"]
+      : ["commuting on a crowded subway", "a noisy open-plan office", "a social gathering at a bar"];
+    return young[Math.floor(Math.random() * young.length)];
+  }
+  const adult = g === "female"
+    ? ["a family dinner with many relatives", "waiting at a busy doctor's office", "a school pick-up in crowded traffic"]
+    : ["a business conference with strangers", "waiting in a long queue at the bank", "a crowded sports event"];
+  return adult[Math.floor(Math.random() * adult.length)];
+}
+
+function getExamples(age: number, gender: string): string[] {
+  const g = gender.toLowerCase();
+  const base = [
+    "Waiting at a crowded doctor's office",
+    "Sudden fire alarm at school",
+    "Supermarket with bright fluorescent lights",
+    "Birthday party with strangers",
+    "Unexpected phone call from an unknown number",
+    "Plans cancelled at the last minute",
+  ];
+  if (age <= 17) {
+    return g === "female"
+      ? ["Noisy school cafeteria", "Group project with classmates", "PE class with lots of shouting", ...base]
+      : ["Football practice in the rain", "Crowded school hallway", "Substitute teacher unexpectedly", ...base];
+  }
+  return g === "female"
+    ? ["Commuting on a packed bus", "Open office with many sounds", "Shopping mall on a weekend", ...base]
+    : ["Crowded sports stadium", "Noisy restaurant with colleagues", "Late-night city street", ...base];
+}
+
 export default function ChatPage() {
   const router = useRouter();
-  const iso = useMemo(() => nowIso(), []);
   const [input, setInput] = useState("");
   const [processing, setProcessing] = useState(false);
-  const [showAllSuggestions, setShowAllSuggestions] = useState(false);
-  const [items, setItems] = useState<ChatItem[]>([
-    {
-      role: "system",
-      text: "Step 2/3 — describe a situation. Choose a preset or type your own.",
-    },
-  ]);
-
-  const listRef = useRef<HTMLDivElement | null>(null);
+  const [showExamples, setShowExamples] = useState(false);
+  const [helpHint, setHelpHint] = useState<string | null>(null);
+  const [profile, setProfile] = useState<{ age: number; gender: string } | null>(null);
 
   useEffect(() => {
     const p = loadProfile();
-    if (!p) router.replace("/");
+    if (!p) { router.replace("/"); return; }
+    setProfile({ age: p.age, gender: p.gender });
   }, [router]);
-
-  useEffect(() => {
-    listRef.current?.scrollTo({ top: 999999, behavior: "smooth" });
-  }, [items, processing]);
 
   async function sendSituation(situation: string) {
     const trimmed = situation.trim();
     if (!trimmed || processing) return;
-
     setProcessing(true);
-    setInput("");
-    setItems((prev) => [...prev, { role: "user", text: trimmed }]);
-    setItems((prev) => [
-      ...prev,
-      { role: "assistant", text: "Processing…" },
-    ]);
-
     const draft: ExperienceDraft = { situation: trimmed, createdAtIso: nowIso() };
     saveExperienceDraft(draft);
-
-    await new Promise((r) => setTimeout(r, 1300));
+    await new Promise((r) => setTimeout(r, 600));
     router.push("/result");
   }
 
+  function handleHelpMe() {
+    const q = HELP_QUESTIONS[Math.floor(Math.random() * HELP_QUESTIONS.length)];
+    setHelpHint(q);
+    setShowExamples(false);
+  }
+
+  function handleWriteForMe() {
+    if (!profile) return;
+    const situation = generateSituation(profile.age, profile.gender);
+    setInput(situation);
+    setHelpHint(null);
+    setShowExamples(false);
+  }
+
+  const examples = profile ? getExamples(profile.age, profile.gender) : [];
+
   return (
-    <div className="relative flex-1">
-      {/* Corner telemetry */}
-      <div className="pointer-events-none absolute inset-0 z-20">
-        <div className="absolute left-4 top-4 sm:left-6 sm:top-6 text-[10px] leading-4 tracking-[0.22em] uppercase opacity-70">
-          <div>Aura / simulator</div>
-          <div className="opacity-80">t={iso}</div>
-        </div>
-        <div className="absolute right-4 top-4 sm:right-6 sm:top-6 text-[10px] leading-4 tracking-[0.22em] uppercase opacity-70 text-right">
-          <div>route /chat</div>
-          <div className="opacity-80">step 2/3</div>
-        </div>
-        <div className="absolute left-4 bottom-4 sm:left-6 sm:bottom-6 text-[10px] leading-4 tracking-[0.22em] uppercase opacity-70">
-          <div>sys.log</div>
-          <div className="opacity-80">
-            status={processing ? "processing" : "idle"}
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Amiri:ital@0;1&display=swap');
+
+        .chat-textarea {
+          background: transparent;
+          border: none;
+          outline: none;
+          width: 100%;
+          resize: none;
+          color: white;
+          font-size: 15px;
+          line-height: 1.7;
+          font-family: inherit;
+        }
+        .chat-textarea::placeholder { color: rgba(255,255,255,0.3); }
+
+        .helper-btn {
+          display: flex; align-items: center; gap: 8px;
+          background: transparent;
+          border: 1px solid rgba(255,255,255,0.2);
+          border-radius: 50px;
+          padding: 10px 20px;
+          color: rgba(255,255,255,0.7);
+          font-size: 13px; letter-spacing: 0.04em;
+          cursor: pointer;
+          transition: border-color 0.2s, color 0.2s;
+          white-space: nowrap;
+        }
+        .helper-btn:hover { border-color: rgba(255,255,255,0.45); color: white; }
+
+        .example-chip {
+          background: rgba(255,255,255,0.06);
+          border: 1px solid rgba(255,255,255,0.12);
+          border-radius: 50px;
+          padding: 8px 16px;
+          color: rgba(255,255,255,0.7);
+          font-size: 12px; letter-spacing: 0.04em;
+          cursor: pointer;
+          transition: background 0.2s, color 0.2s;
+        }
+        .example-chip:hover { background: rgba(255,255,255,0.12); color: white; }
+
+        .sim-bank-btn {
+          display: flex; align-items: center; gap: 8px;
+          background: transparent;
+          border: 1px solid rgba(255,201,157,0.35);
+          border-radius: 8px;
+          padding: 8px 16px;
+          color: rgba(255,201,157,0.85);
+          font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase;
+          cursor: pointer;
+          transition: border-color 0.2s, color 0.2s;
+        }
+        .sim-bank-btn:hover { border-color: rgba(255,201,157,0.7); color: #FFC99D; }
+      `}</style>
+
+      <div style={{ position: "fixed", inset: 0, overflow: "hidden", background: "#0d0a08" }}>
+
+        {/* Background video */}
+        <video
+          src="https://res.cloudinary.com/duhsqezo3/video/upload/v1781117441/%D7%9C%D7%90_%D7%A6%D7%A8%D7%99%D7%9A_%D7%9C%D7%94%D7%99%D7%95%D7%AA_%D7%9E%D7%A1%D7%95%D7%9B%D7%9F_%D7%90%D7%95_%D7%9E%D7%91%D7%99%D7%9A_%D7%A4%D7%A9_wo1ecc.mp4"
+          autoPlay loop muted playsInline
+          style={{
+            position: "absolute", inset: 0,
+            width: "100%", height: "100%", objectFit: "cover",
+            filter: "blur(24px) brightness(0.6)",
+            transform: "scale(1.05)",
+          }}
+        />
+        <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.45)" }} />
+        <div style={{
+          position: "absolute", inset: 0,
+          background: "radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.8) 100%)",
+          pointerEvents: "none",
+        }} />
+
+        {/* ── LEFT SIDEBAR ── */}
+        <div style={{
+          position: "fixed", left: 0, top: 0,
+          width: 105, height: "100vh", padding: "8px 0",
+          background: "rgba(0,0,0,0.38)",
+          backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)",
+          borderRight: "1px solid rgba(255,255,255,0.08)",
+          zIndex: 10,
+          display: "flex", flexDirection: "column",
+          justifyContent: "center", alignItems: "center",
+          gap: 613,
+        }}>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+            <img src="/icons/Exeprience.svg" alt="Experience" style={{ width: 28 }} />
+            <span style={{ fontSize: 12, letterSpacing: "0.08em", color: "rgba(255,255,255,0.9)" }}>Experience</span>
           </div>
-        </div>
-        <div className="absolute right-4 bottom-4 sm:right-6 sm:bottom-6 text-[10px] leading-4 tracking-[0.22em] uppercase opacity-70 text-right">
-          <div>build: dev</div>
-          <div className="opacity-80">proto: v0.1</div>
-        </div>
-      </div>
-
-      <header className="relative z-10 mx-auto flex w-full max-w-5xl items-center justify-between px-4 py-5 sm:px-6">
-        <div className="flex items-center gap-3">
-          <div className="h-2.5 w-2.5 rounded-full border border-foreground/60" />
-          <div className="text-xs tracking-[0.26em] uppercase opacity-80">
-            Aura
-          </div>
-        </div>
-
-        <button
-          type="button"
-          onClick={() => router.push("/bank")}
-          className="text-[10px] uppercase tracking-[0.2em] opacity-60 hover:opacity-100 border border-foreground/20 rounded px-3 py-1.5 transition-all hover:border-foreground/40"
-        >
-          📁 Situation Bank
-        </button>
-      </header>
-
-      <main className="relative z-10 mx-auto flex w-full max-w-5xl flex-1 flex-col px-4 pb-16 pt-2 sm:px-6">
-        <div className="relative flex min-h-[300px] flex-1 flex-col overflow-hidden rounded-2xl border border-foreground/15">
-          <div className="pointer-events-none absolute inset-0 opacity-[0.06] [background-size:44px_44px] [background-image:linear-gradient(to_right,rgba(255,255,255,0.28)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.28)_1px,transparent_1px)]" />
-
-          <div className="relative flex items-center justify-between border-b border-foreground/15 px-5 py-4">
-            <div className="text-[11px] uppercase tracking-[0.22em] opacity-80">
-              situation selection
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 28 }}>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+              <img src="/icons/bank.svg" alt="Bank" style={{ width: 28, opacity: 0.4 }} />
+              <span style={{ fontSize: 12, letterSpacing: "0.08em", color: "rgba(255,255,255,0.4)" }}>Bank</span>
             </div>
-            <div className="flex items-center gap-2">
-              <span
-                className={[
-                  "h-1.5 w-1.5 rounded-full",
-                  processing ? "bg-white/70 animate-pulse" : "bg-white/40",
-                ].join(" ")}
-              />
-              <div className="text-[11px] uppercase tracking-[0.22em] opacity-70">
-                {processing ? "processing" : "ready"}
-              </div>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+              <img src="/icons/insights.svg" alt="Insights" style={{ width: 28, opacity: 0.4 }} />
+              <span style={{ fontSize: 12, letterSpacing: "0.08em", color: "rgba(255,255,255,0.4)" }}>Insights</span>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+              <img src="/icons/sensory-channels.svg" alt="Sensory Channels" style={{ width: 27, opacity: 0.4 }} />
+              <span style={{ fontSize: 12, letterSpacing: "0.08em", color: "rgba(255,255,255,0.4)", textAlign: "center", lineHeight: 1.3 }}>Sensory<br />Channels</span>
+            </div>
+            <img src="/icons/Exeprience.svg" alt="" style={{ width: 28, opacity: 0.3 }} />
+          </div>
+        </div>
+
+        {/* ── TOP HEADER ── */}
+        <div style={{
+          position: "fixed", top: 0, left: 105, right: 0, height: 60,
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+          padding: "0 40px", zIndex: 10,
+        }}>
+          <div>
+            <div style={{ fontSize: 12, letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.9)", fontWeight: 500 }}>
+              STEP 01 / WHO ARE YOU?
+            </div>
+            <div style={{ fontSize: 11, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.4)", marginTop: 3 }}>
+              Autism Simulator Experience
+            </div>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+            <button className="sim-bank-btn" type="button" onClick={() => router.push("/bank")}>
+              <img src="/icons/bank.svg" alt="" style={{ width: 16, filter: "brightness(0) saturate(100%) invert(83%) sepia(19%) saturate(800%) hue-rotate(330deg)" }} />
+              Simulation Bank
+            </button>
+            <div style={{ fontSize: 12, letterSpacing: "0.12em", color: "rgba(255,255,255,0.6)" }}>
+              Simulation&nbsp;|&nbsp;<span style={{ textDecoration: "underline", cursor: "pointer" }}>Exit</span>
+            </div>
+          </div>
+        </div>
+
+        {/* ── BOTTOM RIGHT SERIAL ── */}
+        <div style={{
+          position: "fixed", bottom: 20, right: 28,
+          fontSize: 12, letterSpacing: "0.16em",
+          color: "rgba(255,255,255,0.3)", zIndex: 10,
+        }}>
+          Simulation NO. 792734-04
+        </div>
+
+        {/* ── MAIN CONTENT ── */}
+        <div style={{
+          position: "absolute", top: 60, bottom: 0, left: 105, right: 0,
+          display: "flex", flexDirection: "column",
+          alignItems: "center", justifyContent: "center",
+          padding: "0 60px 40px",
+          zIndex: 5, gap: 0,
+        }}>
+
+          {/* Eye icon + subtitle + heading */}
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, marginBottom: 32 }}>
+            <img src="/icons/eye.svg" alt="" style={{ width: 55 }} />
+            <p style={{ fontSize: 13, letterSpacing: "0.18em", color: "rgba(255,255,255,0.55)", margin: 0 }}>
+              Before we begin tell us about yourself
+            </p>
+            <h1 style={{
+              fontFamily: "'Amiri', serif",
+              fontSize: "clamp(2.2rem, 4vw, 3.4rem)",
+              color: "white", margin: 0,
+              fontWeight: 400, lineHeight: 1.1,
+            }}>
+              Memory Prompt
+            </h1>
+          </div>
+
+          {/* Textarea card */}
+          <div style={{
+            width: "100%", maxWidth: 680,
+            background: "rgba(255,255,255,0.06)",
+            border: "1px solid rgba(255,255,255,0.1)",
+            borderRadius: 16,
+            padding: "20px 24px 16px",
+          }}>
+            <textarea
+              className="chat-textarea"
+              rows={5}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              disabled={processing}
+              placeholder="A situation you went through"
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+                  e.preventDefault();
+                  void sendSituation(input);
+                }
+              }}
+            />
+            {/* Divider + send row */}
+            <div style={{
+              display: "flex", alignItems: "center", justifyContent: "space-between",
+              borderTop: "1px solid rgba(255,255,255,0.1)",
+              paddingTop: 12, marginTop: 4,
+            }}>
+              <div style={{ width: 80, height: 1, background: "rgba(255,255,255,0.15)" }} />
+              <button
+                type="button"
+                disabled={processing || !input.trim()}
+                onClick={() => void sendSituation(input)}
+                style={{
+                  background: processing ? "rgba(255,201,157,0.5)" : "#FFC99D",
+                  color: "#1a0f00",
+                  border: "none", borderRadius: 10,
+                  padding: "10px 32px",
+                  fontSize: 13, fontWeight: 600, letterSpacing: "0.06em",
+                  cursor: processing || !input.trim() ? "not-allowed" : "pointer",
+                  opacity: processing || !input.trim() ? 0.6 : 1,
+                  transition: "opacity 0.2s",
+                }}
+              >
+                {processing ? "Sending…" : "Send"}
+              </button>
             </div>
           </div>
 
-          <div
-            ref={listRef}
-            className="relative flex-1 overflow-auto px-5 py-6 sm:px-8"
-          >
-            <div className="space-y-3">
-              {items.map((it, idx) => (
-                <div
-                  key={idx}
-                  className={[
-                    "max-w-[78%] rounded-md border px-3 py-2 text-sm leading-6",
-                    it.role === "user"
-                      ? "ml-auto border-foreground/25 bg-white/5"
-                      : "border-foreground/15 bg-transparent",
-                  ].join(" ")}
+          {/* Help hint */}
+          {helpHint && (
+            <div style={{
+              marginTop: 12, maxWidth: 680, width: "100%",
+              fontSize: 13, letterSpacing: "0.08em",
+              color: "rgba(255,201,157,0.8)",
+              textAlign: "center",
+            }}>
+              💭 {helpHint}
+            </div>
+          )}
+
+          {/* Description */}
+          <p style={{
+            marginTop: 16, maxWidth: 640,
+            fontSize: 12, letterSpacing: "0.1em",
+            color: "rgba(255,255,255,0.35)",
+            textAlign: "center", lineHeight: 1.7,
+          }}>
+            Describe a situation. It could be something that happened today, or any moment from daily life — a place you visited, a memory, or a feeling you remember.
+          </p>
+
+          {/* Helper buttons */}
+          <div style={{ marginTop: 28 }}>
+            <p style={{ fontSize: 12, letterSpacing: "0.12em", color: "rgba(255,255,255,0.4)", marginBottom: 14, textAlign: "center" }}>
+              Need Some Help?
+            </p>
+            <div style={{ display: "flex", gap: 12, flexWrap: "wrap", justifyContent: "center" }}>
+              <button className="helper-btn" type="button" onClick={handleHelpMe}>
+                <img src="/icons/brain.svg" alt="" style={{ width: 18 }} />
+                Help me think
+              </button>
+              <button className="helper-btn" type="button" onClick={handleWriteForMe}>
+                <img src="/icons/pen.svg" alt="" style={{ width: 13 }} />
+                Write for me
+              </button>
+              <button
+                className="helper-btn"
+                type="button"
+                onClick={() => { setShowExamples((v) => !v); setHelpHint(null); }}
+              >
+                Show me examples
+                <img src="/icons/Vector.svg" alt="" style={{ width: 6 }} />
+              </button>
+            </div>
+          </div>
+
+          {/* Examples list */}
+          {showExamples && (
+            <div style={{
+              marginTop: 20, maxWidth: 680, width: "100%",
+              display: "flex", flexWrap: "wrap", gap: 10, justifyContent: "center",
+            }}>
+              {examples.map((ex) => (
+                <button
+                  key={ex}
+                  className="example-chip"
+                  type="button"
+                  onClick={() => { setInput(ex); setShowExamples(false); }}
                 >
-                  <div className="mb-1 text-[10px] uppercase tracking-[0.22em] opacity-60">
-                    {it.role}
-                  </div>
-                  <div className={it.text.includes("…") ? "opacity-80" : ""}>
-                    {it.text}
-                    {it.role === "assistant" && it.text.startsWith("Processing") ? (
-                      <span className="ml-2 inline-flex items-center gap-1 align-middle">
-                        <span className="h-1 w-1 rounded-full bg-white/60 animate-pulse [animation-delay:0ms]" />
-                        <span className="h-1 w-1 rounded-full bg-white/60 animate-pulse [animation-delay:150ms]" />
-                        <span className="h-1 w-1 rounded-full bg-white/60 animate-pulse [animation-delay:300ms]" />
-                      </span>
-                    ) : null}
-                  </div>
-                </div>
+                  {ex}
+                </button>
               ))}
             </div>
-          </div>
-
-          <div className="relative border-t border-foreground/15 px-5 py-4 sm:px-8">
-            <form
-              className="flex gap-2"
-              onSubmit={(e) => {
-                e.preventDefault();
-                void sendSituation(input);
-              }}
-            >
-              <input
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                disabled={processing}
-                className="h-11 flex-1 rounded-md border border-foreground/20 bg-transparent px-3 text-sm outline-none focus:border-foreground/40 disabled:opacity-50"
-                placeholder="Describe a situation…"
-              />
-              <button
-                type="submit"
-                disabled={processing || !input.trim()}
-                className="h-11 rounded-md bg-foreground px-4 text-[11px] uppercase tracking-[0.22em] text-background hover:opacity-90 disabled:opacity-40"
-              >
-                Send
-              </button>
-            </form>
-          </div>
+          )}
         </div>
-
-        {/* Quick suggestions — below the input box */}
-        {!processing && (() => {
-          const allItems = SITUATION_BANK.flatMap((g) => g.items);
-          const visible = showAllSuggestions ? allItems : allItems.slice(0, 3);
-          return (
-            <div className="mt-3 px-1">
-              <div className="mb-2 flex items-center justify-between">
-                <span className="text-[9px] uppercase tracking-[0.2em] opacity-35">Quick suggestions</span>
-                {!showAllSuggestions && (
-                  <button
-                    type="button"
-                    onClick={() => setShowAllSuggestions(true)}
-                    className="text-[9px] uppercase tracking-[0.15em] opacity-35 hover:opacity-70 transition-opacity"
-                  >
-                    Show more →
-                  </button>
-                )}
-              </div>
-              <div className="flex flex-wrap gap-1.5">
-                {visible.map((s) => (
-                  <button
-                    key={s}
-                    type="button"
-                    onClick={() => setInput(s)}
-                    className={[
-                      "rounded border px-2 py-0.5 text-[9px] leading-5 tracking-[0.08em] transition-all",
-                      input === s
-                        ? "border-foreground/40 bg-foreground/10 opacity-100"
-                        : "border-foreground/12 opacity-40 hover:border-foreground/30 hover:opacity-80",
-                    ].join(" ")}
-                  >
-                    {s}
-                  </button>
-                ))}
-              </div>
-            </div>
-          );
-        })()}
-      </main>
-    </div>
+      </div>
+    </>
   );
 }
