@@ -134,14 +134,14 @@ export default function ChatPage() {
           justify-content: center; align-items: center;
           gap: 10px;
           border-radius: 8px;
-          border: none;
+          background: transparent;
           font-size: 13px; letter-spacing: 0.04em;
-          font-weight: 500; color: #1a0f00;
+          font-weight: 400;
           cursor: pointer;
           transition: opacity 0.2s;
           white-space: nowrap;
         }
-        .helper-btn:hover { opacity: 0.85; }
+        .helper-btn:hover { opacity: 0.75; }
 
         .example-chip {
           background: rgba(255,255,255,0.06);
@@ -358,19 +358,26 @@ export default function ChatPage() {
               Need Some Help?
             </p>
             <div style={{ display: "flex", gap: 12, flexWrap: "wrap", justifyContent: "center" }}>
-              <button className="helper-btn" type="button" onClick={handleHelpMe} style={{ background: "#FFC1BB" }}>
+              {/* Help me think — pink border + pink icon */}
+              <button className="helper-btn" type="button" onClick={handleHelpMe}
+                style={{ border: "1px solid #FFC1BB", color: "#FFC1BB" }}>
                 <img src="/icons/brain.svg" alt="" style={{ width: 18 }} />
                 Help me think
               </button>
-              <button className="helper-btn" type="button" onClick={handleWriteForMe} style={{ background: "#BCC2FF" }}>
+
+              {/* Write for me — purple border + purple icon */}
+              <button className="helper-btn" type="button" onClick={handleWriteForMe}
+                style={{ border: "1px solid #BCC2FF", color: "#BCC2FF" }}>
                 <img src="/icons/pen.svg" alt="" style={{ width: 13 }} />
                 Write for me
               </button>
+
+              {/* Show me examples — orange border + orange text + orange arrow */}
               <button
                 className="helper-btn"
                 type="button"
                 onClick={() => { setShowExamples((v) => !v); setHelpHint(null); }}
-                style={{ background: "#FFC99D" }}
+                style={{ border: "1px solid #FFC99D", color: "#FFC99D" }}
               >
                 Show me examples
                 <img src="/icons/Vector.svg" alt="" style={{ width: 6 }} />
