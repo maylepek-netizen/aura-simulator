@@ -9,8 +9,8 @@ export default function QuestionPage() {
 
   useEffect(() => {
     try {
-      const profile = JSON.parse(localStorage.getItem("aura_profile") || "{}");
-      if (profile.name) setName(profile.name);
+      const profile = JSON.parse(localStorage.getItem("aura.profile.v1") || "{}");
+      if (profile.name) setName(profile.name.trim().split(" ")[0]);
     } catch {}
   }, []);
 
@@ -123,7 +123,7 @@ export default function QuestionPage() {
           {/* Question */}
           <h1 style={{
             fontFamily: "'Amiri', serif",
-            fontSize: "clamp(2rem, 4vw, 3.2rem)",
+            fontSize: "clamp(1.7rem, 3.2vw, 2.6rem)",
             color: "white",
             textAlign: "center",
             lineHeight: 1.3,
