@@ -14,7 +14,7 @@ export default function LandingPage() {
 
   // Initialize audio once — do not play yet
   useEffect(() => {
-    audioRef.current = new Audio('/sounds/background%20music%20.mp3');
+    audioRef.current = new Audio('https://res.cloudinary.com/duhsqezo3/video/upload/v1781351439/background_music_lhjybz.mp3');
     audioRef.current.loop = true;
     audioRef.current.volume = 0.35;
     if (typeof window !== "undefined") {
