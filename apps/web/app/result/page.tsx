@@ -785,7 +785,21 @@ export default function ResultPage() {
       })
         .then(r => r.json())
         .then(v => {
-          if (v.uri) { setVideoUrl("/api/video-proxy?uri=" + encodeURIComponent(v.uri)); setVideoUri(v.uri); }
+          if (v.uri) {
+            setVideoUrl("/api/video-proxy?uri=" + encodeURIComponent(v.uri));
+            setVideoUri(v.uri);
+            // Fade out background music as simulation begins
+            if (typeof window !== "undefined" && window.backgroundMusic) {
+              const fadeOut = setInterval(() => {
+                if (window.backgroundMusic && window.backgroundMusic.volume > 0.02) {
+                  window.backgroundMusic.volume -= 0.02;
+                } else {
+                  clearInterval(fadeOut);
+                  window.backgroundMusic?.pause();
+                }
+              }, 100);
+            }
+          }
           setVideoLoading(false);
         })
         .catch(() => setVideoLoading(false));
