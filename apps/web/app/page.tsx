@@ -10,6 +10,27 @@ export default function LandingPage() {
   const [screen, setScreen] = useState<Screen>("landing");
   const idleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const currentScreen = useRef<Screen>("landing");
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Initialize audio once — do not play yet
+  useEffect(() => {
+    audioRef.current = new Audio('/sounds/background%20music%20.mp3');
+    audioRef.current.loop = true;
+    audioRef.current.volume = 0.35;
+    if (typeof window !== "undefined") {
+      window.backgroundMusic = audioRef.current;
+    }
+    return () => {
+      audioRef.current?.pause();
+    };
+  }, []);
+
+  // Play only when user clicks BEGIN (screen → "intro")
+  useEffect(() => {
+    if (screen === "intro") {
+      audioRef.current?.play().catch(() => {});
+    }
+  }, [screen]);
 
   function wakeUp() {
     if (currentScreen.current === "idle") setScreen("landing");

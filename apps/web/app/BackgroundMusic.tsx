@@ -8,24 +8,8 @@ declare global {
   }
 }
 
+// Audio is initialized in app/page.tsx on BEGIN click and stored on window.backgroundMusic
+// This component is kept as a mount point for the global Window type declaration only
 export function BackgroundMusic() {
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    if (window.backgroundMusic) return; // already mounted (StrictMode double-invoke guard)
-
-    const audio = new Audio("/sounds/background%20music%20.mp3");
-    audio.loop = true;
-    audio.volume = 0.4;
-    window.backgroundMusic = audio;
-
-    audio.play().catch(() => {
-      document.addEventListener("click", () => audio.play(), { once: true });
-    });
-
-    return () => {
-      // Don't destroy on unmount — layout never unmounts during navigation
-    };
-  }, []);
-
   return null;
 }
