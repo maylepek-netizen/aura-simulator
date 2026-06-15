@@ -1,11 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 
 const API_KEY = process.env.GEMINI_API_KEY!;
-const VEO_MODEL = "veo-2.0-generate-001";
+const VEO_MODEL = "veo-3.0-generate-preview";
 
 export async function POST(req: NextRequest) {
   try {
     const { prompt } = await req.json();
+
+    // Convert JSON video_prompt object to string if needed
+    let finalPrompt = prompt;
+    try {
+      const parsed = JSON.parse(prompt);
+      finalPrompt = JSON.stringify(parsed);
+    } catch {
+      finalPrompt = prompt;
+    }
 
     // Step 1: Start video generation
     const startRes = await fetch(
@@ -14,8 +23,8 @@ export async function POST(req: NextRequest) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          instances: [{ prompt }],
-          parameters: { aspectRatio: "16:9", sampleCount: 1, durationSeconds: 5 },
+          instances: [{ prompt: finalPrompt }],
+          parameters: { aspectRatio: "16:9", sampleCount: 1, durationSeconds: 8 },
         }),
       }
     );
