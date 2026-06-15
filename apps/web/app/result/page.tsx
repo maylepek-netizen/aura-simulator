@@ -613,7 +613,7 @@ export default function ResultPage() {
     revealTimersRef.current = [];
     const load = result.overall_load ?? 0;
 
-    const t5 = setTimeout(() => { setPanelsVisible(true); }, 5000);
+    const t5 = setTimeout(() => { setPanelsVisible(true); }, 10000);
 
     const t15 = setTimeout(() => {
       if (!ambientEngineRef.current) {
