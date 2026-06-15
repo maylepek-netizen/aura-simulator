@@ -39,7 +39,7 @@ export default function LandingPage() {
   function resetIdleTimer() {
     if (idleTimer.current) clearTimeout(idleTimer.current);
     if (currentScreen.current === "idle") return;
-    idleTimer.current = setTimeout(() => setScreen("idle"), 45_000);
+    idleTimer.current = setTimeout(() => setScreen("idle"), 600_000);
   }
 
   useEffect(() => {
