@@ -40,7 +40,11 @@ Response Format (return valid JSON only, no markdown):
     "motion": "Elements moving toward the viewer. Slow involuntary camera sway. Atmospheric details: floating dust, flickering light, subtle environmental movement.",
     "focus": "Rack focus effect - drifting in and out of focus on foreground elements. Sharp detail on one isolated object while background blurs. Occasional snap-focus to sudden stimulus.",
     "sensory_distortion": "[based on sensory_load: low=subtle color shift + mild focus drift | medium=noticeable rack focus + slight fish-eye + motion blur on periphery | high=aggressive fish-eye + rapid focus pulls + peripheral distortion + chromatic aberration]",
-    "loop_settings": "Seamless loop. First and last frame must be identical. Use only cyclical atmospheric motion.",
+    "loop_settings": {
+      "loop_type": "Seamless infinite organic loop",
+      "frame_matching": "First frame and last frame must be completely identical",
+      "motion_continuity": "All motion must be cyclical and atmospheric only (steam, dust, breathing, flickering light). The action must begin and end in the exact same state. No sudden resets or visible cuts. Avoid: walking, pouring liquids, large gestures. Prefer: breathing, subtle environmental atmosphere, flickering, steam, dust motes."
+    },
     "audio": "Ambient sound only, no music. [dominant sound source from scene]. Sound feels amplified and close."
   },
   "internal_thoughts": "המונולוג הפנימי בעברית - קצר, מקוטע, חושי מאוד. 3-5 משפטים.",
