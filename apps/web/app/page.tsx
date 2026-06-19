@@ -206,31 +206,19 @@ export default function LandingPage() {
             <div style={{
               position: "fixed", left: 0, top: 0,
               width: 80, height: "100vh", padding: "8px 0",
-              background: "rgba(0,0,0,0.25)",
-              backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)",
-              borderRight: "1px solid rgba(255,255,255,0.08)",
+              background: "transparent",
               zIndex: 3,
               display: "flex", flexDirection: "column",
               justifyContent: "center", alignItems: "center",
               gap: 613,
             }}>
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
-                <img src="/icons/experience.svg" alt="Experience" style={{ width: 32 }} />
-                <span style={{ fontSize: 12, letterSpacing: "0.08em", color: "rgba(255,255,255,0.9)" }}>Experience</span>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                <img src="/icons/experience.svg" alt="Experience" style={{ width: 32, filter: "invert(1) sepia(1) saturate(2) hue-rotate(340deg)", opacity: 0.6 }} />
               </div>
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 32 }}>
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
-                  <img src="/icons/bank.svg" alt="Bank" style={{ width: 33, opacity: 0.45 }} />
-                  <span style={{ fontSize: 12, letterSpacing: "0.08em", color: "rgba(255,255,255,0.45)" }}>Bank</span>
-                </div>
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
-                  <img src="/icons/insights.svg" alt="Insights" style={{ width: 30, opacity: 0.45 }} />
-                  <span style={{ fontSize: 12, letterSpacing: "0.08em", color: "rgba(255,255,255,0.45)" }}>Insights</span>
-                </div>
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
-                  <img src="/icons/sensory-channels.svg" alt="Sensory Channels" style={{ width: 27, opacity: 0.45 }} />
-                  <span style={{ fontSize: 12, letterSpacing: "0.08em", color: "rgba(255,255,255,0.45)", textAlign: "center", lineHeight: 1.3 }}>Sensory<br />Channels</span>
-                </div>
+                <img src="/icons/bank.svg" alt="Bank" style={{ width: 33, opacity: 0.45 }} />
+                <img src="/icons/insights.svg" alt="Insights" style={{ width: 30, opacity: 0.45 }} />
+                <img src="/icons/sensory-channels.svg" alt="Sensory Channels" style={{ width: 27, opacity: 0.45 }} />
                 <img src="/icons/eye.svg" alt="" style={{ width: 28, opacity: 0.35 }} />
               </div>
             </div>
