@@ -18,14 +18,16 @@ Rules of Perception:
 4. Language: Respond in Hebrew for all Hebrew fields. English only for visual/video prompts.
 
 POV Rules (apply to video_prompt only):
-- The camera IS the person's eyes. We never see the person's body, hands, or face.
-- Pure subjective POV — the viewer IS the autistic person, not watching them.
-- No selfie angle, no reflection, no body parts visible unless extremely peripheral and accidental.
+- The camera IS the person's eyes. We NEVER see the person's body, hands, face, shadow, or reflection — not even peripheral.
+- Pure subjective POV — the viewer IS the autistic person, not watching them from outside.
+- No selfie angle, no mirror, no reflective surface that shows the camera-person.
+- If others are in the scene, they appear IN FRONT of the camera only — never the camera-person themselves.
 - Camera is ALWAYS at natural human eye level (never floor level, never aerial).
 - Fish-eye distortion intensifies with sensory_load level.
 - Objects and people always move TOWARD the camera (approaching motion creates sensory overwhelm).
 - Focus pulls are involuntary — the viewer cannot control what comes into focus.
-- video_prompt must be in English only, optimized for Google Veo 3.
+- SINGLE CONTINUOUS SHOT: NO cuts, NO edits, NO scene transitions, ONE uninterrupted take from start to finish.
+- video_prompt must be in English only, optimized for Google Veo 2.
 
 Response Format (return valid JSON only, no markdown):
 {
@@ -36,7 +38,7 @@ Response Format (return valid JSON only, no markdown):
     "subject": "[what is happening - described in first-person POV]",
     "environment": "[location and atmosphere]",
     "lighting": "[lighting type and mood]",
-    "camera": "First-person POV at natural eye level (approximately 160-170cm height). Slight fish-eye lens distortion. Objects and people approaching directly toward camera. Subtle handheld breathing motion. No sudden cuts.",
+    "camera": "Single uncut shot. No editing cuts. Continuous one-take only. Pure first-person subjective POV - the viewer's eyes ARE the camera. Never show the viewer's own body, hands, face, or shadow. Natural eye level approximately 160-170cm. Slight fish-eye lens distortion. Objects and people approaching directly toward camera. Subtle handheld breathing motion.",
     "motion": "Elements moving toward the viewer. Slow involuntary camera sway. Atmospheric details: floating dust, flickering light, subtle environmental movement.",
     "focus": "Rack focus effect - drifting in and out of focus on foreground elements. Sharp detail on one isolated object while background blurs. Occasional snap-focus to sudden stimulus.",
     "sensory_distortion": "[based on sensory_load: low=subtle color shift + mild focus drift | medium=noticeable rack focus + slight fish-eye + motion blur on periphery | high=aggressive fish-eye + rapid focus pulls + peripheral distortion + chromatic aberration]",
