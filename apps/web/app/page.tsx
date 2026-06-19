@@ -286,7 +286,7 @@ export default function LandingPage() {
                 color: "rgba(255,255,255,0.7)",
                 margin: 0, textAlign: "center",
               }}>
-                Enter another perception
+                A simulation of the autistic perception
               </p>
 
               <button
