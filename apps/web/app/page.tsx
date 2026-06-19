@@ -205,9 +205,9 @@ export default function LandingPage() {
             {/* Left sidebar */}
             <div style={{
               position: "fixed", left: 0, top: 0,
-              width: 135, height: "100vh", padding: "8px 0",
-              background: "rgba(0,0,0,0.38)",
-              backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)",
+              width: 80, height: "100vh", padding: "8px 0",
+              background: "rgba(0,0,0,0.25)",
+              backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)",
               borderRight: "1px solid rgba(255,255,255,0.08)",
               zIndex: 3,
               display: "flex", flexDirection: "column",
@@ -215,7 +215,7 @@ export default function LandingPage() {
               gap: 613,
             }}>
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
-                <img src="/icons/eye.svg" alt="Experience" style={{ width: 28 }} />
+                <img src="/icons/experience.svg" alt="Experience" style={{ width: 32 }} />
                 <span style={{ fontSize: 12, letterSpacing: "0.08em", color: "rgba(255,255,255,0.9)" }}>Experience</span>
               </div>
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 32 }}>
@@ -237,7 +237,7 @@ export default function LandingPage() {
 
             {/* Top header */}
             <div style={{
-              position: "absolute", top: 0, left: 135, right: 0, height: 60,
+              position: "absolute", top: 0, left: 80, right: 0, height: 60,
               display: "flex", alignItems: "center", justifyContent: "space-between",
               padding: "0 28px", zIndex: 3,
             }}>
@@ -265,7 +265,7 @@ export default function LandingPage() {
 
             {/* Center content */}
             <div style={{
-              position: "absolute", top: 0, bottom: 0, left: 135, right: 0,
+              position: "absolute", top: 0, bottom: 0, left: 80, right: 0,
               display: "flex", flexDirection: "column",
               alignItems: "center", justifyContent: "center",
               gap: 20, zIndex: 2,
