@@ -146,15 +146,25 @@ export default function QuestionPage() {
               fontSize: "clamp(1.7rem, 3.2vw, 2.6rem)",
               color: "white",
               textAlign: "center",
-              lineHeight: 1.5,
+              lineHeight: 1.3,
               fontWeight: 400,
               margin: 0,
               maxWidth: 820,
             }}>
-              <span style={{ fontWeight: 700 }}>{capitalizeFirst(name)}, what if the world around you felt different than it does today?</span>
-              <br />
-              <span style={{ fontWeight: 400 }}>Are you ready to explore that possibility?</span>
+              {capitalizeFirst(name)}, what if the world around you felt different than it does today?
             </h1>
+
+            <p style={{
+              fontFamily: "'Amiri', serif",
+              fontSize: "clamp(1.1rem, 2vw, 1.6rem)",
+              color: "rgba(255,255,255,0.7)",
+              textAlign: "center",
+              fontWeight: 400,
+              margin: 0,
+              maxWidth: 820,
+            }}>
+              Are you ready to explore that possibility?
+            </p>
 
             <div style={{ display: "flex", gap: 24 }}>
               <button
