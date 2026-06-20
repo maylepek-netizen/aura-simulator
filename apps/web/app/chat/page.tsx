@@ -257,16 +257,25 @@ export default function ChatPage() {
             <img src="/icons/eye.svg" alt="" style={{ width: 48 }}
               onError={(e) => { (e.target as HTMLImageElement).src = "/icons/eye.svg"; }} />
             <p style={{ fontSize: 13, letterSpacing: "0.18em", color: "rgba(255,255,255,0.55)", margin: 0 }}>
-              Before we begin tell us about yourself
+              STEP 03 / BUILD YOUR SIMULATION
             </p>
             <h1 style={{
               fontFamily: "'Amiri', serif",
               fontSize: "clamp(2.2rem, 4vw, 3.4rem)",
               color: "white", margin: 0,
               fontWeight: 400, lineHeight: 1.1,
+              textAlign: "center", maxWidth: 700,
             }}>
-              Memory Prompt
+              What situation would you like to experience through an autistic perspective?
             </h1>
+            <p style={{
+              fontSize: 13, letterSpacing: "0.08em",
+              color: "rgba(255,255,255,0.5)",
+              textAlign: "center", maxWidth: 620,
+              margin: 0, lineHeight: 1.7,
+            }}>
+              Describe a real-life moment, place, or interaction. The simulation will reinterpret it through an autistic sensory and social perspective, informed by research, first-hand accounts, and documented autistic experiences.
+            </p>
           </div>
 
           {/* Textarea card */}
@@ -277,13 +286,16 @@ export default function ChatPage() {
             borderRadius: 16,
             padding: "20px 24px 16px",
           }}>
+            <div style={{ fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.45)", marginBottom: 10 }}>
+              Situation
+            </div>
             <textarea
               className="chat-textarea"
               rows={5}
               value={input}
               onChange={(e) => setInput(e.target.value)}
               disabled={processing}
-              placeholder="A situation you went through"
+              placeholder="Describe your situation..."
               onKeyDown={(e) => {
                 if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
                   e.preventDefault();
@@ -313,7 +325,7 @@ export default function ChatPage() {
                   transition: "opacity 0.2s",
                 }}
               >
-                {processing ? "Sending…" : "Send"}
+                {processing ? "Generating…" : "Generate Simulation"}
               </button>
             </div>
           </div>
@@ -337,13 +349,12 @@ export default function ChatPage() {
             color: "rgba(255,255,255,0.35)",
             textAlign: "center", lineHeight: 1.7,
           }}>
-            Describe a situation. It could be something that happened today, or any moment from daily life — a place you visited, a memory, or a feeling you remember.
           </p>
 
           {/* Helper buttons */}
           <div style={{ marginTop: 28 }}>
             <p style={{ fontSize: 12, letterSpacing: "0.12em", color: "rgba(255,255,255,0.4)", marginBottom: 14, textAlign: "center" }}>
-              Need Some Help?
+              Need help?
             </p>
             <div style={{ display: "flex", gap: 12, flexWrap: "wrap", justifyContent: "center" }}>
               {/* Help me think — pink border + pink icon */}
@@ -351,7 +362,7 @@ export default function ChatPage() {
                 style={{ border: "1px solid #FFC1BB", color: "#FFC1BB" }}>
                 <img src="/icons/brain.svg" alt="" style={{ width: 18 }}
                   onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                Help me think
+                Suggest a situation
               </button>
 
               {/* Write for me — purple border + purple icon */}
@@ -359,7 +370,7 @@ export default function ChatPage() {
                 style={{ border: "1px solid #BCC2FF", color: "#BCC2FF" }}>
                 <img src="/icons/pen.svg" alt="" style={{ width: 13 }}
                   onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                Write for me
+                Write one for me
               </button>
 
               {/* Show me examples — orange border + orange text + orange arrow */}
@@ -369,7 +380,7 @@ export default function ChatPage() {
                 onClick={() => { setShowExamples((v) => !v); setHelpHint(null); }}
                 style={{ border: "1px solid #FFC99D", color: "#FFC99D" }}
               >
-                Show me examples
+                Show example scenarios
                 <img src="/icons/Vector.svg" alt="" style={{ width: 6 }}
                   onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
               </button>
