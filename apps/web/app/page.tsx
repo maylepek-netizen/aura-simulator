@@ -213,7 +213,7 @@ export default function LandingPage() {
               gap: 613,
             }}>
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                <img src="/icons/experience.svg" alt="Experience" style={{ width: 32, filter: "invert(1) sepia(1) saturate(2) hue-rotate(340deg)", opacity: 0.6 }} />
+                <img src="/logo.svg" alt="Experience" style={{ width: 32, opacity: 0.6 }} />
               </div>
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 32 }}>
                 <img src="/icons/bank.svg" alt="Bank" style={{ width: 33, opacity: 0.45 }} />
