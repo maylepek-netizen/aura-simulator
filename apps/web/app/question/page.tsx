@@ -116,10 +116,7 @@ export default function QuestionPage() {
           }}>
             <div>
               <div style={{ fontSize: 12, letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.9)", fontWeight: 500 }}>
-                STEP 01 / WHO ARE YOU?
-              </div>
-              <div style={{ fontSize: 11, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.4)", marginTop: 3 }}>
-                Autism Simulator Experience
+                STEP 02 / BEFORE WE BEGIN
               </div>
             </div>
             <div style={{ fontSize: 12, letterSpacing: "0.12em", color: "rgba(255,255,255,0.6)" }}>
@@ -154,9 +151,18 @@ export default function QuestionPage() {
               margin: 0,
               maxWidth: 820,
             }}>
-              {capitalizeFirst(name)}, Have you ever felt overstimulated,<br />
-              misunderstood, or emotionally overwhelmed?
+              {capitalizeFirst(name)}, what if the world around you felt different than it does today?
             </h1>
+
+            <p style={{
+              fontSize: 14,
+              letterSpacing: "0.12em",
+              color: "rgba(255,255,255,0.6)",
+              textAlign: "center",
+              margin: 0,
+            }}>
+              Are you ready to explore that possibility?
+            </p>
 
             <div style={{ display: "flex", gap: 24 }}>
               <button
