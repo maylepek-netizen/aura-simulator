@@ -55,15 +55,14 @@ export default function OnboardingPage() {
           width: 100%;
           outline: none;
         }
-        .onboard-input::placeholder { color: rgba(255,255,255,0.35); }
+        .onboard-input::placeholder { color: white; }
         .onboard-input:focus { border-bottom-color: rgba(255,255,255,0.6); }
         .onboard-select {
           background: transparent;
           border: none;
           border-bottom: 1px solid rgba(255,255,255,0.25);
-          color: rgba(255,255,255,0.5);
+          color: white;
           font-size: 14px;
-          letter-spacing: 0.06em;
           padding: 10px 0;
           width: 100%;
           outline: none;
@@ -170,8 +169,8 @@ export default function OnboardingPage() {
 
             {/* Name */}
             <div>
-              <div style={{ fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.55)", marginBottom: 10 }}>
-                WHAT SHOULD WE CALL YOU?
+              <div style={{ fontSize: 14, color: "rgba(255,255,255,0.6)", marginBottom: 10 }}>
+                What should we call you?
               </div>
               <input
                 className="onboard-input"
@@ -184,8 +183,8 @@ export default function OnboardingPage() {
 
             {/* Gender */}
             <div>
-              <div style={{ fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.55)", marginBottom: 10 }}>
-                HOW DO YOU IDENTIFY
+              <div style={{ fontSize: 14, color: "rgba(255,255,255,0.6)", marginBottom: 10 }}>
+                How do you identify?
               </div>
               <select
                 className="onboard-select"
@@ -202,8 +201,8 @@ export default function OnboardingPage() {
 
             {/* Age */}
             <div>
-              <div style={{ fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.55)", marginBottom: 10 }}>
-                HOW OLD ARE YOU?
+              <div style={{ fontSize: 14, color: "rgba(255,255,255,0.6)", marginBottom: 10 }}>
+                How old are you?
               </div>
               <input
                 className="onboard-input"
