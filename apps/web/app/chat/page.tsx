@@ -342,70 +342,61 @@ export default function ChatPage() {
             </div>
           )}
 
-          {/* Description */}
-          <p style={{
-            marginTop: 16, maxWidth: 640,
-            fontSize: 12, letterSpacing: "0.1em",
-            color: "rgba(255,255,255,0.35)",
-            textAlign: "center", lineHeight: 1.7,
+          {/* Helper buttons — in flow, left-aligned with textarea */}
+          <div style={{
+            width: "100%", maxWidth: 680,
+            display: "flex", flexDirection: "column", alignItems: "flex-start",
+            gap: 12, marginTop: 60,
           }}>
-          </p>
+            <span style={{ fontSize: 12, letterSpacing: "0.12em", color: "rgba(255,255,255,0.4)" }}>
+              Need help?
+            </span>
+            <div style={{ display: "flex", flexDirection: "row", gap: 8, height: 32 }}>
+              <button className="helper-btn" type="button" onClick={handleHelpMe}
+                style={{ border: "1px solid #FFC1BB", color: "#FFC1BB" }}>
+                <img src="/icons/brain.svg" alt="" style={{ width: 18 }}
+                  onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                Suggest a situation
+              </button>
+
+              <button className="helper-btn" type="button" onClick={handleWriteForMe}
+                style={{ border: "1px solid #BCC2FF", color: "#BCC2FF" }}>
+                <img src="/icons/pen.svg" alt="" style={{ width: 13 }}
+                  onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                Write one for me
+              </button>
+
+              <button
+                className="helper-btn"
+                type="button"
+                onClick={() => { setShowExamples((v) => !v); setHelpHint(null); }}
+                style={{ border: "1px solid #FFC99D", color: "#FFC99D" }}
+              >
+                Show example scenarios
+                <img src="/icons/Vector.svg" alt="" style={{ width: 6 }}
+                  onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+              </button>
+            </div>
+
+            {/* Examples list */}
+            {showExamples && (
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 10, maxWidth: 680 }}>
+                {examples.map((ex) => (
+                  <button
+                    key={ex}
+                    className="example-chip"
+                    type="button"
+                    onClick={() => { setInput(ex); setShowExamples(false); }}
+                  >
+                    {ex}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
 
         </div>
       </div>
-
-        {/* ── HEADER-ALIGNED: Help buttons ── */}
-        <div style={{ position: "fixed", top: 0, left: 80, height: 60, zIndex: 10, display: "flex", alignItems: "center", paddingLeft: 40, gap: 16 }}>
-          <span style={{ fontSize: 12, letterSpacing: "0.12em", color: "rgba(255,255,255,0.4)" }}>
-            Need help?
-          </span>
-          <div style={{ display: "flex", gap: 10 }}>
-            <button className="helper-btn" type="button" onClick={handleHelpMe}
-              style={{ border: "1px solid #FFC1BB", color: "#FFC1BB" }}>
-              <img src="/icons/brain.svg" alt="" style={{ width: 18 }}
-                onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
-              Suggest a situation
-            </button>
-
-            <button className="helper-btn" type="button" onClick={handleWriteForMe}
-              style={{ border: "1px solid #BCC2FF", color: "#BCC2FF" }}>
-              <img src="/icons/pen.svg" alt="" style={{ width: 13 }}
-                onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
-              Write one for me
-            </button>
-
-            <button
-              className="helper-btn"
-              type="button"
-              onClick={() => { setShowExamples((v) => !v); setHelpHint(null); }}
-              style={{ border: "1px solid #FFC99D", color: "#FFC99D" }}
-            >
-              Show example scenarios
-              <img src="/icons/Vector.svg" alt="" style={{ width: 6 }}
-                onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
-            </button>
-          </div>
-        </div>
-
-        {/* Examples list — drops below header */}
-        {showExamples && (
-          <div style={{
-            position: "fixed", top: 60, left: 120, zIndex: 10,
-            maxWidth: 500, display: "flex", flexWrap: "wrap", gap: 10,
-            padding: "12px 0",
-          }}>
-            {examples.map((ex) => (
-              <button
-                key={ex}
-                className="example-chip"
-                type="button"
-                onClick={() => { setInput(ex); setShowExamples(false); }}
-              >
-                {ex}
-              </button>
-            ))}
-          </div>
-        )}
     </>
   );
 }
