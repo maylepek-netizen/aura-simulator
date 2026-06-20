@@ -266,7 +266,7 @@ export default function ChatPage() {
               fontWeight: 400, lineHeight: 1.1,
               textAlign: "center", maxWidth: 700,
             }}>
-              What situation would you like to experience through an autistic perspective?
+              Define the Experience
             </h1>
             <p style={{
               fontSize: 13, letterSpacing: "0.08em",
