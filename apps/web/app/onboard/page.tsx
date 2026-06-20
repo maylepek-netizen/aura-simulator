@@ -149,9 +149,7 @@ export default function OnboardingPage() {
               color: "white", margin: 0,
               lineHeight: 1.15, fontWeight: 400,
             }}>
-              Before we step<br />into another<br />
-              <em style={{ color: "#FFC99D", fontStyle: "italic" }}>perception</em><br />
-              who are you?
+              Before exploring an autistic perspective, tell us a little about yourself.
             </h1>
 
             {/* Divider */}
@@ -163,7 +161,7 @@ export default function OnboardingPage() {
               color: "rgba(255,255,255,0.5)",
               lineHeight: 1.8, margin: 0, maxWidth: 380,
             }}>
-              Before we begin, we&apos;d like to learn a little about you. Every experience is shaped by who we are, our memories, and the way we see the world.
+              Before starting the autism simulation, please tell us a little about yourself. These details help personalize the experience and adapt it to your perspective.
             </p>
           </div>
 
