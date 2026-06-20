@@ -149,7 +149,7 @@ export default function OnboardingPage() {
               color: "white", margin: 0,
               lineHeight: 1.15, fontWeight: 400,
             }}>
-              Before exploring an autistic perspective, tell us a little about yourself.
+              Before exploring an <span style={{ fontStyle: "italic", color: "#FFC99D" }}>Autistic Perspective</span>, tell us a little about yourself.
             </h1>
 
             {/* Divider */}
