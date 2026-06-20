@@ -248,50 +248,44 @@ export default function ChatPage() {
           position: "absolute", top: 60, bottom: 0, left: 80, right: 0,
           display: "flex", flexDirection: "column",
           alignItems: "center", justifyContent: "center",
-          padding: "0 60px 40px",
-          zIndex: 5, gap: 0,
+          padding: "0 60px 160px",
+          zIndex: 5,
         }}>
 
-          {/* Eye icon + subtitle + heading */}
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, marginBottom: 32 }}>
-            <img src="/icons/eye.svg" alt="" style={{ width: 48 }}
-              onError={(e) => { (e.target as HTMLImageElement).src = "/icons/eye.svg"; }} />
-            <p style={{ fontSize: 13, letterSpacing: "0.18em", color: "rgba(255,255,255,0.55)", margin: 0 }}>
-              STEP 03 / BUILD YOUR SIMULATION
-            </p>
-            <h1 style={{
-              fontFamily: "'Amiri', serif",
-              fontSize: "clamp(2.2rem, 4vw, 3.4rem)",
-              color: "white", margin: 0,
-              fontWeight: 400, lineHeight: 1.1,
-              textAlign: "center", maxWidth: 700,
-            }}>
-              Define the Experience
-            </h1>
-            <p style={{
-              fontSize: 13, letterSpacing: "0.08em",
-              color: "rgba(255,255,255,0.5)",
-              textAlign: "center", maxWidth: 620,
-              margin: 0, lineHeight: 1.7,
-            }}>
-              Describe a real-life moment, place, or interaction. The simulation will reinterpret it through an autistic sensory and social perspective, informed by research, first-hand accounts, and documented autistic experiences.
-            </p>
-          </div>
+          {/* Eye icon */}
+          <img src="/icons/eye.svg" alt="" style={{ width: 44, marginBottom: 24 }}
+            onError={(e) => { (e.target as HTMLImageElement).src = "/icons/eye.svg"; }} />
 
-          {/* Textarea card */}
+          {/* Subtitle / step label */}
+          <p style={{ fontSize: 12, letterSpacing: "0.22em", color: "rgba(255,255,255,0.45)", margin: "0 0 20px" }}>
+            STEP 03 / BUILD YOUR SIMULATION
+          </p>
+
+          {/* Main heading — dominant element */}
+          <h1 style={{
+            fontFamily: "'Amiri', serif",
+            fontSize: "clamp(2.8rem, 5.2vw, 4.4rem)",
+            color: "white", margin: "0 0 48px",
+            fontWeight: 400, lineHeight: 1.1,
+            textAlign: "center", maxWidth: 720,
+          }}>
+            Define the Experience
+          </h1>
+
+          {/* Textarea card — narrower, lighter */}
           <div style={{
-            width: "100%", maxWidth: 680,
+            width: "100%", maxWidth: 580,
             background: "rgba(255,255,255,0.06)",
             border: "1px solid rgba(255,255,255,0.1)",
             borderRadius: 16,
-            padding: "20px 24px 16px",
+            padding: "18px 22px 14px",
           }}>
             <div style={{ fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.45)", marginBottom: 10 }}>
               Situation
             </div>
             <textarea
               className="chat-textarea"
-              rows={5}
+              rows={4}
               value={input}
               onChange={(e) => setInput(e.target.value)}
               disabled={processing}
@@ -330,25 +324,35 @@ export default function ChatPage() {
             </div>
           </div>
 
+          {/* Description — left-aligned with card */}
+          <div style={{ width: "100%", maxWidth: 580, marginTop: 28 }}>
+            <p style={{
+              fontSize: 12, letterSpacing: "0.08em",
+              color: "rgba(255,255,255,0.3)",
+              margin: 0, lineHeight: 1.8, textAlign: "left",
+            }}>
+              Describe a real-life moment, place, or interaction. The simulation will reinterpret it through an autistic sensory and social perspective, informed by research, first-hand accounts, and documented autistic experiences.
+            </p>
+          </div>
+
           {/* Help hint */}
           {helpHint && (
             <div style={{
-              marginTop: 12, maxWidth: 680, width: "100%",
+              marginTop: 16, maxWidth: 580, width: "100%",
               fontSize: 13, letterSpacing: "0.08em",
               color: "rgba(255,201,157,0.8)",
-              textAlign: "center",
             }}>
               💭 {helpHint}
             </div>
           )}
 
-          {/* Helper buttons — in flow, left-aligned with textarea */}
+          {/* Helper buttons — secondary, airy separation */}
           <div style={{
-            width: "100%", maxWidth: 680,
+            width: "100%", maxWidth: 580,
             display: "flex", flexDirection: "column", alignItems: "flex-start",
-            gap: 12, marginTop: 60,
+            gap: 12, marginTop: 72,
           }}>
-            <span style={{ fontSize: 12, letterSpacing: "0.12em", color: "rgba(255,255,255,0.4)" }}>
+            <span style={{ fontSize: 12, letterSpacing: "0.12em", color: "rgba(255,255,255,0.35)" }}>
               Need help?
             </span>
             <div style={{ display: "flex", flexDirection: "row", gap: 8, height: 32 }}>
@@ -380,7 +384,7 @@ export default function ChatPage() {
 
             {/* Examples list */}
             {showExamples && (
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 10, maxWidth: 680 }}>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 10, maxWidth: 580 }}>
                 {examples.map((ex) => (
                   <button
                     key={ex}
