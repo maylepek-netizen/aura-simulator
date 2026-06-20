@@ -351,47 +351,46 @@ export default function ChatPage() {
           }}>
           </p>
 
-          {/* Helper buttons */}
-          <div style={{ marginTop: 28 }}>
-            <p style={{ fontSize: 12, letterSpacing: "0.12em", color: "rgba(255,255,255,0.4)", marginBottom: 14, textAlign: "center" }}>
-              Need help?
-            </p>
-            <div style={{ display: "flex", gap: 12, flexWrap: "wrap", justifyContent: "center" }}>
-              {/* Help me think — pink border + pink icon */}
-              <button className="helper-btn" type="button" onClick={handleHelpMe}
-                style={{ border: "1px solid #FFC1BB", color: "#FFC1BB" }}>
-                <img src="/icons/brain.svg" alt="" style={{ width: 18 }}
-                  onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                Suggest a situation
-              </button>
+        </div>
+      </div>
 
-              {/* Write for me — purple border + purple icon */}
-              <button className="helper-btn" type="button" onClick={handleWriteForMe}
-                style={{ border: "1px solid #BCC2FF", color: "#BCC2FF" }}>
-                <img src="/icons/pen.svg" alt="" style={{ width: 13 }}
-                  onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                Write one for me
-              </button>
+        {/* ── BOTTOM LEFT: Help buttons ── */}
+        <div style={{ position: "fixed", bottom: 20, left: 28, zIndex: 10 }}>
+          <p style={{ fontSize: 12, letterSpacing: "0.12em", color: "rgba(255,255,255,0.4)", marginBottom: 10 }}>
+            Need help?
+          </p>
+          <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+            <button className="helper-btn" type="button" onClick={handleHelpMe}
+              style={{ border: "1px solid #FFC1BB", color: "#FFC1BB" }}>
+              <img src="/icons/brain.svg" alt="" style={{ width: 18 }}
+                onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+              Suggest a situation
+            </button>
 
-              {/* Show me examples — orange border + orange text + orange arrow */}
-              <button
-                className="helper-btn"
-                type="button"
-                onClick={() => { setShowExamples((v) => !v); setHelpHint(null); }}
-                style={{ border: "1px solid #FFC99D", color: "#FFC99D" }}
-              >
-                Show example scenarios
-                <img src="/icons/Vector.svg" alt="" style={{ width: 6 }}
-                  onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
-              </button>
-            </div>
+            <button className="helper-btn" type="button" onClick={handleWriteForMe}
+              style={{ border: "1px solid #BCC2FF", color: "#BCC2FF" }}>
+              <img src="/icons/pen.svg" alt="" style={{ width: 13 }}
+                onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+              Write one for me
+            </button>
+
+            <button
+              className="helper-btn"
+              type="button"
+              onClick={() => { setShowExamples((v) => !v); setHelpHint(null); }}
+              style={{ border: "1px solid #FFC99D", color: "#FFC99D" }}
+            >
+              Show example scenarios
+              <img src="/icons/Vector.svg" alt="" style={{ width: 6 }}
+                onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+            </button>
           </div>
 
           {/* Examples list */}
           {showExamples && (
             <div style={{
-              marginTop: 20, maxWidth: 680, width: "100%",
-              display: "flex", flexWrap: "wrap", gap: 10, justifyContent: "center",
+              marginTop: 10, maxWidth: 500,
+              display: "flex", flexWrap: "wrap", gap: 10,
             }}>
               {examples.map((ex) => (
                 <button
@@ -406,7 +405,6 @@ export default function ChatPage() {
             </div>
           )}
         </div>
-      </div>
     </>
   );
 }
