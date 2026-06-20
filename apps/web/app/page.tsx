@@ -258,7 +258,7 @@ export default function LandingPage() {
               alignItems: "center", justifyContent: "center",
               gap: 20, zIndex: 2,
             }}>
-              <img src="/logo.svg" alt="Aura" style={{ width: 52, filter: "invert(75%) sepia(40%) saturate(500%) hue-rotate(335deg) brightness(105%)", opacity: 0.6 }} />
+              <img src="/logo.svg" alt="Aura" style={{ width: 52 }} />
 
               <h1 style={{
                 fontFamily: "'Amiri', serif",
