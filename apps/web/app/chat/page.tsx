@@ -354,12 +354,12 @@ export default function ChatPage() {
         </div>
       </div>
 
-        {/* ── BOTTOM LEFT: Help buttons ── */}
-        <div style={{ position: "fixed", bottom: 20, left: 28, zIndex: 10 }}>
-          <p style={{ fontSize: 12, letterSpacing: "0.12em", color: "rgba(255,255,255,0.4)", marginBottom: 10 }}>
+        {/* ── HEADER-ALIGNED: Help buttons ── */}
+        <div style={{ position: "fixed", top: 0, left: 80, height: 60, zIndex: 10, display: "flex", alignItems: "center", paddingLeft: 40, gap: 16 }}>
+          <span style={{ fontSize: 12, letterSpacing: "0.12em", color: "rgba(255,255,255,0.4)" }}>
             Need help?
-          </p>
-          <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+          </span>
+          <div style={{ display: "flex", gap: 10 }}>
             <button className="helper-btn" type="button" onClick={handleHelpMe}
               style={{ border: "1px solid #FFC1BB", color: "#FFC1BB" }}>
               <img src="/icons/brain.svg" alt="" style={{ width: 18 }}
@@ -385,26 +385,27 @@ export default function ChatPage() {
                 onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
             </button>
           </div>
-
-          {/* Examples list */}
-          {showExamples && (
-            <div style={{
-              marginTop: 10, maxWidth: 500,
-              display: "flex", flexWrap: "wrap", gap: 10,
-            }}>
-              {examples.map((ex) => (
-                <button
-                  key={ex}
-                  className="example-chip"
-                  type="button"
-                  onClick={() => { setInput(ex); setShowExamples(false); }}
-                >
-                  {ex}
-                </button>
-              ))}
-            </div>
-          )}
         </div>
+
+        {/* Examples list — drops below header */}
+        {showExamples && (
+          <div style={{
+            position: "fixed", top: 60, left: 120, zIndex: 10,
+            maxWidth: 500, display: "flex", flexWrap: "wrap", gap: 10,
+            padding: "12px 0",
+          }}>
+            {examples.map((ex) => (
+              <button
+                key={ex}
+                className="example-chip"
+                type="button"
+                onClick={() => { setInput(ex); setShowExamples(false); }}
+              >
+                {ex}
+              </button>
+            ))}
+          </div>
+        )}
     </>
   );
 }
