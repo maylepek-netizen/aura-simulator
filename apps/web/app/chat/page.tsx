@@ -220,10 +220,7 @@ export default function ChatPage() {
         }}>
           <div>
             <div style={{ fontSize: 12, letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.9)", fontWeight: 500 }}>
-              STEP 01 / WHO ARE YOU?
-            </div>
-            <div style={{ fontSize: 11, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.4)", marginTop: 3 }}>
-              Autism Simulator Experience
+              STEP 3 / SIMULATOR CHAT
             </div>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
