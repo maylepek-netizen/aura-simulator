@@ -141,30 +141,32 @@ export default function QuestionPage() {
             gap: 56, zIndex: 5,
             padding: "0 60px",
           }}>
-            <h1 style={{
-              fontFamily: "'Amiri', serif",
-              fontSize: "clamp(1.7rem, 3.2vw, 2.6rem)",
-              color: "white",
-              textAlign: "center",
-              lineHeight: 1.3,
-              fontWeight: 400,
-              margin: 0,
-              maxWidth: 820,
-            }}>
-              {capitalizeFirst(name)}, what if the world around you felt different than it does today?
-            </h1>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
+              <h1 style={{
+                fontFamily: "'Amiri', serif",
+                fontSize: "clamp(2.2rem, 4vw, 3.4rem)",
+                color: "white",
+                textAlign: "center",
+                lineHeight: 1.3,
+                fontWeight: 400,
+                margin: 0,
+                maxWidth: 820,
+              }}>
+                {capitalizeFirst(name)}, what if the world around you felt different than it does today?
+              </h1>
 
-            <p style={{
-              fontFamily: "'Amiri', serif",
-              fontSize: "clamp(1.1rem, 2vw, 1.6rem)",
-              color: "rgba(255,255,255,0.7)",
-              textAlign: "center",
-              fontWeight: 400,
-              margin: 0,
-              maxWidth: 820,
-            }}>
-              Are you ready to explore that possibility?
-            </p>
+              <p style={{
+                fontFamily: "'Amiri', serif",
+                fontSize: "clamp(1.1rem, 2vw, 1.6rem)",
+                color: "rgba(255,255,255,0.7)",
+                textAlign: "center",
+                fontWeight: 400,
+                margin: 0,
+                maxWidth: 820,
+              }}>
+                Are you ready to explore that possibility?
+              </p>
+            </div>
 
             <div style={{ display: "flex", gap: 24 }}>
               <button
