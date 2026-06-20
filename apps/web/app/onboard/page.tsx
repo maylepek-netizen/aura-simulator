@@ -48,20 +48,20 @@ export default function OnboardingPage() {
           background: transparent;
           border: none;
           border-bottom: 1px solid rgba(255,255,255,0.25);
-          color: white;
+          color: rgba(255,255,255,0.6);
           font-size: 14px;
           letter-spacing: 0.06em;
           padding: 10px 0;
           width: 100%;
           outline: none;
         }
-        .onboard-input::placeholder { color: white; }
+        .onboard-input::placeholder { color: rgba(255,255,255,0.6); }
         .onboard-input:focus { border-bottom-color: rgba(255,255,255,0.6); }
         .onboard-select {
           background: transparent;
           border: none;
           border-bottom: 1px solid rgba(255,255,255,0.25);
-          color: white;
+          color: rgba(255,255,255,0.6);
           font-size: 14px;
           padding: 10px 0;
           width: 100%;
@@ -169,7 +169,7 @@ export default function OnboardingPage() {
 
             {/* Name */}
             <div>
-              <div style={{ fontSize: 14, color: "rgba(255,255,255,0.6)", marginBottom: 10 }}>
+              <div style={{ fontSize: 14, color: "white", marginBottom: 10 }}>
                 What should we call you?
               </div>
               <input
@@ -183,7 +183,7 @@ export default function OnboardingPage() {
 
             {/* Gender */}
             <div>
-              <div style={{ fontSize: 14, color: "rgba(255,255,255,0.6)", marginBottom: 10 }}>
+              <div style={{ fontSize: 14, color: "white", marginBottom: 10 }}>
                 How do you identify?
               </div>
               <select
@@ -201,7 +201,7 @@ export default function OnboardingPage() {
 
             {/* Age */}
             <div>
-              <div style={{ fontSize: 14, color: "rgba(255,255,255,0.6)", marginBottom: 10 }}>
+              <div style={{ fontSize: 14, color: "white", marginBottom: 10 }}>
                 How old are you?
               </div>
               <input

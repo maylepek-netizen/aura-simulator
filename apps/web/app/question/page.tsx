@@ -4,6 +4,11 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "../TransitionProvider";
 import AppSidebar from "@/components/AppSidebar";
 
+function capitalizeFirst(str: string) {
+  if (!str) return str;
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
 export default function QuestionPage() {
   const navigate = useNavigate();
   const [name, setName] = useState("Friend");
@@ -149,7 +154,7 @@ export default function QuestionPage() {
               margin: 0,
               maxWidth: 820,
             }}>
-              {name}, Have you ever felt overstimulated,<br />
+              {capitalizeFirst(name)}, Have you ever felt overstimulated,<br />
               misunderstood, or emotionally overwhelmed?
             </h1>
 
