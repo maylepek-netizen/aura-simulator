@@ -248,44 +248,41 @@ export default function ChatPage() {
           position: "absolute", top: 60, bottom: 0, left: 80, right: 0,
           display: "flex", flexDirection: "column",
           alignItems: "center", justifyContent: "center",
-          padding: "0 60px 160px",
+          padding: "0 60px 120px",
           zIndex: 5,
         }}>
 
           {/* Eye icon */}
-          <img src="/icons/eye.svg" alt="" style={{ width: 44, marginBottom: 24 }}
+          <img src="/icons/eye.svg" alt="" style={{ width: 52, marginBottom: 16 }}
             onError={(e) => { (e.target as HTMLImageElement).src = "/icons/eye.svg"; }} />
 
           {/* Subtitle / step label */}
-          <p style={{ fontSize: 12, letterSpacing: "0.22em", color: "rgba(255,255,255,0.45)", margin: "0 0 20px" }}>
-            STEP 03 / BUILD YOUR SIMULATION
+          <p style={{ fontSize: 12, letterSpacing: "0.24em", color: "rgba(255,255,255,0.5)", margin: "0 0 10px", textTransform: "uppercase" }}>
+            BUILD YOUR SIMULATION
           </p>
 
-          {/* Main heading — dominant element */}
+          {/* Main heading */}
           <h1 style={{
             fontFamily: "'Amiri', serif",
-            fontSize: "clamp(2.8rem, 5.2vw, 4.4rem)",
-            color: "white", margin: "0 0 48px",
-            fontWeight: 400, lineHeight: 1.1,
-            textAlign: "center", maxWidth: 720,
+            fontSize: "clamp(3rem, 5.5vw, 4.8rem)",
+            color: "white", margin: "0 0 32px",
+            fontWeight: 400, lineHeight: 1.05,
+            textAlign: "center", maxWidth: 760,
           }}>
             Define the Experience
           </h1>
 
-          {/* Textarea card — narrower, lighter */}
+          {/* Textarea card */}
           <div style={{
-            width: "100%", maxWidth: 580,
+            width: "100%", maxWidth: 680,
             background: "rgba(255,255,255,0.06)",
             border: "1px solid rgba(255,255,255,0.1)",
             borderRadius: 16,
-            padding: "18px 22px 14px",
+            padding: "24px 28px 16px",
           }}>
-            <div style={{ fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.45)", marginBottom: 10 }}>
-              Situation
-            </div>
             <textarea
               className="chat-textarea"
-              rows={4}
+              rows={5}
               value={input}
               onChange={(e) => setInput(e.target.value)}
               disabled={processing}
@@ -301,9 +298,9 @@ export default function ChatPage() {
             <div style={{
               display: "flex", alignItems: "center", justifyContent: "space-between",
               borderTop: "1px solid rgba(255,255,255,0.1)",
-              paddingTop: 12, marginTop: 4,
+              paddingTop: 14, marginTop: 8,
             }}>
-              <div style={{ width: 80, height: 1, background: "rgba(255,255,255,0.15)" }} />
+              <div style={{ width: 100, height: 1, background: "rgba(255,255,255,0.15)" }} />
               <button
                 type="button"
                 disabled={processing || !input.trim()}
@@ -312,8 +309,8 @@ export default function ChatPage() {
                   background: processing ? "rgba(255,201,157,0.5)" : "#FFC99D",
                   color: "#1a0f00",
                   border: "none", borderRadius: 10,
-                  padding: "10px 32px",
-                  fontSize: 13, fontWeight: 600, letterSpacing: "0.06em",
+                  padding: "11px 36px",
+                  fontSize: 14, fontWeight: 600, letterSpacing: "0.04em",
                   cursor: processing || !input.trim() ? "not-allowed" : "pointer",
                   opacity: processing || !input.trim() ? 0.6 : 1,
                   transition: "opacity 0.2s",
@@ -324,83 +321,81 @@ export default function ChatPage() {
             </div>
           </div>
 
-          {/* Description — left-aligned with card */}
-          <div style={{ width: "100%", maxWidth: 580, marginTop: 28 }}>
-            <p style={{
-              fontSize: 12, letterSpacing: "0.08em",
-              color: "rgba(255,255,255,0.3)",
-              margin: 0, lineHeight: 1.8, textAlign: "left",
-            }}>
-              Describe a real-life moment, place, or interaction. The simulation will reinterpret it through an autistic sensory and social perspective, informed by research, first-hand accounts, and documented autistic experiences.
-            </p>
-          </div>
-
           {/* Help hint */}
           {helpHint && (
             <div style={{
-              marginTop: 16, maxWidth: 580, width: "100%",
+              marginTop: 14, maxWidth: 680, width: "100%",
               fontSize: 13, letterSpacing: "0.08em",
               color: "rgba(255,201,157,0.8)",
+              textAlign: "center",
             }}>
               💭 {helpHint}
             </div>
           )}
 
-          {/* Helper buttons — secondary, airy separation */}
-          <div style={{
-            width: "100%", maxWidth: 580,
-            display: "flex", flexDirection: "column", alignItems: "flex-start",
-            gap: 12, marginTop: 72,
+          {/* Description — centered below card */}
+          <p style={{
+            marginTop: 20, maxWidth: 640,
+            fontSize: 13, letterSpacing: "0.06em",
+            color: "rgba(255,255,255,0.35)",
+            textAlign: "center", lineHeight: 1.75,
           }}>
-            <span style={{ fontSize: 12, letterSpacing: "0.12em", color: "rgba(255,255,255,0.35)" }}>
-              Need help?
-            </span>
-            <div style={{ display: "flex", flexDirection: "row", gap: 8, height: 32 }}>
-              <button className="helper-btn" type="button" onClick={handleHelpMe}
-                style={{ border: "1px solid #FFC1BB", color: "#FFC1BB" }}>
-                <img src="/icons/brain.svg" alt="" style={{ width: 18 }}
-                  onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                Suggest a situation
-              </button>
-
-              <button className="helper-btn" type="button" onClick={handleWriteForMe}
-                style={{ border: "1px solid #BCC2FF", color: "#BCC2FF" }}>
-                <img src="/icons/pen.svg" alt="" style={{ width: 13 }}
-                  onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                Write one for me
-              </button>
-
-              <button
-                className="helper-btn"
-                type="button"
-                onClick={() => { setShowExamples((v) => !v); setHelpHint(null); }}
-                style={{ border: "1px solid #FFC99D", color: "#FFC99D" }}
-              >
-                Show example scenarios
-                <img src="/icons/Vector.svg" alt="" style={{ width: 6 }}
-                  onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
-              </button>
-            </div>
-
-            {/* Examples list */}
-            {showExamples && (
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 10, maxWidth: 580 }}>
-                {examples.map((ex) => (
-                  <button
-                    key={ex}
-                    className="example-chip"
-                    type="button"
-                    onClick={() => { setInput(ex); setShowExamples(false); }}
-                  >
-                    {ex}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+            Describe a real-life moment, place, or interaction. The simulation will reinterpret it through an autistic sensory and social perspective, informed by research, first-hand accounts, and documented autistic experiences.
+          </p>
 
         </div>
       </div>
+
+        {/* ── BOTTOM LEFT: Help buttons (fixed, aligned with simulation number) ── */}
+        <div style={{ position: "fixed", bottom: 20, left: 108, zIndex: 10 }}>
+          <p style={{ fontSize: 12, letterSpacing: "0.1em", color: "rgba(255,255,255,0.4)", marginBottom: 12 }}>
+            Need help?
+          </p>
+          <div style={{ display: "flex", gap: 10 }}>
+            <button className="helper-btn" type="button" onClick={handleHelpMe}
+              style={{ border: "1px solid #FFC1BB", color: "#FFC1BB" }}>
+              <img src="/icons/brain.svg" alt="" style={{ width: 18 }}
+                onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+              Suggest a situation
+            </button>
+            <button className="helper-btn" type="button" onClick={handleWriteForMe}
+              style={{ border: "1px solid #BCC2FF", color: "#BCC2FF" }}>
+              <img src="/icons/pen.svg" alt="" style={{ width: 13 }}
+                onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+              Write one for me
+            </button>
+            <button
+              className="helper-btn"
+              type="button"
+              onClick={() => { setShowExamples((v) => !v); setHelpHint(null); }}
+              style={{ border: "1px solid #FFC99D", color: "#FFC99D" }}
+            >
+              Show example scenarios
+              <img src="/icons/Vector.svg" alt="" style={{ width: 6 }}
+                onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+            </button>
+          </div>
+
+          {/* Examples list — expands upward */}
+          {showExamples && (
+            <div style={{
+              position: "absolute", bottom: "100%", left: 0,
+              paddingBottom: 12,
+              display: "flex", flexWrap: "wrap", gap: 8, maxWidth: 640,
+            }}>
+              {examples.map((ex) => (
+                <button
+                  key={ex}
+                  className="example-chip"
+                  type="button"
+                  onClick={() => { setInput(ex); setShowExamples(false); }}
+                >
+                  {ex}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
     </>
   );
 }
