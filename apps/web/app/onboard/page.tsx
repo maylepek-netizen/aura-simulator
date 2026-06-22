@@ -115,51 +115,44 @@ export default function OnboardingPage() {
 
         {/* ── MAIN CONTENT ── */}
         <div style={{
-          position: "absolute", top: 0, bottom: 0, left: 80, right: 0,
-          display: "flex", alignItems: "stretch",
-          padding: "120px 60px 56px 60px",
+          position: "absolute", top: 60, bottom: 0, left: 80, right: 0,
+          display: "flex", alignItems: "center", justifyContent: "center",
+          padding: "0 80px 40px",
           zIndex: 5,
         }}>
+          <div style={{ width: "100%", maxWidth: 900, display: "flex", gap: 80, alignItems: "flex-start" }}>
 
-          {/* LEFT — icon + headline + divider (top) | description (bottom) */}
-          <div style={{ flex: "0 0 50%", paddingRight: 60, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-
-            {/* Top group: icon → heading → divider */}
-            <div>
-              <img src="/icons/eye.svg" alt="" style={{ width: 40, marginBottom: 28, opacity: 0.85, display: "block" }} />
+            {/* LEFT — heading block */}
+            <div style={{ flex: "0 0 44%" }}>
+              <img src="/icons/eye.svg" alt="" style={{ width: 36, marginBottom: 20, opacity: 0.85, display: "block" }} />
 
               <h1 style={{
                 fontFamily: "'Amiri', serif",
-                fontSize: "clamp(3.2rem, 6vw, 5.2rem)",
+                fontSize: "clamp(1.8rem, 2.8vw, 2.4rem)",
                 color: "white", margin: 0,
-                lineHeight: 1.1, fontWeight: 400,
+                lineHeight: 1.25, fontWeight: 400,
               }}>
                 Before exploring an{" "}
                 <span style={{ fontStyle: "italic", color: "#FFC99D" }}>Autistic Perspective</span>,<br />
                 tell us a little about yourself.
               </h1>
 
-              <div style={{ width: 80, height: 1, background: "rgba(255,201,157,0.4)", margin: "32px 0" }} />
+              <div style={{ width: 60, height: 1, background: "rgba(255,201,157,0.4)", margin: "20px 0" }} />
+
+              <p style={{
+                fontSize: 12, letterSpacing: "0.1em",
+                color: "rgba(255,255,255,0.4)",
+                lineHeight: 1.8, margin: 0, maxWidth: 240,
+              }}>
+                Before starting the autism simulation, please tell us a little about yourself. These details help personalize the experience and adapt it to your perspective.
+              </p>
             </div>
 
-            {/* Bottom: description paragraph */}
-            <p style={{
-              fontSize: 12, letterSpacing: "0.12em",
-              color: "rgba(255,255,255,0.45)",
-              lineHeight: 1.85, margin: 0, maxWidth: 240,
-            }}>
-              Before starting the autism simulation, please tell us a little about yourself. These details help personalize the experience and adapt it to your perspective.
-            </p>
-          </div>
-
-          {/* RIGHT — form fields (top) | CTA button (bottom) */}
-          <div style={{ flex: "0 0 50%", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-
-            {/* Top: form fields — start at same Y as heading (icon height + gap offset) */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 52, paddingTop: 68 }}>
+            {/* RIGHT — form fields + CTA */}
+            <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 36 }}>
               {/* Name */}
               <div>
-                <div style={{ fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.55)", marginBottom: 12 }}>
+                <div style={{ fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.55)", marginBottom: 10 }}>
                   What should we call you?
                 </div>
                 <input
@@ -173,7 +166,7 @@ export default function OnboardingPage() {
 
               {/* Gender */}
               <div>
-                <div style={{ fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.55)", marginBottom: 12 }}>
+                <div style={{ fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.55)", marginBottom: 10 }}>
                   How do you identify?
                 </div>
                 <select
@@ -191,7 +184,7 @@ export default function OnboardingPage() {
 
               {/* Age */}
               <div>
-                <div style={{ fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.55)", marginBottom: 12 }}>
+                <div style={{ fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.55)", marginBottom: 10 }}>
                   How old are you?
                 </div>
                 <input
@@ -211,24 +204,25 @@ export default function OnboardingPage() {
                   {error}
                 </div>
               )}
-            </div>
 
-            {/* Bottom: CTA button */}
-            <button
-              type="button"
-              className="aura-btn"
-              onClick={onStart}
-              style={{
-                alignSelf: "flex-start",
-                background: "#FFC99D", color: "#1a0f00",
-                border: "none", borderRadius: 50,
-                padding: "16px 52px",
-                fontSize: 13, letterSpacing: "0.12em",
-                fontWeight: 600, cursor: "pointer",
-              }}
-            >
-              Begin Experience
-            </button>
+              {/* CTA */}
+              <button
+                type="button"
+                className="aura-btn"
+                onClick={onStart}
+                style={{
+                  alignSelf: "flex-start",
+                  background: "#FFC99D", color: "#1a0f00",
+                  border: "none", borderRadius: 50,
+                  padding: "14px 48px",
+                  fontSize: 13, letterSpacing: "0.12em",
+                  fontWeight: 600, cursor: "pointer",
+                  marginTop: 4,
+                }}
+              >
+                Begin Experience
+              </button>
+            </div>
           </div>
         </div>
       </div>
