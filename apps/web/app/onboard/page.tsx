@@ -48,31 +48,32 @@ export default function OnboardingPage() {
         .onboard-input {
           background: transparent;
           border: none;
-          border-bottom: 1px solid rgba(255,255,255,0.25);
+          border-bottom: 1px solid rgba(255,255,255,0.2);
           color: white;
-          font-size: 14px;
-          letter-spacing: 0.06em;
-          padding: 12px 0;
+          font-size: 15px;
+          letter-spacing: 0.03em;
+          padding: 10px 0;
           width: 100%;
           outline: none;
           font-family: inherit;
         }
-        .onboard-input::placeholder { color: rgba(255,255,255,0.4); }
-        .onboard-input:focus { border-bottom-color: rgba(255,255,255,0.6); }
+        .onboard-input::placeholder { color: rgba(255,255,255,0.55); }
+        .onboard-input:focus { border-bottom-color: rgba(255,255,255,0.5); }
+
         .onboard-select {
           background: transparent;
           border: none;
-          border-bottom: 1px solid rgba(255,255,255,0.25);
-          color: white;
-          font-size: 14px;
-          padding: 12px 0;
+          border-bottom: 1px solid rgba(255,255,255,0.2);
+          color: rgba(255,255,255,0.55);
+          font-size: 15px;
+          padding: 10px 0;
           width: 100%;
           outline: none;
           appearance: none;
           cursor: pointer;
           font-family: inherit;
         }
-        .onboard-select:focus { border-bottom-color: rgba(255,255,255,0.6); }
+        .onboard-select:focus { border-bottom-color: rgba(255,255,255,0.5); }
         .onboard-select option { background: #1a1410; color: white; }
       `}</style>
 
@@ -90,13 +91,13 @@ export default function OnboardingPage() {
           }}
         />
 
-        {/* Black overlay */}
-        <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.55)" }} />
+        {/* Overlay */}
+        <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.45)" }} />
 
-        {/* Radial gradient */}
+        {/* Radial vignette */}
         <div style={{
           position: "absolute", inset: 0,
-          background: "radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.8) 100%)",
+          background: "radial-gradient(ellipse at 60% 50%, transparent 30%, rgba(0,0,0,0.7) 100%)",
           pointerEvents: "none",
         }} />
 
@@ -109,8 +110,8 @@ export default function OnboardingPage() {
         {/* ── BOTTOM RIGHT SERIAL ── */}
         <div style={{
           position: "fixed", bottom: 20, right: 28,
-          fontSize: 12, letterSpacing: "0.16em",
-          color: "rgba(255,255,255,0.3)", zIndex: 10,
+          fontSize: 11, letterSpacing: "0.16em",
+          color: "rgba(255,255,255,0.25)", zIndex: 10,
         }}>
           Simulation NO. 792734-04
         </div>
@@ -118,51 +119,77 @@ export default function OnboardingPage() {
         {/* ── MAIN CONTENT ── */}
         <div style={{
           position: "absolute", top: 60, bottom: 0, left: 80, right: 0,
-          display: "flex", alignItems: "flex-end", justifyContent: "flex-start",
-          padding: "0 143px 216px 198px",
+          display: "flex", alignItems: "flex-start",
+          padding: "120px 80px 60px 140px",
           zIndex: 5,
         }}>
-          {/* Two-column row — bottom-aligned, Figma gap */}
           <div style={{
-            display: "inline-flex", gap: 145, alignItems: "flex-end",
             width: "100%",
+            display: "flex",
+            gap: "12%",
+            alignItems: "flex-start",
           }}>
 
-            {/* LEFT — icon + heading + description */}
-            <div style={{ flex: "0 0 55%", display: "flex", flexDirection: "column" }}>
-              <img src="/icons/eye.svg" alt="" style={{ width: 34, marginBottom: 24, opacity: 0.85, display: "block" }} />
+            {/* LEFT COLUMN — icon + heading + divider + paragraph */}
+            <div style={{ flex: "0 0 50%", display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
 
+              {/* Eye icon */}
+              <img
+                src="/icons/eye.svg"
+                alt=""
+                style={{ width: 40, marginBottom: 28, opacity: 0.75, display: "block" }}
+              />
+
+              {/* Heading */}
               <h1 style={{
                 fontFamily: "'Amiri', serif",
-                fontSize: 90,
+                fontSize: "clamp(52px, 6vw, 76px)",
                 color: "white",
-                margin: "0 0 32px",
-                lineHeight: "111%",
+                margin: "0 0 36px",
+                lineHeight: 1.08,
                 fontWeight: 400,
-                letterSpacing: "-3.6px",
+                letterSpacing: "-1px",
               }}>
-                Before we step<br />
-                into another<br />
-                <span style={{ fontStyle: "italic", color: "#e07830" }}>perception</span><br />
+                Before exploring an<br />
+                <span style={{ fontStyle: "italic", color: "#e8955a" }}>Autistic perception</span><br />
                 who are you?
               </h1>
 
-              <div style={{ width: 60, height: 1, background: "rgba(255,201,157,0.35)", marginBottom: 20 }} />
+              {/* Divider */}
+              <div style={{
+                width: 72, height: 1,
+                background: "rgba(255,201,157,0.35)",
+                marginBottom: 22,
+              }} />
 
+              {/* Paragraph */}
               <p style={{
-                fontSize: 12, letterSpacing: "0.08em",
-                color: "rgba(255,255,255,0.35)",
-                lineHeight: 1.8, margin: 0, maxWidth: 280,
+                fontSize: 11,
+                letterSpacing: "0.12em",
+                color: "rgba(255,255,255,0.3)",
+                lineHeight: 1.9,
+                margin: 0,
+                maxWidth: 260,
               }}>
                 Before starting the autism simulation, please tell us a little about yourself. These details help personalize the experience and adapt it to your perspective.
               </p>
             </div>
 
-            {/* RIGHT — form fields + CTA, bottom-aligned */}
-            <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 32 }}>
+            {/* RIGHT COLUMN — form fields + CTA */}
+            <div style={{
+              flex: 1,
+              display: "flex",
+              flexDirection: "column",
+              gap: 40,
+              paddingTop: 8,
+            }}>
+
               {/* Name */}
               <div>
-                <div style={{ fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(192,100,80,0.9)", marginBottom: 10 }}>
+                <div style={{
+                  fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase",
+                  color: "rgba(200,120,80,0.85)", marginBottom: 10,
+                }}>
                   What should we call you?
                 </div>
                 <input
@@ -176,8 +203,11 @@ export default function OnboardingPage() {
 
               {/* Gender */}
               <div>
-                <div style={{ fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(192,100,80,0.9)", marginBottom: 10 }}>
-                  How do you identify?
+                <div style={{
+                  fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase",
+                  color: "rgba(200,120,80,0.85)", marginBottom: 10,
+                }}>
+                  How do you identify
                 </div>
                 <select
                   className="onboard-select"
@@ -194,7 +224,10 @@ export default function OnboardingPage() {
 
               {/* Age */}
               <div>
-                <div style={{ fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(192,100,80,0.9)", marginBottom: 10 }}>
+                <div style={{
+                  fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase",
+                  color: "rgba(200,120,80,0.85)", marginBottom: 10,
+                }}>
                   How old are you?
                 </div>
                 <input
@@ -210,7 +243,10 @@ export default function OnboardingPage() {
 
               {/* Error */}
               {error && (
-                <div style={{ fontSize: 11, letterSpacing: "0.18em", color: "rgba(255,100,100,0.8)", textTransform: "uppercase" }}>
+                <div style={{
+                  fontSize: 11, letterSpacing: "0.18em",
+                  color: "rgba(255,100,100,0.8)", textTransform: "uppercase",
+                }}>
                   {error}
                 </div>
               )}
@@ -221,11 +257,11 @@ export default function OnboardingPage() {
                 className="aura-btn"
                 onClick={onStart}
                 style={{
-                  alignSelf: "flex-start",
-                  background: "#f0e8d8", color: "#1a0f00",
+                  background: "#f0e0c8", color: "#2a1500",
                   border: "none", borderRadius: 50,
-                  padding: "14px 48px",
-                  fontSize: 13, letterSpacing: "0.12em",
+                  padding: "16px 0",
+                  width: "100%",
+                  fontSize: 13, letterSpacing: "0.1em",
                   fontWeight: 600, cursor: "pointer",
                   marginTop: 8,
                 }}
@@ -233,6 +269,7 @@ export default function OnboardingPage() {
                 Begin Experience
               </button>
             </div>
+
           </div>
         </div>
       </div>
