@@ -40,6 +40,25 @@ export default function OnboardingPage() {
     navigate("/question");
   }
 
+  const fieldLabelStyle: React.CSSProperties = {
+    fontSize: 14,
+    letterSpacing: "0.01em",
+    color: "rgba(255,255,255,0.6)",
+    marginBottom: 8,
+    fontFamily: "inherit",
+    fontWeight: 400,
+  };
+
+  const fieldValueStyle: React.CSSProperties = {
+    fontSize: 14,
+    color: "white",
+    paddingBottom: 12,
+    borderBottom: "1px solid rgba(255,255,255,0.2)",
+    width: "100%",
+    fontFamily: "inherit",
+    fontWeight: 400,
+  };
+
   return (
     <>
       <style>{`
@@ -50,30 +69,33 @@ export default function OnboardingPage() {
           border: none;
           border-bottom: 1px solid rgba(255,255,255,0.2);
           color: white;
-          font-size: 15px;
-          letter-spacing: 0.03em;
-          padding: 10px 0;
+          font-size: 14px;
+          letter-spacing: 0.01em;
+          padding: 0 0 12px;
           width: 100%;
           outline: none;
           font-family: inherit;
+          font-weight: 400;
         }
-        .onboard-input::placeholder { color: rgba(255,255,255,0.55); }
-        .onboard-input:focus { border-bottom-color: rgba(255,255,255,0.5); }
+        .onboard-input::placeholder { color: rgba(255,255,255,0.6); }
+        .onboard-input:focus { border-bottom-color: rgba(255,201,157,0.5); }
 
         .onboard-select {
           background: transparent;
           border: none;
           border-bottom: 1px solid rgba(255,255,255,0.2);
-          color: rgba(255,255,255,0.55);
-          font-size: 15px;
-          padding: 10px 0;
+          color: white;
+          font-size: 14px;
+          letter-spacing: 0.01em;
+          padding: 0 0 12px;
           width: 100%;
           outline: none;
           appearance: none;
           cursor: pointer;
           font-family: inherit;
+          font-weight: 400;
         }
-        .onboard-select:focus { border-bottom-color: rgba(255,255,255,0.5); }
+        .onboard-select:focus { border-bottom-color: rgba(255,201,157,0.5); }
         .onboard-select option { background: #1a1410; color: white; }
       `}</style>
 
@@ -90,11 +112,7 @@ export default function OnboardingPage() {
             transform: "scale(1.05)",
           }}
         />
-
-        {/* Overlay */}
         <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.45)" }} />
-
-        {/* Radial vignette */}
         <div style={{
           position: "absolute", inset: 0,
           background: "radial-gradient(ellipse at 60% 50%, transparent 30%, rgba(0,0,0,0.7) 100%)",
@@ -119,79 +137,65 @@ export default function OnboardingPage() {
         {/* ── MAIN CONTENT ── */}
         <div style={{
           position: "absolute", top: 60, bottom: 0, left: 80, right: 0,
-          display: "flex", alignItems: "flex-start",
-          padding: "120px 80px 60px 140px",
+          display: "flex", alignItems: "center", justifyContent: "flex-start",
+          padding: "0 80px 0 120px",
           zIndex: 5,
         }}>
           <div style={{
             width: "100%",
             display: "flex",
-            gap: "12%",
+            gap: 80,
             alignItems: "flex-start",
           }}>
 
-            {/* LEFT COLUMN — icon + heading + divider + paragraph */}
-            <div style={{ flex: "0 0 50%", display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
+            {/* LEFT COLUMN */}
+            <div style={{ flex: "0 0 55%", display: "flex", flexDirection: "column" }}>
 
-              {/* Eye icon */}
-              <img
-                src="/icons/eye.svg"
-                alt=""
-                style={{ width: 40, marginBottom: 28, opacity: 0.75, display: "block" }}
-              />
-
-              {/* Heading */}
               <h1 style={{
                 fontFamily: "'Amiri', serif",
-                fontSize: "clamp(52px, 6vw, 76px)",
+                fontSize: "clamp(44px, 5.5vw, 68px)",
                 color: "white",
-                margin: "0 0 36px",
-                lineHeight: 1.08,
+                margin: "0 0 32px",
+                lineHeight: 1.1,
                 fontWeight: 400,
-                letterSpacing: "-1px",
+                letterSpacing: "-0.5px",
               }}>
                 Before exploring an<br />
-                <span style={{ fontStyle: "italic", color: "#e8955a" }}>Autistic perception</span><br />
-                who are you?
+                <span style={{ fontStyle: "italic", color: "#FFC99D" }}>Autistic Perspective,</span><br />
+                tell us a little about yourself.
               </h1>
 
               {/* Divider */}
               <div style={{
-                width: 72, height: 1,
-                background: "rgba(255,201,157,0.35)",
-                marginBottom: 22,
+                width: "100%", height: 1,
+                background: "rgba(255,201,157,0.3)",
+                marginBottom: 24,
               }} />
 
-              {/* Paragraph */}
+              {/* Description */}
               <p style={{
-                fontSize: 11,
-                letterSpacing: "0.12em",
-                color: "rgba(255,255,255,0.3)",
-                lineHeight: 1.9,
+                fontSize: 12,
+                letterSpacing: "0.08em",
+                color: "rgba(255,255,255,0.45)",
+                lineHeight: 1.85,
                 margin: 0,
-                maxWidth: 260,
+                maxWidth: 340,
               }}>
                 Before starting the autism simulation, please tell us a little about yourself. These details help personalize the experience and adapt it to your perspective.
               </p>
             </div>
 
-            {/* RIGHT COLUMN — form fields + CTA */}
+            {/* RIGHT COLUMN */}
             <div style={{
               flex: 1,
               display: "flex",
               flexDirection: "column",
-              gap: 40,
-              paddingTop: 8,
+              gap: 36,
             }}>
 
               {/* Name */}
               <div>
-                <div style={{
-                  fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase",
-                  color: "rgba(200,120,80,0.85)", marginBottom: 10,
-                }}>
-                  What should we call you?
-                </div>
+                <div style={fieldLabelStyle}>What should we call you?</div>
                 <input
                   className="onboard-input"
                   value={name}
@@ -203,12 +207,7 @@ export default function OnboardingPage() {
 
               {/* Gender */}
               <div>
-                <div style={{
-                  fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase",
-                  color: "rgba(200,120,80,0.85)", marginBottom: 10,
-                }}>
-                  How do you identify
-                </div>
+                <div style={fieldLabelStyle}>How do you identify?</div>
                 <select
                   className="onboard-select"
                   value={gender}
@@ -224,12 +223,7 @@ export default function OnboardingPage() {
 
               {/* Age */}
               <div>
-                <div style={{
-                  fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase",
-                  color: "rgba(200,120,80,0.85)", marginBottom: 10,
-                }}>
-                  How old are you?
-                </div>
+                <div style={fieldLabelStyle}>How old are you?</div>
                 <input
                   className="onboard-input"
                   type="number"
@@ -243,10 +237,7 @@ export default function OnboardingPage() {
 
               {/* Error */}
               {error && (
-                <div style={{
-                  fontSize: 11, letterSpacing: "0.18em",
-                  color: "rgba(255,100,100,0.8)", textTransform: "uppercase",
-                }}>
+                <div style={{ fontSize: 11, letterSpacing: "0.18em", color: "rgba(255,100,100,0.8)", textTransform: "uppercase" }}>
                   {error}
                 </div>
               )}
@@ -257,13 +248,17 @@ export default function OnboardingPage() {
                 className="aura-btn"
                 onClick={onStart}
                 style={{
-                  background: "#f0e0c8", color: "#2a1500",
-                  border: "none", borderRadius: 50,
+                  background: "#FFC99D",
+                  color: "#1c0e00",
+                  border: "none",
+                  borderRadius: 50,
                   padding: "16px 0",
                   width: "100%",
-                  fontSize: 13, letterSpacing: "0.1em",
-                  fontWeight: 600, cursor: "pointer",
-                  marginTop: 8,
+                  fontSize: 13,
+                  letterSpacing: "0.1em",
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  marginTop: 4,
                 }}
               >
                 Begin Experience
