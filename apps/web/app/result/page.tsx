@@ -398,7 +398,7 @@ function ProcessingMetrics({ visible }: { visible: boolean }) {
             <div key={m.key} style={{ display: "flex", flexDirection: "column", gap: 5 }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
                 <span style={{ fontSize: 8, letterSpacing: "0.22em", color: "rgba(255,255,255,0.35)", textTransform: "uppercase" }}>{m.key}</span>
-                <span style={{ fontSize: 9, color: m.color, fontFamily: "monospace", opacity: 0.85 }}>{Math.round(vals[i])}%</span>
+                <span style={{ fontSize: 9, color: m.color, fontFamily: "var(--font-body)", opacity: 0.85 }}>{Math.round(vals[i])}%</span>
               </div>
               <div style={{ height: 2, background: "rgba(255,255,255,0.08)", borderRadius: 1 }}>
                 <div style={{ height: "100%", width: `${vals[i]}%`, background: m.color, transition: "width 0.7s ease", borderRadius: 1, opacity: 0.75 }} />
@@ -474,7 +474,7 @@ function LiveMetricBar({ label, value, color, tooltip }: { label: string; value:
       <div style={{ display: "flex", flexDirection: "column", gap: 4, width: "100%", cursor: "default" }}>
         <div style={{ display: "flex", justifyContent: "space-between" }}>
           <span style={{ fontSize: 8, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.4)" }}>{label}</span>
-          <span style={{ fontSize: 8, fontFamily: "monospace", color: "rgba(255,255,255,0.35)" }}>{value}%</span>
+          <span style={{ fontSize: 8, fontFamily: "var(--font-body)", color: "rgba(255,255,255,0.35)" }}>{value}%</span>
         </div>
         <div style={{ height: 2, background: "rgba(255,255,255,0.08)", borderRadius: 1, overflow: "hidden" }}>
           <div style={{ height: "100%", width: `${value}%`, background: color, transition: "width 2s ease", borderRadius: 1 }} />
@@ -1135,7 +1135,7 @@ export default function ResultPage() {
           <Tooltip text="Time elapsed in simulation">
             <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
               <span style={{ fontSize: 8, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.3)" }}>Timeline</span>
-              <span style={{ fontSize: 11, color: "rgba(255,255,255,0.7)", fontFamily: "monospace" }}>1.3 / 5.00</span>
+              <span style={{ fontSize: 11, color: "rgba(255,255,255,0.7)", fontFamily: "var(--font-body)" }}>1.3 / 5.00</span>
             </div>
           </Tooltip>
           <Tooltip text="Physiological and social anxiety level">

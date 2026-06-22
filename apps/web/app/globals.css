@@ -1,22 +1,32 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Amiri:ital@0;1&family=Inter:wght@300;400;500;600&display=swap');
 
 :root {
   --background: #000000;
   --foreground: #ffffff;
+  --font-heading: 'Amiri', serif;
+  --font-body: 'Founders Grotesk', var(--font-inter), 'Inter', sans-serif;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-ibm-plex-mono);
-  --font-mono: var(--font-ibm-plex-mono);
+  --font-sans: var(--font-inter), 'Inter', sans-serif;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-ibm-plex-mono), ui-monospace, SFMono-Regular, Menlo,
-    Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-family: var(--font-body);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+}
+
+/* Remap Tailwind font-mono utility to body font (IBM Plex Mono removed) */
+.font-mono {
+  font-family: var(--font-body);
 }
 
 /* ── Page dissolve ── */

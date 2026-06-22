@@ -74,11 +74,11 @@ function SimCard({ rec, index, x, y, onOpen }: {
           <div style={{ height: "100%", width: `${load}%`, background: loadColor, transition: "width 1s ease" }} />
         </div>
         {/* Sim number */}
-        <div style={{ position: "absolute", top: 10, left: 10, fontSize: 9, letterSpacing: "0.2em", color: hovered ? "rgba(255,201,157,0.8)" : "rgba(255,255,255,0.3)", fontFamily: "monospace" }}>
+        <div style={{ position: "absolute", top: 10, left: 10, fontSize: 9, letterSpacing: "0.2em", color: hovered ? "rgba(255,201,157,0.8)" : "rgba(255,255,255,0.3)", fontFamily: "var(--font-body)" }}>
           #{num}
         </div>
         {/* Load value */}
-        <div style={{ position: "absolute", top: 10, right: 10, fontSize: 9, letterSpacing: "0.1em", color: hovered ? loadColor : "rgba(255,255,255,0.25)", fontFamily: "monospace" }}>
+        <div style={{ position: "absolute", top: 10, right: 10, fontSize: 9, letterSpacing: "0.1em", color: hovered ? loadColor : "rgba(255,255,255,0.25)", fontFamily: "var(--font-body)" }}>
           {load}%
         </div>
       </div>
@@ -169,7 +169,7 @@ export default function BankPage() {
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginRight: 8 }}>
           <img src="/icons/bank.svg" alt="" style={{ width: 18, opacity: 0.6 }} />
           <span style={{ fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.7)" }}>Simulation Bank</span>
-          <span style={{ fontSize: 10, letterSpacing: "0.1em", color: "rgba(255,255,255,0.25)", fontFamily: "monospace" }}>{records.length} saved</span>
+          <span style={{ fontSize: 10, letterSpacing: "0.1em", color: "rgba(255,255,255,0.25)", fontFamily: "var(--font-body)" }}>{records.length} saved</span>
         </div>
 
         <div style={{ width: 1, height: 20, background: "rgba(255,255,255,0.1)" }} />
@@ -194,7 +194,7 @@ export default function BankPage() {
         {/* Age range */}
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <span style={{ fontSize: 9, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)" }}>Age</span>
-          <span style={{ fontSize: 9, color: "rgba(255,255,255,0.45)", fontFamily: "monospace" }}>{ageMin}–{ageMax}</span>
+          <span style={{ fontSize: 9, color: "rgba(255,255,255,0.45)", fontFamily: "var(--font-body)" }}>{ageMin}–{ageMax}</span>
           <input type="range" min={5} max={ageMax} value={ageMin} onChange={e => setAgeMin(Number(e.target.value))}
             style={{ width: 60, accentColor: "#FFC99D", cursor: "pointer" }} />
           <input type="range" min={ageMin} max={100} value={ageMax} onChange={e => setAgeMax(Number(e.target.value))}
