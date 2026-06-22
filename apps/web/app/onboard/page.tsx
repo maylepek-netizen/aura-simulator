@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useNavigate } from "../TransitionProvider";
 import AppSidebar from "@/components/AppSidebar";
+import AppHeader from "@/components/AppHeader";
 import type { Gender, OnboardingProfile } from "@/lib/experienceStorage";
 import { saveProfile, clearExperienceDraft } from "@/lib/experienceStorage";
 
@@ -101,23 +102,7 @@ export default function OnboardingPage() {
         <AppSidebar />
 
         {/* ── TOP HEADER ── */}
-        <div style={{
-          position: "fixed", top: 0, left: 80, right: 0, height: 60,
-          display: "flex", alignItems: "center", justifyContent: "space-between",
-          padding: "0 40px", zIndex: 10,
-        }}>
-          <div>
-            <div style={{ fontSize: 12, letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.9)", fontWeight: 500 }}>
-              STEP 01 / WHO ARE YOU?
-            </div>
-            <div style={{ fontSize: 11, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.4)", marginTop: 3 }}>
-              Autism Simulator Experience
-            </div>
-          </div>
-          <div style={{ fontSize: 12, letterSpacing: "0.12em", color: "rgba(255,255,255,0.6)" }}>
-            Simulation&nbsp;|&nbsp;<span style={{ textDecoration: "underline", cursor: "pointer" }}>Exit</span>
-          </div>
-        </div>
+        <AppHeader step="STEP 01 / WHO ARE YOU?" />
 
         {/* ── BOTTOM RIGHT SERIAL ── */}
         <div style={{

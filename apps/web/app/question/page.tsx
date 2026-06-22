@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "../TransitionProvider";
 import AppSidebar from "@/components/AppSidebar";
+import AppHeader from "@/components/AppHeader";
 
 function capitalizeFirst(str: string) {
   if (!str) return str;
@@ -109,20 +110,7 @@ export default function QuestionPage() {
           <AppSidebar />
 
           {/* TOP HEADER */}
-          <div style={{
-            position: "fixed", top: 0, left: 80, right: 0, height: 60,
-            display: "flex", alignItems: "center", justifyContent: "space-between",
-            padding: "0 40px", zIndex: 10,
-          }}>
-            <div>
-              <div style={{ fontSize: 12, letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.9)", fontWeight: 500 }}>
-                STEP 02 / BEFORE WE BEGIN
-              </div>
-            </div>
-            <div style={{ fontSize: 12, letterSpacing: "0.12em", color: "rgba(255,255,255,0.6)" }}>
-              Simulation&nbsp;|&nbsp;<span style={{ textDecoration: "underline", cursor: "pointer" }}>Exit</span>
-            </div>
-          </div>
+          <AppHeader step="STEP 02 / BEFORE WE BEGIN" />
 
           {/* BOTTOM RIGHT SERIAL */}
           <div style={{

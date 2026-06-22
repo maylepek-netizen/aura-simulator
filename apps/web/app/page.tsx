@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "./TransitionProvider";
+import AppHeader from "@/components/AppHeader";
 
 type Screen = "idle" | "landing" | "intro";
 
@@ -224,23 +225,7 @@ export default function LandingPage() {
             </div>
 
             {/* Top header */}
-            <div style={{
-              position: "absolute", top: 0, left: 80, right: 0, height: 60,
-              display: "flex", alignItems: "center", justifyContent: "space-between",
-              padding: "0 28px", zIndex: 3,
-            }}>
-              <div>
-                <div style={{ fontSize: 12, letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.9)", fontWeight: 500 }}>
-                  STEP 00 / INTRODUCTION
-                </div>
-                <div style={{ fontSize: 11, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.45)", marginTop: 3 }}>
-                  Autism Simulator Experience
-                </div>
-              </div>
-              <div style={{ fontSize: 12, letterSpacing: "0.12em", color: "rgba(255,255,255,0.7)" }}>
-                Simulation&nbsp;|&nbsp;<span style={{ textDecoration: "underline", cursor: "pointer" }}>Exit</span>
-              </div>
-            </div>
+            <AppHeader step="STEP 00 / INTRODUCTION" position="absolute" />
 
             {/* Bottom-right serial */}
             <div style={{

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useNavigate } from "../TransitionProvider";
 import AppSidebar from "@/components/AppSidebar";
+import AppHeader from "@/components/AppHeader";
 import {
   loadProfile,
   saveExperienceDraft,
@@ -213,26 +214,7 @@ export default function ChatPage() {
         <AppSidebar />
 
         {/* ── TOP HEADER ── */}
-        <div style={{
-          position: "fixed", top: 0, left: 80, right: 0, height: 60,
-          display: "flex", alignItems: "center", justifyContent: "space-between",
-          padding: "0 40px", zIndex: 10,
-        }}>
-          <div>
-            <div style={{ fontSize: 12, letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.9)", fontWeight: 500 }}>
-              STEP 3 / SIMULATOR CHAT
-            </div>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            <button className="sim-bank-btn" type="button" onClick={() => navigate("/bank")}>
-              <img src="/icons/bank.svg" alt="" style={{ width: 16, filter: "brightness(0) saturate(100%) invert(83%) sepia(19%) saturate(800%) hue-rotate(330deg)" }} />
-              Simulation Bank
-            </button>
-            <div style={{ fontSize: 12, letterSpacing: "0.12em", color: "rgba(255,255,255,0.6)" }}>
-              Simulation&nbsp;|&nbsp;<span style={{ textDecoration: "underline", cursor: "pointer" }}>Exit</span>
-            </div>
-          </div>
-        </div>
+        <AppHeader step="STEP 03 / SIMULATOR CHAT" showBank onBankClick={() => navigate("/bank")} />
 
         {/* ── BOTTOM RIGHT SERIAL ── */}
         <div style={{
