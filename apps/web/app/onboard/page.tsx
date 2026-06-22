@@ -128,9 +128,9 @@ export default function OnboardingPage() {
 
               <h1 style={{
                 fontFamily: "'Amiri', serif",
-                fontSize: "clamp(1.8rem, 2.8vw, 2.4rem)",
+                fontSize: "clamp(2.4rem, 3.8vw, 3.2rem)",
                 color: "white", margin: 0,
-                lineHeight: 1.25, fontWeight: 400,
+                lineHeight: 1.1, fontWeight: 400,
               }}>
                 Before exploring an{" "}
                 <span style={{ fontStyle: "italic", color: "#FFC99D" }}>Autistic Perspective</span>,<br />
