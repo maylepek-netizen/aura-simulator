@@ -127,7 +127,7 @@ export default function OnboardingPage() {
           }}>
 
             {/* LEFT — heading block (icon + heading + divider + description) */}
-            <div style={{ flex: "0 0 42%", display: "flex", flexDirection: "column" }}>
+            <div style={{ flex: "0 0 58%", display: "flex", flexDirection: "column" }}>
               <img src="/icons/eye.svg" alt="" style={{ width: 34, marginBottom: 18, opacity: 0.85, display: "block" }} />
 
               <h1 style={{
@@ -137,7 +137,7 @@ export default function OnboardingPage() {
                 lineHeight: 1.1, fontWeight: 400,
               }}>
                 Before exploring an<br />
-                <span style={{ fontStyle: "italic", color: "#FFC99D" }}>Autistic Perspective</span>,<br />
+                <span style={{ fontStyle: "italic", color: "#FFC99D" }}>Autistic Perspective,</span><br />
                 tell us a little about yourself.
               </h1>
 
