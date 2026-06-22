@@ -254,6 +254,16 @@ export default function ChatPage() {
             Define the Experience
           </h1>
 
+          {/* Description — above textarea */}
+          <p style={{
+            marginTop: 20, maxWidth: 640,
+            fontSize: 13, letterSpacing: "0.06em",
+            color: "rgba(255,255,255,0.35)",
+            textAlign: "center", lineHeight: 1.75,
+          }}>
+            Describe a real-life moment, place, or interaction. The simulation will reinterpret it through an autistic sensory and social perspective, informed by research, first-hand accounts, and documented autistic experiences.
+          </p>
+
           {/* Textarea card */}
           <div style={{
             width: "100%", maxWidth: 680,
@@ -314,16 +324,6 @@ export default function ChatPage() {
               💭 {helpHint}
             </div>
           )}
-
-          {/* Description — centered below card */}
-          <p style={{
-            marginTop: 20, maxWidth: 640,
-            fontSize: 13, letterSpacing: "0.06em",
-            color: "rgba(255,255,255,0.35)",
-            textAlign: "center", lineHeight: 1.75,
-          }}>
-            Describe a real-life moment, place, or interaction. The simulation will reinterpret it through an autistic sensory and social perspective, informed by research, first-hand accounts, and documented autistic experiences.
-          </p>
 
         </div>
       </div>
