@@ -145,11 +145,11 @@ export default function OnboardingPage() {
             width: "100%",
             display: "flex",
             gap: 80,
-            alignItems: "flex-start",
+            alignItems: "flex-end",
           }}>
 
             {/* LEFT COLUMN */}
-            <div style={{ flex: "0 0 55%", display: "flex", flexDirection: "column" }}>
+            <div style={{ flex: "0 0 55%", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
 
               <h1 style={{
                 fontFamily: "'Amiri', serif",
@@ -165,9 +165,9 @@ export default function OnboardingPage() {
                 tell us a little about yourself.
               </h1>
 
-              {/* Divider */}
+              {/* Divider — same max-width as paragraph below */}
               <div style={{
-                width: "100%", height: 1,
+                width: "100%", maxWidth: 340, height: 1,
                 background: "rgba(255,201,157,0.3)",
                 marginBottom: 24,
               }} />
@@ -191,6 +191,7 @@ export default function OnboardingPage() {
               display: "flex",
               flexDirection: "column",
               gap: 36,
+              alignSelf: "stretch",
             }}>
 
               {/* Name */}
@@ -242,7 +243,7 @@ export default function OnboardingPage() {
                 </div>
               )}
 
-              {/* CTA */}
+              {/* CTA — pushed to bottom to align with paragraph bottom on left */}
               <button
                 type="button"
                 className="aura-btn"
@@ -258,7 +259,7 @@ export default function OnboardingPage() {
                   letterSpacing: "0.1em",
                   fontWeight: 600,
                   cursor: "pointer",
-                  marginTop: 4,
+                  marginTop: "auto",
                 }}
               >
                 Begin Experience
