@@ -116,17 +116,20 @@ export default function OnboardingPage() {
         {/* ── MAIN CONTENT ── */}
         <div style={{
           position: "absolute", top: 60, bottom: 0, left: 80, right: 0,
-          display: "flex", flexDirection: "column", justifyContent: "space-between",
-          padding: "48px 80px 56px",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          padding: "0 60px",
           zIndex: 5,
         }}>
+          {/* Composition container — constrained width, centered */}
+          <div style={{
+            width: "100%", maxWidth: 820,
+            display: "flex", gap: 52, alignItems: "flex-start",
+          }}>
 
-          {/* TOP — heading + form fields */}
-          <div style={{ display: "flex", gap: 80, alignItems: "flex-start" }}>
+            {/* LEFT — heading block (icon + heading + divider + description) */}
+            <div style={{ flex: "0 0 42%", display: "flex", flexDirection: "column" }}>
+              <img src="/icons/eye.svg" alt="" style={{ width: 34, marginBottom: 18, opacity: 0.85, display: "block" }} />
 
-            {/* Heading */}
-            <div style={{ flex: "0 0 48%" }}>
-              <img src="/icons/eye.svg" alt="" style={{ width: 36, marginBottom: 20, opacity: 0.85, display: "block" }} />
               <h1 style={{
                 fontFamily: "'Amiri', serif",
                 fontSize: "clamp(3rem, 5vw, 4.2rem)",
@@ -137,10 +140,20 @@ export default function OnboardingPage() {
                 <span style={{ fontStyle: "italic", color: "#FFC99D" }}>Autistic Perspective</span>,<br />
                 tell us a little about yourself.
               </h1>
+
+              <div style={{ width: 60, height: 1, background: "rgba(255,201,157,0.4)", margin: "24px 0" }} />
+
+              <p style={{
+                fontSize: 12, letterSpacing: "0.1em",
+                color: "rgba(255,255,255,0.4)",
+                lineHeight: 1.8, margin: 0, maxWidth: 240,
+              }}>
+                Before starting the autism simulation, please tell us a little about yourself. These details help personalize the experience and adapt it to your perspective.
+              </p>
             </div>
 
-            {/* Form fields */}
-            <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 36 }}>
+            {/* RIGHT — form fields + CTA (one cohesive block) */}
+            <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 32 }}>
               {/* Name */}
               <div>
                 <div style={{ fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.55)", marginBottom: 10 }}>
@@ -195,26 +208,8 @@ export default function OnboardingPage() {
                   {error}
                 </div>
               )}
-            </div>
-          </div>
 
-          {/* BOTTOM — description + CTA */}
-          <div style={{ display: "flex", gap: 80, alignItems: "flex-end" }}>
-
-            {/* Description */}
-            <div style={{ flex: "0 0 48%" }}>
-              <div style={{ width: 60, height: 1, background: "rgba(255,201,157,0.4)", marginBottom: 20 }} />
-              <p style={{
-                fontSize: 12, letterSpacing: "0.1em",
-                color: "rgba(255,255,255,0.4)",
-                lineHeight: 1.8, margin: 0, maxWidth: 240,
-              }}>
-                Before starting the autism simulation, please tell us a little about yourself. These details help personalize the experience and adapt it to your perspective.
-              </p>
-            </div>
-
-            {/* CTA */}
-            <div style={{ flex: 1 }}>
+              {/* CTA — belongs to the form */}
               <button
                 type="button"
                 className="aura-btn"
@@ -226,6 +221,7 @@ export default function OnboardingPage() {
                   padding: "14px 48px",
                   fontSize: 13, letterSpacing: "0.12em",
                   fontWeight: 600, cursor: "pointer",
+                  marginTop: 8,
                 }}
               >
                 Begin Experience
