@@ -49,34 +49,32 @@ export default function OnboardingPage() {
           background: transparent;
           border: none;
           border-bottom: 1px solid rgba(255,255,255,0.25);
-          color: white;
+          color: rgba(255,255,255,0.75);
           font-size: 14px;
           letter-spacing: 0.06em;
           padding: 12px 0;
           width: 100%;
           outline: none;
-          font-family: inherit;
         }
-        .onboard-input::placeholder { color: rgba(255,255,255,0.4); }
+        .onboard-input::placeholder { color: rgba(255,255,255,0.75); }
         .onboard-input:focus { border-bottom-color: rgba(255,255,255,0.6); }
         .onboard-select {
           background: transparent;
           border: none;
           border-bottom: 1px solid rgba(255,255,255,0.25);
-          color: white;
+          color: rgba(255,255,255,0.75);
           font-size: 14px;
           padding: 12px 0;
           width: 100%;
           outline: none;
           appearance: none;
           cursor: pointer;
-          font-family: inherit;
         }
         .onboard-select:focus { border-bottom-color: rgba(255,255,255,0.6); }
         .onboard-select option { background: #1a1410; color: white; }
       `}</style>
 
-      <div style={{ position: "fixed", inset: 0, overflow: "hidden", background: "#1a1410" }}>
+      <div style={{ position: "fixed", inset: 0, overflow: "hidden", background: "#0d0a08" }}>
 
         {/* Blurred background video */}
         <video
@@ -85,13 +83,13 @@ export default function OnboardingPage() {
           style={{
             position: "absolute", inset: 0,
             width: "100%", height: "100%", objectFit: "cover",
-            filter: "blur(24px) brightness(0.45)",
+            filter: "blur(24px) brightness(0.6)",
             transform: "scale(1.05)",
           }}
         />
 
         {/* Black overlay */}
-        <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.55)" }} />
+        <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.45)" }} />
 
         {/* Radial gradient */}
         <div style={{
@@ -118,51 +116,34 @@ export default function OnboardingPage() {
         {/* ── MAIN CONTENT ── */}
         <div style={{
           position: "absolute", top: 60, bottom: 0, left: 80, right: 0,
-          display: "flex", alignItems: "flex-end", justifyContent: "flex-start",
-          padding: "0 143px 216px 198px",
+          display: "flex", flexDirection: "column", justifyContent: "space-between",
+          padding: "48px 80px 56px",
           zIndex: 5,
         }}>
-          {/* Two-column row — bottom-aligned, Figma gap */}
-          <div style={{
-            display: "inline-flex", gap: 145, alignItems: "flex-end",
-            width: "100%",
-          }}>
 
-            {/* LEFT — icon + heading + description */}
-            <div style={{ flex: "0 0 55%", display: "flex", flexDirection: "column" }}>
-              <img src="/icons/eye.svg" alt="" style={{ width: 34, marginBottom: 24, opacity: 0.85, display: "block" }} />
+          {/* TOP — heading + form fields */}
+          <div style={{ display: "flex", gap: 80, alignItems: "flex-start" }}>
 
+            {/* Heading */}
+            <div style={{ flex: "0 0 48%" }}>
+              <img src="/icons/eye.svg" alt="" style={{ width: 36, marginBottom: 20, opacity: 0.85, display: "block" }} />
               <h1 style={{
                 fontFamily: "'Amiri', serif",
-                fontSize: 90,
-                color: "white",
-                margin: "0 0 32px",
-                lineHeight: "111%",
-                fontWeight: 400,
-                letterSpacing: "-3.6px",
+                fontSize: "clamp(3rem, 5vw, 4.2rem)",
+                color: "white", margin: 0,
+                lineHeight: 1.1, fontWeight: 400,
               }}>
-                Before we step<br />
-                into another<br />
-                <span style={{ fontStyle: "italic", color: "#e07830" }}>perception</span><br />
-                who are you?
+                Before exploring an<br />
+                <span style={{ fontStyle: "italic", color: "#FFC99D" }}>Autistic Perspective</span>,<br />
+                tell us a little about yourself.
               </h1>
-
-              <div style={{ width: 60, height: 1, background: "rgba(255,201,157,0.35)", marginBottom: 20 }} />
-
-              <p style={{
-                fontSize: 12, letterSpacing: "0.08em",
-                color: "rgba(255,255,255,0.35)",
-                lineHeight: 1.8, margin: 0, maxWidth: 280,
-              }}>
-                Before starting the autism simulation, please tell us a little about yourself. These details help personalize the experience and adapt it to your perspective.
-              </p>
             </div>
 
-            {/* RIGHT — form fields + CTA, bottom-aligned */}
-            <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 32 }}>
+            {/* Form fields */}
+            <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 36 }}>
               {/* Name */}
               <div>
-                <div style={{ fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(192,100,80,0.9)", marginBottom: 10 }}>
+                <div style={{ fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.55)", marginBottom: 10 }}>
                   What should we call you?
                 </div>
                 <input
@@ -176,7 +157,7 @@ export default function OnboardingPage() {
 
               {/* Gender */}
               <div>
-                <div style={{ fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(192,100,80,0.9)", marginBottom: 10 }}>
+                <div style={{ fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.55)", marginBottom: 10 }}>
                   How do you identify?
                 </div>
                 <select
@@ -194,7 +175,7 @@ export default function OnboardingPage() {
 
               {/* Age */}
               <div>
-                <div style={{ fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(192,100,80,0.9)", marginBottom: 10 }}>
+                <div style={{ fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.55)", marginBottom: 10 }}>
                   How old are you?
                 </div>
                 <input
@@ -214,20 +195,37 @@ export default function OnboardingPage() {
                   {error}
                 </div>
               )}
+            </div>
+          </div>
 
-              {/* CTA */}
+          {/* BOTTOM — description + CTA */}
+          <div style={{ display: "flex", gap: 80, alignItems: "flex-end" }}>
+
+            {/* Description */}
+            <div style={{ flex: "0 0 48%" }}>
+              <div style={{ width: 60, height: 1, background: "rgba(255,201,157,0.4)", marginBottom: 20 }} />
+              <p style={{
+                fontSize: 12, letterSpacing: "0.1em",
+                color: "rgba(255,255,255,0.4)",
+                lineHeight: 1.8, margin: 0, maxWidth: 240,
+              }}>
+                Before starting the autism simulation, please tell us a little about yourself. These details help personalize the experience and adapt it to your perspective.
+              </p>
+            </div>
+
+            {/* CTA */}
+            <div style={{ flex: 1 }}>
               <button
                 type="button"
                 className="aura-btn"
                 onClick={onStart}
                 style={{
                   alignSelf: "flex-start",
-                  background: "#f0e8d8", color: "#1a0f00",
+                  background: "#FFC99D", color: "#1a0f00",
                   border: "none", borderRadius: 50,
                   padding: "14px 48px",
                   fontSize: 13, letterSpacing: "0.12em",
                   fontWeight: 600, cursor: "pointer",
-                  marginTop: 8,
                 }}
               >
                 Begin Experience
