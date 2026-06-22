@@ -174,10 +174,10 @@ export default function OnboardingPage() {
 
               {/* Description */}
               <p style={{
-                fontSize: 12,
-                letterSpacing: "0.08em",
+                fontSize: 14,
+                letterSpacing: "0.04em",
                 color: "rgba(255,255,255,0.45)",
-                lineHeight: 1.85,
+                lineHeight: 1.7,
                 margin: 0,
                 maxWidth: 340,
               }}>

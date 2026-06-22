@@ -239,7 +239,7 @@ export default function ChatPage() {
             onError={(e) => { (e.target as HTMLImageElement).src = "/icons/eye.svg"; }} />
 
           {/* Subtitle / step label */}
-          <p style={{ fontSize: 12, letterSpacing: "0.24em", color: "rgba(255,255,255,0.5)", margin: "0 0 10px", textTransform: "uppercase" }}>
+          <p style={{ fontSize: 12, letterSpacing: "0.24em", color: "rgba(255,255,255,0.5)", margin: "0 0 6px", textTransform: "uppercase" }}>
             BUILD YOUR SIMULATION
           </p>
 
@@ -247,7 +247,7 @@ export default function ChatPage() {
           <h1 style={{
             fontFamily: "'Amiri', serif",
             fontSize: "clamp(3rem, 5.5vw, 4.8rem)",
-            color: "white", margin: "0 0 32px",
+            color: "white", margin: "0 0 14px",
             fontWeight: 400, lineHeight: 1.05,
             textAlign: "center", maxWidth: 760,
           }}>
@@ -256,7 +256,7 @@ export default function ChatPage() {
 
           {/* Description — above textarea */}
           <p style={{
-            marginTop: 20, maxWidth: 640,
+            marginTop: 10, marginBottom: 16, maxWidth: 640,
             fontSize: 13, letterSpacing: "0.06em",
             color: "rgba(255,255,255,0.35)",
             textAlign: "center", lineHeight: 1.75,
