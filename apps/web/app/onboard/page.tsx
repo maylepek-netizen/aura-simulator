@@ -49,32 +49,34 @@ export default function OnboardingPage() {
           background: transparent;
           border: none;
           border-bottom: 1px solid rgba(255,255,255,0.25);
-          color: rgba(255,255,255,0.75);
+          color: white;
           font-size: 14px;
           letter-spacing: 0.06em;
           padding: 12px 0;
           width: 100%;
           outline: none;
+          font-family: inherit;
         }
-        .onboard-input::placeholder { color: rgba(255,255,255,0.75); }
+        .onboard-input::placeholder { color: rgba(255,255,255,0.4); }
         .onboard-input:focus { border-bottom-color: rgba(255,255,255,0.6); }
         .onboard-select {
           background: transparent;
           border: none;
           border-bottom: 1px solid rgba(255,255,255,0.25);
-          color: rgba(255,255,255,0.75);
+          color: white;
           font-size: 14px;
           padding: 12px 0;
           width: 100%;
           outline: none;
           appearance: none;
           cursor: pointer;
+          font-family: inherit;
         }
         .onboard-select:focus { border-bottom-color: rgba(255,255,255,0.6); }
         .onboard-select option { background: #1a1410; color: white; }
       `}</style>
 
-      <div style={{ position: "fixed", inset: 0, overflow: "hidden", background: "#0d0a08" }}>
+      <div style={{ position: "fixed", inset: 0, overflow: "hidden", background: "#1a1410" }}>
 
         {/* Blurred background video */}
         <video
@@ -83,13 +85,13 @@ export default function OnboardingPage() {
           style={{
             position: "absolute", inset: 0,
             width: "100%", height: "100%", objectFit: "cover",
-            filter: "blur(24px) brightness(0.6)",
+            filter: "blur(24px) brightness(0.45)",
             transform: "scale(1.05)",
           }}
         />
 
         {/* Black overlay */}
-        <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.45)" }} />
+        <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.55)" }} />
 
         {/* Radial gradient */}
         <div style={{
@@ -116,47 +118,51 @@ export default function OnboardingPage() {
         {/* ── MAIN CONTENT ── */}
         <div style={{
           position: "absolute", top: 60, bottom: 0, left: 80, right: 0,
-          display: "flex", alignItems: "center", justifyContent: "center",
-          padding: "0 60px",
+          display: "flex", alignItems: "flex-end", justifyContent: "flex-start",
+          padding: "0 143px 216px 198px",
           zIndex: 5,
         }}>
-          {/* Composition container — constrained width, centered */}
+          {/* Two-column row — bottom-aligned, Figma gap */}
           <div style={{
-            width: "100%", maxWidth: 820,
-            display: "flex", gap: 52, alignItems: "flex-start",
+            display: "inline-flex", gap: 145, alignItems: "flex-end",
+            width: "100%",
           }}>
 
-            {/* LEFT — heading block (icon + heading + divider + description) */}
-            <div style={{ flex: "0 0 58%", display: "flex", flexDirection: "column" }}>
-              <img src="/icons/eye.svg" alt="" style={{ width: 34, marginBottom: 18, opacity: 0.85, display: "block" }} />
+            {/* LEFT — icon + heading + description */}
+            <div style={{ flex: "0 0 55%", display: "flex", flexDirection: "column" }}>
+              <img src="/icons/eye.svg" alt="" style={{ width: 34, marginBottom: 24, opacity: 0.85, display: "block" }} />
 
               <h1 style={{
                 fontFamily: "'Amiri', serif",
-                fontSize: "clamp(3rem, 5vw, 4.2rem)",
-                color: "white", margin: 0,
-                lineHeight: 1.1, fontWeight: 400,
+                fontSize: 90,
+                color: "white",
+                margin: "0 0 32px",
+                lineHeight: "111%",
+                fontWeight: 400,
+                letterSpacing: "-3.6px",
               }}>
-                Before exploring an<br />
-                <span style={{ fontStyle: "italic", color: "#FFC99D" }}>Autistic Perspective,</span><br />
-                tell us a little about yourself.
+                Before we step<br />
+                into another<br />
+                <span style={{ fontStyle: "italic", color: "#e07830" }}>perception</span><br />
+                who are you?
               </h1>
 
-              <div style={{ width: 60, height: 1, background: "rgba(255,201,157,0.4)", margin: "24px 0" }} />
+              <div style={{ width: 60, height: 1, background: "rgba(255,201,157,0.35)", marginBottom: 20 }} />
 
               <p style={{
-                fontSize: 12, letterSpacing: "0.1em",
-                color: "rgba(255,255,255,0.4)",
-                lineHeight: 1.8, margin: 0, maxWidth: 240,
+                fontSize: 12, letterSpacing: "0.08em",
+                color: "rgba(255,255,255,0.35)",
+                lineHeight: 1.8, margin: 0, maxWidth: 280,
               }}>
                 Before starting the autism simulation, please tell us a little about yourself. These details help personalize the experience and adapt it to your perspective.
               </p>
             </div>
 
-            {/* RIGHT — form fields + CTA (one cohesive block) */}
+            {/* RIGHT — form fields + CTA, bottom-aligned */}
             <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 32 }}>
               {/* Name */}
               <div>
-                <div style={{ fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.55)", marginBottom: 10 }}>
+                <div style={{ fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(192,100,80,0.9)", marginBottom: 10 }}>
                   What should we call you?
                 </div>
                 <input
@@ -170,7 +176,7 @@ export default function OnboardingPage() {
 
               {/* Gender */}
               <div>
-                <div style={{ fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.55)", marginBottom: 10 }}>
+                <div style={{ fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(192,100,80,0.9)", marginBottom: 10 }}>
                   How do you identify?
                 </div>
                 <select
@@ -188,7 +194,7 @@ export default function OnboardingPage() {
 
               {/* Age */}
               <div>
-                <div style={{ fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.55)", marginBottom: 10 }}>
+                <div style={{ fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(192,100,80,0.9)", marginBottom: 10 }}>
                   How old are you?
                 </div>
                 <input
@@ -209,14 +215,14 @@ export default function OnboardingPage() {
                 </div>
               )}
 
-              {/* CTA — belongs to the form */}
+              {/* CTA */}
               <button
                 type="button"
                 className="aura-btn"
                 onClick={onStart}
                 style={{
                   alignSelf: "flex-start",
-                  background: "#FFC99D", color: "#1a0f00",
+                  background: "#f0e8d8", color: "#1a0f00",
                   border: "none", borderRadius: 50,
                   padding: "14px 48px",
                   fontSize: 13, letterSpacing: "0.12em",
