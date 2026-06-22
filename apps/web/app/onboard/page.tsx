@@ -174,7 +174,7 @@ export default function OnboardingPage() {
 
               {/* Description */}
               <p style={{
-                fontSize: 14,
+                fontSize: 18,
                 letterSpacing: "0.04em",
                 color: "rgba(255,255,255,0.45)",
                 lineHeight: 1.7,
