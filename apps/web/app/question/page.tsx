@@ -133,7 +133,7 @@ export default function QuestionPage() {
               <h1 style={{
                 fontFamily: "'Amiri', serif",
                 fontSize: "clamp(2.2rem, 4vw, 3.4rem)",
-                color: "white",
+                color: "#FFC99D",
                 textAlign: "center",
                 lineHeight: 1.3,
                 fontWeight: 400,
