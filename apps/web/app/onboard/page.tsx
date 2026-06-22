@@ -49,22 +49,22 @@ export default function OnboardingPage() {
           background: transparent;
           border: none;
           border-bottom: 1px solid rgba(255,255,255,0.25);
-          color: rgba(255,255,255,0.6);
+          color: rgba(255,255,255,0.75);
           font-size: 14px;
           letter-spacing: 0.06em;
-          padding: 10px 0;
+          padding: 12px 0;
           width: 100%;
           outline: none;
         }
-        .onboard-input::placeholder { color: rgba(255,255,255,0.6); }
+        .onboard-input::placeholder { color: rgba(255,255,255,0.75); }
         .onboard-input:focus { border-bottom-color: rgba(255,255,255,0.6); }
         .onboard-select {
           background: transparent;
           border: none;
           border-bottom: 1px solid rgba(255,255,255,0.25);
-          color: rgba(255,255,255,0.6);
+          color: rgba(255,255,255,0.75);
           font-size: 14px;
-          padding: 10px 0;
+          padding: 12px 0;
           width: 100%;
           outline: none;
           appearance: none;
@@ -117,49 +117,49 @@ export default function OnboardingPage() {
         <div style={{
           position: "absolute", top: 0, bottom: 0, left: 80, right: 0,
           display: "flex", alignItems: "stretch",
-          padding: "80px 40px 48px 60px",
+          padding: "120px 60px 56px 60px",
           zIndex: 5,
         }}>
 
-          {/* LEFT — headline (top) + divider + description (bottom) */}
-          <div style={{ flex: "0 0 48%", paddingRight: 40, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+          {/* LEFT — icon + headline + divider (top) | description (bottom) */}
+          <div style={{ flex: "0 0 50%", paddingRight: 60, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
 
-            {/* Top: eye icon + heading + divider */}
+            {/* Top group: icon → heading → divider */}
             <div>
-              <img src="/icons/eye.svg" alt="" style={{ width: 44, marginBottom: 32, opacity: 0.85 }} />
+              <img src="/icons/eye.svg" alt="" style={{ width: 40, marginBottom: 28, opacity: 0.85, display: "block" }} />
 
               <h1 style={{
                 fontFamily: "'Amiri', serif",
-                fontSize: "clamp(2.6rem, 4.5vw, 4rem)",
+                fontSize: "clamp(3.2rem, 6vw, 5.2rem)",
                 color: "white", margin: 0,
-                lineHeight: 1.15, fontWeight: 400,
+                lineHeight: 1.1, fontWeight: 400,
               }}>
                 Before exploring an{" "}
                 <span style={{ fontStyle: "italic", color: "#FFC99D" }}>Autistic Perspective</span>,<br />
                 tell us a little about yourself.
               </h1>
 
-              <div style={{ width: 80, height: 1, background: "rgba(255,201,157,0.4)", margin: "28px 0" }} />
+              <div style={{ width: 80, height: 1, background: "rgba(255,201,157,0.4)", margin: "32px 0" }} />
             </div>
 
-            {/* Bottom: description — aligns with CTA button */}
+            {/* Bottom: description paragraph */}
             <p style={{
-              fontSize: 13, letterSpacing: "0.12em",
-              color: "rgba(255,255,255,0.5)",
-              lineHeight: 1.8, margin: 0, maxWidth: 220,
+              fontSize: 12, letterSpacing: "0.12em",
+              color: "rgba(255,255,255,0.45)",
+              lineHeight: 1.85, margin: 0, maxWidth: 240,
             }}>
               Before starting the autism simulation, please tell us a little about yourself. These details help personalize the experience and adapt it to your perspective.
             </p>
           </div>
 
-          {/* RIGHT — form (top) + CTA (bottom) */}
-          <div style={{ flex: "0 0 44%", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+          {/* RIGHT — form fields (top) | CTA button (bottom) */}
+          <div style={{ flex: "0 0 50%", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
 
-            {/* Top: form fields */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 40 }}>
+            {/* Top: form fields — start at same Y as heading (icon height + gap offset) */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 52, paddingTop: 68 }}>
               {/* Name */}
               <div>
-                <div style={{ fontSize: 14, color: "white", marginBottom: 10 }}>
+                <div style={{ fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.55)", marginBottom: 12 }}>
                   What should we call you?
                 </div>
                 <input
@@ -173,7 +173,7 @@ export default function OnboardingPage() {
 
               {/* Gender */}
               <div>
-                <div style={{ fontSize: 14, color: "white", marginBottom: 10 }}>
+                <div style={{ fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.55)", marginBottom: 12 }}>
                   How do you identify?
                 </div>
                 <select
@@ -191,7 +191,7 @@ export default function OnboardingPage() {
 
               {/* Age */}
               <div>
-                <div style={{ fontSize: 14, color: "white", marginBottom: 10 }}>
+                <div style={{ fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.55)", marginBottom: 12 }}>
                   How old are you?
                 </div>
                 <input
@@ -213,7 +213,7 @@ export default function OnboardingPage() {
               )}
             </div>
 
-            {/* Bottom: CTA — aligns with description paragraph */}
+            {/* Bottom: CTA button */}
             <button
               type="button"
               className="aura-btn"
