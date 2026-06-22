@@ -116,98 +116,104 @@ export default function OnboardingPage() {
         {/* ── MAIN CONTENT ── */}
         <div style={{
           position: "absolute", top: 0, bottom: 0, left: 80, right: 0,
-          display: "flex", alignItems: "center",
-          padding: "80px 40px 40px 60px",
+          display: "flex", alignItems: "stretch",
+          padding: "80px 40px 48px 60px",
           zIndex: 5,
         }}>
 
-          {/* LEFT — heading + description */}
-          <div style={{ flex: "0 0 48%", paddingRight: 40 }}>
-            {/* Eye icon */}
-            <img src="/icons/eye.svg" alt="" style={{ width: 44, marginBottom: 32, opacity: 0.85 }} />
+          {/* LEFT — headline (top) + divider + description (bottom) */}
+          <div style={{ flex: "0 0 48%", paddingRight: 40, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
 
-            {/* Heading */}
-            <h1 style={{
-              fontFamily: "'Amiri', serif",
-              fontSize: "clamp(2.6rem, 4.5vw, 4rem)",
-              color: "white", margin: 0,
-              lineHeight: 1.15, fontWeight: 400,
-            }}>
-              Before exploring an <span style={{ fontStyle: "italic", color: "#FFC99D" }}>Autistic Perspective</span>, tell us a little about yourself.
-            </h1>
+            {/* Top: eye icon + heading + divider */}
+            <div>
+              <img src="/icons/eye.svg" alt="" style={{ width: 44, marginBottom: 32, opacity: 0.85 }} />
 
-            {/* Divider */}
-            <div style={{ width: 80, height: 1, background: "rgba(255,201,157,0.4)", margin: "28px 0" }} />
+              <h1 style={{
+                fontFamily: "'Amiri', serif",
+                fontSize: "clamp(2.6rem, 4.5vw, 4rem)",
+                color: "white", margin: 0,
+                lineHeight: 1.15, fontWeight: 400,
+              }}>
+                Before exploring an{" "}
+                <span style={{ fontStyle: "italic", color: "#FFC99D" }}>Autistic Perspective</span>,<br />
+                tell us a little about yourself.
+              </h1>
 
-            {/* Description */}
+              <div style={{ width: 80, height: 1, background: "rgba(255,201,157,0.4)", margin: "28px 0" }} />
+            </div>
+
+            {/* Bottom: description — aligns with CTA button */}
             <p style={{
               fontSize: 13, letterSpacing: "0.12em",
               color: "rgba(255,255,255,0.5)",
-              lineHeight: 1.8, margin: 0, maxWidth: 380,
+              lineHeight: 1.8, margin: 0, maxWidth: 220,
             }}>
               Before starting the autism simulation, please tell us a little about yourself. These details help personalize the experience and adapt it to your perspective.
             </p>
           </div>
 
-          {/* RIGHT — form */}
-          <div style={{ flex: "0 0 44%", display: "flex", flexDirection: "column", gap: 40 }}>
+          {/* RIGHT — form (top) + CTA (bottom) */}
+          <div style={{ flex: "0 0 44%", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
 
-            {/* Name */}
-            <div>
-              <div style={{ fontSize: 14, color: "white", marginBottom: 10 }}>
-                What should we call you?
+            {/* Top: form fields */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 40 }}>
+              {/* Name */}
+              <div>
+                <div style={{ fontSize: 14, color: "white", marginBottom: 10 }}>
+                  What should we call you?
+                </div>
+                <input
+                  className="onboard-input"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Your Name"
+                  autoComplete="name"
+                />
               </div>
-              <input
-                className="onboard-input"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Your Name"
-                autoComplete="name"
-              />
+
+              {/* Gender */}
+              <div>
+                <div style={{ fontSize: 14, color: "white", marginBottom: 10 }}>
+                  How do you identify?
+                </div>
+                <select
+                  className="onboard-select"
+                  value={gender}
+                  onChange={(e) => setGender(e.target.value as Gender)}
+                >
+                  <option value="" disabled>Select Gender</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Non-binary">Other</option>
+                  <option value="Prefer not to say">Prefer not to say</option>
+                </select>
+              </div>
+
+              {/* Age */}
+              <div>
+                <div style={{ fontSize: 14, color: "white", marginBottom: 10 }}>
+                  How old are you?
+                </div>
+                <input
+                  className="onboard-input"
+                  type="number"
+                  min={5} max={120}
+                  value={String(age)}
+                  onChange={(e) => setAge(Number(e.target.value))}
+                  placeholder="Your Age?"
+                  inputMode="numeric"
+                />
+              </div>
+
+              {/* Error */}
+              {error && (
+                <div style={{ fontSize: 11, letterSpacing: "0.18em", color: "rgba(255,100,100,0.8)", textTransform: "uppercase" }}>
+                  {error}
+                </div>
+              )}
             </div>
 
-            {/* Gender */}
-            <div>
-              <div style={{ fontSize: 14, color: "white", marginBottom: 10 }}>
-                How do you identify?
-              </div>
-              <select
-                className="onboard-select"
-                value={gender}
-                onChange={(e) => setGender(e.target.value as Gender)}
-              >
-                <option value="" disabled>Select Gender</option>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-                <option value="Non-binary">Other</option>
-                <option value="Prefer not to say">Prefer not to say</option>
-              </select>
-            </div>
-
-            {/* Age */}
-            <div>
-              <div style={{ fontSize: 14, color: "white", marginBottom: 10 }}>
-                How old are you?
-              </div>
-              <input
-                className="onboard-input"
-                type="number"
-                min={5} max={120}
-                value={String(age)}
-                onChange={(e) => setAge(Number(e.target.value))}
-                placeholder="Your Age?"
-                inputMode="numeric"
-              />
-            </div>
-
-            {/* Error */}
-            {error && (
-              <div style={{ fontSize: 11, letterSpacing: "0.18em", color: "rgba(255,100,100,0.8)", textTransform: "uppercase" }}>
-                {error}
-              </div>
-            )}
-
-            {/* CTA */}
+            {/* Bottom: CTA — aligns with description paragraph */}
             <button
               type="button"
               className="aura-btn"
@@ -219,7 +225,6 @@ export default function OnboardingPage() {
                 padding: "16px 52px",
                 fontSize: 13, letterSpacing: "0.12em",
                 fontWeight: 600, cursor: "pointer",
-                marginTop: 8,
               }}
             >
               Begin Experience
