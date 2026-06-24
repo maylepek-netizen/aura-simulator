@@ -41,7 +41,7 @@ export default function OnboardingPage() {
   }
 
   const fieldLabelStyle: React.CSSProperties = {
-    fontSize: 14,
+    fontSize: 18,
     letterSpacing: "0.01em",
     color: "rgba(255,255,255,0.6)",
     marginBottom: 8,
@@ -50,7 +50,7 @@ export default function OnboardingPage() {
   };
 
   const fieldValueStyle: React.CSSProperties = {
-    fontSize: 14,
+    fontSize: 18,
     color: "white",
     paddingBottom: 12,
     borderBottom: "1px solid rgba(255,255,255,0.2)",
@@ -69,7 +69,7 @@ export default function OnboardingPage() {
           border: none;
           border-bottom: 1px solid rgba(255,255,255,0.2);
           color: white;
-          font-size: 14px;
+          font-size: 18px;
           letter-spacing: 0.01em;
           padding: 0 0 12px;
           width: 100%;
@@ -85,7 +85,7 @@ export default function OnboardingPage() {
           border: none;
           border-bottom: 1px solid rgba(255,255,255,0.2);
           color: white;
-          font-size: 14px;
+          font-size: 18px;
           letter-spacing: 0.01em;
           padding: 0 0 12px;
           width: 100%;
