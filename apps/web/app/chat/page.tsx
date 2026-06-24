@@ -156,7 +156,7 @@ export default function ChatPage() {
           gap: 10px;
           border-radius: 8px;
           background: transparent;
-          font-size: 13px; letter-spacing: 0.04em;
+          font-size: 18px; letter-spacing: 0.04em;
           font-weight: 400;
           cursor: pointer;
           transition: opacity 0.2s;
@@ -257,7 +257,7 @@ export default function ChatPage() {
           {/* Description — above textarea */}
           <p style={{
             marginTop: 10, marginBottom: 16, maxWidth: 640,
-            fontSize: 13, letterSpacing: "0.06em",
+            fontSize: 18, letterSpacing: "0.06em",
             color: "rgba(255,255,255,0.35)",
             textAlign: "center", lineHeight: 1.75,
           }}>
@@ -302,7 +302,7 @@ export default function ChatPage() {
                   color: "#1a0f00",
                   border: "none", borderRadius: 10,
                   padding: "11px 36px",
-                  fontSize: 14, fontWeight: 600, letterSpacing: "0.04em",
+                  fontSize: 18, fontWeight: 600, letterSpacing: "0.04em",
                   cursor: processing || !input.trim() ? "not-allowed" : "pointer",
                   opacity: processing || !input.trim() ? 0.6 : 1,
                   transition: "opacity 0.2s",
@@ -330,7 +330,7 @@ export default function ChatPage() {
 
         {/* ── BOTTOM LEFT: Help buttons (fixed, aligned with simulation number) ── */}
         <div style={{ position: "fixed", bottom: 20, left: 108, zIndex: 10 }}>
-          <p style={{ fontSize: 12, letterSpacing: "0.1em", color: "rgba(255,255,255,0.4)", marginBottom: 12 }}>
+          <p style={{ fontSize: 18, letterSpacing: "0.1em", color: "rgba(255,255,255,0.4)", marginBottom: 12 }}>
             Need help?
           </p>
           <div style={{ display: "flex", gap: 10 }}>
