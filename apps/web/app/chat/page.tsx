@@ -247,7 +247,7 @@ export default function ChatPage() {
           <h1 style={{
             fontFamily: "'Amiri', serif",
             fontSize: "clamp(3rem, 5.5vw, 4.8rem)",
-            color: "white", margin: "0 0 6px",
+            color: "white", margin: "0 0 10px",
             fontWeight: 400, lineHeight: 1.05,
             textAlign: "center", maxWidth: 760,
           }}>
@@ -259,7 +259,7 @@ export default function ChatPage() {
             marginTop: 10, marginBottom: 16, maxWidth: 640,
             fontSize: 18, letterSpacing: "0.06em",
             color: "rgba(255,255,255,0.35)",
-            textAlign: "center", lineHeight: 1.75,
+            textAlign: "center", lineHeight: 1.4,
           }}>
             Describe a real-life moment, place, or interaction. The simulation will reinterpret it through an autistic sensory and social perspective, informed by research, first-hand accounts, and documented autistic experiences.
           </p>
