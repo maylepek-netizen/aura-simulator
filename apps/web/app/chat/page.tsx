@@ -247,7 +247,7 @@ export default function ChatPage() {
           <h1 style={{
             fontFamily: "'Amiri', serif",
             fontSize: "clamp(3rem, 5.5vw, 4.8rem)",
-            color: "white", margin: "0 0 14px",
+            color: "white", margin: "0 0 6px",
             fontWeight: 400, lineHeight: 1.05,
             textAlign: "center", maxWidth: 760,
           }}>
