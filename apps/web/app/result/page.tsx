@@ -958,7 +958,7 @@ export default function ResultPage() {
           </div>
         )}
         {/* Screen vignette */}
-        <div style={{ position: "fixed", inset: 0, pointerEvents: "none", background: "radial-gradient(ellipse at center, transparent 0%, transparent 40%, rgba(0,0,0,0.4) 100%)", zIndex: 1 }} />
+        <div style={{ position: "fixed", inset: 0, pointerEvents: "none", background: "linear-gradient(to right, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 25%, transparent 40%, transparent 60%, rgba(0,0,0,0.3) 75%, rgba(0,0,0,0.85) 100%)", zIndex: 1 }} />
       </div>
 
       {/* ── LEFT DATA PANEL (280px) ───────────────────────────── */}
