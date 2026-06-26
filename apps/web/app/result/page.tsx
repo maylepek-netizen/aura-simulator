@@ -370,7 +370,7 @@ function ProcessingMetrics({ visible }: { visible: boolean }) {
       setThoughtOpacity(0);
       setTimeout(() => {
         setThoughtIndex(prev => (prev + 1) % FLOATING_THOUGHTS.length);
-        setThoughtPos({ x: 20 + Math.random() * 55, y: 18 + Math.random() * 50 });
+        setThoughtPos({ x: 15 + Math.random() * 60, y: 70 + Math.random() * 20 });
         setThoughtOpacity(1);
       }, 700);
     };
@@ -389,10 +389,10 @@ function ProcessingMetrics({ visible }: { visible: boolean }) {
         style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", filter: "blur(24px) brightness(0.6)", transform: "scale(1.05)" }} />
       <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.45)" }} />
       <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.8) 100%)", pointerEvents: "none" }} />
-      <div style={{ position: "absolute", left: `${thoughtPos.x}%`, top: `${thoughtPos.y}%`, opacity: thoughtOpacity * 0.45, transition: "opacity 0.7s ease", pointerEvents: "none", zIndex: 4 }}>
+      <div style={{ position: "absolute", left: `${thoughtPos.x}%`, top: `${thoughtPos.y}%`, opacity: thoughtOpacity * 0.45, transition: "opacity 0.7s ease", pointerEvents: "none", zIndex: 3 }}>
         <span style={{ fontFamily: "'Amiri', serif", fontStyle: "italic", fontSize: "clamp(0.9rem, 1.4vw, 1.15rem)", color: "white", whiteSpace: "nowrap" }}>{FLOATING_THOUGHTS[thoughtIndex]}</span>
       </div>
-      <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 48, zIndex: 4 }}>
+      <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 48, zIndex: 6 }}>
         <div style={{ display: "flex", flexDirection: "column", gap: 16, width: 280 }}>
           {PROC_METRICS_NEW.map((m, i) => (
             <div key={m.key} style={{ display: "flex", flexDirection: "column", gap: 5 }}>
