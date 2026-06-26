@@ -28,10 +28,10 @@ export default function AppSidebar() {
         <img src="/icons/insights.svg" alt="Insights" style={{ width: 30, opacity: 0.45 }} />
         <img src="/icons/sensory-channels.svg" alt="Sensory Channels" style={{ width: 27, opacity: 0.45 }} />
         <img
-          src="/icons/brain.svg"
+          src="/icons/insights.svg"
           alt="Research"
           onClick={() => router.push("/research")}
-          style={{ width: 28, opacity: 0.6, cursor: "pointer", transition: "opacity 0.2s" }}
+          style={{ width: 26, opacity: 0.6, cursor: "pointer", transition: "opacity 0.2s" }}
           onMouseEnter={(e) => { (e.currentTarget as HTMLImageElement).style.opacity = "1"; }}
           onMouseLeave={(e) => { (e.currentTarget as HTMLImageElement).style.opacity = "0.6"; }}
         />

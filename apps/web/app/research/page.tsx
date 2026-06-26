@@ -165,6 +165,21 @@ const SUGGESTED = [
   "Explain masking.",
 ];
 
+// Hardcoded research-based answers drawn directly from the PDFs
+const HARDCODED_ANSWERS: Record<string, string> = {
+  "How does sensory overload affect daily life?":
+    'According to Robertson & Baron-Cohen (2017, "Sensory perception in autism"), atypical sensory experience is estimated to occur in as many as 90% of autistic individuals and affects every modality — taste, touch, audition, smell, and vision. Temple Grandin describes it precisely: "My hearing is like having a hearing aid with the volume control stuck on super loud. It\'s like an open microphone that picks up everything." (Grandin, "An Inside View of Autism"). The Markram Intense World Theory (2010) explains this neurobiologically: hyper-reactive local neural microcircuits lead to hyper-perception, making ordinary environments — supermarkets, offices, classrooms — genuinely painful rather than merely unpleasant. Mottron et al.\'s Enhanced Perceptual Functioning model (2006) adds that autistic perception is locally oriented, meaning individual details are processed more intensely than the whole scene, making it impossible to filter out background noise or irrelevant stimuli the way neurotypical brains do automatically.',
+
+  "What causes meltdowns?":
+    'Grandin\'s first-person account ("An Inside View of Autism") traces meltdowns directly to sensory overload: "Sudden loud noises hurt my ears like a dentist\'s drill hitting a nerve... A sudden noise will often make my heart race." The Intense World Theory (Markram & Markram, 2010) provides the neurobiological mechanism — hyper-reactive amygdala circuits amplify emotional and sensory responses far beyond what a neurotypical brain would register, creating memories that are "overly strong" and "emotionally aversive." Once the cumulative sensory and social load exceeds threshold, the nervous system goes into crisis. Critically, Milton\'s Double Empathy Problem (2012) reframes this: meltdowns are not behavioral failures but predictable outcomes of navigating a world built for a neurotype that is not yours — a world that rarely adapts, requiring constant masking until the system collapses.',
+
+  "Tell me about autistic strengths.":
+    'Mottron et al.\'s Enhanced Perceptual Functioning model (2006) is the key paper here: autistic individuals show "locally oriented visual and auditory perception, enhanced low-level discrimination... and superior performance in domain-specific cognitive tasks." This is not compensation for a deficit — it is a genuine cognitive advantage. Kunda & Goel ("Thinking in Pictures," 2010) document that many autistic individuals use visual mental representations where neurotypical people use verbal ones, producing measurably superior performance on spatial and pattern tasks. Grandin herself demonstrates this: her visual thinking drove a successful international career in engineering design. The Intense World Theory (Markram, 2010) adds that hyper-plasticity of neural circuits also enables hyper-memory and exceptional focus — what neurotypical observers call "special interests" are in fact a cognitive strength: deep, structured expertise built through sustained perceptual engagement.',
+
+  "Explain masking.":
+    'Milton\'s Double Empathy Problem (2012) is essential context: masking arises because autistic social behavior is read as a "deficit" by neurotypical observers, when in reality it is a difference in dispositional outlook. To avoid stigma and social rejection, autistic people learn to perform neurotypical behavior — suppressing stimming, forcing eye contact, scripting conversation. Milton writes: "if one can apply a label on the \'other\' locating the problem in them, it resolves the applier\'s natural attitude of responsibility." The cost of this performance is profound: Grandin documents the exhausting cognitive load of translating every interaction through explicit rules ("door imagery for getting along with people") rather than intuition. Robertson & Baron-Cohen (2017) connect masking to the sensory dimension — suppressing visible responses to pain or overload adds another layer of effort. Research consistently links chronic masking to burnout, depression, and late or missed diagnosis, particularly in women and people of color.',
+};
+
 // ─── Node positions around a circle ───────────────────────────────────────────
 
 function getNodePos(i: number, total: number, rx: number, ry: number) {
@@ -223,15 +238,23 @@ export default function ResearchPage() {
 
   async function sendMessage(text: string) {
     if (!text.trim() || loading) return;
-    const userMsg: Msg = { role: "user", text: text.trim() };
+    const trimmed = text.trim();
+    const userMsg: Msg = { role: "user", text: trimmed };
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
+
+    // Use hardcoded research-based answer if available
+    if (HARDCODED_ANSWERS[trimmed]) {
+      setMessages((prev) => [...prev, { role: "assistant", text: HARDCODED_ANSWERS[trimmed] }]);
+      return;
+    }
+
     setLoading(true);
     try {
       const res = await fetch("/api/research-chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: text.trim() }),
+        body: JSON.stringify({ message: trimmed }),
       });
       const data = await res.json();
       setMessages((prev) => [...prev, { role: "assistant", text: data.reply ?? "No response." }]);
@@ -565,8 +588,12 @@ export default function ResearchPage() {
                 <div className="r-stat-label">Data Points</div>
               </div>
             </div>
-            <button className="r-cta-btn" type="button">
-              VIEW METHODOLOGY →
+            <button
+              className="r-cta-btn"
+              type="button"
+              onClick={() => document.getElementById("research-chat")?.scrollIntoView({ behavior: "smooth" })}
+            >
+              ASK THE RESEARCH ASSISTANT →
             </button>
           </div>
 
@@ -601,19 +628,13 @@ export default function ResearchPage() {
                 );
               })}
 
-              {/* Head silhouette (simple profile) */}
-              <g transform={`translate(${CX - 38}, ${CY - 58})`} opacity={0.18}>
-                <path
-                  d="M38 8 C18 8 4 22 4 42 C4 58 12 70 24 78 L24 90 C24 94 28 98 32 98 L44 98 C48 98 52 94 52 90 L52 78 C64 70 72 58 72 42 C72 22 58 8 38 8 Z"
-                  fill="none"
-                  stroke="rgba(255,201,157,0.6)"
-                  strokeWidth="1.5"
-                />
-                {/* simple eye */}
-                <ellipse cx={30} cy={42} rx={4} ry={3} fill="rgba(255,201,157,0.3)" />
-                {/* ear */}
-                <path d="M4 42 C0 42 -4 46 -4 52 C-4 58 0 62 4 62" fill="none" stroke="rgba(255,201,157,0.4)" strokeWidth="1.2" />
-              </g>
+              {/* Eye logo in center */}
+              <image
+                href="/logo.svg"
+                x={CX - 30} y={CY - 30}
+                width={60} height={60}
+                opacity={0.8}
+              />
 
               {/* Topic nodes */}
               {TOPICS.map((t, i) => {
@@ -740,7 +761,7 @@ export default function ResearchPage() {
         </div>
 
         {/* ── Chat section ── */}
-        <div className="r-chat-section" style={{ margin: "40px 48px 0", borderRadius: 16 }}>
+        <div id="research-chat" className="r-chat-section" style={{ margin: "40px 48px 0", borderRadius: 16 }}>
 
           {/* Left: info */}
           <div style={{ paddingTop: 4 }}>
