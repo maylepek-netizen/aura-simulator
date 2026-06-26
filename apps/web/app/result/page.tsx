@@ -902,6 +902,7 @@ export default function ResultPage() {
         @keyframes stimming-med  { 0%,100%{transform:translateY(0px) rotate(0deg)} 50%{transform:translateY(-8px) rotate(0.4deg)} }
         @keyframes stimming-high { 0%,100%{transform:translateY(0px) rotate(0deg)} 50%{transform:translateY(-14px) rotate(1deg)} }
         @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:0.3} }
+        @keyframes materialize { 0%{filter:blur(20px) brightness(0.4)} 100%{filter:blur(0px) brightness(1)} }
         .sound-btn { transition: background 0.2s, border-color 0.2s; }
         .sound-btn:hover { background: rgba(255,255,255,0.08) !important; }
         .stop-btn:hover { background: rgba(255,255,255,0.12) !important; }
@@ -912,10 +913,18 @@ export default function ResultPage() {
       `}</style>
 
       {/* ── FULLSCREEN VIDEO (center) ─────────────────────────── */}
-      <div style={{ position: "fixed", inset: 0, zIndex: 0, background: "#000" }}>
+      <div style={{ position: "fixed", inset: 0, zIndex: 0, background: "#000000" }}>
         {videoUrl && (
           <video ref={videoRef}
-            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: videoVisible ? videoLoopOpacity : 0, transform: "scale(1.06)", transition: "opacity 1s", animation: stimmingAnimation }}
+            style={{
+              position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover",
+              opacity: videoVisible ? videoLoopOpacity : 0,
+              transform: "scale(1.06)",
+              transition: "opacity 1s",
+              animation: videoVisible
+                ? `materialize 3.5s cubic-bezier(0.4,0,0.2,1) forwards${stimmingAnimation !== "none" ? `, ${stimmingAnimation}` : ""}`
+                : stimmingAnimation,
+            }}
             src={videoUrl} autoPlay loop playsInline
             onPlay={handleVideoPlay} onTimeUpdate={handleTimeUpdate}
           />
