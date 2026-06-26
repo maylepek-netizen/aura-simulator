@@ -60,15 +60,29 @@ function SimCard({ rec, index, x, y, onOpen }: {
         width: "100%",
         height: 120,
         borderRadius: 8,
-        background: hovered
-          ? `linear-gradient(135deg, rgba(255,201,157,0.15), rgba(188,194,255,0.1))`
-          : "rgba(255,255,255,0.06)",
+        background: "rgba(255,255,255,0.06)",
         border: `1px solid ${hovered ? "rgba(255,201,157,0.35)" : "rgba(255,255,255,0.1)"}`,
         overflow: "hidden",
         position: "relative",
         boxShadow: hovered ? "0 0 24px rgba(255,201,157,0.2), 0 8px 32px rgba(0,0,0,0.5)" : "0 4px 16px rgba(0,0,0,0.4)",
         transition: "all 0.4s ease",
       }}>
+        {/* Video thumbnail — first frame */}
+        {rec.videoUri ? (
+          <video
+            src={"/api/video-proxy?uri=" + encodeURIComponent(rec.videoUri)}
+            muted
+            playsInline
+            preload="metadata"
+            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+            onLoadedMetadata={(e) => { e.currentTarget.currentTime = 0.5; }}
+          />
+        ) : (
+          <div style={{
+            width: "100%", height: "100%",
+            background: "linear-gradient(135deg, rgba(20,15,10,0.9), rgba(10,8,6,0.95))",
+          }} />
+        )}
         {/* Load bar at bottom of thumbnail */}
         <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 2, background: "rgba(255,255,255,0.08)" }}>
           <div style={{ height: "100%", width: `${load}%`, background: loadColor, transition: "width 1s ease" }} />
