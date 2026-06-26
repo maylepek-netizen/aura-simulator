@@ -103,7 +103,7 @@ export default function OnboardingPage() {
 
         {/* Blurred background video */}
         <video
-          src="https://res.cloudinary.com/duhsqezo3/video/upload/v1782475305/atmosphere_video_eiosg0.mp4"
+          src="https://res.cloudinary.com/duhsqezo3/video/upload/v1782475885/background_video_jnq34s.mp4"
           autoPlay loop muted playsInline
           style={{
             position: "absolute", inset: 0,
