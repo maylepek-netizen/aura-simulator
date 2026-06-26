@@ -149,12 +149,11 @@ export default function ChatPage() {
         .chat-textarea::placeholder { color: rgba(255,255,255,0.3); }
 
         .helper-btn {
-          width: 199px; height: 41px;
-          padding: 9px 17px 8px 13px;
+          padding: 10px 15px;
           display: flex; flex-direction: row;
           justify-content: center; align-items: center;
-          gap: 10px;
-          border-radius: 8px;
+          gap: 8px;
+          border-radius: 7px;
           background: transparent;
           font-size: 18px; letter-spacing: 0.04em;
           font-weight: 400;
@@ -335,15 +334,17 @@ export default function ChatPage() {
           <div style={{ display: "flex", gap: 10 }}>
             <button className="helper-btn" type="button" onClick={handleHelpMe}
               style={{ border: "1px solid #FFC1BB", color: "#FFC1BB" }}>
-              <img src="/icons/brain.svg" alt="" style={{ width: 18 }}
-                onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
-              Suggest a situation
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+              Help me think
             </button>
             <button className="helper-btn" type="button" onClick={handleWriteForMe}
               style={{ border: "1px solid #BCC2FF", color: "#BCC2FF" }}>
-              <img src="/icons/pen.svg" alt="" style={{ width: 13 }}
-                onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
-              Write one for me
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>
+              </svg>
+              Write for me
             </button>
             <button
               className="helper-btn"
@@ -351,9 +352,7 @@ export default function ChatPage() {
               onClick={() => { setShowExamples((v) => !v); setHelpHint(null); }}
               style={{ border: "1px solid #FFC99D", color: "#FFC99D" }}
             >
-              Show example scenarios
-              <img src="/icons/Vector.svg" alt="" style={{ width: 6 }}
-                onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+              Show me examples ›
             </button>
           </div>
 
