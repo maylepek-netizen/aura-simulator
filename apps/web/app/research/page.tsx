@@ -588,13 +588,6 @@ export default function ResearchPage() {
                 <div className="r-stat-label">Data Points</div>
               </div>
             </div>
-            <button
-              className="r-cta-btn"
-              type="button"
-              onClick={() => document.getElementById("research-chat")?.scrollIntoView({ behavior: "smooth" })}
-            >
-              ASK THE RESEARCH ASSISTANT →
-            </button>
           </div>
 
           {/* CENTER — SVG knowledge map */}
