@@ -142,7 +142,7 @@ export default function ChatPage() {
           width: 100%;
           resize: none;
           color: white;
-          font-size: 15px;
+          font-size: 18px;
           line-height: 1.7;
           font-family: inherit;
         }
