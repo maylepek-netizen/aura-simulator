@@ -1,4 +1,9 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+
 export default function AppSidebar() {
+  const router = useRouter();
   return (
     <div style={{
       position: "fixed", left: 0, top: 0,
@@ -22,7 +27,14 @@ export default function AppSidebar() {
         <img src="/icons/bank.svg" alt="Bank" style={{ width: 33, opacity: 0.45 }} />
         <img src="/icons/insights.svg" alt="Insights" style={{ width: 30, opacity: 0.45 }} />
         <img src="/icons/sensory-channels.svg" alt="Sensory Channels" style={{ width: 27, opacity: 0.45 }} />
-        <img src="/logo.svg" alt="" style={{ width: 28, opacity: 0.6 }} />
+        <img
+          src="/icons/brain.svg"
+          alt="Research"
+          onClick={() => router.push("/research")}
+          style={{ width: 28, opacity: 0.6, cursor: "pointer", transition: "opacity 0.2s" }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLImageElement).style.opacity = "1"; }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLImageElement).style.opacity = "0.6"; }}
+        />
       </div>
     </div>
   );
