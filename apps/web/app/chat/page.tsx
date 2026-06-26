@@ -234,9 +234,8 @@ export default function ChatPage() {
           zIndex: 5,
         }}>
 
-          {/* Eye icon */}
-          <img src="/icons/eye.svg" alt="" style={{ width: 52, marginBottom: 16 }}
-            onError={(e) => { (e.target as HTMLImageElement).src = "/icons/eye.svg"; }} />
+          {/* Logo icon */}
+          <img src="/logo.svg" alt="" style={{ width: 60, marginBottom: 12, display: "block" }} />
 
           {/* Subtitle / step label */}
           <p style={{ fontSize: 12, letterSpacing: "0.24em", color: "rgba(255,255,255,0.5)", margin: "0 0 6px", textTransform: "uppercase" }}>
