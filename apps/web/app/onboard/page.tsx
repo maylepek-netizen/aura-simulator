@@ -145,11 +145,11 @@ export default function OnboardingPage() {
             width: "100%",
             display: "flex",
             gap: 80,
-            alignItems: "flex-end",
+            alignItems: "center",
           }}>
 
             {/* LEFT COLUMN */}
-            <div style={{ flex: "0 0 55%", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+            <div style={{ flex: "0 0 55%", display: "flex", flexDirection: "column" }}>
 
               <h1 style={{
                 fontFamily: "'Amiri', serif",
@@ -191,7 +191,6 @@ export default function OnboardingPage() {
               display: "flex",
               flexDirection: "column",
               gap: 36,
-              alignSelf: "stretch",
             }}>
 
               {/* Name */}
@@ -259,7 +258,7 @@ export default function OnboardingPage() {
                   letterSpacing: "0.1em",
                   fontWeight: 600,
                   cursor: "pointer",
-                  marginTop: "auto",
+                  marginTop: 0,
                 }}
               >
                 Begin Experience
