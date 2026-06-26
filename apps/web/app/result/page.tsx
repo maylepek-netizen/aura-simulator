@@ -861,10 +861,14 @@ export default function ResultPage() {
     : load >= 40 ? "stimming-med 2.5s ease-in-out infinite"
     : "stimming-low 5s ease-in-out infinite";
 
-  const panelBg: React.CSSProperties = {
-    background: "rgba(10,8,6,0.72)",
-    backdropFilter: "blur(18px)",
-    WebkitBackdropFilter: "blur(18px)",
+  const panelBgLeft: React.CSSProperties = {
+    background: "radial-gradient(ellipse at left center, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.6) 40%, transparent 70%)",
+  };
+  const panelBgRight: React.CSSProperties = {
+    background: "radial-gradient(ellipse at right center, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.6) 40%, transparent 70%)",
+  };
+  const panelBgBottom: React.CSSProperties = {
+    background: "linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.5) 50%, transparent 100%)",
   };
 
   const handleEndSimulation = () => {
@@ -953,10 +957,12 @@ export default function ResultPage() {
             <button type="button" onClick={() => void runSimulation()} style={{ fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", border: "1px solid rgba(255,255,255,0.2)", borderRadius: 4, padding: "8px 16px", color: "rgba(255,255,255,0.6)", background: "transparent", cursor: "pointer" }}>Retry</button>
           </div>
         )}
+        {/* Screen vignette */}
+        <div style={{ position: "absolute", inset: 0, pointerEvents: "none", background: "radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.5) 100%)", zIndex: 1 }} />
       </div>
 
       {/* ── LEFT DATA PANEL (280px) ───────────────────────────── */}
-      <div style={{ position: "fixed", top: 0, left: 0, bottom: 0, width: 280, zIndex: 10, ...panelBg, borderRight: "1px solid rgba(255,255,255,0.07)", display: "flex", flexDirection: "column", opacity: panelsVisible ? 1 : 0, transition: "opacity 0.8s ease" }}>
+      <div style={{ position: "fixed", top: 0, left: 0, bottom: 0, width: 280, zIndex: 10, ...panelBgLeft, display: "flex", flexDirection: "column", opacity: panelsVisible ? 1 : 0, transition: "opacity 0.8s ease" }}>
 
         {/* Nav buttons */}
         <div style={{ padding: "14px 16px 12px", display: "flex", gap: 8, flexShrink: 0 }}>
@@ -1041,7 +1047,7 @@ export default function ResultPage() {
       </div>
 
       {/* ── RIGHT CONTROL PANEL (280px) ──────────────────────── */}
-      <div style={{ position: "fixed", top: 0, right: 0, bottom: 0, width: 280, zIndex: 10, ...panelBg, borderLeft: "1px solid rgba(255,255,255,0.07)", display: "flex", flexDirection: "column", opacity: panelsVisible ? 1 : 0, transition: "opacity 0.8s ease" }}>
+      <div style={{ position: "fixed", top: 0, right: 0, bottom: 0, width: 280, zIndex: 10, ...panelBgRight, display: "flex", flexDirection: "column", opacity: panelsVisible ? 1 : 0, transition: "opacity 0.8s ease" }}>
 
         <div className="result-scroll" style={{ flex: 1, overflowY: "auto", padding: "16px 16px 0" }}>
 
@@ -1140,7 +1146,7 @@ export default function ResultPage() {
 
       {/* Bottom timeline bar */}
       {result && (
-        <div style={{ position: "fixed", bottom: 0, left: 280, right: 280, height: 56, zIndex: 10, ...panelBg, borderTop: "1px solid rgba(255,255,255,0.07)", display: "flex", alignItems: "center", gap: 32, padding: "0 28px", opacity: panelsVisible ? 1 : 0, transition: "opacity 0.8s ease" }}>
+        <div style={{ position: "fixed", bottom: 0, left: 280, right: 280, height: 56, zIndex: 10, ...panelBgBottom, display: "flex", alignItems: "center", gap: 32, padding: "0 28px", opacity: panelsVisible ? 1 : 0, transition: "opacity 0.8s ease" }}>
           <Tooltip text="Time elapsed in simulation">
             <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
               <span style={{ fontSize: 8, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.3)" }}>Timeline</span>
