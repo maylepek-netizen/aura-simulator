@@ -180,6 +180,10 @@ const HARDCODED_ANSWERS: Record<string, string> = {
     'Milton\'s Double Empathy Problem (2012) is essential context: masking arises because autistic social behavior is read as a "deficit" by neurotypical observers, when in reality it is a difference in dispositional outlook. To avoid stigma and social rejection, autistic people learn to perform neurotypical behavior — suppressing stimming, forcing eye contact, scripting conversation. Milton writes: "if one can apply a label on the \'other\' locating the problem in them, it resolves the applier\'s natural attitude of responsibility." The cost of this performance is profound: Grandin documents the exhausting cognitive load of translating every interaction through explicit rules ("door imagery for getting along with people") rather than intuition. Robertson & Baron-Cohen (2017) connect masking to the sensory dimension — suppressing visible responses to pain or overload adds another layer of effort. Research consistently links chronic masking to burnout, depression, and late or missed diagnosis, particularly in women and people of color.',
 };
 
+// ─── Color palette: orange, pink, purple cycling ──────────────────────────────
+const ACCENT = ["#FFC99D", "#FFC1BB", "#BCC2FF"];
+const accent = (i: number) => ACCENT[i % 3];
+
 // ─── Node positions around a circle ───────────────────────────────────────────
 
 function getNodePos(i: number, total: number, rx: number, ry: number) {
@@ -572,19 +576,19 @@ export default function ResearchPage() {
             </p>
             <div className="r-stats">
               <div>
-                <div className="r-stat-num">10</div>
+                <div className="r-stat-num" style={{ color: "#FFC99D" }}>10</div>
                 <div className="r-stat-label">Research Studies</div>
               </div>
               <div>
-                <div className="r-stat-num">360+</div>
+                <div className="r-stat-num" style={{ color: "#FFC1BB" }}>360+</div>
                 <div className="r-stat-label">Sources</div>
               </div>
               <div>
-                <div className="r-stat-num">120</div>
+                <div className="r-stat-num" style={{ color: "#BCC2FF" }}>120</div>
                 <div className="r-stat-label">Participants</div>
               </div>
               <div>
-                <div className="r-stat-num">45K+</div>
+                <div className="r-stat-num" style={{ color: "#FFC99D" }}>45K+</div>
                 <div className="r-stat-label">Data Points</div>
               </div>
             </div>
@@ -614,7 +618,7 @@ export default function ResearchPage() {
                     key={i}
                     x1={CX + a.x} y1={CY + a.y}
                     x2={CX + b.x} y2={CY + b.y}
-                    stroke="#FFC99D"
+                    stroke={accent(i)}
                     strokeWidth={0.5}
                     className="line-pulse"
                   />
@@ -652,13 +656,13 @@ export default function ResearchPage() {
                   >
                     {/* Glow for active */}
                     {isActive && (
-                      <circle r={nodeR + 6} fill="rgba(255,201,157,0.08)" />
+                      <circle r={nodeR + 6} fill={`${accent(i)}18`} />
                     )}
                     <circle
                       className="node-circle"
                       r={nodeR}
-                      fill={isActive ? "rgba(255,201,157,0.12)" : "rgba(10,8,6,0.92)"}
-                      stroke={isActive ? "#FFC99D" : "rgba(255,201,157,0.35)"}
+                      fill={isActive ? `${accent(i)}1F` : "rgba(10,8,6,0.92)"}
+                      stroke={isActive ? accent(i) : `${accent(i)}59`}
                       strokeWidth={isActive ? 1.5 : 1}
                     />
                     {/* Number */}
@@ -666,7 +670,7 @@ export default function ResearchPage() {
                       x={0} y={-nodeR + 13}
                       textAnchor="middle"
                       fontSize={7}
-                      fill="rgba(255,201,157,0.5)"
+                      fill={`${accent(i)}80`}
                       letterSpacing="0.1em"
                       fontFamily="Inter, sans-serif"
                     >
@@ -699,9 +703,9 @@ export default function ResearchPage() {
               {TOPICS.map((_, i) => (
                 <div
                   key={i}
-                  className={`r-prog-seg${activeTopic === i ? " active" : ""}`}
+                  className="r-prog-seg"
                   onClick={() => selectTopic(i)}
-                  style={{ cursor: "pointer" }}
+                  style={{ cursor: "pointer", background: activeTopic === i ? accent(i) : "rgba(255,255,255,0.12)" }}
                 />
               ))}
             </div>
@@ -713,8 +717,8 @@ export default function ResearchPage() {
             <div className="r-topic-title">{topic.label}</div>
             <p className="r-topic-desc">{topic.description}</p>
             <div className="r-tags">
-              {topic.tags.map((tag) => (
-                <span key={tag} className="r-tag">{tag}</span>
+              {topic.tags.map((tag, i) => (
+                <span key={tag} className="r-tag" style={{ borderColor: `${accent(i)}40`, color: `${accent(i)}99` }}>{tag}</span>
               ))}
             </div>
 
