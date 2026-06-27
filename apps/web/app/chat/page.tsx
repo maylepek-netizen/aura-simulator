@@ -229,7 +229,7 @@ export default function ChatPage() {
           position: "absolute", top: 60, bottom: 0, left: 80, right: 0,
           display: "flex", flexDirection: "column",
           alignItems: "center", justifyContent: "center",
-          padding: "0 60px 120px",
+          padding: "0 60px 40px",
           zIndex: 5,
         }}>
 
@@ -251,6 +251,16 @@ export default function ChatPage() {
           }}>
             Define the Experience
           </h1>
+
+          {/* Description — above textarea */}
+          <p style={{
+            marginTop: 16, marginBottom: 16, maxWidth: 640,
+            fontSize: 18, letterSpacing: "0.06em",
+            color: "rgba(255,255,255,0.35)",
+            textAlign: "center", lineHeight: 1.3,
+          }}>
+            Describe a real-life moment, place, or interaction. The simulation will reinterpret it through an autistic sensory and social perspective, informed by research, first-hand accounts, and documented autistic experiences.
+          </p>
 
           {/* Textarea card */}
           <div style={{
@@ -301,16 +311,6 @@ export default function ChatPage() {
             </div>
           </div>
 
-          {/* Description — below textarea */}
-          <p style={{
-            marginTop: 16, marginBottom: 0, maxWidth: 640,
-            fontSize: 18, letterSpacing: "0.06em",
-            color: "rgba(255,255,255,0.35)",
-            textAlign: "center", lineHeight: 1.3,
-          }}>
-            Describe a real-life moment, place, or interaction. The simulation will reinterpret it through an autistic sensory and social perspective, informed by research, first-hand accounts, and documented autistic experiences.
-          </p>
-
           {/* Help hint */}
           {helpHint && (
             <div style={{
@@ -323,59 +323,58 @@ export default function ChatPage() {
             </div>
           )}
 
-        </div>
-      </div>
+          {/* ── Help buttons ── */}
+          <div style={{ position: "relative", marginTop: 16, width: "100%", maxWidth: 680 }}>
+            <p style={{ fontSize: 18, letterSpacing: "0.1em", color: "rgba(255,255,255,0.4)", marginBottom: 12 }}>
+              Need help?
+            </p>
+            <div style={{ display: "flex", gap: 10 }}>
+              <button className="helper-btn" type="button" onClick={handleHelpMe}
+                style={{ border: "1px solid #FFC1BB", color: "#FFC1BB" }}>
+                Help me think
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <path d="M9.5 2a6 6 0 0 1 5 9.5M9.5 2a6 6 0 0 0-5 9.5M9.5 2v1M14.5 11.5a6 6 0 0 1-5 9.5M14.5 11.5a6 6 0 0 0-5 9.5M9.5 21v-1M3 7h1M16 7h1M3 17h1M16 17h1"/>
+                </svg>
+              </button>
+              <button className="helper-btn" type="button" onClick={handleWriteForMe}
+                style={{ border: "1px solid #BCC2FF", color: "#BCC2FF" }}>
+                Write for me
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                </svg>
+              </button>
+              <button
+                className="helper-btn"
+                type="button"
+                onClick={() => { setShowExamples((v) => !v); setHelpHint(null); }}
+                style={{ border: "1px solid #FFC99D", color: "#FFC99D" }}
+              >
+                Show me examples <span>›</span>
+              </button>
+            </div>
 
-        {/* ── BOTTOM LEFT: Help buttons (fixed, aligned with simulation number) ── */}
-        <div style={{ position: "fixed", bottom: 20, left: 108, zIndex: 10 }}>
-          <p style={{ fontSize: 18, letterSpacing: "0.1em", color: "rgba(255,255,255,0.4)", marginBottom: 12 }}>
-            Need help?
-          </p>
-          <div style={{ display: "flex", gap: 10 }}>
-            <button className="helper-btn" type="button" onClick={handleHelpMe}
-              style={{ border: "1px solid #FFC1BB", color: "#FFC1BB" }}>
-              Help me think
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                <path d="M9.5 2a6 6 0 0 1 5 9.5M9.5 2a6 6 0 0 0-5 9.5M9.5 2v1M14.5 11.5a6 6 0 0 1-5 9.5M14.5 11.5a6 6 0 0 0-5 9.5M9.5 21v-1M3 7h1M16 7h1M3 17h1M16 17h1"/>
-              </svg>
-            </button>
-            <button className="helper-btn" type="button" onClick={handleWriteForMe}
-              style={{ border: "1px solid #BCC2FF", color: "#BCC2FF" }}>
-              Write for me
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>
-              </svg>
-            </button>
-            <button
-              className="helper-btn"
-              type="button"
-              onClick={() => { setShowExamples((v) => !v); setHelpHint(null); }}
-              style={{ border: "1px solid #FFC99D", color: "#FFC99D" }}
-            >
-              Show me examples <span>›</span>
-            </button>
+            {/* Examples list — expands downward */}
+            {showExamples && (
+              <div style={{
+                marginTop: 8,
+                display: "flex", flexWrap: "wrap", gap: 8, maxWidth: 640,
+              }}>
+                {examples.map((ex) => (
+                  <button
+                    key={ex}
+                    className="example-chip"
+                    type="button"
+                    onClick={() => { setInput(ex); setShowExamples(false); }}
+                  >
+                    {ex}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
-          {/* Examples list — expands upward */}
-          {showExamples && (
-            <div style={{
-              position: "absolute", bottom: "100%", left: 0,
-              paddingBottom: 12,
-              display: "flex", flexWrap: "wrap", gap: 8, maxWidth: 640,
-            }}>
-              {examples.map((ex) => (
-                <button
-                  key={ex}
-                  className="example-chip"
-                  type="button"
-                  onClick={() => { setInput(ex); setShowExamples(false); }}
-                >
-                  {ex}
-                </button>
-              ))}
-            </div>
-          )}
         </div>
+      </div>
     </>
   );
 }
