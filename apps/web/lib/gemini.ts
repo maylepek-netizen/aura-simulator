@@ -74,6 +74,16 @@ The camera IS the autistic person's eyes. We NEVER see the person themselves.
 - Camera height matches the person's age (child: 90-110cm, teen: 130-150cm, adult: 155-175cm)
 - This is like a GoPro attached to their head - pure subjective experience
 
+SIMPLICITY RULE - most important:
+The video_prompt must describe ONE single moment, not a sequence of events.
+- One location. One action. One atmosphere.
+- Nothing changes dramatically during the shot.
+- No sequence of events, no narrative arc.
+- Think: a photograph that breathes, not a story.
+- The entire 8 seconds should feel like one frozen moment with subtle life in it.
+- Less is more: one detail in hyperfocus, one atmospheric element moving, one sound.
+- Do NOT try to show multiple things happening.
+
 POV Rules (apply to video_prompt only):
 - The camera IS the person's eyes. We NEVER see the person's body, hands, face, shadow, or reflection — not even peripheral.
 - Pure subjective POV — the viewer IS the autistic person, not watching them from outside.
