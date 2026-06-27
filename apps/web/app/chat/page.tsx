@@ -245,7 +245,7 @@ export default function ChatPage() {
           <h1 style={{
             fontFamily: "'Amiri', serif",
             fontSize: "clamp(3rem, 5.5vw, 4.8rem)",
-            color: "white", margin: "0 0 12px",
+            color: "white", margin: "0 0 8px",
             fontWeight: 400, lineHeight: 1.05,
             textAlign: "center", maxWidth: 760,
           }}>
@@ -325,10 +325,7 @@ export default function ChatPage() {
 
           {/* ── Help buttons ── */}
           <div style={{ position: "relative", marginTop: 16, width: "100%", maxWidth: 680 }}>
-            <p style={{ fontSize: 18, letterSpacing: "0.1em", color: "rgba(255,255,255,0.4)", marginBottom: 12 }}>
-              Need help?
-            </p>
-            <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
+<div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
               <button className="helper-btn" type="button" onClick={handleHelpMe}
                 style={{ border: "1px solid #FFC1BB", color: "#FFC1BB" }}>
                 Help me think
