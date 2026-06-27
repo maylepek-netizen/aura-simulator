@@ -324,7 +324,7 @@ export default function ChatPage() {
           )}
 
           {/* ── Help buttons ── */}
-          <div style={{ position: "relative", marginTop: 16, width: "100%", maxWidth: 680 }}>
+          <div style={{ position: "relative", marginTop: 30, width: "100%", maxWidth: 680 }}>
 <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
               <button className="helper-btn" type="button" onClick={handleHelpMe}
                 style={{ border: "1px solid #FFC1BB", color: "#FFC1BB" }}>
