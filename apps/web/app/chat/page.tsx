@@ -245,7 +245,7 @@ export default function ChatPage() {
           <h1 style={{
             fontFamily: "'Amiri', serif",
             fontSize: "clamp(3rem, 5.5vw, 4.8rem)",
-            color: "white", margin: "0 0 10px",
+            color: "white", margin: "0 0 12px",
             fontWeight: 400, lineHeight: 1.05,
             textAlign: "center", maxWidth: 760,
           }}>
@@ -254,7 +254,7 @@ export default function ChatPage() {
 
           {/* Description — above textarea */}
           <p style={{
-            marginTop: 16, marginBottom: 16, maxWidth: 640,
+            marginTop: 0, marginBottom: 20, maxWidth: 640,
             fontSize: 18, letterSpacing: "0.06em",
             color: "rgba(255,255,255,0.35)",
             textAlign: "center", lineHeight: 1.3,
@@ -328,7 +328,7 @@ export default function ChatPage() {
             <p style={{ fontSize: 18, letterSpacing: "0.1em", color: "rgba(255,255,255,0.4)", marginBottom: 12 }}>
               Need help?
             </p>
-            <div style={{ display: "flex", gap: 10 }}>
+            <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
               <button className="helper-btn" type="button" onClick={handleHelpMe}
                 style={{ border: "1px solid #FFC1BB", color: "#FFC1BB" }}>
                 Help me think
