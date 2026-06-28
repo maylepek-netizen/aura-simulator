@@ -226,16 +226,18 @@ export default function LandingPage() {
               alignItems: "center", justifyContent: "center",
               gap: 20, zIndex: 2,
             }}>
-              <img src="/logo.svg" alt="Aura" style={{ width: 52 }} />
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+                <img src="/logo.svg" alt="Aura" style={{ width: 44, opacity: 0.9, filter: "invert(75%) sepia(40%) saturate(500%) hue-rotate(335deg) brightness(105%)" }} />
 
-              <h1 style={{
-                fontFamily: "'Amiri', serif",
-                fontSize: "clamp(2.4rem, 5vw, 4rem)",
-                color: "white", margin: 0,
-                textAlign: "center", lineHeight: 1.15, fontWeight: 400,
-              }}>
-                Aura Simulator
-              </h1>
+                <h1 style={{
+                  fontFamily: "'Amiri', serif",
+                  fontSize: "clamp(1.9rem, 4vw, 3.5rem)",
+                  color: "#FFC99D", margin: 0,
+                  textAlign: "center", lineHeight: 1.15, fontWeight: 400,
+                }}>
+                  Aura Simulator
+                </h1>
+              </div>
 
               <p style={{
                 fontSize: 14, letterSpacing: "0.18em",
