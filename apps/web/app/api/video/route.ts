@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 const API_KEY = process.env.GEMINI_API_KEY!;
-const VEO_MODEL = "veo-3.0-fast-generate-preview";
+const VEO_MODEL = "veo-2.0-generate-001";
 
 export async function POST(req: NextRequest) {
   try {
@@ -36,8 +36,8 @@ export async function POST(req: NextRequest) {
 
     const { name: operationName } = await startRes.json();
 
-    // Step 2: Poll until done (max 3 minutes, 36 × 5s)
-    for (let i = 0; i < 36; i++) {
+    // Step 2: Poll until done (max 5 minutes, 60 × 5s)
+    for (let i = 0; i < 60; i++) {
       await new Promise((r) => setTimeout(r, 5000));
 
       const pollRes = await fetch(
