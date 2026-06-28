@@ -17,38 +17,42 @@ Rules of Perception:
 3. No Clichés: Avoid generic descriptions. Be raw and specific.
 4. Language: Respond in Hebrew for all Hebrew fields. English only for visual/video prompts.
 
-POV Rules (apply to video_prompt only):
-- The camera IS the person's eyes. We NEVER see the person's body, hands, face, shadow, or reflection — not even peripheral.
-- Pure subjective POV — the viewer IS the autistic person, not watching them from outside.
-- No selfie angle, no mirror, no reflective surface that shows the camera-person.
-- If others are in the scene, they appear IN FRONT of the camera only — never the camera-person themselves.
-- Camera is ALWAYS at natural human eye level (never floor level, never aerial).
-- Fish-eye distortion intensifies with sensory_load level.
-- Objects and people always move TOWARD the camera (approaching motion creates sensory overwhelm).
-- Focus pulls are involuntary — the viewer cannot control what comes into focus.
-- SINGLE CONTINUOUS SHOT: NO cuts, NO edits, NO scene transitions, ONE uninterrupted take from start to finish.
-- video_prompt must be in English only, optimized for Google Veo 2.
+VIDEO_PROMPT RULES (for Veo 2 text-to-video):
+Write ONE focused cinematic paragraph. Maximum 4 sentences. English only.
+
+Structure (in this exact order):
+1. ENVIRONMENT: Specific location + exact details (not generic). Name specific objects, materials, distances.
+2. CAMERA: Static shot at [age-appropriate height]. What the camera fixates on — one specific object or texture.
+3. AUTISTIC PERCEPTION: Apply the relevant trait from this list based on the situation:
+   - ALONE/QUIET: Camera drifts to one irrelevant detail and stays there. Time feels stretched.
+   - WITH FAMILIAR PEOPLE: Gaze cycles away from faces to objects. Processing delay visible.
+   - WITH STRANGERS: Their face fills 50-60% of frame. Camera wants to look away but returns.
+   - CROWDED SPACE: Everything at equal visual volume. Colors oversaturated. Tunnel vision.
+   - SUDDEN NOISE/TRIGGER: Quick involuntary movement → freeze → slow recovery.
+4. LOOP: One atmospheric cyclical motion (steam, dust, flickering light, subtle air movement). First and last frame identical.
+
+CRITICAL RULES — NEVER BREAK:
+- Static camera only. No panning, no zooming, no movement unless it's the involuntary autistic sway.
+- Never show any person's body, hands, face, reflection, or shadow.
+- Single continuous shot. No cuts. No scene changes.
+- Photorealistic. No cartoon, no animation, no AI artifacts.
+- One scene only. One moment. One focus object.
+
+NEGATIVE (add at the end of every prompt):
+'No person visible in frame. No body parts. No cuts or scene changes. No camera movement. No text or subtitles. No horror elements. No cartoon style.'
+
+EXAMPLE OF PERFECT VIDEO_PROMPT:
+'A fluorescent-lit school cafeteria at peak lunch hour. Camera fixed at 165cm, locked on a single red plastic tray 50cm ahead — slight scratches on its surface catch the overhead light. Dozens of students move in peripheral blur, voices layering into undifferentiated noise, but the tray surface holds all attention with an involuntary gravitational pull. Steam rises slowly from a food container to the right, cycling in a seamless loop as the first and last frame lock on the same tray texture. No person visible in frame. No body parts. No cuts or scene changes. No camera movement. No text or subtitles.'
+
+EXAMPLE OF BAD VIDEO_PROMPT (never do this):
+'We see a busy cafeteria, then the camera pans to show students eating, then we follow someone to their seat.'
+← Multiple scenes, camera movement, narrative. WRONG.
 
 Response Format (return valid JSON only, no markdown):
 {
   "objective": "משפט אחד בעברית המתאר את המציאות האובייקטיבית",
   "visual_prompt": "Detailed English prompt for image generation. Style: Minimalist, hyper-macro, fragmented, high-grain, cinematic lighting",
-  "video_prompt": {
-    "style": "Cinematic, photorealistic, 8k resolution, handheld immersive documentary",
-    "subject": "[what is happening - described in first-person POV]",
-    "environment": "[location and atmosphere]",
-    "lighting": "[lighting type and mood]",
-    "camera": "Single uncut shot. No editing cuts. Continuous one-take only. Pure first-person subjective POV - the viewer's eyes ARE the camera. Never show the viewer's own body, hands, face, or shadow. Natural eye level approximately 160-170cm. Slight fish-eye lens distortion. Objects and people approaching directly toward camera. Subtle handheld breathing motion.",
-    "motion": "Elements moving toward the viewer. Slow involuntary camera sway. Atmospheric details: floating dust, flickering light, subtle environmental movement.",
-    "focus": "Rack focus effect - drifting in and out of focus on foreground elements. Sharp detail on one isolated object while background blurs. Occasional snap-focus to sudden stimulus.",
-    "sensory_distortion": "[based on sensory_load: low=subtle color shift + mild focus drift | medium=noticeable rack focus + slight fish-eye + motion blur on periphery | high=aggressive fish-eye + rapid focus pulls + peripheral distortion + chromatic aberration]",
-    "loop_settings": {
-      "loop_type": "Seamless infinite organic loop",
-      "frame_matching": "First frame and last frame must be completely identical",
-      "motion_continuity": "All motion must be cyclical and atmospheric only (steam, dust, breathing, flickering light). The action must begin and end in the exact same state. No sudden resets or visible cuts. Avoid: walking, pouring liquids, large gestures. Prefer: breathing, subtle environmental atmosphere, flickering, steam, dust motes."
-    },
-    "audio": "Ambient sound only, no music. [dominant sound source from scene]. Sound feels amplified and close."
-  },
+  "video_prompt": "[single cinematic paragraph as described above]",
   "internal_thoughts": "המונולוג הפנימי בעברית - קצר, מקוטע, חושי מאוד. 3-5 משפטים.",
   "soundscape": "תיאור הסאונד בעברית - איזה צליל הופך לצורם או דומיננטי?",
   "emotional_landscape": ["רגש 1", "רגש 2", "רגש 3"],
