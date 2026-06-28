@@ -17,11 +17,38 @@ Rules of Perception:
 3. No Clichés: Avoid generic descriptions. Be raw and specific.
 4. Language: Respond in Hebrew for all Hebrew fields. English only for visual/video prompts.
 
+POV Rules (apply to video_prompt only):
+- The camera IS the person's eyes. We NEVER see the person's body, hands, face, shadow, or reflection — not even peripheral.
+- Pure subjective POV — the viewer IS the autistic person, not watching them from outside.
+- No selfie angle, no mirror, no reflective surface that shows the camera-person.
+- If others are in the scene, they appear IN FRONT of the camera only — never the camera-person themselves.
+- Camera is ALWAYS at natural human eye level (never floor level, never aerial).
+- Fish-eye distortion intensifies with sensory_load level.
+- Objects and people always move TOWARD the camera (approaching motion creates sensory overwhelm).
+- Focus pulls are involuntary — the viewer cannot control what comes into focus.
+- SINGLE CONTINUOUS SHOT: NO cuts, NO edits, NO scene transitions, ONE uninterrupted take from start to finish.
+- video_prompt must be in English only, optimized for Google Veo 2.
+
 Response Format (return valid JSON only, no markdown):
 {
   "objective": "משפט אחד בעברית המתאר את המציאות האובייקטיבית",
   "visual_prompt": "Detailed English prompt for image generation. Style: Minimalist, hyper-macro, fragmented, high-grain, cinematic lighting",
-  "video_prompt": "[WILL BE INJECTED — leave exactly as this placeholder string]",
+  "video_prompt": {
+    "style": "Cinematic, photorealistic, 8k resolution, handheld immersive documentary",
+    "subject": "[what is happening - described in first-person POV]",
+    "environment": "[location and atmosphere]",
+    "lighting": "[lighting type and mood]",
+    "camera": "Single uncut shot. No editing cuts. Continuous one-take only. Pure first-person subjective POV - the viewer's eyes ARE the camera. Never show the viewer's own body, hands, face, or shadow. Natural eye level approximately 160-170cm. Slight fish-eye lens distortion. Objects and people approaching directly toward camera. Subtle handheld breathing motion.",
+    "motion": "Elements moving toward the viewer. Slow involuntary camera sway. Atmospheric details: floating dust, flickering light, subtle environmental movement.",
+    "focus": "Rack focus effect - drifting in and out of focus on foreground elements. Sharp detail on one isolated object while background blurs. Occasional snap-focus to sudden stimulus.",
+    "sensory_distortion": "[based on sensory_load: low=subtle color shift + mild focus drift | medium=noticeable rack focus + slight fish-eye + motion blur on periphery | high=aggressive fish-eye + rapid focus pulls + peripheral distortion + chromatic aberration]",
+    "loop_settings": {
+      "loop_type": "Seamless infinite organic loop",
+      "frame_matching": "First frame and last frame must be completely identical",
+      "motion_continuity": "All motion must be cyclical and atmospheric only (steam, dust, breathing, flickering light). The action must begin and end in the exact same state. No sudden resets or visible cuts. Avoid: walking, pouring liquids, large gestures. Prefer: breathing, subtle environmental atmosphere, flickering, steam, dust motes."
+    },
+    "audio": "Ambient sound only, no music. [dominant sound source from scene]. Sound feels amplified and close."
+  },
   "internal_thoughts": "המונולוג הפנימי בעברית - קצר, מקוטע, חושי מאוד. 3-5 משפטים.",
   "soundscape": "תיאור הסאונד בעברית - איזה צליל הופך לצורם או דומיננטי?",
   "emotional_landscape": ["רגש 1", "רגש 2", "רגש 3"],
@@ -29,108 +56,6 @@ Response Format (return valid JSON only, no markdown):
   "visual_effect": "<glitch_heavy|glitch_medium|glitch_light|calm>"
 }
 `;
-
-// ─── Classify Situation ───────────────────────────────────────────────────────
-
-export async function classifySituation(
-  apiKey: string,
-  situation: string
-): Promise<{
-  familiarity: "alone" | "familiar" | "strangers";
-  density: "quiet" | "medium" | "crowded";
-  activity: "passive" | "interactive" | "moving";
-  trigger: string | null;
-}> {
-  const ai = getAI(apiKey);
-  const model = ai.getGenerativeModel({
-    model: "gemini-1.5-flash",
-    generationConfig: { temperature: 0.1, maxOutputTokens: 200 },
-  });
-
-  const prompt = `Analyze this situation and classify it. Return ONLY valid JSON, no markdown.
-
-Situation: "${situation}"
-
-Return exactly this JSON structure:
-{
-  "familiarity": "alone" OR "familiar" OR "strangers",
-  "density": "quiet" OR "medium" OR "crowded",
-  "activity": "passive" OR "interactive" OR "moving",
-  "trigger": "describe any sudden event/disruption if present, otherwise null"
-}
-
-Rules:
-- alone = no other people present
-- familiar = family, friends, known people
-- strangers = unknown people
-- quiet = private/low stimulation (car, bedroom, empty room)
-- medium = moderate activity (classroom, quiet cafe, small gathering)
-- crowded = high stimulation (bus, party, mall, busy street, cinema)
-- passive = sitting, watching, listening
-- interactive = conversation, game, lesson
-- moving = walking, commuting, sport`;
-
-  const result = await model.generateContent(prompt);
-  const raw = result.response.text();
-  const cleaned = raw.replace(/```json/gi, "").replace(/```/g, "").trim();
-  return JSON.parse(cleaned);
-}
-
-// ─── Build Directed Video Prompt ──────────────────────────────────────────────
-
-export function buildDirectedVideoPrompt(
-  classification: {
-    familiarity: string;
-    density: string;
-    activity: string;
-    trigger: string | null;
-  },
-  situation: string,
-  age: number
-): string {
-  const cameraHeight = age < 10 ? "100cm" : age < 16 ? "145cm" : "165cm";
-
-  let directingStyle = "";
-
-  if (classification.familiarity === "alone" && classification.density === "quiet") {
-    directingStyle = `Camera drifts slowly across the space. One irrelevant detail holds attention for almost the entire shot (a crack in the wall, dust floating in light, a texture on a surface). Silence feels thick and present. Time feels stretched. That one detail fills 40% of frame.`;
-  } else if (classification.familiarity === "alone" && classification.density !== "quiet") {
-    directingStyle = `Camera keeps returning to one safe anchor object nearby (a table edge, a cup, hands resting on a surface). Peripheral activity is present but camera resists looking directly at it. The anchor object provides visual stability.`;
-  } else if (classification.familiarity === "familiar" && classification.density === "quiet") {
-    directingStyle = `A known person is present. Camera drifts away from their eyes, cycles: face → mouth → their hands → nearby object → back. Small processing delay — camera responds a fraction late. Their presence feels slightly too close.`;
-  } else if (classification.familiarity === "familiar" && classification.density !== "quiet") {
-    directingStyle = `Familiar faces present but hard to track in the noise. Camera tries to follow one person but gets pulled to background details. One irrelevant detail (a texture, a color, a sound source) competes with the social interaction.`;
-  } else if (classification.familiarity === "strangers" && classification.density === "quiet") {
-    directingStyle = `A stranger's face fills 50-60% of frame. Eyes feel too direct and intense. Mouth movements appear slightly out of sync. Camera wants to look away but keeps returning. Their body seems to lean slightly toward camera.`;
-  } else if (classification.familiarity === "strangers" && classification.density === "crowded") {
-    directingStyle = `Continuous scanning — camera cannot settle. Everything at equal visual volume, no hierarchy. Lights feel overexposed. Colors too saturated. Center stays sharp, edges blur into tunnel vision. One random detail suddenly dominates.`;
-  } else if (classification.activity === "moving") {
-    directingStyle = `Camera moves at natural walking pace. Ground texture visible periodically. Passing people feel slightly threatening — camera angles slightly away. One recurring detail keeps appearing (a pattern, a color, a sound source).`;
-  } else {
-    directingStyle = `Camera holds steady on the most visually dominant element in the scene. Slight involuntary sway. Peripheral details compete for attention but camera resists redirecting.`;
-  }
-
-  const triggerInstruction = classification.trigger
-    ? `TRIGGER EVENT: "${classification.trigger}" — when this happens: quick involuntary camera movement → brief freeze → slow recovery back to original position.`
-    : "";
-
-  return `Write ONE cinematic paragraph for Google Veo 2. Situation: "${situation}". Camera height: ${cameraHeight}.
-
-DIRECTING STYLE FOR THIS SCENE:
-${directingStyle}
-
-${triggerInstruction}
-
-IRON RULES — NEVER BREAK:
-1. Single continuous shot. No cuts. No scene changes. One uninterrupted take.
-2. NEVER show the person themselves. No body, no hands, no face, no reflection, no shadow. Pure environment shot.
-3. Seamless loop — last frame identical to first frame. Only atmospheric cyclical motion (steam, dust, flickering light, subtle air movement).
-4. ONE scene only. One location. One moment. Not three scenes combined.
-5. Photorealistic. Natural motion only. No AI artifacts.
-6. Camera height: ${cameraHeight}.
-
-OUTPUT: One focused paragraph, 3-5 sentences, English only. Describe: the exact environment, the one element in focus, the atmospheric loop motion, the camera behavior.`;
-}
 
 // ─── Generate Text Experience ─────────────────────────────────────────────────
 
@@ -143,41 +68,33 @@ export async function generateExperience(
   age: number,
   gender: string
 ) {
-  const [classification, experienceResult] = await Promise.all([
-    classifySituation(apiKey, situation),
-    (async () => {
-      const ai = getAI(apiKey);
-      const model = ai.getGenerativeModel({
-        model: "gemini-1.5-flash",
-        systemInstruction: SYSTEM_INSTRUCTION,
-        generationConfig: { temperature: 0.8, maxOutputTokens: 1500 },
-      });
+  const ai = getAI(apiKey);
+  const model = ai.getGenerativeModel({
+    model: "gemini-1.5-flash",
+    systemInstruction: SYSTEM_INSTRUCTION,
+    generationConfig: { temperature: 0.8, maxOutputTokens: 1500 },
+  });
 
-      const intensity =
-        level <= 33
-          ? "low (subtle sensory shifts)"
-          : level <= 66
-            ? "medium (noticeable overload)"
-            : "high (extreme sensory fragmentation and loss of control)";
+  const intensity =
+    level <= 33
+      ? "low (subtle sensory shifts)"
+      : level <= 66
+        ? "medium (noticeable overload)"
+        : "high (extreme sensory fragmentation and loss of control)";
 
-      const prompt = `
+  const prompt = `
 Person: ${name}, age ${age}, ${gender}
 Situation: ${situation}
 Task: ${task}
 Intensity Level: ${intensity} (${level}/100)
 
 Return only valid JSON, no markdown.
-      `.trim();
+  `.trim();
 
-      const result: GenerateContentResult = await model.generateContent(prompt);
-      const raw = result.response.text();
-      const cleaned = raw.replace(/```json/gi, "").replace(/```/g, "").trim();
-      return JSON.parse(cleaned);
-    })(),
-  ]);
-
-  const video_prompt = buildDirectedVideoPrompt(classification, situation, age);
-  return { ...experienceResult, video_prompt };
+  const result: GenerateContentResult = await model.generateContent(prompt);
+  const raw = result.response.text();
+  const cleaned = raw.replace(/```json/gi, "").replace(/```/g, "").trim();
+  return JSON.parse(cleaned);
 }
 
 // ─── Generate Scene Image ─────────────────────────────────────────────────────
