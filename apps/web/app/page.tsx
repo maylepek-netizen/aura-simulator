@@ -227,7 +227,7 @@ export default function LandingPage() {
               gap: 20, zIndex: 2,
             }}>
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
-                <img src="/logo.svg" alt="Aura" style={{ width: 44, opacity: 0.9, filter: "invert(75%) sepia(40%) saturate(500%) hue-rotate(335deg) brightness(105%)" }} />
+                <img src="/logo-orange.svg" alt="Aura" style={{ width: 53, opacity: 0.9 }} />
 
                 <h1 style={{
                   fontFamily: "'Amiri', serif",
