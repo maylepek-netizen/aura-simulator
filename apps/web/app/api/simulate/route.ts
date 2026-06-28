@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { generateSceneImage } from "@/lib/gemini";
 
 const GEMINI_MODEL = "gemini-2.5-flash";
 
@@ -137,7 +138,20 @@ export async function POST(req: NextRequest) {
     const data = await res.json();
     const raw = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
     const cleaned = raw.replace(/```json/gi, "").replace(/```/g, "").trim();
-    return NextResponse.json(JSON.parse(cleaned));
+    const result = JSON.parse(cleaned);
+
+    // Generate reference image for image-to-video pipeline
+    let imageBase64: string | null = null;
+    try {
+      const dataUrl = await generateSceneImage(apiKey, result.visual_prompt ?? "", result.overall_load ?? 50);
+      if (dataUrl) {
+        imageBase64 = dataUrl.replace(/^data:image\/[^;]+;base64,/, "");
+      }
+    } catch {
+      // Image generation failure is non-fatal — video will generate from prompt only
+    }
+
+    return NextResponse.json({ ...result, imageBase64 });
   } catch (err) {
     return NextResponse.json({ error: String(err) }, { status: 500 });
   }

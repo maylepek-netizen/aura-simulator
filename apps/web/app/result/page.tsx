@@ -39,6 +39,7 @@ type SimulationResult = {
   masking_cost: string;
   research_tags: string[];
   ambient_sound?: string;
+  imageBase64?: string;
 };
 
 // ─── Ambient Sound Map ────────────────────────────────────────────────────────
@@ -781,7 +782,10 @@ export default function ResultPage() {
       fetch("/api/video", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: data.video_prompt || `First-person POV through the eyes of a person in ${snapshot.situation}. Cinematic handheld camera, overexposed fluorescent lighting, tunnel vision effect, photorealistic.` }),
+        body: JSON.stringify({
+            prompt: data.video_prompt || `First-person POV through the eyes of a person in ${snapshot.situation}. Cinematic handheld camera, overexposed fluorescent lighting, tunnel vision effect, photorealistic.`,
+            ...(data.imageBase64 ? { imageBase64: data.imageBase64 } : {}),
+          }),
       })
         .then(r => r.json())
         .then(v => {

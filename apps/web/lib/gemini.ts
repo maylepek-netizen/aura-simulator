@@ -93,6 +93,9 @@ IRON RULES — NEVER BREAK:
    Not three scenes combined. A photograph that breathes.
 5. Camera height matches age: child=100cm, teen=145cm, adult=165cm.
 6. Photorealistic. Natural motion only. No AI artifacts.
+7. NEGATIVE (never include these): person's own body, hands, feet, selfie angle,
+   multiple locations, narrative sequence, text on screen, unnatural motion,
+   horror elements, cartoon style.
 
 PROMPT FORMAT:
 Write one focused cinematic paragraph describing:
@@ -119,7 +122,7 @@ then we see the protagonist walking away."
 Response Format (return valid JSON only, no markdown):
 {
   "objective": "משפט אחד בעברית המתאר את המציאות האובייקטיבית",
-  "visual_prompt": "Detailed English prompt for image generation. Style: Minimalist, hyper-macro, fragmented, high-grain, cinematic lighting",
+  "visual_prompt": "A STILL FRAME that could be the first frame of the video. Same location, same lighting, same camera angle as the video_prompt. Photorealistic, cinematic, no people in center frame.",
   "video_prompt": "One focused cinematic paragraph in English describing the single moment, hyperfocus detail, atmospheric loop motion, and camera behavior. Optimized for Google Veo 2.",
   "internal_thoughts": "המונולוג הפנימי בעברית - קצר, מקוטע, חושי מאוד. 3-5 משפטים.",
   "soundscape": "תיאור הסאונד בעברית - איזה צליל הופך לצורם או דומיננטי?",

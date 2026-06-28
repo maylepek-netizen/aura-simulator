@@ -5,7 +5,7 @@ const VEO_MODEL = "veo-2.0-generate-001";
 
 export async function POST(req: NextRequest) {
   try {
-    const { prompt } = await req.json();
+    const { prompt, imageBase64 } = await req.json();
 
     // Convert JSON video_prompt object to string if needed
     let finalPrompt = prompt;
@@ -16,6 +16,11 @@ export async function POST(req: NextRequest) {
       finalPrompt = prompt;
     }
 
+    const instance: Record<string, unknown> = { prompt: finalPrompt };
+    if (imageBase64) {
+      instance.image = { bytesBase64Encoded: imageBase64, mimeType: "image/png" };
+    }
+
     // Step 1: Start video generation
     const startRes = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/${VEO_MODEL}:predictLongRunning?key=${API_KEY}`,
@@ -23,8 +28,13 @@ export async function POST(req: NextRequest) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          instances: [{ prompt: finalPrompt }],
-          parameters: { aspectRatio: "16:9", sampleCount: 1, durationSeconds: 8 },
+          instances: [instance],
+          parameters: {
+            aspectRatio: "16:9",
+            sampleCount: 1,
+            durationSeconds: 8,
+            negativePrompt: "person's own body, hands, feet, selfie angle, multiple locations, narrative sequence, text on screen, unnatural motion, horror elements, cartoon style",
+          },
         }),
       }
     );
