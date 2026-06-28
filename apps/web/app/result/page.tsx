@@ -488,7 +488,11 @@ function LiveMetricBar({ label, value, color, tooltip }: { label: string; value:
 // ─── Waveform decoration ──────────────────────────────────────────────────────
 
 function WaveformBars({ active }: { active: boolean }) {
-  const [heights, setHeights] = useState(() => Array.from({ length: 32 }, () => Math.random() * 20 + 4));
+  const [heights, setHeights] = useState(() => Array.from({ length: 32 }, () => 12));
+  useEffect(() => {
+    // Randomize after mount to avoid SSR hydration mismatch
+    setHeights(Array.from({ length: 32 }, () => Math.random() * 20 + 4));
+  }, []);
   useEffect(() => {
     if (!active) return;
     const t = setInterval(() => {
@@ -508,8 +512,10 @@ function WaveformBars({ active }: { active: boolean }) {
 // ─── Sparkline (stats graph) ──────────────────────────────────────────────────
 
 function Sparkline({ color, label }: { color: string; label: string }) {
-  const [pts, setPts] = useState(() => Array.from({ length: 8 }, () => 30 + Math.random() * 60));
+  const [pts, setPts] = useState(() => Array.from({ length: 8 }, () => 60));
   useEffect(() => {
+    // Randomize after mount to avoid SSR hydration mismatch
+    setPts(Array.from({ length: 8 }, () => 30 + Math.random() * 60));
     const t = setInterval(() => {
       setPts(prev => [...prev.slice(1), 30 + Math.random() * 60]);
     }, 2500);

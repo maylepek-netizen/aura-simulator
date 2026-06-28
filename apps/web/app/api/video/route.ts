@@ -7,11 +7,21 @@ export async function POST(req: NextRequest) {
   try {
     const { prompt, imageBase64 } = await req.json();
 
-    // Convert JSON video_prompt object to string if needed
+    // Convert JSON video_prompt object to natural language string if needed
     let finalPrompt = prompt;
     try {
       const parsed = JSON.parse(prompt);
-      finalPrompt = JSON.stringify(parsed);
+      if (parsed && typeof parsed === "object") {
+        // Flatten the video_prompt object fields into a readable paragraph
+        const p = parsed as Record<string, unknown>;
+        const loopSettings = p.loop_settings as Record<string, string> | undefined;
+        finalPrompt = [
+          p.style, p.subject, p.environment, p.lighting,
+          p.camera, p.motion, p.focus, p.sensory_distortion,
+          loopSettings?.loop_type, loopSettings?.frame_matching, loopSettings?.motion_continuity,
+          p.audio,
+        ].filter(Boolean).join(". ");
+      }
     } catch {
       finalPrompt = prompt;
     }
