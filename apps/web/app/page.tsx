@@ -13,6 +13,8 @@ export default function LandingPage() {
   const idleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const currentScreen = useRef<Screen>("landing");
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const blinkRef = useRef<HTMLDivElement | null>(null);
 
   // Initialize audio once — do not play yet
   useEffect(() => {
@@ -59,6 +61,30 @@ export default function LandingPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    const video = videoRef.current;
+    const overlay = blinkRef.current;
+    if (!video || !overlay) return;
+    let closing = false;
+
+    function onTimeUpdate() {
+      if (!video || !overlay) return;
+      const { currentTime, duration } = video;
+      if (!duration) return;
+      if (!closing && currentTime > duration - 0.4) {
+        closing = true;
+        overlay.style.opacity = "1";
+      }
+      if (closing && currentTime < 0.5) {
+        closing = false;
+        overlay.style.opacity = "0";
+      }
+    }
+
+    video.addEventListener("timeupdate", onTimeUpdate);
+    return () => video.removeEventListener("timeupdate", onTimeUpdate);
+  }, []);
+
   return (
     <>
       <style>{`
@@ -103,6 +129,7 @@ export default function LandingPage() {
       >
         {/* Background video — always present */}
         <video
+          ref={videoRef}
           src="https://res.cloudinary.com/duhsqezo3/video/upload/v1781884444/%D7%90%D7%A0%D7%99_%D7%A8%D7%95%D7%A6%D7%94_%D7%A9%D7%96%D7%94_%D7%99%D7%94%D7%99%D7%94_%D7%AA%D7%A7%D7%A8%D7%99%D7%91%D7%99%D7%9D_%D7%A9%D7%9C_%D7%94_6_jpwuhs.mp4"
           autoPlay
           loop
@@ -115,6 +142,20 @@ export default function LandingPage() {
             transition: "filter 1.2s ease, opacity 1.2s ease",
             filter: screen === "idle" ? "blur(8px) brightness(0.22)" : "none",
             opacity: screen === "idle" ? 0.38 : 1,
+          }}
+        />
+
+        {/* Blink overlay — masks the video loop cut point */}
+        <div
+          id="blink-overlay"
+          ref={blinkRef}
+          style={{
+            position: "absolute", inset: 0,
+            backgroundColor: "black",
+            opacity: 0,
+            pointerEvents: "none",
+            zIndex: 2,
+            transition: "opacity 0.4s ease-in-out",
           }}
         />
 
@@ -227,7 +268,7 @@ export default function LandingPage() {
               gap: 20, zIndex: 2,
             }}>
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
-                <img src="/logo-orange.svg" alt="Aura" style={{ width: 53, opacity: 0.9 }} />
+                <img src="/logo-orange.svg" alt="" style={{ width: 65, opacity: 0.9 }} />
 
                 <h1 style={{
                   fontFamily: "'Amiri', serif",
