@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 const API_KEY = process.env.GEMINI_API_KEY!;
-const VEO_MODEL = "veo-2.0-generate-001";
+const VEO_MODEL = "veo-3.0-fast-generate-preview";
 
 export async function POST(req: NextRequest) {
   try {
