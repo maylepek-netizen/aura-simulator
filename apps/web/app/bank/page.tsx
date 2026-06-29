@@ -242,9 +242,6 @@ export default function BankPage() {
         </div>
 
         <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
-          <button type="button" className="filter-btn" onClick={() => void cleanUpBroken()} disabled={cleaning} style={{ height: 30, padding: "0 14px", borderRadius: 5, border: "1px solid rgba(229,115,115,0.3)", background: "transparent", fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: cleaning ? "rgba(229,115,115,0.35)" : "rgba(229,115,115,0.65)", cursor: cleaning ? "default" : "pointer", transition: "color 0.2s, border-color 0.2s" }}>
-            {cleaning ? "Checking…" : "Clean Up"}
-          </button>
           <button type="button" className="filter-btn" onClick={() => navigate("/chat")} style={{ height: 30, padding: "0 14px", borderRadius: 5, border: "1px solid rgba(255,255,255,0.15)", background: "transparent", fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.55)", cursor: "pointer" }}>
             New Simulation
           </button>
