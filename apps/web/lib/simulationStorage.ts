@@ -45,3 +45,10 @@ export function saveSimulation(
 export function getSimulationById(id: string): SimulationRecord | null {
   return loadSimulations().find((r) => r.id === id) ?? null;
 }
+
+export function deleteSimulationsByIds(ids: Set<string>): void {
+  const remaining = loadSimulations().filter((r) => !ids.has(r.id));
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(remaining));
+  } catch {}
+}

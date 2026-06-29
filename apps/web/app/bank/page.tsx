@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "../TransitionProvider";
-import { loadSimulations } from "@/lib/simulationStorage";
+import { loadSimulations, deleteSimulationsByIds } from "@/lib/simulationStorage";
 import type { SimulationRecord } from "@/lib/simulationStorage";
 
 // Random but stable positions across a 3000×2000 virtual canvas
@@ -152,7 +152,33 @@ export default function BankPage() {
 
   const onMouseUp = () => { dragging.current = false; };
 
+  const [cleaning, setCleaning] = useState(false);
+
+  async function cleanUpBroken() {
+    setCleaning(true);
+    const broken = new Set<string>();
+    await Promise.all(
+      records.map(async (r) => {
+        if (!r.videoUri) { broken.add(r.id); return; }
+        try {
+          const res = await fetch("/api/video-proxy?uri=" + encodeURIComponent(r.videoUri), { method: "HEAD" });
+          if (!res.ok) broken.add(r.id);
+        } catch {
+          broken.add(r.id);
+        }
+      })
+    );
+    if (broken.size > 0) {
+      deleteSimulationsByIds(broken);
+      const remaining = loadSimulations().slice().reverse();
+      setRecords(remaining);
+      setPositions(getCardPositions(remaining.length));
+    }
+    setCleaning(false);
+  }
+
   const filteredRecords = records.filter(r => {
+    if (!r.videoUri) return false;
     if (genderFilter !== "All" && r.gender !== genderFilter) return false;
     if (r.age < ageMin || r.age > ageMax) return false;
     return true;
@@ -216,6 +242,9 @@ export default function BankPage() {
         </div>
 
         <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
+          <button type="button" className="filter-btn" onClick={() => void cleanUpBroken()} disabled={cleaning} style={{ height: 30, padding: "0 14px", borderRadius: 5, border: "1px solid rgba(229,115,115,0.3)", background: "transparent", fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: cleaning ? "rgba(229,115,115,0.35)" : "rgba(229,115,115,0.65)", cursor: cleaning ? "default" : "pointer", transition: "color 0.2s, border-color 0.2s" }}>
+            {cleaning ? "Checking…" : "Clean Up"}
+          </button>
           <button type="button" className="filter-btn" onClick={() => navigate("/chat")} style={{ height: 30, padding: "0 14px", borderRadius: 5, border: "1px solid rgba(255,255,255,0.15)", background: "transparent", fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.55)", cursor: "pointer" }}>
             New Simulation
           </button>
