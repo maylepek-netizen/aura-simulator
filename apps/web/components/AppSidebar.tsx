@@ -16,7 +16,14 @@ export default function AppSidebar() {
         position: "absolute", top: 0, left: 0, right: 0, height: 60,
         display: "flex", alignItems: "center", justifyContent: "center",
       }}>
-        <img src="/logo.svg" alt="Experience" style={{ width: 32, opacity: 0.6, display: "block" }} />
+        <img
+          src="/logo-orange.svg"
+          alt="Home"
+          onClick={() => router.push("/")}
+          style={{ width: 28, opacity: 0.6, cursor: "pointer", transition: "opacity 0.2s", display: "block" }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLImageElement).style.opacity = "1"; }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLImageElement).style.opacity = "0.6"; }}
+        />
       </div>
 
       {/* Bottom icon group */}
