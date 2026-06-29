@@ -94,21 +94,25 @@ export default function ChatPage() {
   async function sendSituation(situation: string) {
     const trimmed = situation.trim();
     if (!trimmed || processing) return;
+
+    const fadeOutMusic = () => {
+      const music = (window as unknown as { backgroundMusic?: HTMLAudioElement }).backgroundMusic;
+      if (!music || music.paused) return;
+      const fadeInterval = setInterval(() => {
+        if (music.volume > 0.05) {
+          music.volume = Math.max(0, music.volume - 0.05);
+        } else {
+          music.volume = 0;
+          music.pause();
+          clearInterval(fadeInterval);
+        }
+      }, 100);
+    };
+    fadeOutMusic();
+
     setProcessing(true);
     const draft: ExperienceDraft = { situation: trimmed, createdAtIso: nowIso() };
     saveExperienceDraft(draft);
-
-    // Fade out background music over 3 seconds
-    if (typeof window !== "undefined" && window.backgroundMusic) {
-      const fadeOut = setInterval(() => {
-        if (window.backgroundMusic && window.backgroundMusic.volume > 0.02) {
-          window.backgroundMusic.volume -= 0.02;
-        } else {
-          clearInterval(fadeOut);
-          window.backgroundMusic?.pause();
-        }
-      }, 100);
-    }
 
     await new Promise((r) => setTimeout(r, 600));
     navigate("/result");
