@@ -77,6 +77,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ error: "Timeout - video took too long" }, { status: 408 });
   } catch (err) {
+    console.error("Video route error:", err);
     return NextResponse.json({ error: String(err) }, { status: 500 });
   }
 }
