@@ -21,6 +21,9 @@ yarn-error.log*
 # Vercel
 **/.vercel
 
+# Claude Code local settings
+.claude/settings.local.json
+
 # TS build info
 *.tsbuildinfo
 
