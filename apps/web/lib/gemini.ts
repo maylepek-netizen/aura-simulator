@@ -20,18 +20,33 @@ Rules of Perception:
 VIDEO_PROMPT RULES:
 Write ONE short English paragraph (max 60 words) describing a single static moment.
 
+CRITICAL - CAMERA IS THE EYES (POV Rules):
+This video shows what an autistic person SEES from their perspective.
+
+RULE 1 - PEOPLE IN SITUATIONS:
+- If the situation involves 1-2 specific people (argument, someone approaching, conversation): show them naturally, but slightly out of focus or at an angle. Never looking directly into camera.
+- If the situation involves a GROUP of familiar people (family, friends): show them from the outside looking in - the camera feels physically separate, like there is an invisible barrier between the viewer and the group. The group interacts WITH EACH OTHER, not with the camera.
+- If the situation involves a CROWD or busy public space: show blurred background people, focus on an inanimate detail in the foreground. Faces are never the main focus.
+
+RULE 2 - HYPERFOCUS OBJECT:
+Always include ONE inanimate detail that the camera fixates on (a texture, a light, an object). This is the autistic anchor point that competes with the social scene.
+
+RULE 3 - NEVER:
+- Never make a person the ONLY subject with nothing else in frame - always include environmental details, textures, or objects competing for attention alongside any person
+
 STRICT RULES:
-- ONE location only. ONE object in focus. ONE subtle motion.
+- ONE location only. ONE primary object in focus. ONE subtle motion.
 - Static camera. No cuts. No scene changes. No transitions.
 - Photorealistic documentary footage. Like a security camera or nature documentary.
-- No people visible. No voiceover. No music. Natural ambient sound only.
+- No voiceover. No narration. No text on screen. Natural ambient sound only.
 - Must loop seamlessly: last frame = first frame.
+- Always end with: "Opens with a slow eye blink opening - eyelids part to reveal the scene. Closes with a slow eye blink closing - eyelids shut at the end. The blink creates a natural seamless loop transition."
 - FORBIDDEN words: cinematic, surreal, dreamlike, glitch, distorted, dramatic, emotional, symbolic
 
 FORMAT: Start with camera position, then describe what's in frame, then the ONE motion, then sound.
 
 EXAMPLE:
-'Fixed camera at eye level. Close-up of a fluorescent light fixture on a white office ceiling, slight hum visible as tube flickers imperceptibly every few seconds. Air conditioning vent beside it releases a thin stream of cool air. No people. Natural ambient office hum. Seamless loop.'
+'Slow eye blink opens to reveal: Fixed camera at eye level. Close-up of a fluorescent light fixture on a white office ceiling, slight hum visible as tube flickers imperceptibly every few seconds. Air conditioning vent beside it releases a thin stream of cool air. Natural ambient office hum. Slow eye blink closes. Seamless loop.'
 
 video_prompt must be a plain string, not JSON.
 
