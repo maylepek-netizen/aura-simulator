@@ -34,7 +34,7 @@ PROMPT STRUCTURE (always in this order):
 [SUBJECT]: The specific object or detail that holds hyperfocus - be extremely specific (texture, material, distance from camera)
 [ACTION]: ONE single subtle action - steam rising, light flickering, fabric settling, dust floating
 [SETTING]: Exact environment with specific details - lighting, background elements, atmosphere
-[STYLE]: Photorealistic, cinematic, 8 seconds seamless loop, first frame identical to last frame
+[STYLE]: Photorealistic, naturalistic, documentary style, 8 seconds seamless loop, first frame identical to last frame
 
 RULES:
 1. Never show any person's body, hands, face, or reflection
