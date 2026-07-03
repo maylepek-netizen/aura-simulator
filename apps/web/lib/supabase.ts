@@ -1,11 +1,19 @@
-import { createClient } from '@supabase/supabase-js'
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+let _supabase: SupabaseClient | null = null
 
-export const supabase = supabaseUrl && supabaseKey
-  ? createClient(supabaseUrl, supabaseKey)
-  : null
+function getSupabase(): SupabaseClient | null {
+  if (typeof window === 'undefined') return null
+  if (_supabase) return _supabase
+
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+  if (!url || !key) return null
+
+  _supabase = createClient(url, key)
+  return _supabase
+}
 
 export async function saveSimulationToSupabase(simulation: {
   situation: string
@@ -17,6 +25,7 @@ export async function saveSimulationToSupabase(simulation: {
   objective: string
   visual_effect: string
 }) {
+  const supabase = getSupabase()
   if (!supabase) return null
   const { data, error } = await supabase
     .from('simulations')
@@ -26,6 +35,7 @@ export async function saveSimulationToSupabase(simulation: {
 }
 
 export async function getSimulationsFromSupabase() {
+  const supabase = getSupabase()
   if (!supabase) return []
   const { data, error } = await supabase
     .from('simulations')
