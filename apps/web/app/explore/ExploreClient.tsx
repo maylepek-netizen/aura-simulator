@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { getSimulationsFromSupabase } from "@/lib/supabase";
 
 type SimulationRow = {
   id: string;
@@ -16,9 +17,16 @@ type SimulationRow = {
 };
 
 export default function ExploreClient() {
-  const simulations: SimulationRow[] = [];
-  const [loading] = useState(false);
+  const [simulations, setSimulations] = useState<SimulationRow[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<SimulationRow | null>(null);
+
+  useEffect(() => {
+    getSimulationsFromSupabase().then((data) => {
+      setSimulations(data as SimulationRow[]);
+      setLoading(false);
+    });
+  }, []);
 
   const loadColor = (load: number) =>
     load > 70 ? "#e05c5c" : load > 45 ? "#FFC99D" : "#5ce08c";
