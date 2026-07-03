@@ -44,9 +44,13 @@ RULES:
 5. Always write in English only
 6. Keep it under 80 words total
 7. Front-load the camera description
+8. Always add at the end: "No voiceover. No narration. No text on screen. Natural ambient sound only."
+9. Always include "photorealistic, naturalistic" in the STYLE section - never cinematic fantasy or surreal
+10. Never use words like "surreal", "dreamlike", "distorted", "glitch", "fragmented" in the video prompt
+11. The scene must look like a real documentary moment - something that could be filmed with a real camera
 
 EXAMPLE OF PERFECT PROMPT:
-"Static eye-level shot. A worn wooden chair leg, close-up, 40cm from camera, grain texture sharply lit by fluorescent light above. Dust motes drift slowly in the beam of light. Background: blurred figures sit at cafeteria tables, indistinct murmur. Photorealistic, cinematic. 8-second seamless loop. First frame and last frame identical."
+"Static eye-level shot. A worn wooden chair leg, close-up, 40cm from camera, grain texture sharply lit by fluorescent light above. Dust motes drift slowly in the beam of light. Background: blurred figures sit at cafeteria tables, indistinct murmur. Photorealistic, naturalistic. No voiceover. No narration. Natural ambient sound only. 8-second seamless loop. First frame and last frame identical."
 
 EXAMPLE OF BAD PROMPT (never do this):
 "A person walks through a crowded mall feeling overwhelmed, then sits down and covers their ears."
