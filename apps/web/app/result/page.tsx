@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useNavigate } from "../TransitionProvider";
 import { loadExperienceDraft, loadProfile } from "@/lib/experienceStorage";
 import { saveSimulation } from "@/lib/simulationStorage";
+import { saveSimulationToSupabase } from "@/lib/supabase";
 import { CITATIONS } from "@/lib/researchCitations";
 
 declare global {
@@ -40,6 +41,9 @@ type SimulationResult = {
   research_tags: string[];
   ambient_sound?: string;
   imageBase64?: string;
+  emotional_landscape?: string[];
+  soundscape?: string;
+  objective?: string;
 };
 
 // ─── Ambient Sound Map ────────────────────────────────────────────────────────
@@ -860,6 +864,17 @@ export default function ResultPage() {
       saveSimulation({ situation: snapshot.situation, name: snapshot.name, age: snapshot.age, gender: snapshot.gender, result, videoUri });
       setSaved(true);
     } catch {}
+    // Also sync to Supabase (non-blocking, does not affect local save)
+    void saveSimulationToSupabase({
+      situation: snapshot.situation,
+      video_url: "/api/video-proxy?uri=" + encodeURIComponent(videoUri),
+      internal_thoughts: Array.isArray(result.monologue) ? result.monologue.join(" | ") : "",
+      sensory_load: result.overall_load ?? 0,
+      emotional_landscape: Array.isArray(result.emotional_landscape) ? result.emotional_landscape.join(", ") : "",
+      soundscape: result.soundscape ?? "",
+      objective: result.objective ?? "",
+      visual_effect: result.visual_effect ?? "",
+    });
   }
 
   if (!snapshot.hasProfile || !snapshot.hasDraft) return null;
@@ -888,6 +903,17 @@ export default function ResultPage() {
         saveSimulation({ situation: snapshot.situation, name: snapshot.name, age: snapshot.age, gender: snapshot.gender, result, videoUri });
         setSaved(true);
       } catch {}
+      // Also sync to Supabase (non-blocking)
+      void saveSimulationToSupabase({
+        situation: snapshot.situation,
+        video_url: "/api/video-proxy?uri=" + encodeURIComponent(videoUri),
+        internal_thoughts: Array.isArray(result.monologue) ? result.monologue.join(" | ") : "",
+        sensory_load: result.overall_load ?? 0,
+        emotional_landscape: Array.isArray(result.emotional_landscape) ? result.emotional_landscape.join(", ") : "",
+        soundscape: result.soundscape ?? "",
+        objective: result.objective ?? "",
+        visual_effect: result.visual_effect ?? "",
+      });
     }
 
     // Fade background music back in over 3 seconds
