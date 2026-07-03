@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
 
     // Step 1: Start video generation
     const startRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1/models/${VEO_MODEL}:predictLongRunning?key=${API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/${VEO_MODEL}:predictLongRunning?key=${API_KEY}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
       await new Promise((r) => setTimeout(r, 5000));
 
       const pollRes = await fetch(
-        `https://generativelanguage.googleapis.com/v1/${operationName}?key=${API_KEY}`
+        `https://generativelanguage.googleapis.com/v1beta/${operationName}?key=${API_KEY}`
       );
       const pollText = await pollRes.text();
       if (!pollText) continue;
