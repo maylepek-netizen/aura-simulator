@@ -55,7 +55,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: err?.error?.message ?? "Veo error", details: err }, { status: 502 });
     }
 
-    const { name: operationName } = await startRes.json();
+    const startText = await startRes.text();
+
+    if (!startText) {
+      return NextResponse.json({ error: "Empty response from Veo API" }, { status: 502 });
+    }
+
+    const { name: operationName } = JSON.parse(startText);
 
     // Step 2: Poll until done (max 5 minutes, 60 × 5s)
     for (let i = 0; i < 60; i++) {
