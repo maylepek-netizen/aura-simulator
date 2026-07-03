@@ -50,9 +50,11 @@ export async function POST(req: NextRequest) {
     );
 
     if (!startRes.ok) {
-      const err = await startRes.json();
-      console.error("Veo API error:", JSON.stringify(err));
-      return NextResponse.json({ error: err?.error?.message ?? "Veo error", details: err }, { status: 502 });
+      const errText = await startRes.text();
+      console.error("Veo API error raw:", errText);
+      let errData: Record<string, unknown> = {};
+      try { errData = JSON.parse(errText); } catch { errData = { raw: errText }; }
+      return NextResponse.json({ error: (errData as any)?.error?.message ?? "Veo error", details: errData }, { status: 502 });
     }
 
     const startText = await startRes.text();
