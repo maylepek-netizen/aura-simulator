@@ -41,7 +41,8 @@ STRICT RULES:
 - No voiceover. No narration. No text on screen. Natural ambient sound only.
 - Must loop seamlessly: last frame = first frame.
 - Always end with: "Opens with a slow eye blink opening - eyelids part to reveal the scene. Closes with a slow eye blink closing - eyelids shut at the end. The blink creates a natural seamless loop transition."
-- FORBIDDEN words: cinematic, surreal, dreamlike, glitch, distorted, dramatic, emotional, symbolic
+- FORBIDDEN words: surreal, dreamlike, glitch, cartoon, animated, fantasy, horror, magical
+- ALLOWED subtle strangeness: slightly off timing, mild sensory heightening, unusual focus on mundane details, colors slightly more vivid than normal - these reflect authentic autistic perception
 
 FORMAT: Start with camera position, then describe what's in frame, then the ONE motion, then sound.
 
