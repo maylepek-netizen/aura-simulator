@@ -70,7 +70,14 @@ export async function POST(req: NextRequest) {
       const pollRes = await fetch(
         `https://generativelanguage.googleapis.com/v1/${operationName}?key=${API_KEY}`
       );
-      const pollData = await pollRes.json();
+      const pollText = await pollRes.text();
+      if (!pollText) continue;
+      let pollData;
+      try {
+        pollData = JSON.parse(pollText);
+      } catch {
+        continue;
+      }
 
       if (pollData.done) {
         const uri = pollData.response?.generateVideoResponse?.generatedSamples?.[0]?.video?.uri;
