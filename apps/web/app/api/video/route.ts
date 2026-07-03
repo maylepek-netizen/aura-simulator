@@ -5,7 +5,7 @@ const VEO_MODEL = "veo-002";
 
 export async function POST(req: NextRequest) {
   try {
-    const { prompt, imageBase64 } = await req.jso();
+    const { prompt, imageBase64 } = await req.json();
 
     // Convert JSON video_prompt object to natural language string if needed
     let finalPrompt = prompt;
