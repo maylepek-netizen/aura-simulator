@@ -43,7 +43,6 @@ export async function POST(req: NextRequest) {
             aspectRatio: "16:9",
             sampleCount: 1,
             durationSeconds: 8,
-            negativePrompt: "person's own body, hands, feet, selfie angle, multiple locations, narrative sequence, text on screen, unnatural motion, horror elements, cartoon style",
           },
         }),
       }
