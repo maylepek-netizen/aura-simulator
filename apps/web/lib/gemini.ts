@@ -18,38 +18,59 @@ Rules of Perception:
 4. Language: Respond in Hebrew for all Hebrew fields. English only for visual/video prompts.
 
 VIDEO_PROMPT RULES:
-Write ONE short English paragraph (max 60 words) describing a single static moment.
+Write a structured video prompt in English. Maximum 1600 characters.
 
-CRITICAL - CAMERA IS THE EYES (POV Rules):
-This video shows what an autistic person SEES from their perspective.
+CAMERA HEIGHT by age:
+- Child (under 12): 100-110cm eye level
+- Teen (12-17): 140-150cm eye level
+- Adult (18+): 160-170cm eye level
 
-RULE 1 - PEOPLE IN SITUATIONS:
-- If the situation involves 1-2 specific people (argument, someone approaching, conversation): show them naturally, but slightly out of focus or at an angle. Never looking directly into camera.
-- If the situation involves a GROUP of familiar people (family, friends): show them from the outside looking in - the camera feels physically separate, like there is an invisible barrier between the viewer and the group. The group interacts WITH EACH OTHER, not with the camera.
-- If the situation involves a CROWD or busy public space: show blurred background people, focus on an inanimate detail in the foreground. Faces are never the main focus.
+AUTISTIC PERCEPTION - apply based on situation:
+- ALONE/QUIET: Camera locks obsessively on ONE irrelevant detail (texture, light, crack in wall). Time feels stretched. Everything else fades.
+- WITH FAMILIAR PEOPLE: Camera drifts away from faces. Cycles: face → nearby object → hands → wall → back. Invisible barrier between viewer and group. Group interacts with each other, never with camera.
+- WITH STRANGERS: Uncomfortable proximity. Camera fixates on non-face details (collar, hands, wall behind). Cannot fully look away.
+- CROWD/PUBLIC: Everything at equal visual volume, no hierarchy. Camera locks on ONE inanimate anchor. Background people are blurred motion only.
+- SENSORY TRIGGER (sudden noise, touch, unexpected change): Involuntary sharp camera movement → freeze → slow recovery.
 
-RULE 2 - HYPERFOCUS OBJECT:
-Always include ONE inanimate detail that the camera fixates on (a texture, a light, an object). This is the autistic anchor point that competes with the social scene.
+PROMPT FORMAT:
+description: '0-3s: [exact scene - what camera sees, anchor object in sharp focus]. 3-8s: [same scene continues, ONE subtle atmospheric motion].'
+camera: '[choose: Locked-off tripod / Extremely slow push-in / Subtle erratic handheld with breathing tremor / Rapid involuntary focal shifts]'
+lighting: '[specific and harsh - fluorescent flicker / directional cold light / overexposed window glare / high contrast shadow]'
+style: 'Photorealistic, naturalistic, documentary 4K. Colors slightly oversaturated - autistic sensory heightening.'
+elements: 'PRIMARY ANCHOR: [one hyper-specific inanimate object - exact material, color, distance, texture]. BACKGROUND: [blurred, indistinct, motion only, never faces as focus]'
+audio: '[CRITICAL - amplified and overwhelming, matching the situation exactly]:
+- Crowd scene: overlapping voices all at equal volume, chair scrapes, door slams, indistinct shouting
+- Children present: high-pitched children voices, sudden shrieking, unpredictable bursts
+- Office/classroom: fluorescent hum, keyboard clicks, paper shuffle, all uncomfortably loud
+- Public transport: engine rumble, announcements, doors, strangers breathing too close
+- Family dinner: overlapping conversations, cutlery on plates, TV in background, all competing equally
+NO voiceover. NO narration. NO music. Only natural amplified ambient sound.'
 
-RULE 3 - NEVER:
-- Never make a person the ONLY subject with nothing else in frame - always include environmental details, textures, or objects competing for attention alongside any person
+NEGATIVE PROMPT - always end with this exact line:
+'Single continuous shot, locked-off camera, no cuts, no transitions, no morphing, no scene change, no people looking at camera, no voiceover, no narration, no text on screen.'
 
-STRICT RULES:
-- ONE location only. ONE primary object in focus. ONE subtle motion.
-- Static camera. No cuts. No scene changes. No transitions.
-- Photorealistic documentary footage. Like a security camera or nature documentary.
-- No voiceover. No narration. No text on screen. Natural ambient sound only.
-- Must loop seamlessly: last frame = first frame.
-- Always end with: "Opens with a slow eye blink opening - eyelids part to reveal the scene. Closes with a slow eye blink closing - eyelids shut at the end. The blink creates a natural seamless loop transition."
-- FORBIDDEN words: surreal, dreamlike, glitch, cartoon, animated, fantasy, horror, magical
-- ALLOWED subtle strangeness: slightly off timing, mild sensory heightening, unusual focus on mundane details, colors slightly more vivid than normal - these reflect authentic autistic perception
+CRITICAL RULES:
+1. ONE anchor object - hyper-specific (not just chair - worn grey plastic chair armrest with visible scratches, 30cm from camera)
+2. People in background only - blurred, never facing camera, never making eye contact
+3. STATIC scene - only atmospheric loop motion (dust mote, steam, flicker, subtle air)
+4. Colors slightly more vivid than reality - autistic sensory experience
+5. Sound must feel OVERWHELMING - louder and more present than normal
+6. 8 seconds seamless loop - first and last frame identical
 
-FORMAT: Start with camera position, then describe what's in frame, then the ONE motion, then sound.
+MEMORY/VISUAL THINKING note:
+The autistic person thinks in specific images, not concepts.
+Camera should reflect this: not a generic room but THIS specific crack in THIS specific wall.
 
 EXAMPLE:
-'Slow eye blink opens to reveal: Fixed camera at eye level. Close-up of a fluorescent light fixture on a white office ceiling, slight hum visible as tube flickers imperceptibly every few seconds. Air conditioning vent beside it releases a thin stream of cool air. Natural ambient office hum. Slow eye blink closes. Seamless loop.'
+description: '0-3s: Camera locked on worn blue plastic chair armrest, 30cm away, scratches in sharp detail, fluorescent light reflected in surface. 3-8s: Same armrest. Dust mote drifts slowly through light beam above it.'
+camera: 'Locked-off tripod. Absolutely static. Subtle breathing tremor only.'
+lighting: 'Harsh overhead fluorescent, cold white, flickers every 4 seconds. Deep shadows beneath chairs.'
+style: 'Photorealistic, naturalistic, documentary 4K. Colors slightly oversaturated.'
+elements: 'PRIMARY: worn blue plastic armrest, visible scratches, 30cm from camera, sharp focus. BACKGROUND: blurred seated figures, indistinct motion only.'
+audio: 'Fluorescent hum loud and present. Distant overlapping voices all at same volume. Sudden chair scrape. Child crying somewhere. All sounds uncomfortably close and equal.'
+Single continuous shot, locked-off camera, no cuts, no transitions, no morphing, no scene change, no people looking at camera, no voiceover, no narration, no text on screen.
 
-video_prompt must be a plain string, not JSON.
+video_prompt must be a plain string.
 
 Response Format (return valid JSON only, no markdown):
 {
