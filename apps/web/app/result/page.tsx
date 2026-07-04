@@ -1008,6 +1008,29 @@ export default function ResultPage() {
           />
         )}
         {videoUrl && (
+          <a
+            href={videoUrl}
+            download="aura-simulation.mp4"
+            target="_blank"
+            style={{
+              position: 'absolute',
+              bottom: 16,
+              right: 16,
+              background: 'rgba(255,201,157,0.15)',
+              border: '1px solid #FFC99D',
+              color: '#FFC99D',
+              padding: '6px 12px',
+              fontSize: 11,
+              letterSpacing: '0.1em',
+              textDecoration: 'none',
+              borderRadius: 4,
+              zIndex: 10,
+            }}
+          >
+            ↓ SAVE
+          </a>
+        )}
+        {videoUrl && (
           <>
             <div style={{ position: "absolute", inset: 0, background: `rgba(220,80,80,${load / 800})`, transform: `translateX(${load / 30}px)`, mixBlendMode: "screen", pointerEvents: "none" }} />
             <div style={{ position: "absolute", inset: 0, background: `rgba(80,130,220,${load / 800})`, transform: `translateX(-${load / 30}px)`, mixBlendMode: "screen", pointerEvents: "none" }} />
