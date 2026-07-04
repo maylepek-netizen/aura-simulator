@@ -61,6 +61,12 @@ function buildVideoPromptInstructions(age: number, gender: string, situation: st
     "SITUATION: \"" + situation + "\"\n" +
     "Camera height: " + camHeight + " (eye level) — state it explicitly in the prompt.\n\n" +
     "CORE PRINCIPLE:\n" +
+    "ABSOLUTE RULE - NEVER VIOLATE:\n" +
+    "This video is shot FROM the person's eyes. We NEVER see the person themselves.\n" +
+    "- No face, no body, no hands, no feet, no reflection, no shadow of the protagonist\n" +
+    "- The camera IS their eyes - we see what THEY see, not them\n" +
+    "- Other people may appear in the scene, but never the protagonist themselves\n" +
+    "- If the situation says 'I am looking at the ceiling' → we see the ceiling, not a person looking up\n\n" +
     "The scene is realistic. The strangeness comes ONLY from the autistic lens - how the camera perceives, not what happens.\n" +
     "Think: an alien anthropologist observing human behavior. Present but not participating. Studying, not understanding.\n\n" +
     "SITUATION GUIDE:\n" +
