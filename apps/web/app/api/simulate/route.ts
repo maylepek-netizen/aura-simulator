@@ -87,7 +87,7 @@ function buildVideoPromptInstructions(age: number, gender: string, situation: st
     "5. Colors slightly oversaturated. Sound amplified beyond normal.\n" +
     "6. Seamless 8-second loop - first frame = last frame.\n\n" +
     "END EVERY PROMPT WITH:\n" +
-    "'Single continuous shot. No cuts. No transitions. No voiceover. No narration.'"
+    "'Opens with a natural eye blink - eyelids slowly part to reveal the scene. Closes with a natural eye blink - eyelids slowly shut. The blink masks the loop point for seamless infinite playback. Single continuous shot. No cuts. No transitions. Camera at [X]cm. No voiceover. No narration.'"
   );
 }
 
