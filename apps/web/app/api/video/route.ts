@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
       instance.image = { bytesBase64Encoded: imageBase64, mimeType: "image/png" };
     }
 
-    console.log("VIDEO PROMPT SENT TO VEO:", JSON.stringify(finalPrompt));
+    console.log("VIDEO PROMPT SENT TO VEO:", finalPrompt);
 
     // Step 1: Start video generation
     const startRes = await fetch(
