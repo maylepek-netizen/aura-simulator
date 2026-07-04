@@ -77,6 +77,31 @@ Sound: Natural ambient sound. Wind, birds, distant hum. Non-threatening.
 
 ALWAYS: Analyze the situation text carefully and choose the closest matching category above. Mix categories if needed (e.g. familiar person in crowded place = combine 3 and 7).
 
+CORE PRINCIPLE:
+The SCENE can be slightly heightened reality - louder, more intense, more crowded than average.
+But the AUTISTIC EXPERIENCE comes from HOW the camera perceives it:
+
+1. OUTSIDER PERSPECTIVE: Camera observes from the edge, never from within the group.
+   The viewer is present but not participating. Like watching through glass.
+
+2. SOCIAL CONFUSION - THE ALIEN ANTHROPOLOGIST:
+   Camera observes social interactions like a scientist studying an unknown tribe.
+   Present, watching, trying to understand - but the social code is foreign.
+   When it does look at people, it studies them clinically:
+   how their mouth moves, the angle of their body, the texture of their clothing.
+   Not what they MEAN - just what they ARE.
+   Like an alien trying to decode human behavior from the outside.
+
+3. SENSORY FOCUS: Sounds feel equally loud and undifferentiated.
+   The social hierarchy invisible to neurotypicals is invisible here too.
+   Everyone and everything competes for equal attention.
+
+4. NO SOCIAL SCRIPT: The camera doesn't know where to look.
+   It drifts. It fixates on wrong things. It misses eye contact moments.
+
+The scene is real. The people behave normally (or slightly intensely).
+The STRANGENESS comes only from the autistic lens - not from the scene itself.
+
 PROMPT FORMAT:
 description: '0-3s: [exact scene - what camera sees, anchor object in sharp focus]. 3-8s: [same scene continues, ONE subtle atmospheric motion].'
 camera: '[choose: Locked-off tripod / Extremely slow push-in / Subtle erratic handheld with breathing tremor / Rapid involuntary focal shifts]'
