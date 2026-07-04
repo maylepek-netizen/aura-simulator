@@ -19,6 +19,7 @@ export async function POST(req: NextRequest) {
     console.log("video-status poll response status:", pollRes.status);
 
     const pollText = await pollRes.text();
+    console.log("video-status poll response body:", pollText.substring(0, 500));
 
     if (!pollRes.ok) {
       console.error("Veo status error raw:", pollText);
