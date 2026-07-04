@@ -85,7 +85,8 @@ function buildVideoPromptInstructions(age: number, gender: string, situation: st
     "3. People in LARGE CROWD scenes never look at camera. In 1-on-1 scenes, brief eye contact is natural.\n" +
     "4. No morphing, no transitions, no invented gestures, no magical elements.\n" +
     "5. Colors slightly oversaturated. Sound amplified beyond normal.\n" +
-    "6. Seamless 8-second loop - first frame = last frame.\n\n" +
+    "6. Seamless 8-second loop - first frame = last frame.\n" +
+    "7. Setting is contemporary Israel - locations, signage, and people reflect an everyday Israeli environment. Let the situation determine who appears.\n\n" +
     "END EVERY PROMPT WITH:\n" +
     "'Opens with a natural eye blink - eyelids slowly part to reveal the scene. Closes with a natural eye blink - eyelids slowly shut. The blink masks the loop point for seamless infinite playback. Single continuous shot. No cuts. No transitions. Camera at [X]cm. No voiceover. No narration.'"
   );
