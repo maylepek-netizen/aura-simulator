@@ -712,7 +712,6 @@ export default function ResultPage() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const narrationStartedRef = useRef(false);
   const [videoLoopOpacity, setVideoLoopOpacity] = useState(1);
-  const [eyelidsClosed, setEyelidsClosed] = useState(false);
 
   const handleVideoPlay = useCallback(() => {}, []);
 
@@ -722,11 +721,6 @@ export default function ResultPage() {
     const remaining = el.duration - el.currentTime;
     if (remaining <= 1.5) setVideoLoopOpacity(0.7);
     else if (el.currentTime < 0.5) setVideoLoopOpacity(1);
-
-    // Eyelid blink at the loop point: close just before the video ends,
-    // reopen right after it loops back to the start.
-    if (remaining <= 0.6) setEyelidsClosed(true);
-    else if (el.currentTime < 0.3) setEyelidsClosed(false);
   }, []);
 
   async function startNarration(r: SimulationResult) {
@@ -1012,23 +1006,6 @@ export default function ResultPage() {
             src={videoUrl} autoPlay loop playsInline
             onPlay={handleVideoPlay} onTimeUpdate={handleTimeUpdate}
           />
-        )}
-        {/* Eyelid blink overlay — top and bottom close to meet in the middle at the loop point */}
-        {videoUrl && (
-          <>
-            <div style={{
-              position: "absolute", top: 0, left: 0, right: 0,
-              height: eyelidsClosed ? "45%" : "0%",
-              background: "#000000", zIndex: 4, pointerEvents: "none",
-              transition: "height 0.4s ease-in-out",
-            }} />
-            <div style={{
-              position: "absolute", bottom: 0, left: 0, right: 0,
-              height: eyelidsClosed ? "45%" : "0%",
-              background: "#000000", zIndex: 4, pointerEvents: "none",
-              transition: "height 0.4s ease-in-out",
-            }} />
-          </>
         )}
         {videoUrl && (
           <>
