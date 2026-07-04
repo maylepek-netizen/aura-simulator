@@ -131,7 +131,9 @@ CRITICAL RULES:
 9. NO individual dialogue or speech unless the situation is explicitly a one-on-one conversation. In group/crowd/sport scenes: only crowd noise, cheering, ambient chaos - never a single intelligible voice.
 10. Explicitly state in every prompt: "Camera at [X]cm eye level" where X matches the user's age.
 11. ENVIRONMENT MUST BE REALISTIC: Only include objects and elements that would naturally exist in that specific location. No random props. A classroom party has balloons, desks, snacks, streamers - not brick walls or spotlights.
-12. PEOPLE IGNORE THE VIEWER: In group/crowd scenes, people are always engaged with EACH OTHER. They never look toward the camera. The viewer is invisible to them - a ghost observing from the edge.
+12. EYE CONTACT RULES - depends on situation:
+- CROWD/GROUP/PARTY/PUBLIC EVENT (5+ people): People are engaged with EACH OTHER. They do not look toward the camera. The viewer is a ghost at the edge.
+- ONE-ON-ONE or SMALL FAMILIAR GROUP (1-4 people): Eye contact is allowed and natural. But camera still drifts away from eyes to irrelevant details - cannot sustain eye contact. Looks at their collar, hands, the wall behind them.
 13. NO INVENTED GESTURES: People perform only natural, expected actions for that situation. No one reaches toward the camera, waves at it, or performs exaggerated movements. Behavior must match the setting exactly.
 14. NO MAGICAL TRANSITIONS: Objects stay as they are. A speaker stays a speaker. No morphing, dissolving, or transforming objects.
 15. ONE SCENE, ONE MOMENT: The entire 8 seconds shows ONE single moment - not a sequence of events.
