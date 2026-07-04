@@ -88,7 +88,7 @@ function buildVideoPromptInstructions(age: number, gender: string, situation: st
     "6. Seamless 8-second loop - first frame = last frame.\n" +
     "7. Setting is contemporary Israel - locations, signage, and people reflect an everyday Israeli environment. Let the situation determine who appears.\n\n" +
     "END EVERY PROMPT WITH:\n" +
-    "'Opens with a natural eye blink - eyelids slowly part to reveal the scene. Closes with a natural eye blink - eyelids slowly shut. The blink masks the loop point for seamless infinite playback. Single continuous shot. No cuts. No transitions. Camera at [X]cm. No voiceover. No narration.'"
+    "'Opens with a cinematic iris-in effect - screen fades from black as if a lens aperture opening slowly. Closes with a cinematic iris-out effect - screen fades to black as if a lens aperture closing. This simulates a blink through camera lens mechanics, NOT a physical eye or eyelid. No eyelashes, no iris visible - pure black fade in/out. Single continuous shot. No cuts. No transitions. Camera at [X]cm. No voiceover. No narration.'"
   );
 }
 
