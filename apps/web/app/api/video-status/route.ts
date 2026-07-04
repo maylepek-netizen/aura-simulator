@@ -16,6 +16,8 @@ export async function POST(req: NextRequest) {
       `https://generativelanguage.googleapis.com/v1beta/${operationName}?key=${API_KEY}`
     );
 
+    console.log("video-status poll response status:", pollRes.status);
+
     const pollText = await pollRes.text();
 
     if (!pollRes.ok) {
