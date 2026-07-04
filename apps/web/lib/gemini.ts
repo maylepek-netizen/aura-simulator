@@ -25,12 +25,57 @@ CAMERA HEIGHT by age:
 - Teen (12-17): 140-150cm eye level
 - Adult (18+): 160-170cm eye level
 
-AUTISTIC PERCEPTION - apply based on situation:
-- ALONE/QUIET: Camera locks obsessively on ONE irrelevant detail (texture, light, crack in wall). Time feels stretched. Everything else fades.
-- WITH FAMILIAR PEOPLE: Camera drifts away from faces. Cycles: face → nearby object → hands → wall → back. Invisible barrier between viewer and group. Group interacts with each other, never with camera.
-- WITH STRANGERS: Uncomfortable proximity. Camera fixates on non-face details (collar, hands, wall behind). Cannot fully look away.
-- CROWD/PUBLIC: Everything at equal visual volume, no hierarchy. Camera locks on ONE inanimate anchor. Background people are blurred motion only.
-- SENSORY TRIGGER (sudden noise, touch, unexpected change): Involuntary sharp camera movement → freeze → slow recovery.
+SITUATION TREE - apply the matching directing style:
+
+1. ALONE IN FAMILIAR PLACE (bedroom, home, known space):
+Camera: Extremely slow drift across the space. Completely static moments.
+Focus: ONE irrelevant detail holds attention for almost the entire shot (a crack, dust in light, texture on wall).
+Atmosphere: Thick silence. Time feels stretched. Colors slightly muted and warm.
+Sound: Almost silent. Subtle room tone. Clock tick. Own breathing.
+
+2. ALONE IN UNFAMILIAR PLACE (store, street, new building):
+Camera: Slightly unstable. Eyes dart to exits and edges.
+Focus: Details that feel threatening or overwhelming (a flickering sign, a stranger passing too close, harsh lighting).
+Atmosphere: Hypervigilance. Everything slightly too bright or too loud.
+Sound: Environmental sounds feel too close and too loud. Footsteps, doors, announcements.
+
+3. ONE FAMILIAR PERSON (mother, close friend, sibling):
+Camera: Cannot maintain eye contact. Cycles: their face → object nearby → their hands → wall → back to face.
+Focus: Drifts to irrelevant details (their collar, a button, the table between them).
+Atmosphere: Slight processing delay. Their proximity feels slightly too close.
+Sound: Their voice clear but background sounds compete equally. No single audio priority.
+
+4. ONE STRANGER (cashier, doctor, someone approaching):
+Camera: Avoids their face. Focuses on non-threatening details (their hands, the desk, objects behind them).
+Atmosphere: Discomfort. Camera wants to look away but keeps returning.
+Sound: Their voice feels too direct, too present. Background sounds amplified.
+
+5. SMALL FAMILIAR GROUP (family dinner, friends gathering, classroom with known people):
+Camera: Positioned slightly outside the group. Physical separation visible.
+Focus: Camera observes the group from a distance - they interact WITH EACH OTHER, never with camera.
+Atmosphere: Invisible barrier. Viewer is present but not part of the group. Slight longing and disconnection.
+Sound: Their conversation overlapping, warm but excluding. Laughter that feels distant.
+
+6. SMALL UNFAMILIAR GROUP (colleagues, new classmates, strangers at event):
+Camera: Rapid scanning between faces. Cannot settle on one person.
+Focus: Jumps between people, unable to track the conversation.
+Atmosphere: Social confusion. Who is speaking? Where to look?
+Sound: Multiple voices overlapping at equal volume. Cannot isolate one.
+
+7. LARGE CROWD / HIGH STIMULATION (mall, party, bus, market, concert):
+Camera: Chaotic scanning. Faces from all directions. Cannot settle anywhere.
+Focus: Everything at equal visual volume - no hierarchy. Colors oversaturated. Lights too bright.
+Atmosphere: Sensory chaos. Near overwhelm. Camera slightly unstable.
+People: Diverse, realistic, everyday. Brief eye contact from strangers feels threatening.
+Sound: Everything at once and equally loud. Voices, music, announcements, footsteps, doors - all competing.
+
+8. QUIET FAMILIAR PLACE (library, park, garden, bedroom):
+Camera: Slow and unhurried. No urgency.
+Focus: Natural details - leaves, light through window, texture of a surface.
+Atmosphere: Rare moment of relative peace. Colors softer. Time moves normally.
+Sound: Natural ambient sound. Wind, birds, distant hum. Non-threatening.
+
+ALWAYS: Analyze the situation text carefully and choose the closest matching category above. Mix categories if needed (e.g. familiar person in crowded place = combine 3 and 7).
 
 PROMPT FORMAT:
 description: '0-3s: [exact scene - what camera sees, anchor object in sharp focus]. 3-8s: [same scene continues, ONE subtle atmospheric motion].'
