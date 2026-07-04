@@ -14,6 +14,8 @@ export async function POST(req: NextRequest) {
       instance.image = { bytesBase64Encoded: imageBase64, mimeType: "image/png" };
     }
 
+    console.log("VIDEO PROMPT SENT TO VEO:", JSON.stringify(finalPrompt));
+
     // Step 1: Start video generation
     const startRes = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/${VEO_MODEL}:predictLongRunning?key=${API_KEY}`,
