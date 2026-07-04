@@ -88,7 +88,7 @@ function buildVideoPromptInstructions(age: number, gender: string, situation: st
     "6. Seamless 8-second loop - first frame = last frame.\n" +
     "7. Setting is contemporary Israel - locations, signage, and people reflect an everyday Israeli environment. Let the situation determine who appears.\n\n" +
     "END EVERY PROMPT WITH:\n" +
-    "'Opens with a horizontal elliptical wipe from black - like an eye opening, the frame reveals from center outward in a wide horizontal oval shape. Closes with a horizontal elliptical wipe to black - frame closes from edges inward in a wide horizontal oval shape, like an eye shutting. This is a camera/editing effect that mimics a blink shape without showing a real eye. Pure black. No eyelashes. No iris. Just the geometric shape of an eye opening and closing. Single continuous shot. No cuts. No transitions. Camera at [X]cm. No voiceover. No narration.'"
+    "'Single continuous shot. No cuts. No transitions. Camera at [X]cm. No voiceover. No narration. Seamless loop.'"
   );
 }
 
