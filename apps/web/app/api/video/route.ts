@@ -49,8 +49,8 @@ export async function POST(req: NextRequest) {
 
     const { name: operationName } = JSON.parse(startText);
 
-    // Step 2: Poll until done (max 3 minutes, 60 × 3s)
-    for (let i = 0; i < 60; i++) {
+    // Step 2: Poll until done (max ~3 min, 25 × 7s)
+    for (let i = 0; i < 25; i++) {
       await new Promise((r) => setTimeout(r, 7000));
 
       const pollRes = await fetch(
