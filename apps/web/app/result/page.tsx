@@ -725,7 +725,7 @@ export default function ResultPage() {
 
     // Eyelid blink at the loop point: close just before the video ends,
     // reopen right after it loops back to the start.
-    if (remaining <= 0.4) setEyelidsClosed(true);
+    if (remaining <= 0.6) setEyelidsClosed(true);
     else if (el.currentTime < 0.3) setEyelidsClosed(false);
   }, []);
 
@@ -1018,15 +1018,15 @@ export default function ResultPage() {
           <>
             <div style={{
               position: "absolute", top: 0, left: 0, right: 0,
-              height: eyelidsClosed ? "50%" : "0%",
+              height: eyelidsClosed ? "45%" : "0%",
               background: "#000000", zIndex: 4, pointerEvents: "none",
-              transition: "height 0.25s ease-in-out",
+              transition: "height 0.4s ease-in-out",
             }} />
             <div style={{
               position: "absolute", bottom: 0, left: 0, right: 0,
-              height: eyelidsClosed ? "50%" : "0%",
+              height: eyelidsClosed ? "45%" : "0%",
               background: "#000000", zIndex: 4, pointerEvents: "none",
-              transition: "height 0.25s ease-in-out",
+              transition: "height 0.4s ease-in-out",
             }} />
           </>
         )}
