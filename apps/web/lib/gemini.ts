@@ -134,6 +134,9 @@ CRITICAL RULES:
 12. PEOPLE IGNORE THE VIEWER: In group/crowd scenes, people are always engaged with EACH OTHER. They never look toward the camera. The viewer is invisible to them - a ghost observing from the edge.
 13. NO INVENTED GESTURES: People perform only natural, expected actions for that situation. No one reaches toward the camera, waves at it, or performs exaggerated movements. Behavior must match the setting exactly.
 14. NO MAGICAL TRANSITIONS: Objects stay as they are. A speaker stays a speaker. No morphing, dissolving, or transforming objects.
+15. ONE SCENE, ONE MOMENT: The entire 8 seconds shows ONE single moment - not a sequence of events.
+Example for party scene: camera observes people dancing together across the room, then slowly drifts down to a sleeve thread. That's it. No other actions. No scene changes.
+Maximum 2 micro-actions per video: one environmental (people in background) and one hyperfocus detail (an object or texture in foreground). Nothing more.
 
 MEMORY/VISUAL THINKING note:
 The autistic person thinks in specific images, not concepts.
