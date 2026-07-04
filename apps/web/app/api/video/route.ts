@@ -16,7 +16,8 @@ export async function POST(req: NextRequest) {
 
     console.log("VIDEO PROMPT SENT TO VEO:", finalPrompt);
 
-    // Step 1: Start video generation
+    // Start video generation and return the operation name immediately.
+    // The client polls /api/video-status to avoid the serverless timeout.
     const startRes = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/${VEO_MODEL}:predictLongRunning?key=${API_KEY}`,
       {
@@ -49,36 +50,15 @@ export async function POST(req: NextRequest) {
 
     const { name: operationName } = JSON.parse(startText);
 
-    // Step 2: Poll until done (max ~3 min, 25 × 7s)
-    for (let i = 0; i < 25; i++) {
-      await new Promise((r) => setTimeout(r, 7000));
-
-      const pollRes = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/${operationName}?key=${API_KEY}`
-      );
-      const pollText = await pollRes.text();
-      if (!pollText) continue;
-      let pollData;
-      try {
-        pollData = JSON.parse(pollText);
-      } catch {
-        continue;
-      }
-
-      if (pollData.done) {
-        const uri = pollData.response?.generateVideoResponse?.generatedSamples?.[0]?.video?.uri;
-        if (!uri) return NextResponse.json({ error: "No video URI" }, { status: 500 });
-
-        // Return the raw URI — client will fetch via /api/video-proxy to keep the key server-side
-        return NextResponse.json({ uri });
-      }
+    if (!operationName) {
+      return NextResponse.json({ error: "No operation name from Veo API" }, { status: 502 });
     }
 
-    return NextResponse.json({ error: "Timeout - video took too long" }, { status: 408 });
+    return NextResponse.json({ operationName });
   } catch (err) {
     console.error("Video route error:", err);
     return NextResponse.json({ error: String(err) }, { status: 500 });
   }
 }
 
-export const maxDuration = 200;
+export const maxDuration = 60;

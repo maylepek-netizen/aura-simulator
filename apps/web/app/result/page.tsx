@@ -586,6 +586,7 @@ export default function ResultPage() {
 
   const [videoVisible, setVideoVisible] = useState(false);
   const revealTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const videoPollRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [saved, setSaved] = useState(false);
   const [fadingOut, setFadingOut] = useState(false);
@@ -602,6 +603,7 @@ export default function ResultPage() {
       ttsAudioRef.current?.pause();
       if (ambientAudioRef.current) { ambientAudioRef.current.pause(); ambientAudioRef.current = null; }
       revealTimersRef.current.forEach(clearTimeout);
+      if (videoPollRef.current) clearTimeout(videoPollRef.current);
     };
   }, []);
 
@@ -771,6 +773,7 @@ export default function ResultPage() {
     setVideoPaused(false);
     revealTimersRef.current.forEach(clearTimeout);
     revealTimersRef.current = [];
+    if (videoPollRef.current) { clearTimeout(videoPollRef.current); videoPollRef.current = null; }
     narrationStartedRef.current = false;
     stopNarration();
     ambientEngineRef.current?.stop();
@@ -789,6 +792,25 @@ export default function ResultPage() {
       setResult(data);
 
       setVideoLoading(true);
+      // Step 1: start generation, get the operation name back immediately.
+      // Step 2: poll /api/video-status every 7s (client-side) until done — this
+      // avoids the Vercel Hobby 60s serverless function timeout.
+      const onVideoReady = (uri: string) => {
+        setVideoUrl("/api/video-proxy?uri=" + encodeURIComponent(uri));
+        setVideoUri(uri);
+        // Fade out background music as simulation begins
+        if (typeof window !== "undefined" && window.backgroundMusic) {
+          const fadeOut = setInterval(() => {
+            if (window.backgroundMusic && window.backgroundMusic.volume > 0.02) {
+              window.backgroundMusic.volume -= 0.02;
+            } else {
+              clearInterval(fadeOut);
+              window.backgroundMusic?.pause();
+            }
+          }, 100);
+        }
+      };
+
       fetch("/api/video", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -798,23 +820,39 @@ export default function ResultPage() {
           }),
       })
         .then(r => r.json())
-        .then(v => {
-          if (v.uri) {
-            setVideoUrl("/api/video-proxy?uri=" + encodeURIComponent(v.uri));
-            setVideoUri(v.uri);
-            // Fade out background music as simulation begins
-            if (typeof window !== "undefined" && window.backgroundMusic) {
-              const fadeOut = setInterval(() => {
-                if (window.backgroundMusic && window.backgroundMusic.volume > 0.02) {
-                  window.backgroundMusic.volume -= 0.02;
-                } else {
-                  clearInterval(fadeOut);
-                  window.backgroundMusic?.pause();
+        .then(start => {
+          if (!start.operationName) { setVideoLoading(false); return; }
+          const operationName = start.operationName as string;
+
+          // Poll up to ~5 minutes (43 × 7s) before giving up.
+          let attempts = 0;
+          const MAX_ATTEMPTS = 43;
+          const poll = () => {
+            attempts++;
+            fetch("/api/video-status", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ operationName }),
+            })
+              .then(r => r.json())
+              .then(status => {
+                if (status.done && status.uri) {
+                  onVideoReady(status.uri);
+                  setVideoLoading(false);
+                  return;
                 }
-              }, 100);
-            }
-          }
-          setVideoLoading(false);
+                if (status.error || attempts >= MAX_ATTEMPTS) {
+                  setVideoLoading(false);
+                  return;
+                }
+                videoPollRef.current = setTimeout(poll, 7000);
+              })
+              .catch(() => {
+                if (attempts >= MAX_ATTEMPTS) { setVideoLoading(false); return; }
+                videoPollRef.current = setTimeout(poll, 7000);
+              });
+          };
+          videoPollRef.current = setTimeout(poll, 7000);
         })
         .catch(() => setVideoLoading(false));
     } catch (e) {
