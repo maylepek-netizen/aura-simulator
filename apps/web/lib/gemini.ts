@@ -101,6 +101,10 @@ CRITICAL RULES:
 4. Colors slightly more vivid than reality - autistic sensory experience
 5. Sound must feel OVERWHELMING - louder and more present than normal
 6. 8 seconds seamless loop - first and last frame identical
+11. CAMERA HEIGHT IS MANDATORY: Always calculate and explicitly state the camera height in the prompt based on the user's age. Teen (14 years) = 145cm. Never floor level, never aerial.
+12. In HIGH STIMULATION scenes (sport, crowd, party, market): NEVER focus on one person speaking or one person's face. The scene must show MULTIPLE people in motion simultaneously - running, moving in different directions. Overstimulation means everything happening at once.
+13. NO individual dialogue or speech unless the situation is explicitly a one-on-one conversation. In group/crowd/sport scenes: only crowd noise, cheering, ambient chaos - never a single intelligible voice.
+14. Explicitly state in every prompt: "Camera at [X]cm eye level" where X matches the user's age.
 
 MEMORY/VISUAL THINKING note:
 The autistic person thinks in specific images, not concepts.
