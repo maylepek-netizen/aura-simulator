@@ -57,29 +57,37 @@ function buildVideoPromptInstructions(age: number, gender: string, situation: st
   const camHeight = ageApproximateCameraHeight(age);
 
   return (
-    "Create a 5-second photorealistic first-person POV video.\n\n" +
+    "Write a video prompt in English. Maximum 1000 characters. Plain string, not JSON.\n\n" +
     "SITUATION: \"" + situation + "\"\n" +
-    "Camera height: " + camHeight + " (eye level).\n\n" +
-    "INTERNAL MONOLOGUE (use the monologue array you generated above as visual direction):\n" +
-    "Translate each thought into what the camera sees:\n" +
-    "- If monologue mentions eyes/faces → camera focuses on faces\n" +
-    "- If monologue mentions sound/noise → camera reacts to audio source\n" +
-    "- If monologue mentions escape/exit → camera searches for exit\n" +
-    "- If monologue mentions a specific detail → camera fixates on it\n\n" +
-    "AUTISM RESEARCH GROUNDING:\n" +
-    "- Monotropism: camera tunnels into one detail obsessively\n" +
-    "- Sensory processing: everything amplified, lights too bright, sounds implied\n" +
-    "- Masking: slight hesitation before camera responds, processing delay visible\n" +
-    "- Double empathy: social interactions feel alien and unreadable\n\n" +
+    "Camera height: " + camHeight + " (eye level) — state it explicitly in the prompt.\n\n" +
+    "CORE PRINCIPLE:\n" +
+    "The scene is realistic. The strangeness comes ONLY from the autistic lens - how the camera perceives, not what happens.\n" +
+    "Think: an alien anthropologist observing human behavior. Present but not participating. Studying, not understanding.\n\n" +
+    "SITUATION GUIDE:\n" +
+    "ALONE (familiar place): Camera locks on one irrelevant detail. Time stretches. Near silence.\n" +
+    "ALONE (unfamiliar place): Slightly unstable camera. Everything too bright or too loud.\n" +
+    "ONE PERSON (familiar): Cannot sustain eye contact. Drifts to collar, hands, objects nearby.\n" +
+    "ONE PERSON (stranger): Avoids face. Focuses on non-threatening details behind them.\n" +
+    "SMALL GROUP (familiar, 2-5): Camera outside the group. Invisible barrier. They talk to each other, not to viewer.\n" +
+    "SMALL GROUP (strangers): Rapid scanning. Cannot follow conversation. Lost.\n" +
+    "LARGE CROWD (6+): Chaotic. Everything at equal volume. ONE inanimate anchor object in foreground. People blurred behind.\n" +
+    "QUIET SPACE: Slow camera. Natural textures. Rare peace.\n\n" +
+    "PROMPT FORMAT (always follow this structure):\n" +
+    "CAMERA: [position and behavior - locked/slow drift/unstable] at " + camHeight + " eye level.\n" +
+    "ANCHOR: [one hyper-specific object - material, color, distance, texture].\n" +
+    "BACKGROUND: [what exists behind - blurred, never the main focus].\n" +
+    "LIGHT: [specific lighting - fluorescent/window/harsh/soft].\n" +
+    "MOTION: [one atmospheric loop motion - dust/steam/flicker/breath].\n" +
+    "SOUND: [amplified natural ambient - no voiceover, no music, no single intelligible voice].\n\n" +
     "RULES:\n" +
-    "1. First-person POV - camera IS the eyes, never show protagonist\n" +
-    "2. Single continuous shot - no cuts\n" +
-    "3. Photorealistic - real location, real people, no AI artifacts\n" +
-    "4. No text, no subtitles\n" +
-    "5. Colors slightly oversaturated, lighting slightly too harsh\n" +
-    "6. If people present - they look DIRECTLY at camera, faces close and intense\n" +
-    "7. Open and close on same static texture for seamless loop\n\n" +
-    "Write ONE short cinematic paragraph. Specific to this situation and monologue."
+    "1. ONE moment, ONE anchor object, ONE motion. Nothing more.\n" +
+    "2. Scene must be 100% realistic - only objects that belong in that location.\n" +
+    "3. People in LARGE CROWD scenes never look at camera. In 1-on-1 scenes, brief eye contact is natural.\n" +
+    "4. No morphing, no transitions, no invented gestures, no magical elements.\n" +
+    "5. Colors slightly oversaturated. Sound amplified beyond normal.\n" +
+    "6. Seamless 8-second loop - first frame = last frame.\n\n" +
+    "END EVERY PROMPT WITH:\n" +
+    "'Single continuous shot. No cuts. No transitions. No voiceover. No narration.'"
   );
 }
 
