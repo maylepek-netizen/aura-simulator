@@ -43,39 +43,3 @@ Tone: Psychological realism, immersive, unsettling. No horror tropes, just perce
   }
   return null;
 }
-
-// ─── Generate Narration (TTS) ─────────────────────────────────────────────────
-
-export async function generateNarration(apiKey: string, text: string): Promise<string | null> {
-  const ai = getAI(apiKey);
-
-  const model = ai.getGenerativeModel({
-    model: "gemini-2.5-flash-preview-tts",
-  });
-
-  const result = await model.generateContent({
-    contents: [
-      {
-        role: "user",
-        parts: [
-          {
-            text: `Narrate the following inner thoughts in Hebrew with a calm, slightly fragmented, immersive tone. Voice should feel internal, like thoughts heard from inside: ${text}`,
-          },
-        ],
-      },
-    ],
-    generationConfig: {
-      // @ts-expect-error - TTS specific config
-      responseModalities: ["AUDIO"],
-      speechConfig: {
-        voiceConfig: {
-          prebuiltVoiceConfig: { voiceName: "Kore" },
-        },
-      },
-    },
-  });
-
-  const base64Audio =
-    result.response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
-  return base64Audio ?? null;
-}
