@@ -1015,7 +1015,7 @@ export default function ResultPage() {
             style={{
               position: 'absolute',
               bottom: 16,
-              right: 16,
+              left: 16,
               background: 'rgba(255,201,157,0.15)',
               border: '1px solid #FFC99D',
               color: '#FFC99D',
