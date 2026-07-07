@@ -291,15 +291,18 @@ export default function LandingPage() {
 
               <button
                 type="button"
-                className="aura-btn"
                 onClick={() => navigate("/onboard")}
+                onMouseEnter={(e) => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.boxShadow = "0 0 16px rgba(255,201,157,0.5)"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.opacity = "0.8"; e.currentTarget.style.boxShadow = "none"; }}
                 style={{
                   marginTop: 24,
                   background: "#FFC99D", color: "#000",
-                  border: "none", borderRadius: 50,
+                  border: "none", borderRadius: 12,
                   padding: "16px 48px",
                   fontSize: 13, letterSpacing: "0.12em",
                   fontWeight: 600, cursor: "pointer",
+                  opacity: 0.8,
+                  transition: "all 0.2s ease",
                 }}
               >
                 Begin Experience

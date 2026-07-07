@@ -99,19 +99,22 @@ export default function SummaryPage() {
           <div style={{ display: "flex", gap: 20, alignItems: "center" }}>
             <button
               type="button"
-              className="aura-btn"
               onClick={() => navigate("/")}
+              onMouseEnter={(e) => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.boxShadow = "0 0 16px rgba(255,201,157,0.5)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.opacity = "0.8"; e.currentTarget.style.boxShadow = "none"; }}
               style={{
                 background: "#FFC99D",
                 color: "#1a0f00",
                 border: "none",
-                borderRadius: 50,
+                borderRadius: 12,
                 padding: "16px 52px",
                 fontSize: 14,
                 letterSpacing: "0.06em",
                 fontWeight: 600,
                 cursor: "pointer",
                 whiteSpace: "nowrap",
+                opacity: 0.8,
+                transition: "all 0.2s ease",
               }}
             >
               New Simulation

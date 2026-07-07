@@ -299,15 +299,17 @@ export default function ChatPage() {
                 type="button"
                 disabled={processing || !input.trim()}
                 onClick={() => void sendSituation(input)}
+                onMouseEnter={(e) => { if (!processing && input.trim()) { e.currentTarget.style.opacity = "1"; e.currentTarget.style.boxShadow = "0 0 16px rgba(255,201,157,0.5)"; } }}
+                onMouseLeave={(e) => { if (!processing && input.trim()) { e.currentTarget.style.opacity = "0.8"; e.currentTarget.style.boxShadow = "none"; } }}
                 style={{
                   background: processing ? "rgba(255,201,157,0.5)" : "#FFC99D",
                   color: "#1a0f00",
-                  border: "none", borderRadius: 10,
+                  border: "none", borderRadius: 12,
                   padding: "11px 36px",
                   fontSize: 18, fontWeight: 600, letterSpacing: "0.04em",
                   cursor: processing || !input.trim() ? "not-allowed" : "pointer",
-                  opacity: processing || !input.trim() ? 0.6 : 1,
-                  transition: "opacity 0.2s",
+                  opacity: processing || !input.trim() ? 0.6 : 0.8,
+                  transition: "all 0.2s ease",
                 }}
               >
                 {processing ? "Generating…" : "Generate Simulation"}

@@ -247,13 +247,14 @@ export default function OnboardingPage() {
               {/* CTA — pushed to bottom to align with paragraph bottom on left */}
               <button
                 type="button"
-                className="aura-btn"
                 onClick={onStart}
+                onMouseEnter={(e) => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.boxShadow = "0 0 16px rgba(255,201,157,0.5)"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.opacity = "0.8"; e.currentTarget.style.boxShadow = "none"; }}
                 style={{
                   background: "#FFC99D",
                   color: "#1c0e00",
                   border: "none",
-                  borderRadius: 50,
+                  borderRadius: 12,
                   padding: "16px 0",
                   width: "100%",
                   fontSize: 13,
@@ -261,6 +262,8 @@ export default function OnboardingPage() {
                   fontWeight: 600,
                   cursor: "pointer",
                   marginTop: "auto",
+                  opacity: 0.8,
+                  transition: "all 0.2s ease",
                 }}
               >
                 Begin Experience

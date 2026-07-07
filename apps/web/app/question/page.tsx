@@ -159,8 +159,9 @@ export default function QuestionPage() {
             <div style={{ display: "flex" }}>
               <button
                 type="button"
-                className="aura-btn"
                 onClick={() => answer("yes")}
+                onMouseEnter={(e) => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.boxShadow = "0 0 16px rgba(255,201,157,0.5)"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.opacity = "0.8"; e.currentTarget.style.boxShadow = "none"; }}
                 style={{
                   background: "#FFC99D",
                   color: "#1c0e00",
@@ -173,6 +174,8 @@ export default function QuestionPage() {
                   fontFamily: "'Amiri', serif",
                   fontStyle: "italic",
                   textTransform: "uppercase",
+                  opacity: 0.8,
+                  transition: "all 0.2s ease",
                 }}
               >
                 Next
