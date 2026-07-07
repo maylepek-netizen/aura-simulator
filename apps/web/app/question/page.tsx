@@ -156,38 +156,26 @@ export default function QuestionPage() {
               </p>
             </div>
 
-            <div style={{ display: "flex", gap: 24 }}>
+            <div style={{ display: "flex" }}>
               <button
                 type="button"
+                className="aura-btn"
                 onClick={() => answer("yes")}
                 style={{
-                  background: "transparent",
-                  border: "1.5px solid rgba(255,255,255,0.5)",
-                  borderRadius: 50,
+                  background: "#FFC99D",
+                  color: "#1c0e00",
+                  border: "none",
+                  borderRadius: 12,
                   padding: "16px 64px",
                   fontSize: 15, letterSpacing: "0.08em",
-                  fontWeight: 500, color: "white",
+                  fontWeight: 600,
                   cursor: "pointer",
                   fontFamily: "'Amiri', serif",
+                  fontStyle: "italic",
+                  textTransform: "uppercase",
                 }}
               >
-                Yes
-              </button>
-              <button
-                type="button"
-                onClick={() => answer("no")}
-                style={{
-                  background: "rgba(40,28,18,0.85)",
-                  border: "1.5px solid rgba(255,255,255,0.15)",
-                  borderRadius: 50,
-                  padding: "16px 64px",
-                  fontSize: 15, letterSpacing: "0.08em",
-                  fontWeight: 500, color: "rgba(255,255,255,0.85)",
-                  cursor: "pointer",
-                  fontFamily: "'Amiri', serif",
-                }}
-              >
-                No
+                Next
               </button>
             </div>
           </div>
