@@ -204,8 +204,9 @@ export default function LandingPage() {
         {/* ── SCREEN 01 — LANDING: eye icon + BEGIN only, no sidebar ── */}
         {screen === "landing" && (
           <div style={{
-            position: "absolute", inset: 0,
-            display: "flex", alignItems: "center", justifyContent: "center",
+            display: "flex", flexDirection: "column",
+            alignItems: "center", justifyContent: "center",
+            position: "fixed", inset: 0,
           }}>
             <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.45)", zIndex: 1 }} />
             <button
