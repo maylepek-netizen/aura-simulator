@@ -145,7 +145,7 @@ export default function OnboardingPage() {
             width: "100%",
             display: "flex",
             gap: 80,
-            alignItems: "center",
+            alignItems: "stretch",
           }}>
 
             {/* LEFT COLUMN */}
@@ -179,6 +179,7 @@ export default function OnboardingPage() {
                 color: "rgba(255,255,255,0.45)",
                 lineHeight: 1.3,
                 margin: 0,
+                marginTop: "auto",
                 maxWidth: 340,
               }}>
                 Before starting the autism simulation, please tell us a little about yourself. These details help personalize the experience and adapt it to your perspective.
@@ -258,7 +259,7 @@ export default function OnboardingPage() {
                   letterSpacing: "0.1em",
                   fontWeight: 600,
                   cursor: "pointer",
-                  marginTop: 0,
+                  marginTop: "auto",
                 }}
               >
                 Begin Experience
