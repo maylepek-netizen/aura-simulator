@@ -41,13 +41,12 @@ h1, h2, h3, h4, h5, h6 {
 
 /* ── Button hover ── */
 .aura-btn {
-  transition: all 0.2s ease;
+  transition: opacity 0.4s ease, transform 0.4s ease;
   cursor: pointer;
 }
 .aura-btn:hover {
-  transform: scale(0.9);
-  background: #F0B080;
-  box-shadow: 0 0 20px rgba(255,201,157,0.7);
+  opacity: 0.82;
+  transform: scale(1.025);
 }
 
 /* ── Calming micro-animations ── */

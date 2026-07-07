@@ -266,17 +266,16 @@ export default function LandingPage() {
               position: "absolute", top: 0, bottom: 0, left: 80, right: 0,
               display: "flex", flexDirection: "column",
               alignItems: "center", justifyContent: "center",
-              zIndex: 2,
+              gap: 20, zIndex: 2,
             }}>
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 35 }}>
-                <img src="/icons/new eye logo.svg" alt="" style={{ width: 65, opacity: 0.9 }} />
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+                <img src="/logo-orange.svg" alt="" style={{ width: 65, opacity: 0.9 }} />
 
                 <h1 style={{
                   fontFamily: "'Amiri', serif",
                   fontSize: "clamp(1.9rem, 4vw, 3.5rem)",
                   color: "#FFC99D", margin: 0,
                   textAlign: "center", lineHeight: 1.15, fontWeight: 400,
-                  textTransform: "uppercase",
                 }}>
                   Aura Simulator
                 </h1>
@@ -285,7 +284,7 @@ export default function LandingPage() {
               <p style={{
                 fontSize: 14, letterSpacing: "0.18em",
                 color: "rgba(255,255,255,0.7)",
-                margin: "10px 0 0", textAlign: "center",
+                margin: 0, textAlign: "center",
               }}>
                 A simulation of the autistic perception
               </p>
@@ -295,14 +294,12 @@ export default function LandingPage() {
                 className="aura-btn"
                 onClick={() => navigate("/onboard")}
                 style={{
-                  marginTop: 100,
+                  marginTop: 24,
                   background: "#FFC99D", color: "#000",
-                  border: "none", borderRadius: 12,
+                  border: "none", borderRadius: 50,
                   padding: "16px 48px",
-                  fontSize: 13, letterSpacing: "0.15em",
+                  fontSize: 13, letterSpacing: "0.12em",
                   fontWeight: 600, cursor: "pointer",
-                  textTransform: "uppercase",
-                  fontFamily: "'Amiri', serif", fontStyle: "italic",
                 }}
               >
                 Begin Experience
