@@ -177,7 +177,7 @@ export default function OnboardingPage() {
                 fontSize: 18,
                 letterSpacing: "0.04em",
                 color: "rgba(255,255,255,0.45)",
-                lineHeight: 1.7,
+                lineHeight: 1.3,
                 margin: 0,
                 maxWidth: 340,
               }}>
