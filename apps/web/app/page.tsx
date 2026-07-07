@@ -268,7 +268,7 @@ export default function LandingPage() {
               alignItems: "center", justifyContent: "center",
               zIndex: 2,
             }}>
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 35 }}>
                 <img src="/icons/new eye logo.svg" alt="" style={{ width: 65, opacity: 0.9 }} />
 
                 <h1 style={{
@@ -283,7 +283,7 @@ export default function LandingPage() {
               </div>
 
               <p style={{
-                fontSize: 18, letterSpacing: "0.18em",
+                fontSize: 14, letterSpacing: "0.18em",
                 color: "rgba(255,255,255,0.7)",
                 margin: "10px 0 0", textAlign: "center",
               }}>
@@ -295,7 +295,7 @@ export default function LandingPage() {
                 className="aura-btn"
                 onClick={() => navigate("/onboard")}
                 style={{
-                  marginTop: 70,
+                  marginTop: 100,
                   background: "#FFC99D", color: "#000",
                   border: "none", borderRadius: 12,
                   padding: "16px 48px",
