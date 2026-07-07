@@ -208,7 +208,7 @@ export default function LandingPage() {
             alignItems: "center", justifyContent: "center",
             position: "fixed", inset: 0,
           }}>
-            <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.45)", zIndex: 1 }} />
+            <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.65)", zIndex: 1 }} />
             <button
               type="button"
               className="begin-btn aura-fade-in"
@@ -244,7 +244,7 @@ export default function LandingPage() {
           <div className="aura-fade-in" style={{ position: "absolute", inset: 0 }}>
 
             {/* Dark overlay */}
-            <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.45)", zIndex: 1 }} />
+            <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.65)", zIndex: 1 }} />
 
             {/* Left sidebar */}
             <AppSidebar />
