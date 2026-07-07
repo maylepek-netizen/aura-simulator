@@ -192,6 +192,7 @@ export default function OnboardingPage() {
               display: "flex",
               flexDirection: "column",
               gap: 36,
+              marginLeft: "-40px",
             }}>
 
               {/* Name */}
