@@ -389,7 +389,7 @@ function ProcessingMetrics({ visible }: { visible: boolean }) {
         @import url('https://fonts.googleapis.com/css2?family=Amiri:ital@0;1&display=swap');
         @keyframes loading-breathe { 0%,100%{opacity:0.35} 50%{opacity:0.65} }
       `}</style>
-      <video src="https://res.cloudinary.com/duhsqezo3/video/upload/v1782673643/good_video_o7ktrf.mp4"
+      <video src="https://res.cloudinary.com/duhsqezo3/video/upload/v1783454665/vidro_mcecj5.mp4"
         autoPlay loop muted playsInline
         style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", filter: "blur(24px) brightness(0.6)", transform: "scale(1.05)" }} />
       <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.45)" }} />
