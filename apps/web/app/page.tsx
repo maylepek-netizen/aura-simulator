@@ -263,7 +263,7 @@ export default function LandingPage() {
 
             {/* Center content */}
             <div style={{
-              position: "absolute", top: 0, bottom: 0, left: 80, right: 0,
+              position: "fixed", inset: 0,
               display: "flex", flexDirection: "column",
               alignItems: "center", justifyContent: "center",
               gap: 20, zIndex: 2,
