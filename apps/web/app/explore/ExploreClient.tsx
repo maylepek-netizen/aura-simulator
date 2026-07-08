@@ -45,7 +45,7 @@ export default function ExploreClient() {
 
         {/* Header */}
         <div style={{ position: "sticky", top: 0, zIndex: 10, background: "rgba(13,10,8,0.92)", backdropFilter: "blur(16px)", borderBottom: "1px solid rgba(255,255,255,0.07)", padding: "14px 20px", display: "flex", alignItems: "center", gap: 12 }}>
-          <img src="/logo-orange.svg" alt="" style={{ width: 24, opacity: 0.8 }} />
+          <img src="/icons/New_logo_eye.svg" alt="" style={{ width: 24, opacity: 0.8 }} />
           <span style={{ fontSize: 11, letterSpacing: "0.24em", textTransform: "uppercase", color: "rgba(255,255,255,0.7)" }}>Explore</span>
           <span style={{ fontSize: 10, letterSpacing: "0.12em", color: "rgba(255,255,255,0.25)" }}>{simulations.length} simulations</span>
         </div>

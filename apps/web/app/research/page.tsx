@@ -555,7 +555,7 @@ export default function ResearchPage() {
         {/* ── Nav ── */}
         <nav className="r-nav">
           <div className="r-nav-logo">
-            <img src="/logo.svg" alt="" style={{ width: 22, opacity: 0.7 }} />
+            <img src="/icons/New_logo_eye.svg" alt="" style={{ width: 22, opacity: 0.7 }} />
             AURA SIMULATOR
           </div>
           <div className="r-nav-links">
@@ -627,9 +627,10 @@ export default function ResearchPage() {
 
               {/* Eye logo in center */}
               <image
-                href="/logo.svg"
+                href="/icons/New_logo_eye.svg"
                 x={CX - 30} y={CY - 30}
                 width={60} height={60}
+                preserveAspectRatio="xMidYMid meet"
                 opacity={0.8}
               />
 
@@ -763,7 +764,7 @@ export default function ResearchPage() {
           {/* Left: info */}
           <div style={{ paddingTop: 4 }}>
             <div className="r-chat-icon">
-              <img src="/logo.svg" alt="" style={{ width: 22, opacity: 0.7 }} />
+              <img src="/icons/New_logo_eye.svg" alt="" style={{ width: 22, opacity: 0.7 }} />
             </div>
             <div className="r-chat-info-label">Research Assistant</div>
             <div className="r-chat-info-desc">

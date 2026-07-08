@@ -17,7 +17,7 @@ export default function AppSidebar() {
         display: "flex", alignItems: "center", justifyContent: "center",
       }}>
         <img
-          src="/logo-orange.svg"
+          src="/icons/New_logo_eye.svg"
           alt="Home"
           onClick={() => router.push("/")}
           style={{ width: 28, opacity: 0.6, cursor: "pointer", transition: "opacity 0.2s", display: "block" }}
