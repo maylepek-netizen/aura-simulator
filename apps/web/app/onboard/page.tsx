@@ -136,7 +136,7 @@ export default function OnboardingPage() {
 
         {/* ── MAIN CONTENT ── */}
         <div style={{
-          position: "absolute", top: 60, bottom: 0, left: 80, right: 0,
+          position: "absolute", top: 60, bottom: 0, left: 0, right: 0,
           display: "flex", alignItems: "center", justifyContent: "center",
           padding: "0 80px",
           zIndex: 5,
