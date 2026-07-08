@@ -121,6 +121,32 @@ export default function LandingPage() {
           filter: drop-shadow(0 0 10px rgba(255,201,157,0.55));
         }
         .begin-icon { transition: filter 0.2s ease; }
+
+        /* Intro logo — icon + heading scale together at a fixed ratio (148 / 112 / 100 / 40) */
+        .intro-logo {
+          --logo-w: clamp(90px, 12vw, 148px);
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: calc(var(--logo-w) * 40 / 148);
+        }
+        .intro-logo-icon {
+          width: var(--logo-w);
+          height: calc(var(--logo-w) * 112 / 148);
+          background-color: #FFC99D;
+          opacity: 1;
+          -webkit-mask: url('/icons/New_logo_eye.svg') no-repeat center / contain;
+          mask: url('/icons/New_logo_eye.svg') no-repeat center / contain;
+        }
+        .intro-logo-heading {
+          font-family: 'Amiri', serif;
+          font-size: calc(var(--logo-w) * 100 / 148);
+          color: #FFC99D;
+          margin: 0;
+          text-align: center;
+          line-height: 1.15;
+          font-weight: 400;
+        }
       `}</style>
 
       <div
@@ -268,16 +294,11 @@ export default function LandingPage() {
               alignItems: "center", justifyContent: "center",
               gap: 20, zIndex: 2,
             }}>
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
-                <img src="/logo-orange.svg" alt="" style={{ width: 65, opacity: 0.9 }} />
+              <div className="intro-logo">
+                <div className="intro-logo-icon" role="img" aria-label="Aura" />
 
-                <h1 style={{
-                  fontFamily: "'Amiri', serif",
-                  fontSize: "clamp(1.9rem, 4vw, 3.5rem)",
-                  color: "#FFC99D", margin: 0,
-                  textAlign: "center", lineHeight: 1.15, fontWeight: 400,
-                }}>
-                  Aura Simulator
+                <h1 className="intro-logo-heading">
+                  AURA SIMULATOR
                 </h1>
               </div>
 
