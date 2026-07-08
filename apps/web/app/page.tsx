@@ -122,13 +122,13 @@ export default function LandingPage() {
         }
         .begin-icon { transition: filter 0.2s ease; }
 
-        /* Intro logo — icon + heading scale together at a fixed ratio (148 / 112 / 100 / 40) */
+        /* Intro logo — icon + heading scale together from --logo-w (74 / 56 / 50 / 16 gap) */
         .intro-logo {
-          --logo-w: clamp(90px, 12vw, 148px);
+          --logo-w: clamp(45px, 6vw, 74px);
           display: flex;
           flex-direction: column;
           align-items: center;
-          gap: calc(var(--logo-w) * 40 / 148);
+          gap: calc(var(--logo-w) * 16 / 74);
         }
         .intro-logo-icon {
           width: var(--logo-w);
