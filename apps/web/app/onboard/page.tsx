@@ -137,14 +137,14 @@ export default function OnboardingPage() {
         {/* ── MAIN CONTENT ── */}
         <div style={{
           position: "absolute", top: 60, bottom: 0, left: 80, right: 0,
-          display: "flex", alignItems: "center", justifyContent: "flex-start",
-          padding: "0 80px 0 120px",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          padding: "0 80px",
           zIndex: 5,
         }}>
           <div style={{
-            width: "100%",
+            width: "100%", maxWidth: 1080,
             display: "flex",
-            gap: 80,
+            gap: 48,
             alignItems: "stretch",
           }}>
 
@@ -155,7 +155,7 @@ export default function OnboardingPage() {
                 fontFamily: "'Amiri', serif",
                 fontSize: "clamp(44px, 5.5vw, 68px)",
                 color: "white",
-                margin: "0 0 32px",
+                margin: "-0.12em 0 32px",
                 lineHeight: 1.1,
                 fontWeight: 400,
                 letterSpacing: "-0.5px",
@@ -192,7 +192,6 @@ export default function OnboardingPage() {
               display: "flex",
               flexDirection: "column",
               gap: 36,
-              marginLeft: "-40px",
             }}>
 
               {/* Name */}
