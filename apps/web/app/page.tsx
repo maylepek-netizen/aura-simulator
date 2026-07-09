@@ -245,16 +245,16 @@ export default function LandingPage() {
                 padding: 0, position: "relative", zIndex: 2,
               }}
             >
-              <svg
+              <div
                 className="begin-icon"
-                width="52" height="28" viewBox="0 0 55 30" fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path d="M31.1464 18.6903C32.2377 17.7283 32.8508 16.4237 32.8508 15.0633C32.8508 13.703 32.2377 12.3983 31.1464 11.4364C30.0551 10.4745 28.575 9.93408 27.0317 9.93408C25.4884 9.93408 24.0083 10.4745 22.917 11.4364C21.8257 12.3983 21.2127 13.703 21.2127 15.0633C21.2127 16.4237 21.8257 17.7283 22.917 18.6903C24.0083 19.6522 25.4884 20.1926 27.0317 20.1926C28.575 20.1926 30.0551 19.6522 31.1464 18.6903Z" stroke="#FFC99D" strokeOpacity="0.6" strokeWidth="2.06349" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M7.63492 15.0635C10.7384 8.05862 17.9851 3.09521 27.0317 3.09521C36.0784 3.09521 43.3251 8.05862 46.4286 15.0635C43.3251 22.0683 36.0784 27.0317 27.0317 27.0317C17.9851 27.0317 10.7384 22.0683 7.63492 15.0635Z" stroke="#FFC99D" strokeOpacity="0.6" strokeWidth="2.06349" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M45.1905 1.03174C49.5211 1.03174 53.0317 4.54239 53.0317 8.87301V20.8413C53.0317 25.1719 49.5211 28.6825 45.1905 28.6825" stroke="#FFC99D" strokeOpacity="0.6" strokeWidth="2.06349"/>
-                <path d="M8.87302 28.6826C4.5424 28.6826 1.03175 25.172 1.03175 20.8413L1.03175 8.87308C1.03175 4.54247 4.54241 1.03182 8.87302 1.03182" stroke="#FFC99D" strokeOpacity="0.6" strokeWidth="2.06349"/>
-              </svg>
+                style={{
+                  width: 37, height: 28,
+                  backgroundColor: "#FFC99D",
+                  opacity: 1,
+                  WebkitMask: "url('/icons/New_logo_eye.svg') no-repeat center / contain",
+                  mask: "url('/icons/New_logo_eye.svg') no-repeat center / contain",
+                }}
+              />
               <span style={{
                 fontSize: 10, letterSpacing: "0.4em", fontWeight: 300,
                 textTransform: "uppercase", color: "white",
