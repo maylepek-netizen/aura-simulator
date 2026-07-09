@@ -146,8 +146,12 @@ export async function POST(req: NextRequest) {
     );
 
     if (!res.ok) {
-      const err = await res.json();
-      return NextResponse.json({ error: err?.error?.message ?? "Gemini error" }, { status: 502 });
+      const errText = await res.text();
+      console.error("Gemini API error status:", res.status);
+      console.error("Gemini API error body:", errText);
+      let err: Record<string, unknown> = {};
+      try { err = JSON.parse(errText); } catch { err = {}; }
+      return NextResponse.json({ error: (err as any)?.error?.message ?? "Gemini error" }, { status: 502 });
     }
 
     const data = await res.json();
