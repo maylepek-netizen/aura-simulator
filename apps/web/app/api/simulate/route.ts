@@ -79,10 +79,10 @@ function buildVideoPromptInstructions(age: number, gender: string, situation: st
     "LARGE CROWD (6+): Chaotic. Everything at equal volume. ONE inanimate anchor object in foreground. People blurred behind.\n" +
     "QUIET SPACE: Slow camera. Natural textures. Rare peace.\n\n" +
     "PROMPT FORMAT (always follow this structure):\n" +
-    "CAMERA: [position and behavior - locked/slow drift/unstable] at " + camHeight + " eye level.\n" +
+    "CAMERA: [position and behavior - locked/slow drift/unstable] at " + camHeight + " eye level. Extremely slow involuntary drift - like the camera is losing focus, barely held steady. As if consciousness is slightly slipping. The kind of slow unfocused movement you see when a character in a film is about to faint or dissociate.\n" +
     "ANCHOR: [one hyper-specific object - material, color, distance, texture].\n" +
     "BACKGROUND: [what exists behind - blurred, never the main focus].\n" +
-    "LIGHT: [specific lighting - fluorescent/window/harsh/soft].\n" +
+    "LIGHT: [specific lighting - fluorescent/window/harsh/soft]. Slightly desaturated at edges, sharp only in the center hyperfocus point. Soft vignette. Like the world is slightly out of reach - present but not fully real. The visual language of dissociation.\n" +
     "MOTION: [one atmospheric loop motion - dust/steam/flicker/breath].\n" +
     "SOUND: [amplified natural ambient - no voiceover, no music, no single intelligible voice].\n\n" +
     "RULES:\n" +
