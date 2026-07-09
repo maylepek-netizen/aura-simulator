@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { generateSceneImage } from "@/lib/gemini";
 
-const GEMINI_MODEL = "gemini-2.5-flash-preview-05-20";
+const GEMINI_MODEL = "gemini-2.0-flash";
 
 const RESEARCH_CONTEXT =
   "Key research grounding this simulation:\n" +
