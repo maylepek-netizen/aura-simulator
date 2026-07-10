@@ -68,12 +68,15 @@ function buildVideoPromptInstructions(age: number, gender: string, situation: st
     "- Other people may appear in the scene, but never the protagonist themselves\n" +
     "- If the situation says 'I am looking at the ceiling' → we see the ceiling, not a person looking up\n\n" +
     "The scene is realistic. The strangeness comes ONLY from the autistic lens - how the camera perceives, not what happens.\n" +
-    "Think: an alien anthropologist observing human behavior. Present but not participating. Studying, not understanding.\n\n" +
+    "Think: an alien anthropologist observing human behavior. Present but not participating. Studying, not understanding.\n" +
+    "VISUAL VARIETY: Mix between two modes based on situation:\n" +
+    "- PERSON-FOCUSED scenes (one person talking to you): show their face, close, slightly unreadable\n" +
+    "- ENVIRONMENT scenes (crowds, places, alone): hyperfocus on inanimate anchor, people blurred\n\n" +
     "SITUATION GUIDE:\n" +
     "ALONE (familiar place): Camera locks on one irrelevant detail. Time stretches. Near silence.\n" +
     "ALONE (unfamiliar place): Slightly unstable camera. Everything too bright or too loud.\n" +
-    "ONE PERSON (familiar): Cannot sustain eye contact. Drifts to collar, hands, objects nearby.\n" +
-    "ONE PERSON (stranger): Avoids face. Focuses on non-threatening details behind them.\n" +
+    "ONE PERSON (familiar): Camera cannot maintain eye contact but IS drawn back to their face. Their expressions look slightly unreadable - like watching someone speak a foreign language. Their face fills 40-50% of frame. Eyes seem too intense. Mouth movements don't fully sync with what you expect. Camera drifts: face → their hands → object nearby → back to face involuntarily.\n" +
+    "ONE PERSON (stranger): Their face uncomfortably close, fills 50-60% of frame. Eyes too direct. Expression hard to decode - is it friendly? Threatening? Camera wants to look away but returns. Their body slightly too close to camera.\n" +
     "SMALL GROUP (familiar, 2-5): Camera outside the group. Invisible barrier. They talk to each other, not to viewer.\n" +
     "SMALL GROUP (strangers): Rapid scanning. Cannot follow conversation. Lost.\n" +
     "LARGE CROWD (6+): Chaotic. Everything at equal volume. ONE inanimate anchor object in foreground. People blurred behind.\n" +
