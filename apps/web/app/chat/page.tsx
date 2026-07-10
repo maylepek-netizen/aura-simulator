@@ -230,7 +230,7 @@ export default function ChatPage() {
 
         {/* ── MAIN CONTENT ── */}
         <div style={{
-          position: "absolute", top: 60, bottom: 0, left: 80, right: 0,
+          position: "absolute", top: 60, bottom: 0, left: 0, right: 0,
           display: "flex", flexDirection: "column",
           alignItems: "center", justifyContent: "center",
           padding: "0 60px 40px",
@@ -254,16 +254,16 @@ export default function ChatPage() {
           <h1 style={{
             fontFamily: "'Amiri', serif",
             fontSize: "clamp(3rem, 5.5vw, 4.8rem)",
-            color: "white", margin: "0 0 13px",
+            color: "white", margin: "0 0 7px",
             fontWeight: 400, lineHeight: 1.05,
             textAlign: "center", maxWidth: 760,
           }}>
-            Define the Experience
+            BUILD YOUR SIMULATION
           </h1>
 
           {/* Description — directly below heading */}
           <p style={{
-            marginTop: 0, marginBottom: 25, maxWidth: 560,
+            marginTop: 0, marginBottom: 25, maxWidth: 760,
             fontSize: 14, letterSpacing: "0.06em",
             color: "rgba(255,255,255,0.35)",
             textAlign: "center", lineHeight: 1.3,
@@ -293,36 +293,12 @@ export default function ChatPage() {
                 }
               }}
             />
-            {/* Bottom row: help buttons left, send right */}
+            {/* Bottom row: send button right-aligned inside card */}
             <div style={{
-              display: "flex", alignItems: "center", justifyContent: "space-between",
+              display: "flex", alignItems: "center", justifyContent: "flex-end",
               borderTop: "1px solid rgba(255,255,255,0.1)",
-              paddingTop: 14, marginTop: 8, gap: 16, flexWrap: "nowrap",
+              paddingTop: 14, marginTop: 8,
             }}>
-              <div style={{ display: "flex", gap: 10, justifyContent: "flex-start", flexWrap: "nowrap" }}>
-                <button className="helper-btn" type="button" onClick={handleHelpMe}
-                  style={{ border: "1px solid #FFC1BB", color: "#FFC1BB" }}>
-                  Help me think
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                    <path d="M9.5 2a6 6 0 0 1 5 9.5M9.5 2a6 6 0 0 0-5 9.5M9.5 2v1M14.5 11.5a6 6 0 0 1-5 9.5M14.5 11.5a6 6 0 0 0-5 9.5M9.5 21v-1M3 7h1M16 7h1M3 17h1M16 17h1"/>
-                  </svg>
-                </button>
-                <button className="helper-btn" type="button" onClick={handleWriteForMe}
-                  style={{ border: "1px solid #BCC2FF", color: "#BCC2FF" }}>
-                  Write for me
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                    <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>
-                  </svg>
-                </button>
-                <button
-                  className="helper-btn"
-                  type="button"
-                  onClick={() => { setShowExamples((v) => !v); setHelpHint(null); }}
-                  style={{ border: "1px solid #FFC99D", color: "#FFC99D" }}
-                >
-                  Show me examples <span>›</span>
-                </button>
-              </div>
               <button
                 type="button"
                 disabled={processing || !input.trim()}
@@ -344,11 +320,40 @@ export default function ChatPage() {
               </button>
             </div>
 
-            {/* Examples list — expands downward inside card */}
+          </div>
+
+          {/* ── Help buttons — centered row below the card ── */}
+          <div style={{ position: "relative", marginTop: 30, width: "100%", maxWidth: 860 }}>
+            <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
+              <button className="helper-btn" type="button" onClick={handleHelpMe}
+                style={{ border: "1px solid #FFC1BB", color: "#FFC1BB" }}>
+                Help me think
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <path d="M9.5 2a6 6 0 0 1 5 9.5M9.5 2a6 6 0 0 0-5 9.5M9.5 2v1M14.5 11.5a6 6 0 0 1-5 9.5M14.5 11.5a6 6 0 0 0-5 9.5M9.5 21v-1M3 7h1M16 7h1M3 17h1M16 17h1"/>
+                </svg>
+              </button>
+              <button className="helper-btn" type="button" onClick={handleWriteForMe}
+                style={{ border: "1px solid #BCC2FF", color: "#BCC2FF" }}>
+                Write for me
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                </svg>
+              </button>
+              <button
+                className="helper-btn"
+                type="button"
+                onClick={() => { setShowExamples((v) => !v); setHelpHint(null); }}
+                style={{ border: "1px solid #FFC99D", color: "#FFC99D" }}
+              >
+                Show me examples <span>›</span>
+              </button>
+            </div>
+
+            {/* Examples list — expands downward */}
             {showExamples && (
               <div style={{
                 marginTop: 12,
-                display: "flex", flexWrap: "wrap", gap: 8,
+                display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center",
               }}>
                 {examples.map((ex) => (
                   <button
@@ -362,24 +367,19 @@ export default function ChatPage() {
                 ))}
               </div>
             )}
+
+            {/* Help hint */}
+            {helpHint && (
+              <div style={{
+                marginTop: 14, width: "100%",
+                fontSize: 13, letterSpacing: "0.08em",
+                color: "rgba(255,201,157,0.8)",
+                textAlign: "center",
+              }}>
+                💭 {helpHint}
+              </div>
+            )}
           </div>
-
-          {/* Help hint */}
-          {helpHint && (
-            <div style={{
-              marginTop: 14, maxWidth: 680, width: "100%",
-              fontSize: 13, letterSpacing: "0.08em",
-              color: "rgba(255,201,157,0.8)",
-              textAlign: "center",
-            }}>
-              💭 {helpHint}
-            </div>
-          )}
-
-          {/* Subtitle / step label — below the card */}
-          <p style={{ fontSize: 12, letterSpacing: "0.24em", color: "rgba(255,255,255,0.5)", margin: "30px 0 0", textTransform: "uppercase" }}>
-            BUILD YOUR SIMULATION
-          </p>
 
         </div>
       </div>
