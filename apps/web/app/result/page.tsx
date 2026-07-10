@@ -857,17 +857,18 @@ export default function ResultPage() {
   }, [result, videoUri, saved]);
 
   // Sequential fade-to-black transition (cinematic scene change):
-  //  1. Ivory finish holds (~1s, played inside ProcessingMetrics via `done`)
+  //  1. Ivory finish holds fully illuminated for 8s (played inside ProcessingMetrics via `done`)
   //  2. all loading elements fade out together (~1.1s)
   //  3. the screen stays fully black & empty for a beat (~0.9s of silence)
   //  4. only then does the simulation fade in
   useEffect(() => {
     if (videoUrl) {
+      const HOLD = 8000; // linger on the fully-illuminated eye before dissolving out
       const timers: ReturnType<typeof setTimeout>[] = [];
       // hold on the Ivory glow, then begin fading the loading UI out
-      timers.push(setTimeout(() => setProcessingVisible(false), 1000));
+      timers.push(setTimeout(() => setProcessingVisible(false), HOLD));
       // after the loading has fully faded + a black silent gap, bring the simulation in
-      timers.push(setTimeout(() => setVideoVisible(true), 1000 + 1100 + 900));
+      timers.push(setTimeout(() => setVideoVisible(true), HOLD + 1100 + 900));
       return () => timers.forEach(clearTimeout);
     } else {
       setVideoVisible(false);
