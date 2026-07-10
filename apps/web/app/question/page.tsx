@@ -144,7 +144,8 @@ export default function QuestionPage() {
               </h1>
 
               <p style={{
-                fontFamily: "'Amiri', serif",
+                fontFamily: "var(--font-assistant), 'assistant', sans-serif",
+                fontStyle: "normal",
                 fontSize: "clamp(1.1rem, 2vw, 1.6rem)",
                 color: "rgba(255,255,255,0.7)",
                 textAlign: "center",
