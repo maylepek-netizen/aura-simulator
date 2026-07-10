@@ -241,10 +241,10 @@ export default function ChatPage() {
           <div
             aria-hidden
             style={{
-              width: 60, height: 45,
+              width: 42, height: 32,
               backgroundColor: "#FFC99D",
               opacity: 1,
-              marginBottom: 24,
+              marginBottom: 12,
               WebkitMask: "url('/icons/New_logo_eye.svg') no-repeat center / contain",
               mask: "url('/icons/New_logo_eye.svg') no-repeat center / contain",
             }}
@@ -273,7 +273,7 @@ export default function ChatPage() {
 
           {/* Textarea card */}
           <div style={{
-            width: "100%", maxWidth: 680,
+            width: "100%", maxWidth: 860,
             background: "rgba(255,255,255,0.06)",
             border: "1px solid rgba(255,255,255,0.1)",
             borderRadius: 16,
@@ -297,9 +297,9 @@ export default function ChatPage() {
             <div style={{
               display: "flex", alignItems: "center", justifyContent: "space-between",
               borderTop: "1px solid rgba(255,255,255,0.1)",
-              paddingTop: 14, marginTop: 8, gap: 10, flexWrap: "wrap",
+              paddingTop: 14, marginTop: 8, gap: 16, flexWrap: "nowrap",
             }}>
-              <div style={{ display: "flex", gap: 10, justifyContent: "flex-start", flexWrap: "wrap" }}>
+              <div style={{ display: "flex", gap: 10, justifyContent: "flex-start", flexWrap: "nowrap" }}>
                 <button className="helper-btn" type="button" onClick={handleHelpMe}
                   style={{ border: "1px solid #FFC1BB", color: "#FFC1BB" }}>
                   Help me think
