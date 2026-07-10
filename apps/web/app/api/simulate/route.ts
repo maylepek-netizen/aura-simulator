@@ -75,7 +75,7 @@ function buildVideoPromptInstructions(age: number, gender: string, situation: st
     "SITUATION GUIDE:\n" +
     "ALONE (familiar place): Camera locks on one irrelevant detail. Time stretches. Near silence.\n" +
     "ALONE (unfamiliar place): Slightly unstable camera. Everything too bright or too loud.\n" +
-    "ONE PERSON (familiar): Camera cannot maintain eye contact but IS drawn back to their face. Their expressions look slightly unreadable - like watching someone speak a foreign language. Their face fills 40-50% of frame. Eyes seem too intense. Mouth movements don't fully sync with what you expect. Camera drifts: face → their hands → object nearby → back to face involuntarily.\n" +
+    "ONE PERSON (familiar): Camera cannot maintain eye contact but IS drawn back to their face. Their expressions look slightly unreadable - like watching someone speak a foreign language. Their face fills 40-50% of frame. Eyes seem too intense. Mouth movements don't fully sync with what you expect. Camera drifts: face → their hands → object nearby → back to face involuntarily. FOCUS: Their FACE is the primary focus point, sharp. Hands and objects are secondary - slightly out of focus. The camera keeps returning to the face even when it tries to look away.\n" +
     "ONE PERSON (stranger): Their face uncomfortably close, fills 50-60% of frame. Eyes too direct. Expression hard to decode - is it friendly? Threatening? Camera wants to look away but returns. Their body slightly too close to camera.\n" +
     "SMALL GROUP (familiar, 2-5): Camera outside the group. Invisible barrier. They talk to each other, not to viewer.\n" +
     "SMALL GROUP (strangers): Rapid scanning. Cannot follow conversation. Lost.\n" +
