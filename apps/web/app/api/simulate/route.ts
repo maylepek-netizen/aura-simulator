@@ -76,7 +76,7 @@ function buildVideoPromptInstructions(age: number, gender: string, situation: st
     "ALONE (familiar place): Camera locks on one irrelevant detail. Time stretches. Near silence.\n" +
     "ALONE (unfamiliar place): Slightly unstable camera. Everything too bright or too loud.\n" +
     "ONE PERSON (familiar): Camera cannot maintain eye contact but IS drawn back to their face. Their expressions look slightly unreadable - like watching someone speak a foreign language. Their face fills 40-50% of frame. Eyes seem too intense. Mouth movements don't fully sync with what you expect. Camera drifts: face → their hands → object nearby → back to face involuntarily. FOCUS: Their FACE is the primary focus point, sharp. Hands and objects are secondary - slightly out of focus. The camera keeps returning to the face even when it tries to look away.\n" +
-    "ONE PERSON (stranger): Their face uncomfortably close, fills 50-60% of frame. Eyes too direct. Expression hard to decode - is it friendly? Threatening? Camera wants to look away but returns. Their body slightly too close to camera.\n" +
+    "ONE PERSON (stranger): Their face uncomfortably close, fills 50-60% of frame. Eyes too direct. Expression hard to decode - is it friendly? Threatening? Camera wants to look away but returns. Their body slightly too close to camera. The stranger's FACE is the primary anchor - not their hands, not objects they hold. Their expression is hard to read - professional but unreadable. Camera is drawn to their face even though it's uncomfortable.\n" +
     "SMALL GROUP (familiar, 2-5): Camera outside the group. Invisible barrier. They talk to each other, not to viewer.\n" +
     "SMALL GROUP (strangers): Rapid scanning. Cannot follow conversation. Lost.\n" +
     "LARGE CROWD (6+): Chaotic. Everything at equal volume. ONE inanimate anchor object in foreground. People blurred behind.\n" +
@@ -95,7 +95,8 @@ function buildVideoPromptInstructions(age: number, gender: string, situation: st
     "4. No morphing, no transitions, no invented gestures, no magical elements.\n" +
     "5. Colors slightly oversaturated. Sound amplified beyond normal.\n" +
     "6. Seamless 8-second loop - first frame = last frame.\n" +
-    "7. Setting is contemporary Israel - locations, signage, and people reflect an everyday Israeli environment. Let the situation determine who appears.\n\n" +
+    "7. Setting is contemporary Israel - locations, signage, and people reflect an everyday Israeli environment. Let the situation determine who appears.\n" +
+    "8. NO magical effects, NO light circles, NO glowing orbs, NO supernatural visual elements. Everything must look like it was filmed with a real camera in a real location.\n\n" +
     "END EVERY PROMPT WITH:\n" +
     "'Single continuous shot. No cuts. No transitions. Camera at [X]cm. No voiceover. No narration. Seamless loop.'"
   );
