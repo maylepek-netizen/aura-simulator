@@ -237,6 +237,19 @@ export default function ChatPage() {
           zIndex: 5,
         }}>
 
+          {/* Eye icon above heading */}
+          <div
+            aria-hidden
+            style={{
+              width: 60, height: 45,
+              backgroundColor: "#FFC99D",
+              opacity: 1,
+              marginBottom: 24,
+              WebkitMask: "url('/icons/New_logo_eye.svg') no-repeat center / contain",
+              mask: "url('/icons/New_logo_eye.svg') no-repeat center / contain",
+            }}
+          />
+
           {/* Main heading */}
           <h1 style={{
             fontFamily: "'Amiri', serif",
@@ -248,12 +261,7 @@ export default function ChatPage() {
             Define the Experience
           </h1>
 
-          {/* Subtitle / step label */}
-          <p style={{ fontSize: 12, letterSpacing: "0.24em", color: "rgba(255,255,255,0.5)", margin: "0 0 11px", textTransform: "uppercase" }}>
-            BUILD YOUR SIMULATION
-          </p>
-
-          {/* Description — above textarea */}
+          {/* Description — directly below heading */}
           <p style={{
             marginTop: 0, marginBottom: 25, maxWidth: 560,
             fontSize: 14, letterSpacing: "0.06em",
@@ -273,7 +281,7 @@ export default function ChatPage() {
           }}>
             <textarea
               className="chat-textarea"
-              rows={5}
+              rows={3}
               value={input}
               onChange={(e) => setInput(e.target.value)}
               disabled={processing}
@@ -285,13 +293,36 @@ export default function ChatPage() {
                 }
               }}
             />
-            {/* Divider + send row */}
+            {/* Bottom row: help buttons left, send right */}
             <div style={{
               display: "flex", alignItems: "center", justifyContent: "space-between",
               borderTop: "1px solid rgba(255,255,255,0.1)",
-              paddingTop: 14, marginTop: 8,
+              paddingTop: 14, marginTop: 8, gap: 10, flexWrap: "wrap",
             }}>
-              <div style={{ width: 100, height: 1, background: "rgba(255,255,255,0.15)" }} />
+              <div style={{ display: "flex", gap: 10, justifyContent: "flex-start", flexWrap: "wrap" }}>
+                <button className="helper-btn" type="button" onClick={handleHelpMe}
+                  style={{ border: "1px solid #FFC1BB", color: "#FFC1BB" }}>
+                  Help me think
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <path d="M9.5 2a6 6 0 0 1 5 9.5M9.5 2a6 6 0 0 0-5 9.5M9.5 2v1M14.5 11.5a6 6 0 0 1-5 9.5M14.5 11.5a6 6 0 0 0-5 9.5M9.5 21v-1M3 7h1M16 7h1M3 17h1M16 17h1"/>
+                  </svg>
+                </button>
+                <button className="helper-btn" type="button" onClick={handleWriteForMe}
+                  style={{ border: "1px solid #BCC2FF", color: "#BCC2FF" }}>
+                  Write for me
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                  </svg>
+                </button>
+                <button
+                  className="helper-btn"
+                  type="button"
+                  onClick={() => { setShowExamples((v) => !v); setHelpHint(null); }}
+                  style={{ border: "1px solid #FFC99D", color: "#FFC99D" }}
+                >
+                  Show me examples <span>›</span>
+                </button>
+              </div>
               <button
                 type="button"
                 disabled={processing || !input.trim()}
@@ -302,62 +333,22 @@ export default function ChatPage() {
                   background: processing ? "rgba(255,201,157,0.5)" : "#FFC99D",
                   color: "#1a0f00",
                   border: "none", borderRadius: 12,
-                  padding: "11px 36px",
+                  padding: "11px 28px",
                   fontSize: 18, fontWeight: 600, letterSpacing: "0.04em",
                   cursor: processing || !input.trim() ? "not-allowed" : "pointer",
                   opacity: processing || !input.trim() ? 0.6 : 0.8,
                   transition: "all 0.2s ease",
                 }}
               >
-                {processing ? "Generating…" : "Generate Simulation"}
-              </button>
-            </div>
-          </div>
-
-          {/* Help hint */}
-          {helpHint && (
-            <div style={{
-              marginTop: 14, maxWidth: 680, width: "100%",
-              fontSize: 13, letterSpacing: "0.08em",
-              color: "rgba(255,201,157,0.8)",
-              textAlign: "center",
-            }}>
-              💭 {helpHint}
-            </div>
-          )}
-
-          {/* ── Help buttons ── */}
-          <div style={{ position: "relative", marginTop: 30, width: "100%", maxWidth: 680 }}>
-<div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
-              <button className="helper-btn" type="button" onClick={handleHelpMe}
-                style={{ border: "1px solid #FFC1BB", color: "#FFC1BB" }}>
-                Help me think
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                  <path d="M9.5 2a6 6 0 0 1 5 9.5M9.5 2a6 6 0 0 0-5 9.5M9.5 2v1M14.5 11.5a6 6 0 0 1-5 9.5M14.5 11.5a6 6 0 0 0-5 9.5M9.5 21v-1M3 7h1M16 7h1M3 17h1M16 17h1"/>
-                </svg>
-              </button>
-              <button className="helper-btn" type="button" onClick={handleWriteForMe}
-                style={{ border: "1px solid #BCC2FF", color: "#BCC2FF" }}>
-                Write for me
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                  <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>
-                </svg>
-              </button>
-              <button
-                className="helper-btn"
-                type="button"
-                onClick={() => { setShowExamples((v) => !v); setHelpHint(null); }}
-                style={{ border: "1px solid #FFC99D", color: "#FFC99D" }}
-              >
-                Show me examples <span>›</span>
+                {processing ? "Generating…" : "Send"}
               </button>
             </div>
 
-            {/* Examples list — expands downward */}
+            {/* Examples list — expands downward inside card */}
             {showExamples && (
               <div style={{
-                marginTop: 8,
-                display: "flex", flexWrap: "wrap", gap: 8, maxWidth: 640,
+                marginTop: 12,
+                display: "flex", flexWrap: "wrap", gap: 8,
               }}>
                 {examples.map((ex) => (
                   <button
@@ -372,6 +363,23 @@ export default function ChatPage() {
               </div>
             )}
           </div>
+
+          {/* Help hint */}
+          {helpHint && (
+            <div style={{
+              marginTop: 14, maxWidth: 680, width: "100%",
+              fontSize: 13, letterSpacing: "0.08em",
+              color: "rgba(255,201,157,0.8)",
+              textAlign: "center",
+            }}>
+              💭 {helpHint}
+            </div>
+          )}
+
+          {/* Subtitle / step label — below the card */}
+          <p style={{ fontSize: 12, letterSpacing: "0.24em", color: "rgba(255,255,255,0.5)", margin: "30px 0 0", textTransform: "uppercase" }}>
+            BUILD YOUR SIMULATION
+          </p>
 
         </div>
       </div>
