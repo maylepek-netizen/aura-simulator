@@ -302,6 +302,42 @@ export default function BankPage() {
           drag to explore · click to replay
         </div>
       )}
+
+      {/* Research link */}
+      <div style={{
+        position: 'fixed',
+        bottom: 32,
+        right: 32,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'flex-end',
+        gap: 8,
+        zIndex: 20,
+      }}>
+        <span style={{
+          fontSize: 13,
+          color: 'rgba(255,255,255,0.5)',
+          fontFamily: 'Assistant, sans-serif',
+        }}>
+          Want to understand the science behind it?
+        </span>
+        <button
+          type="button"
+          onClick={() => navigate('/research')}
+          style={{
+            background: 'transparent',
+            border: '1px solid rgba(255,201,157,0.5)',
+            color: '#FFC99D',
+            padding: '8px 20px',
+            borderRadius: 12,
+            fontSize: 13,
+            cursor: 'pointer',
+            fontFamily: 'Assistant, sans-serif',
+          }}
+        >
+          Explore the Research →
+        </button>
+      </div>
     </div>
   );
 }
