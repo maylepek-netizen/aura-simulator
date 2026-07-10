@@ -253,17 +253,17 @@ export default function ChatPage() {
           {/* Main heading */}
           <h1 style={{
             fontFamily: "'Amiri', serif",
-            fontSize: "clamp(3rem, 5.5vw, 4.8rem)",
+            fontSize: "clamp(2rem, 3.6vw, 3.1rem)",
             color: "white", margin: "0 0 7px",
             fontWeight: 400, lineHeight: 1.05,
             textAlign: "center", maxWidth: 760,
           }}>
-            BUILD YOUR SIMULATION
+            Build Your Simulation
           </h1>
 
           {/* Description — directly below heading */}
           <p style={{
-            marginTop: 0, marginBottom: 25, maxWidth: 760,
+            marginTop: 0, marginBottom: 25, maxWidth: 600,
             fontSize: 14, letterSpacing: "0.06em",
             color: "rgba(255,255,255,0.35)",
             textAlign: "center", lineHeight: 1.3,
@@ -273,7 +273,7 @@ export default function ChatPage() {
 
           {/* Textarea card */}
           <div style={{
-            width: "100%", maxWidth: 860,
+            width: "100%", maxWidth: 600,
             background: "rgba(255,255,255,0.06)",
             border: "1px solid rgba(255,255,255,0.1)",
             borderRadius: 16,
@@ -323,7 +323,7 @@ export default function ChatPage() {
           </div>
 
           {/* ── Help buttons — centered row below the card ── */}
-          <div style={{ position: "relative", marginTop: 30, width: "100%", maxWidth: 860 }}>
+          <div style={{ position: "relative", marginTop: 30, width: "100%", maxWidth: 600 }}>
             <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
               <button className="helper-btn" type="button" onClick={handleHelpMe}
                 style={{ border: "1px solid #FFC1BB", color: "#FFC1BB" }}>
