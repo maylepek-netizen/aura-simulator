@@ -237,6 +237,13 @@ export default function ChatPage() {
           zIndex: 5,
         }}>
 
+          {/* Fixed-height inner block — its height never changes (examples open as absolute
+              overlay), so the flex centering above never re-computes and nothing shifts. */}
+          <div style={{
+            display: "flex", flexDirection: "column", alignItems: "center",
+            width: "100%",
+          }}>
+
           {/* Eye icon above heading */}
           <div
             aria-hidden
@@ -389,6 +396,8 @@ export default function ChatPage() {
               </div>
             )}
           </div>
+
+          </div>{/* end fixed-height inner block */}
 
         </div>
       </div>
