@@ -322,9 +322,9 @@ export default function ChatPage() {
 
           </div>
 
-          {/* ── Help buttons — centered row below the card ── */}
+          {/* ── Help buttons — spread across the full card width ── */}
           <div style={{ position: "relative", marginTop: 30, width: "100%", maxWidth: 600 }}>
-            <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <button className="helper-btn" type="button" onClick={handleHelpMe}
                 style={{ border: "1px solid #FFC1BB", color: "#FFC1BB" }}>
                 Help me think
