@@ -330,88 +330,160 @@ class AmbientSoundEngine {
   }
 }
 
-// ─── Processing Metrics (loading screen) ─────────────────────────────────────
+// ─── Loading Ritual (meditative loading screen) ──────────────────────────────
+// A quiet ritual before entering another perception. Four stages: the eye fills
+// with each stage's brand color, a progress line advances, and a soft status line
+// fades below. Stage 4 holds (node pulsing) until the real video generation
+// finishes — the `done` prop — then the eye glows Ivory and cross-fades out.
 
-const PROC_METRICS_NEW = [
-  { key: "NEURAL LOAD",    color: "#FFC99D" },
-  { key: "SENSORY INPUT",  color: "#BCC2FF" },
-  { key: "SOCIAL MAPPING", color: "#FFC1BB" },
-  { key: "THREAT LEVEL",   color: "rgba(255,255,255,0.7)" },
+const LOADING_STAGES = [
+  { label: ["COLLECTING", "MEMORIES"],        color: "#FFC99D", message: "Collecting memories..." },        // Peach
+  { label: ["SENSORY", "INPUT"],              color: "#BCC2FF", message: "Filtering sensory input..." },     // Periwinkle
+  { label: ["MAPPING", "SOCIAL SIGNALS"],     color: "#FFC1BB", message: "Mapping social signals..." },      // Blush
+  { label: ["PREPARING", "SIMULATION"],       color: "#F5EFE6", message: "Preparing your simulation..." },   // Ivory
 ] as const;
 
-const FLOATING_THOUGHTS = [
-  "Processing sensory input...",
-  "Mapping neural pathways...",
-  "Calibrating threat response...",
-  "Reading the room...",
-  "Too many signals at once...",
-  "Filtering background noise...",
-  "Encoding emotional context...",
-  "Simulating perception...",
-];
+const STAGE_DURATION = 5000; // ~5s per timed stage (stages 0–2)
 
-function ProcessingMetrics({ visible }: { visible: boolean }) {
-  const [vals, setVals] = useState<number[]>([67, 89, 41, 58]);
-  const [thoughtIndex, setThoughtIndex] = useState(0);
-  const [thoughtOpacity, setThoughtOpacity] = useState(1);
-  const [thoughtPos, setThoughtPos] = useState({ x: 50, y: 30 });
+function ProcessingMetrics({ visible, done }: { visible: boolean; done: boolean }) {
+  const [stage, setStage] = useState(0);
+  const [finishing, setFinishing] = useState(false);
+  const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const stageRef = useRef(0);
+  stageRef.current = stage;
 
+  // Advance stages 0 → 1 → 2 on a timed pace; hold on stage 3 (Preparing).
   useEffect(() => {
-    let frame = 0;
-    const timer = setInterval(() => {
-      frame++;
-      setVals([
-        Math.round(40 + Math.random() * 55),
-        Math.round(50 + Math.random() * 45),
-        Math.round(20 + Math.random() * 70),
-        Math.round(50 + 45 * Math.sin(frame / 10)),
-      ]);
-    }, 800);
-    return () => clearInterval(timer);
+    const t1 = setTimeout(() => setStage((s) => Math.max(s, 1)), STAGE_DURATION);
+    const t2 = setTimeout(() => setStage((s) => Math.max(s, 2)), STAGE_DURATION * 2);
+    const t3 = setTimeout(() => setStage((s) => Math.max(s, 3)), STAGE_DURATION * 3);
+    timersRef.current = [t1, t2, t3];
+    return () => timersRef.current.forEach(clearTimeout);
   }, []);
 
+  // When generation completes: accelerate gracefully through any remaining
+  // stages (700ms each), then play the Ivory finish before the parent
+  // cross-fades this screen out. Never jumps — always steps smoothly.
   useEffect(() => {
-    const cycle = () => {
-      setThoughtOpacity(0);
-      setTimeout(() => {
-        setThoughtIndex(prev => (prev + 1) % FLOATING_THOUGHTS.length);
-        setThoughtPos({ x: 15 + Math.random() * 60, y: 70 + Math.random() * 20 });
-        setThoughtOpacity(1);
-      }, 700);
+    if (!done) return;
+    timersRef.current.forEach(clearTimeout);
+    const stepTimers: ReturnType<typeof setTimeout>[] = [];
+    const tick = () => {
+      const cur = stageRef.current;
+      if (cur >= LOADING_STAGES.length - 1) {
+        setStage(LOADING_STAGES.length - 1);
+        setFinishing(true);
+        return;
+      }
+      setStage(cur + 1);
+      stepTimers.push(setTimeout(tick, 700));
     };
-    const timer = setInterval(cycle, 3200);
-    return () => clearInterval(timer);
-  }, []);
+    tick();
+    timersRef.current = stepTimers;
+    return () => stepTimers.forEach(clearTimeout);
+  }, [done]);
+
+  const active = LOADING_STAGES[stage];
+  const eyeColor = finishing ? "#F5EFE6" : active.color;
 
   return (
-    <div style={{ position: "fixed", inset: 0, opacity: visible ? 1 : 0, transition: "opacity 1.5s ease", pointerEvents: visible ? "auto" : "none", zIndex: 20 }}>
+    <div style={{
+      position: "fixed", inset: 0,
+      opacity: visible ? 1 : 0,
+      transition: "opacity 1.5s ease",
+      pointerEvents: visible ? "auto" : "none",
+      background: "#0d0a08",
+      zIndex: 20,
+    }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Amiri:ital@0;1&display=swap');
-        @keyframes loading-breathe { 0%,100%{opacity:0.35} 50%{opacity:0.65} }
+        @keyframes aura-node-pulse { 0%,100%{ transform: scale(1); opacity: 0.9; } 50%{ transform: scale(1.5); opacity: 0.5; } }
+        @keyframes aura-msg-fade { 0%{ opacity: 0; } 100%{ opacity: 0.7; } }
       `}</style>
-      <video src="https://res.cloudinary.com/duhsqezo3/video/upload/v1783454665/vidro_mcecj5.mp4"
-        autoPlay loop muted playsInline
-        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", filter: "blur(24px) brightness(0.6)", transform: "scale(1.05)" }} />
-      <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.45)" }} />
-      <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.8) 100%)", pointerEvents: "none" }} />
-      <div style={{ position: "absolute", left: `${thoughtPos.x}%`, top: `${thoughtPos.y}%`, opacity: thoughtOpacity * 0.45, transition: "opacity 0.7s ease", pointerEvents: "none", zIndex: 3 }}>
-        <span style={{ fontFamily: "'Amiri', serif", fontStyle: "italic", fontSize: "clamp(0.9rem, 1.4vw, 1.15rem)", color: "white", whiteSpace: "nowrap" }}>{FLOATING_THOUGHTS[thoughtIndex]}</span>
-      </div>
-      <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 48, zIndex: 6 }}>
-        <div style={{ display: "flex", flexDirection: "column", gap: 16, width: 280 }}>
-          {PROC_METRICS_NEW.map((m, i) => (
-            <div key={m.key} style={{ display: "flex", flexDirection: "column", gap: 5 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-                <span style={{ fontSize: 8, letterSpacing: "0.22em", color: "rgba(255,255,255,0.35)", textTransform: "uppercase" }}>{m.key}</span>
-                <span style={{ fontSize: 9, color: m.color, fontFamily: "var(--font-body)", opacity: 0.85 }}>{Math.round(vals[i])}%</span>
-              </div>
-              <div style={{ height: 2, background: "rgba(255,255,255,0.08)", borderRadius: 1 }}>
-                <div style={{ height: "100%", width: `${vals[i]}%`, background: m.color, transition: "width 0.7s ease", borderRadius: 1, opacity: 0.75 }} />
-              </div>
-            </div>
-          ))}
+
+      <div style={{
+        position: "absolute", inset: 0,
+        display: "flex", flexDirection: "column",
+        alignItems: "center", justifyContent: "center",
+        gap: 56,
+      }}>
+
+        {/* Eye — fills with the current stage color, soft glow, Ivory on finish */}
+        <div style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div
+            aria-hidden
+            style={{
+              width: 132, height: 100,
+              backgroundColor: eyeColor,
+              opacity: finishing ? 1 : 0.92,
+              filter: `drop-shadow(0 0 ${finishing ? 34 : 16}px ${eyeColor})`,
+              transition: "background-color 1.6s ease, filter 1.6s ease, opacity 1.6s ease",
+              WebkitMask: "url('/icons/New_logo_eye.svg') no-repeat center / contain",
+              mask: "url('/icons/New_logo_eye.svg') no-repeat center / contain",
+            }}
+          />
         </div>
-        <div style={{ fontSize: 7, letterSpacing: "0.3em", color: "rgba(255,255,255,0.2)", textTransform: "uppercase" }}>AURA SIMULATION ENGINE v2.5</div>
+
+        {/* Progress line + 4 nodes */}
+        <div style={{ width: "100%", maxWidth: 560, display: "flex", flexDirection: "column", alignItems: "center", gap: 18 }}>
+          <div style={{ position: "relative", width: "100%", height: 10, display: "flex", alignItems: "center" }}>
+            {/* base line */}
+            <div style={{ position: "absolute", left: 0, right: 0, height: 1, background: "rgba(255,255,255,0.12)" }} />
+            {/* progress fill line */}
+            <div style={{
+              position: "absolute", left: 0, height: 1,
+              width: `${(stage / (LOADING_STAGES.length - 1)) * 100}%`,
+              background: active.color,
+              transition: "width 1.4s ease, background-color 1.4s ease",
+              boxShadow: `0 0 6px ${active.color}`,
+            }} />
+            {/* nodes */}
+            <div style={{ position: "absolute", left: 0, right: 0, display: "flex", justifyContent: "space-between" }}>
+              {LOADING_STAGES.map((st, i) => {
+                const isDone = i < stage;
+                const isActive = i === stage;
+                return (
+                  <div key={i} style={{ position: "relative", width: 10, height: 10, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <div style={{
+                      width: 8, height: 8, borderRadius: "50%",
+                      background: (isDone || isActive) ? st.color : "rgba(255,255,255,0.2)",
+                      boxShadow: (isDone || isActive) ? `0 0 8px ${st.color}` : "none",
+                      transition: "background-color 1s ease, box-shadow 1s ease",
+                      animation: isActive ? "aura-node-pulse 2.4s ease-in-out infinite" : "none",
+                    }} />
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* labels under each node */}
+          <div style={{ width: "100%", display: "flex", justifyContent: "space-between" }}>
+            {LOADING_STAGES.map((st, i) => {
+              const lit = i <= stage;
+              return (
+                <div key={i} style={{
+                  flex: "0 0 auto", textAlign: "center", lineHeight: 1.5,
+                  color: i === stage ? st.color : lit ? "rgba(255,255,255,0.55)" : "rgba(255,255,255,0.28)",
+                  transition: "color 1s ease",
+                }}>
+                  {st.label.map((line) => (
+                    <div key={line} style={{ fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", fontWeight: i === stage ? 600 : 400 }}>{line}</div>
+                  ))}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Status message — one subtle line beneath the progress line, fades per stage */}
+        <div key={stage} style={{
+          fontSize: 13, letterSpacing: "0.06em",
+          color: active.color, opacity: 0.7,
+          animation: "aura-msg-fade 0.9s ease forwards",
+          textAlign: "center", minHeight: 18,
+        }}>
+          {active.message}
+        </div>
       </div>
     </div>
   );
@@ -1068,7 +1140,7 @@ export default function ResultPage() {
             }
           </button>
         )}
-        <ProcessingMetrics visible={processingVisible} />
+        <ProcessingMetrics visible={processingVisible} done={!!videoUrl} />
         {error && !loading && (
           <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16, zIndex: 3 }}>
             <div style={{ fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.6)" }}>Error</div>
