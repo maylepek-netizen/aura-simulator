@@ -237,14 +237,6 @@ export default function ChatPage() {
           zIndex: 5,
         }}>
 
-          {/* Logo icon */}
-          <img src="/icons/New_logo_eye.svg" alt="" style={{ width: 60, marginBottom: 17, display: "block" }} />
-
-          {/* Subtitle / step label */}
-          <p style={{ fontSize: 12, letterSpacing: "0.24em", color: "rgba(255,255,255,0.5)", margin: "0 0 11px", textTransform: "uppercase" }}>
-            BUILD YOUR SIMULATION
-          </p>
-
           {/* Main heading */}
           <h1 style={{
             fontFamily: "'Amiri', serif",
@@ -255,6 +247,11 @@ export default function ChatPage() {
           }}>
             Define the Experience
           </h1>
+
+          {/* Subtitle / step label */}
+          <p style={{ fontSize: 12, letterSpacing: "0.24em", color: "rgba(255,255,255,0.5)", margin: "0 0 11px", textTransform: "uppercase" }}>
+            BUILD YOUR SIMULATION
+          </p>
 
           {/* Description — above textarea */}
           <p style={{
