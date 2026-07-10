@@ -171,9 +171,6 @@ export default function QuestionPage() {
                   fontSize: 15, letterSpacing: "0.08em",
                   fontWeight: 600,
                   cursor: "pointer",
-                  fontFamily: "'Amiri', serif",
-                  fontStyle: "italic",
-                  textTransform: "uppercase",
                   opacity: 0.8,
                   transition: "all 0.2s ease",
                 }}
