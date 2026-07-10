@@ -63,7 +63,7 @@ function buildVideoPromptInstructions(age: number, gender: string, situation: st
     "CORE PRINCIPLE:\n" +
     "ABSOLUTE RULE - NEVER VIOLATE:\n" +
     "This video is shot FROM the person's eyes. We NEVER see the person themselves.\n" +
-    "- No face, no body, no hands, no feet, no reflection, no shadow of the protagonist\n" +
+    "- No face, no body, no hands, no feet, no reflection, no shadow of the PROTAGONIST (the person whose eyes we see). Other people's faces ARE allowed and encouraged when they are directly interacting with the viewer.\n" +
     "- The camera IS their eyes - we see what THEY see, not them\n" +
     "- Other people may appear in the scene, but never the protagonist themselves\n" +
     "- If the situation says 'I am looking at the ceiling' → we see the ceiling, not a person looking up\n\n" +
