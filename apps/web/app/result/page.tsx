@@ -343,7 +343,7 @@ const LOADING_STAGES = [
   { label: ["PREPARING", "SIMULATION"],       color: "#FAFAFA", message: "Preparing your simulation..." },   // Ivory
 ] as const;
 
-const STAGE_DURATION = 5000; // ~5s per timed stage (stages 0–2)
+const STAGE_DURATION = 7500; // ~7.5s per timed stage (stages 0–2) — slow, meditative pace
 
 function ProcessingMetrics({ visible, done }: { visible: boolean; done: boolean }) {
   const [stage, setStage] = useState(0);
@@ -376,7 +376,7 @@ function ProcessingMetrics({ visible, done }: { visible: boolean; done: boolean 
         return;
       }
       setStage(cur + 1);
-      stepTimers.push(setTimeout(tick, 700));
+      stepTimers.push(setTimeout(tick, 1050));
     };
     tick();
     timersRef.current = stepTimers;
@@ -390,7 +390,7 @@ function ProcessingMetrics({ visible, done }: { visible: boolean; done: boolean 
     <div style={{
       position: "fixed", inset: 0,
       opacity: visible ? 1 : 0,
-      transition: "opacity 1.5s ease",
+      transition: "opacity 1.1s ease",
       pointerEvents: visible ? "auto" : "none",
       background: "#0d0a08",
       zIndex: 20,
@@ -425,8 +425,8 @@ function ProcessingMetrics({ visible, done }: { visible: boolean; done: boolean 
                 background: `radial-gradient(circle, ${eyeColor}44 0%, ${eyeColor}18 35%, transparent 70%)`,
                 filter: "blur(28px)",
                 opacity: finishing ? 0.9 : 0.55,
-                transition: "background 1.8s ease, opacity 1.8s ease",
-                animation: "aura-bloom 6s ease-in-out infinite",
+                transition: "background 2.7s ease, opacity 2.7s ease",
+                animation: "aura-bloom 9s ease-in-out infinite",
                 pointerEvents: "none",
               }} />
 
@@ -455,7 +455,7 @@ function ProcessingMetrics({ visible, done }: { visible: boolean; done: boolean 
                     transform={`rotate(-90 ${CX} ${CY})`}
                     style={{
                       opacity: i < filledStages ? 1 : 0,
-                      transition: "opacity 1.4s ease",
+                      transition: "opacity 2.1s ease",
                       filter: `drop-shadow(0 0 5px ${st.color}) drop-shadow(0 0 12px ${st.color}55)`,
                     }}
                   />
@@ -478,7 +478,7 @@ function ProcessingMetrics({ visible, done }: { visible: boolean; done: boolean 
                 <g clipPath="url(#pupil-clip)">
                   <circle cx={336} cy={343} r={70}
                     fill="url(#pupil-fill)"
-                    style={{ transition: "fill 1.6s ease", transformOrigin: "336px 343px", animation: "aura-pupil-breathe 5s ease-in-out infinite" }}
+                    style={{ transition: "fill 2.4s ease", transformOrigin: "336px 343px", animation: "aura-pupil-breathe 7.5s ease-in-out infinite" }}
                   />
                 </g>
                 {/* Eye almond outline — white */}
@@ -500,7 +500,7 @@ function ProcessingMetrics({ visible, done }: { visible: boolean; done: boolean 
               position: "absolute", left: 0, height: 1,
               width: `${(stage / (LOADING_STAGES.length - 1)) * 100}%`,
               background: active.color, opacity: 0.5,
-              transition: "width 1.4s ease, background-color 1.4s ease",
+              transition: "width 2.1s ease, background-color 2.1s ease",
             }} />
             {/* nodes — active glows + pulses, completed keep a faint glow, inactive muted */}
             <div style={{ position: "absolute", left: 0, right: 0, display: "flex", justifyContent: "space-between" }}>
@@ -513,8 +513,8 @@ function ProcessingMetrics({ visible, done }: { visible: boolean; done: boolean 
                       width: 8, height: 8, borderRadius: "50%",
                       background: (isDone || isActive) ? st.color : "rgba(255,255,255,0.2)",
                       boxShadow: isActive ? `0 0 8px ${st.color}` : isDone ? `0 0 4px ${st.color}66` : "none",
-                      transition: "background-color 1s ease, box-shadow 1s ease",
-                      animation: isActive ? "aura-node-pulse 2.4s ease-in-out infinite" : "none",
+                      transition: "background-color 1.5s ease, box-shadow 1.5s ease",
+                      animation: isActive ? "aura-node-pulse 3.6s ease-in-out infinite" : "none",
                     }} />
                   </div>
                 );
@@ -530,7 +530,7 @@ function ProcessingMetrics({ visible, done }: { visible: boolean; done: boolean 
                 <div key={i} style={{
                   flex: "0 0 auto", textAlign: "center", lineHeight: 1.5,
                   color: i === stage ? st.color : lit ? "rgba(255,255,255,0.55)" : "rgba(255,255,255,0.28)",
-                  transition: "color 1s ease",
+                  transition: "color 1.5s ease",
                 }}>
                   {st.label.map((line) => (
                     <div key={line} style={{ fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", fontWeight: i === stage ? 600 : 400 }}>{line}</div>
@@ -545,7 +545,7 @@ function ProcessingMetrics({ visible, done }: { visible: boolean; done: boolean 
         <div key={stage} style={{
           fontSize: 13, letterSpacing: "0.06em",
           color: active.color, opacity: 0.7,
-          animation: "aura-msg-fade 0.9s ease forwards",
+          animation: "aura-msg-fade 1.35s ease forwards",
           textAlign: "center", minHeight: 18,
         }}>
           {active.message}
@@ -856,12 +856,19 @@ export default function ResultPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [result, videoUri, saved]);
 
-  // Video fade-in
+  // Sequential fade-to-black transition (cinematic scene change):
+  //  1. Ivory finish holds (~1s, played inside ProcessingMetrics via `done`)
+  //  2. all loading elements fade out together (~1.1s)
+  //  3. the screen stays fully black & empty for a beat (~0.9s of silence)
+  //  4. only then does the simulation fade in
   useEffect(() => {
     if (videoUrl) {
-      setProcessingVisible(false);
-      const t = setTimeout(() => { setVideoVisible(true); }, 50);
-      return () => clearTimeout(t);
+      const timers: ReturnType<typeof setTimeout>[] = [];
+      // hold on the Ivory glow, then begin fading the loading UI out
+      timers.push(setTimeout(() => setProcessingVisible(false), 1000));
+      // after the loading has fully faded + a black silent gap, bring the simulation in
+      timers.push(setTimeout(() => setVideoVisible(true), 1000 + 1100 + 900));
+      return () => timers.forEach(clearTimeout);
     } else {
       setVideoVisible(false);
       setProcessingVisible(true);
@@ -1158,7 +1165,7 @@ export default function ResultPage() {
               position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover",
               opacity: videoVisible ? videoLoopOpacity : 0,
               transform: "scale(1.06)",
-              transition: "opacity 1s",
+              transition: "opacity 1.4s ease",
               animation: videoVisible
                 ? `materialize 3.5s cubic-bezier(0.4,0,0.2,1) forwards${stimmingAnimation !== "none" ? `, ${stimmingAnimation}` : ""}`
                 : stimmingAnimation,
