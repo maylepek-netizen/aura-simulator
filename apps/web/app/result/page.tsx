@@ -337,10 +337,10 @@ class AmbientSoundEngine {
 // finishes — the `done` prop — then the eye glows Ivory and cross-fades out.
 
 const LOADING_STAGES = [
-  { label: ["COLLECTING", "MEMORIES"],        color: "#FFC99D", message: "Collecting memories..." },        // Peach
-  { label: ["SENSORY", "INPUT"],              color: "#BCC2FF", message: "Filtering sensory input..." },     // Periwinkle
-  { label: ["MAPPING", "SOCIAL SIGNALS"],     color: "#FFC1BB", message: "Mapping social signals..." },      // Blush
-  { label: ["PREPARING", "SIMULATION"],       color: "#F5EFE6", message: "Preparing your simulation..." },   // Ivory
+  { label: ["COLLECTING", "MEMORIES"],        color: "#F4C79B", message: "Collecting memories..." },        // Peach
+  { label: ["SENSORY", "INPUT"],              color: "#B7B8F6", message: "Filtering sensory input..." },     // Periwinkle
+  { label: ["MAPPING", "SOCIAL SIGNALS"],     color: "#F7B6B6", message: "Mapping social signals..." },      // Blush
+  { label: ["PREPARING", "SIMULATION"],       color: "#FAFAFA", message: "Preparing your simulation..." },   // Ivory
 ] as const;
 
 const STAGE_DURATION = 5000; // ~5s per timed stage (stages 0–2)
@@ -397,7 +397,9 @@ function ProcessingMetrics({ visible, done }: { visible: boolean; done: boolean 
     }}>
       <style>{`
         @keyframes aura-node-pulse { 0%,100%{ transform: scale(1); opacity: 0.9; } 50%{ transform: scale(1.5); opacity: 0.5; } }
-        @keyframes aura-msg-fade { 0%{ opacity: 0; } 100%{ opacity: 0.7; } }
+        @keyframes aura-msg-fade { 0%{ opacity: 0; transform: translateY(3px); } 100%{ opacity: 0.7; transform: translateY(0); } }
+        @keyframes aura-bloom { 0%,100%{ transform: scale(0.94); opacity: var(--bloom-lo, 0.5); } 50%{ transform: scale(1.06); opacity: var(--bloom-hi, 0.75); } }
+        @keyframes aura-pupil-breathe { 0%,100%{ transform: scale(0.9); } 50%{ transform: scale(1.05); } }
       `}</style>
 
       <div style={{
@@ -407,46 +409,110 @@ function ProcessingMetrics({ visible, done }: { visible: boolean; done: boolean 
         gap: 56,
       }}>
 
-        {/* Eye — fills with the current stage color, soft glow, Ivory on finish */}
-        <div style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <div
-            aria-hidden
-            style={{
-              width: 132, height: 100,
-              backgroundColor: eyeColor,
-              opacity: finishing ? 1 : 0.92,
-              filter: `drop-shadow(0 0 ${finishing ? 34 : 16}px ${eyeColor})`,
-              transition: "background-color 1.6s ease, filter 1.6s ease, opacity 1.6s ease",
-              WebkitMask: "url('/icons/New_logo_eye.svg') no-repeat center / contain",
-              mask: "url('/icons/New_logo_eye.svg') no-repeat center / contain",
-            }}
-          />
-        </div>
+        {/* Eye + halo ring — the ritual centerpiece */}
+        {(() => {
+          const SIZE = 300;               // viewport box for the whole eye + ring
+          const CX = SIZE / 2, CY = SIZE / 2;
+          const R = 118;                  // ring radius (comfortable spacing around the eye)
+          const C = 2 * Math.PI * R;      // ring circumference
+          const seg = C / 4;              // one quarter of the ring
+          const filledStages = finishing ? 4 : stage + 1; // how many quarters are lit
+          return (
+            <div style={{ position: "relative", width: SIZE, height: SIZE, display: "flex", alignItems: "center", justifyContent: "center" }}>
+              {/* Soft breathing bloom behind everything — light through glass */}
+              <div aria-hidden style={{
+                position: "absolute", width: SIZE * 0.9, height: SIZE * 0.9, borderRadius: "50%",
+                background: `radial-gradient(circle, ${eyeColor}44 0%, ${eyeColor}18 35%, transparent 70%)`,
+                filter: "blur(28px)",
+                opacity: finishing ? 0.9 : 0.55,
+                transition: "background 1.8s ease, opacity 1.8s ease",
+                animation: "aura-bloom 6s ease-in-out infinite",
+                pointerEvents: "none",
+              }} />
+
+              {/* Programmatic halo ring — thin, gradient, clockwise, grows over 4 stages */}
+              <svg width={SIZE} height={SIZE} viewBox={`0 0 ${SIZE} ${SIZE}`} style={{ position: "absolute", inset: 0, overflow: "visible" }}>
+                <defs>
+                  {LOADING_STAGES.map((st, i) => (
+                    <linearGradient key={i} id={`ring-grad-${i}`} x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor={st.color} stopOpacity="0.15" />
+                      <stop offset="55%" stopColor={st.color} stopOpacity="0.95" />
+                      <stop offset="100%" stopColor={st.color} stopOpacity="0.35" />
+                    </linearGradient>
+                  ))}
+                </defs>
+                {/* faint full track */}
+                <circle cx={CX} cy={CY} r={R} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={1.5} />
+                {/* four coloured quarter-arcs, revealed one per stage; completed ones keep their colour */}
+                {LOADING_STAGES.map((st, i) => (
+                  <circle
+                    key={i}
+                    cx={CX} cy={CY} r={R} fill="none"
+                    stroke={`url(#ring-grad-${i})`}
+                    strokeWidth={2} strokeLinecap="round"
+                    strokeDasharray={`${seg} ${C}`}
+                    strokeDashoffset={-i * seg}
+                    transform={`rotate(-90 ${CX} ${CY})`}
+                    style={{
+                      opacity: i < filledStages ? 1 : 0,
+                      transition: "opacity 1.4s ease",
+                      filter: `drop-shadow(0 0 5px ${st.color}) drop-shadow(0 0 12px ${st.color}55)`,
+                    }}
+                  />
+                ))}
+              </svg>
+
+              {/* The Aura eye — inline SVG so the pupil can fill independently. Outline stays white. */}
+              <svg width={148} height={112} viewBox="0 0 673 689" style={{ position: "relative", zIndex: 2, overflow: "visible" }}>
+                <defs>
+                  <clipPath id="pupil-clip">
+                    <path d="M331.442 281.553C364.296 279.016 393.138 303.908 396.222 337.576L396.29 338.373C398.977 372.457 374.274 402.223 341.185 405.142C307.849 408.083 278.404 382.71 275.691 348.379C272.977 314.04 298.07 284.132 331.442 281.553Z" />
+                  </clipPath>
+                  <radialGradient id="pupil-fill" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stopColor={eyeColor} stopOpacity="1" />
+                    <stop offset="70%" stopColor={eyeColor} stopOpacity="0.9" />
+                    <stop offset="100%" stopColor={eyeColor} stopOpacity="0.4" />
+                  </radialGradient>
+                </defs>
+                {/* Pupil colour fill — a circle that grows from the pupil centre, clipped to the pupil */}
+                <g clipPath="url(#pupil-clip)">
+                  <circle cx={336} cy={343} r={70}
+                    fill="url(#pupil-fill)"
+                    style={{ transition: "fill 1.6s ease", transformOrigin: "336px 343px", animation: "aura-pupil-breathe 5s ease-in-out infinite" }}
+                  />
+                </g>
+                {/* Eye almond outline — white */}
+                <path d="M327.838 242.867C361.418 239.711 395.557 252.014 426.288 271.923C456.213 291.311 482.616 317.731 501.685 343.375C497.532 349.248 491.61 356.766 487.208 361.831L487.206 361.833C448.524 406.376 403.963 439.815 344.35 444.958C309.742 447.817 275.869 435.677 245.667 415.861C216.175 396.51 190.4 369.975 171.207 343.504C173.622 339.804 176.42 336.284 179.362 332.75L180.852 330.971C219.899 284.572 266.286 248.403 327.824 242.868L327.838 242.867Z" fill="none" stroke="#ffffff" strokeWidth={7} strokeOpacity={0.85} />
+                {/* Pupil outline — white */}
+                <path d="M331.442 281.553C364.296 279.016 393.138 303.908 396.222 337.576L396.29 338.373C398.977 372.457 374.274 402.223 341.185 405.142C307.849 408.083 278.404 382.71 275.691 348.379C272.977 314.04 298.07 284.132 331.442 281.553Z" fill="none" stroke="#ffffff" strokeWidth={7} strokeOpacity={0.85} />
+              </svg>
+            </div>
+          );
+        })()}
 
         {/* Progress line + 4 nodes */}
         <div style={{ width: "100%", maxWidth: 560, display: "flex", flexDirection: "column", alignItems: "center", gap: 18 }}>
           <div style={{ position: "relative", width: "100%", height: 10, display: "flex", alignItems: "center" }}>
             {/* base line */}
             <div style={{ position: "absolute", left: 0, right: 0, height: 1, background: "rgba(255,255,255,0.12)" }} />
-            {/* progress fill line */}
+            {/* progress fill line — minimal, no glow */}
             <div style={{
               position: "absolute", left: 0, height: 1,
               width: `${(stage / (LOADING_STAGES.length - 1)) * 100}%`,
-              background: active.color,
+              background: active.color, opacity: 0.5,
               transition: "width 1.4s ease, background-color 1.4s ease",
-              boxShadow: `0 0 6px ${active.color}`,
             }} />
-            {/* nodes */}
+            {/* nodes — active glows + pulses, completed keep a faint glow, inactive muted */}
             <div style={{ position: "absolute", left: 0, right: 0, display: "flex", justifyContent: "space-between" }}>
               {LOADING_STAGES.map((st, i) => {
-                const isDone = i < stage;
-                const isActive = i === stage;
+                const isDone = i < stage || (finishing && i === stage);
+                const isActive = i === stage && !finishing;
                 return (
                   <div key={i} style={{ position: "relative", width: 10, height: 10, display: "flex", alignItems: "center", justifyContent: "center" }}>
                     <div style={{
                       width: 8, height: 8, borderRadius: "50%",
                       background: (isDone || isActive) ? st.color : "rgba(255,255,255,0.2)",
-                      boxShadow: (isDone || isActive) ? `0 0 8px ${st.color}` : "none",
+                      boxShadow: isActive ? `0 0 8px ${st.color}` : isDone ? `0 0 4px ${st.color}66` : "none",
                       transition: "background-color 1s ease, box-shadow 1s ease",
                       animation: isActive ? "aura-node-pulse 2.4s ease-in-out infinite" : "none",
                     }} />
