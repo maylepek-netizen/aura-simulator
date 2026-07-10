@@ -349,24 +349,33 @@ export default function ChatPage() {
               </button>
             </div>
 
-            {/* Examples list — expands downward */}
-            {showExamples && (
-              <div style={{
-                marginTop: 12,
-                display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center",
-              }}>
-                {examples.map((ex) => (
-                  <button
-                    key={ex}
-                    className="example-chip"
-                    type="button"
-                    onClick={() => { setInput(ex); setShowExamples(false); }}
-                  >
-                    {ex}
-                  </button>
-                ))}
-              </div>
-            )}
+            {/* Examples list — absolutely positioned so opening does not shift the centered block */}
+            <div style={{
+              position: "absolute", top: "100%", left: 0, right: 0,
+              marginTop: 12,
+              maxHeight: showExamples ? 260 : 0,
+              opacity: showExamples ? 1 : 0,
+              overflowY: "auto",
+              pointerEvents: showExamples ? "auto" : "none",
+              transition: "max-height 0.45s ease-out, opacity 0.45s ease-out",
+              display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center",
+            }}>
+              {examples.map((ex, i) => (
+                <button
+                  key={ex}
+                  className="example-chip"
+                  type="button"
+                  onClick={() => { setInput(ex); setShowExamples(false); }}
+                  style={{
+                    opacity: showExamples ? 1 : 0,
+                    transform: showExamples ? "translateY(0)" : "translateY(-4px)",
+                    transition: `opacity 0.4s ease-out ${showExamples ? i * 0.06 : 0}s, transform 0.4s ease-out ${showExamples ? i * 0.06 : 0}s`,
+                  }}
+                >
+                  {ex}
+                </button>
+              ))}
+            </div>
 
             {/* Help hint */}
             {helpHint && (
