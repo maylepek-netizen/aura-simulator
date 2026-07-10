@@ -856,20 +856,17 @@ export default function ResultPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [result, videoUri, saved]);
 
-  // Sequential fade-to-black transition (cinematic scene change):
-  //  1. Ivory finish holds fully illuminated for 8s (played inside ProcessingMetrics via `done`)
-  //  2. all loading elements fade out together (~1.1s)
-  //  3. the screen stays fully black & empty for a beat (~0.9s of silence)
-  //  4. only then does the simulation fade in
+  // Cross-fade transition: once the ring completes (video ready) and the eye
+  // glows Ivory, hold briefly, then dissolve the loading out while the
+  // simulation fades in at the same time — no black gap between them.
   useEffect(() => {
     if (videoUrl) {
-      const HOLD = 8000; // linger on the fully-illuminated eye before dissolving out
-      const timers: ReturnType<typeof setTimeout>[] = [];
-      // hold on the Ivory glow, then begin fading the loading UI out
-      timers.push(setTimeout(() => setProcessingVisible(false), HOLD));
-      // after the loading has fully faded + a black silent gap, bring the simulation in
-      timers.push(setTimeout(() => setVideoVisible(true), HOLD + 1100 + 900));
-      return () => timers.forEach(clearTimeout);
+      const HOLD = 1500; // brief linger on the fully-illuminated eye
+      const t = setTimeout(() => {
+        setProcessingVisible(false); // loading dissolves out
+        setVideoVisible(true);       // simulation fades in simultaneously
+      }, HOLD);
+      return () => clearTimeout(t);
     } else {
       setVideoVisible(false);
       setProcessingVisible(true);
