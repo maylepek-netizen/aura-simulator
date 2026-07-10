@@ -5,13 +5,13 @@
   --background: #000000;
   --foreground: #ffffff;
   --font-heading: 'Amiri', serif;
-  --font-body: 'Founders Grotesk', var(--font-inter), 'Inter', sans-serif;
+  --font-body: var(--font-assistant), 'Assistant', sans-serif;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-inter), 'Inter', sans-serif;
+  --font-sans: var(--font-assistant), 'Assistant', sans-serif;
 }
 
 body {

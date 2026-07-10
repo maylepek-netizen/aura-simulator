@@ -283,7 +283,7 @@ export default function ResearchPage() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Amiri:ital@0;1&family=Inter:wght@300;400;500;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Amiri:ital@0;1&family=Assistant:wght@300;400;500;600;700&display=swap');
 
         * { box-sizing: border-box; }
 
@@ -291,7 +291,7 @@ export default function ResearchPage() {
           min-height: 100vh;
           background: #000;
           color: #fff;
-          font-family: 'Inter', sans-serif;
+          font-family: 'Assistant', sans-serif;
           overflow-x: hidden;
         }
 
@@ -499,7 +499,7 @@ export default function ResearchPage() {
           border: 1px solid rgba(255,255,255,0.1);
           border-radius: 50px; padding: 10px 18px;
           font-size: 13px; color: white; outline: none;
-          font-family: 'Inter', sans-serif;
+          font-family: 'Assistant', sans-serif;
         }
         .r-input::placeholder { color: rgba(255,255,255,0.25); }
         .r-input:focus { border-color: rgba(255,201,157,0.3); }
@@ -525,7 +525,7 @@ export default function ResearchPage() {
           font-size: 12px; color: rgba(255,255,255,0.55);
           cursor: pointer; text-align: left;
           transition: background 0.2s, color 0.2s, border-color 0.2s;
-          font-family: 'Inter', sans-serif;
+          font-family: 'Assistant', sans-serif;
           line-height: 1.4;
         }
         .r-suggested-btn:hover {
@@ -673,23 +673,23 @@ export default function ResearchPage() {
                       fontSize={7}
                       fill={`${accent(i)}80`}
                       letterSpacing="0.1em"
-                      fontFamily="Inter, sans-serif"
+                      fontFamily="Assistant, sans-serif"
                     >
                       {String(t.id).padStart(2, "0")}
                     </text>
                     {/* Label text — split into lines */}
                     {words.length <= 1 ? (
-                      <text x={0} y={4} textAnchor="middle" fontSize={8.5} fill="white" fontFamily="Inter, sans-serif">{t.label}</text>
+                      <text x={0} y={4} textAnchor="middle" fontSize={8.5} fill="white" fontFamily="Assistant, sans-serif">{t.label}</text>
                     ) : words.length === 2 ? (
                       <>
-                        <text x={0} y={-1} textAnchor="middle" fontSize={8.5} fill="white" fontFamily="Inter, sans-serif">{words[0]}</text>
-                        <text x={0} y={10} textAnchor="middle" fontSize={8.5} fill="white" fontFamily="Inter, sans-serif">{words[1]}</text>
+                        <text x={0} y={-1} textAnchor="middle" fontSize={8.5} fill="white" fontFamily="Assistant, sans-serif">{words[0]}</text>
+                        <text x={0} y={10} textAnchor="middle" fontSize={8.5} fill="white" fontFamily="Assistant, sans-serif">{words[1]}</text>
                       </>
                     ) : (
                       <>
-                        <text x={0} y={-5} textAnchor="middle" fontSize={8} fill="white" fontFamily="Inter, sans-serif">{words[0]}</text>
-                        <text x={0} y={5} textAnchor="middle" fontSize={8} fill="white" fontFamily="Inter, sans-serif">{words[1]}</text>
-                        <text x={0} y={15} textAnchor="middle" fontSize={8} fill="white" fontFamily="Inter, sans-serif">{words[2]}</text>
+                        <text x={0} y={-5} textAnchor="middle" fontSize={8} fill="white" fontFamily="Assistant, sans-serif">{words[0]}</text>
+                        <text x={0} y={5} textAnchor="middle" fontSize={8} fill="white" fontFamily="Assistant, sans-serif">{words[1]}</text>
+                        <text x={0} y={15} textAnchor="middle" fontSize={8} fill="white" fontFamily="Assistant, sans-serif">{words[2]}</text>
                       </>
                     )}
                   </g>
