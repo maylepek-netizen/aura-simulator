@@ -696,6 +696,28 @@ export default function ResultPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [result]);
 
+  // Auto-save every successful simulation once the video is ready.
+  // Fires without any user action; the `saved` guard prevents duplicates,
+  // so a later manual "Save"/"End Simulation" click won't save twice.
+  useEffect(() => {
+    if (!result || !videoUri || saved) return;
+    try {
+      saveSimulation({ situation: snapshot.situation, name: snapshot.name, age: snapshot.age, gender: snapshot.gender, result, videoUri });
+    } catch {}
+    void saveSimulationToSupabase({
+      situation: snapshot.situation,
+      video_url: "/api/video-proxy?uri=" + encodeURIComponent(videoUri),
+      internal_thoughts: Array.isArray(result.monologue) ? result.monologue.join(" | ") : "",
+      sensory_load: result.overall_load ?? 0,
+      emotional_landscape: Array.isArray(result.emotional_landscape) ? result.emotional_landscape.join(", ") : "",
+      soundscape: result.soundscape ?? "",
+      objective: result.objective ?? "",
+      visual_effect: result.visual_effect ?? "",
+    });
+    setSaved(true);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [result, videoUri, saved]);
+
   // Video fade-in
   useEffect(() => {
     if (videoUrl) {
