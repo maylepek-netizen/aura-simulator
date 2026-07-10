@@ -66,7 +66,12 @@ function buildVideoPromptInstructions(age: number, gender: string, situation: st
     "- No face, no body, no hands, no feet, no reflection, no shadow of the PROTAGONIST (the person whose eyes we see). Other people's faces ARE allowed and encouraged when they are directly interacting with the viewer.\n" +
     "- The camera IS their eyes - we see what THEY see, not them\n" +
     "- Other people may appear in the scene, but never the protagonist themselves\n" +
-    "- If the situation says 'I am looking at the ceiling' → we see the ceiling, not a person looking up\n\n" +
+    "- If the situation says 'I am looking at the ceiling' → we see the ceiling, not a person looking up\n" +
+    "BANNED VISUAL ELEMENTS - never include these:\n" +
+    "- Magical glowing circles, orbs, or light effects\n" +
+    "- Sparkles, particles, or supernatural glows\n" +
+    "- Hands as the primary subject (hands may appear but never as the main focus)\n" +
+    "- Any effect that looks CGI, animated, or non-photorealistic\n\n" +
     "The scene is realistic. The strangeness comes ONLY from the autistic lens - how the camera perceives, not what happens.\n" +
     "Think: an alien anthropologist observing human behavior. Present but not participating. Studying, not understanding.\n" +
     "VISUAL VARIETY: Mix between two modes based on situation:\n" +
@@ -75,8 +80,8 @@ function buildVideoPromptInstructions(age: number, gender: string, situation: st
     "SITUATION GUIDE:\n" +
     "ALONE (familiar place): Camera locks on one irrelevant detail. Time stretches. Near silence.\n" +
     "ALONE (unfamiliar place): Slightly unstable camera. Everything too bright or too loud.\n" +
-    "ONE PERSON (familiar): Camera cannot maintain eye contact but IS drawn back to their face. Their expressions look slightly unreadable - like watching someone speak a foreign language. Their face fills 40-50% of frame. Eyes seem too intense. Mouth movements don't fully sync with what you expect. Camera drifts: face → their hands → object nearby → back to face involuntarily. FOCUS: Their FACE is the primary focus point, sharp. Hands and objects are secondary - slightly out of focus. The camera keeps returning to the face even when it tries to look away.\n" +
-    "ONE PERSON (stranger): Their face uncomfortably close, fills 50-60% of frame. Eyes too direct. Expression hard to decode - is it friendly? Threatening? Camera wants to look away but returns. Their body slightly too close to camera. The stranger's FACE is the primary anchor - not their hands, not objects they hold. Their expression is hard to read - professional but unreadable. Camera is drawn to their face even though it's uncomfortable.\n" +
+    "ONE PERSON (familiar): PRIMARY SUBJECT: Their FACE. Not their hands. Not objects they hold. Their face. Camera cannot maintain eye contact but IS drawn back to their face. Their expressions look slightly unreadable - like watching someone speak a foreign language. Their face fills 40-50% of frame. Eyes seem too intense. Mouth movements don't fully sync with what you expect. Camera drifts: face → their hands → object nearby → back to face involuntarily. FOCUS: Their FACE is the primary focus point, sharp. Hands and objects are secondary - slightly out of focus. The camera keeps returning to the face even when it tries to look away.\n" +
+    "ONE PERSON (stranger): PRIMARY SUBJECT: Their FACE. Not their hands. Not objects they hold. Their face. Their face uncomfortably close, fills 50-60% of frame. Eyes too direct. Expression hard to decode - is it friendly? Threatening? Camera wants to look away but returns. Their body slightly too close to camera. The stranger's FACE is the primary anchor - not their hands, not objects they hold. Their expression is hard to read - professional but unreadable. Camera is drawn to their face even though it's uncomfortable.\n" +
     "SMALL GROUP (familiar, 2-5): Camera outside the group. Invisible barrier. They talk to each other, not to viewer.\n" +
     "SMALL GROUP (strangers): Rapid scanning. Cannot follow conversation. Lost.\n" +
     "LARGE CROWD (6+): Chaotic. Everything at equal volume. ONE inanimate anchor object in foreground. People blurred behind.\n" +
