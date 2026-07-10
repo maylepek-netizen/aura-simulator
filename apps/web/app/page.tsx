@@ -24,9 +24,10 @@ export default function LandingPage() {
     if (typeof window !== "undefined") {
       window.backgroundMusic = audioRef.current;
     }
-    return () => {
-      audioRef.current?.pause();
-    };
+    // Do NOT pause on unmount — the music is global (window.backgroundMusic) and
+    // must keep playing through onboard, the question screen, and into chat.
+    // It fades out deliberately only when a situation is sent (chat) or the
+    // simulation begins (result).
   }, []);
 
   // Play only when user clicks BEGIN (screen → "intro")
