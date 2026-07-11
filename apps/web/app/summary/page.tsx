@@ -99,26 +99,6 @@ export default function SummaryPage() {
           <div style={{ display: "flex", gap: 20, alignItems: "center" }}>
             <button
               type="button"
-              className="aura-btn"
-              onClick={() => navigate("/chat")}
-              style={{
-                background: "transparent",
-                color: "white",
-                border: "1.5px solid rgba(255,255,255,0.5)",
-                borderRadius: 50,
-                padding: "16px 52px",
-                fontSize: 14,
-                letterSpacing: "0.06em",
-                fontWeight: 400,
-                cursor: "pointer",
-                whiteSpace: "nowrap",
-              }}
-            >
-              New Simulation
-            </button>
-
-            <button
-              type="button"
               onClick={() => navigate("/bank")}
               onMouseEnter={(e) => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.boxShadow = "0 0 16px rgba(255,201,157,0.5)"; }}
               onMouseLeave={(e) => { e.currentTarget.style.opacity = "0.8"; e.currentTarget.style.boxShadow = "none"; }}
@@ -138,6 +118,26 @@ export default function SummaryPage() {
               }}
             >
               Simulation Bank
+            </button>
+
+            <button
+              type="button"
+              className="aura-btn"
+              onClick={() => navigate("/chat")}
+              style={{
+                background: "transparent",
+                color: "white",
+                border: "1.5px solid rgba(255,255,255,0.5)",
+                borderRadius: 50,
+                padding: "16px 52px",
+                fontSize: 14,
+                letterSpacing: "0.06em",
+                fontWeight: 400,
+                cursor: "pointer",
+                whiteSpace: "nowrap",
+              }}
+            >
+              New Simulation
             </button>
           </div>
         </div>
