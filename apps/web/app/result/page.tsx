@@ -331,10 +331,12 @@ class AmbientSoundEngine {
 }
 
 // ─── Loading Ritual (meditative loading screen) ──────────────────────────────
-// A quiet ritual before entering another perception. Four stages: the eye fills
-// with each stage's brand color, a progress line advances, and a soft status line
-// fades below. Stage 4 holds (node pulsing) until the real video generation
-// finishes — the `done` prop — then the eye glows Ivory and cross-fades out.
+// One continuous, living animation — a planet slowly orbiting, breathing, glowing.
+// The ring fills continuously (never in quarter-jumps); the colour morphs smoothly
+// through the four brand tones; the halo breathes, a highlight orbits, particles
+// drift, the pupil pulses — nothing ever freezes. The sequence runs on its OWN
+// timeline (independent of the video): it completes, holds Ivory ~5s, then calls
+// onComplete so the parent can fade it out even if the video isn't ready yet.
 
 const LOADING_STAGES = [
   { label: ["COLLECTING", "MEMORIES"],        color: "#F4C79B", message: "Collecting memories..." },        // Peach
@@ -343,48 +345,56 @@ const LOADING_STAGES = [
   { label: ["PREPARING", "SIMULATION"],       color: "#FAFAFA", message: "Preparing your simulation..." },   // Ivory
 ] as const;
 
-const STAGE_DURATION = 7500; // ~7.5s per timed stage (stages 0–2) — slow, meditative pace
+const FILL_DURATION = 22000; // ms for the ring to fill fully across all 4 stages (continuous)
+const FINAL_HOLD    = 5000;  // ms to hold the completed Ivory state before fading out
 
-function ProcessingMetrics({ visible, done }: { visible: boolean; done: boolean }) {
-  const [stage, setStage] = useState(0);
+// linear-interpolate two hex colours
+function lerpHex(a: string, b: string, t: number): string {
+  const pa = [parseInt(a.slice(1, 3), 16), parseInt(a.slice(3, 5), 16), parseInt(a.slice(5, 7), 16)];
+  const pb = [parseInt(b.slice(1, 3), 16), parseInt(b.slice(3, 5), 16), parseInt(b.slice(5, 7), 16)];
+  const c = pa.map((v, i) => Math.round(v + (pb[i] - v) * t));
+  return `rgb(${c[0]}, ${c[1]}, ${c[2]})`;
+}
+
+// colour at a continuous progress 0→1 across the 4 stage colours
+function colorAt(p: number): string {
+  const n = LOADING_STAGES.length - 1;      // 3 segments between 4 colours
+  const x = Math.min(0.9999, Math.max(0, p)) * n;
+  const i = Math.floor(x);
+  return lerpHex(LOADING_STAGES[i].color, LOADING_STAGES[i + 1].color, x - i);
+}
+
+function ProcessingMetrics({ visible, onComplete }: { visible: boolean; onComplete: () => void }) {
+  const [progress, setProgress] = useState(0); // 0 → 1, continuous ring fill
   const [finishing, setFinishing] = useState(false);
-  const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
-  const stageRef = useRef(0);
-  stageRef.current = stage;
+  const completedRef = useRef(false);
 
-  // Advance stages 0 → 1 → 2 on a timed pace; hold on stage 3 (Preparing).
+  // Drive the fill continuously with requestAnimationFrame (frame-by-frame, never jumps).
   useEffect(() => {
-    const t1 = setTimeout(() => setStage((s) => Math.max(s, 1)), STAGE_DURATION);
-    const t2 = setTimeout(() => setStage((s) => Math.max(s, 2)), STAGE_DURATION * 2);
-    const t3 = setTimeout(() => setStage((s) => Math.max(s, 3)), STAGE_DURATION * 3);
-    timersRef.current = [t1, t2, t3];
-    return () => timersRef.current.forEach(clearTimeout);
+    let raf = 0;
+    let start = 0;
+    const loop = (now: number) => {
+      if (!start) start = now;
+      const p = Math.min(1, (now - start) / FILL_DURATION);
+      setProgress(p);
+      if (p < 1) {
+        raf = requestAnimationFrame(loop);
+      } else if (!completedRef.current) {
+        // ring is full + eye reaches Ivory — hold, then signal completion
+        setFinishing(true);
+        completedRef.current = true;
+        setTimeout(() => onComplete(), FINAL_HOLD);
+      }
+    };
+    raf = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(raf);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // When generation completes: accelerate gracefully through any remaining
-  // stages (700ms each), then play the Ivory finish before the parent
-  // cross-fades this screen out. Never jumps — always steps smoothly.
-  useEffect(() => {
-    if (!done) return;
-    timersRef.current.forEach(clearTimeout);
-    const stepTimers: ReturnType<typeof setTimeout>[] = [];
-    const tick = () => {
-      const cur = stageRef.current;
-      if (cur >= LOADING_STAGES.length - 1) {
-        setStage(LOADING_STAGES.length - 1);
-        setFinishing(true);
-        return;
-      }
-      setStage(cur + 1);
-      stepTimers.push(setTimeout(tick, 1050));
-    };
-    tick();
-    timersRef.current = stepTimers;
-    return () => stepTimers.forEach(clearTimeout);
-  }, [done]);
-
+  // Derived, continuously-changing values
+  const stage = Math.min(LOADING_STAGES.length - 1, Math.round(progress * (LOADING_STAGES.length - 1)));
   const active = LOADING_STAGES[stage];
-  const eyeColor = finishing ? "#F5EFE6" : active.color;
+  const eyeColor = finishing ? "#FAFAFA" : colorAt(progress);
 
   return (
     <div style={{
@@ -398,8 +408,14 @@ function ProcessingMetrics({ visible, done }: { visible: boolean; done: boolean 
       <style>{`
         @keyframes aura-node-pulse { 0%,100%{ transform: scale(1); opacity: 0.9; } 50%{ transform: scale(1.5); opacity: 0.5; } }
         @keyframes aura-msg-fade { 0%{ opacity: 0; transform: translateY(3px); } 100%{ opacity: 0.7; transform: translateY(0); } }
-        @keyframes aura-bloom { 0%,100%{ transform: scale(0.94); opacity: var(--bloom-lo, 0.5); } 50%{ transform: scale(1.06); opacity: var(--bloom-hi, 0.75); } }
-        @keyframes aura-pupil-breathe { 0%,100%{ transform: scale(0.9); } 50%{ transform: scale(1.05); } }
+        @keyframes aura-bloom { 0%,100%{ transform: scale(0.94); opacity: 0.5; } 50%{ transform: scale(1.06); opacity: 0.78; } }
+        @keyframes aura-pupil-breathe { 0%,100%{ transform: scale(0.97); } 50%{ transform: scale(1.02); } }
+        /* the halo ring slowly, endlessly rotates — never frozen */
+        @keyframes aura-ring-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        /* a highlight orbits the ring, the opposite way, for a living shimmer */
+        @keyframes aura-orbit { from { transform: rotate(0deg); } to { transform: rotate(-360deg); } }
+        /* soft drifting particles */
+        @keyframes aura-drift { 0%,100%{ transform: translate(0,0); opacity: 0.15; } 50%{ transform: translate(var(--dx,4px), var(--dy,-6px)); opacity: 0.5; } }
       `}</style>
 
       <div style={{
@@ -409,60 +425,67 @@ function ProcessingMetrics({ visible, done }: { visible: boolean; done: boolean 
         gap: 56,
       }}>
 
-        {/* Eye + halo ring — the ritual centerpiece */}
+        {/* Eye + living halo ring — the ritual centerpiece */}
         {(() => {
-          const SIZE = 300;               // viewport box for the whole eye + ring
+          const SIZE = 300;
           const CX = SIZE / 2, CY = SIZE / 2;
-          const R = 118;                  // ring radius (comfortable spacing around the eye)
-          const C = 2 * Math.PI * R;      // ring circumference
-          const seg = C / 4;              // one quarter of the ring
-          const filledStages = finishing ? 4 : stage + 1; // how many quarters are lit
+          const R = 118;                       // ring radius
+          const C = 2 * Math.PI * R;           // circumference
+          const filled = C * progress;         // continuous arc length driven frame-by-frame
+          const ringColor = eyeColor;          // morphs smoothly with progress
+          // orbiting highlight position (endless, independent of progress)
           return (
             <div style={{ position: "relative", width: SIZE, height: SIZE, display: "flex", alignItems: "center", justifyContent: "center" }}>
-              {/* Soft breathing bloom behind everything — light through glass */}
+              {/* Layer 1 — soft breathing bloom (always moving) */}
               <div aria-hidden style={{
-                position: "absolute", width: SIZE * 0.9, height: SIZE * 0.9, borderRadius: "50%",
-                background: `radial-gradient(circle, ${eyeColor}44 0%, ${eyeColor}18 35%, transparent 70%)`,
-                filter: "blur(28px)",
-                opacity: finishing ? 0.9 : 0.55,
-                transition: "background 2.7s ease, opacity 2.7s ease",
-                animation: "aura-bloom 9s ease-in-out infinite",
+                position: "absolute", width: SIZE * 0.92, height: SIZE * 0.92, borderRadius: "50%",
+                background: `radial-gradient(circle, ${ringColor}40 0%, ${ringColor}18 35%, transparent 70%)`,
+                filter: "blur(30px)",
+                animation: "aura-bloom 10s ease-in-out infinite",
                 pointerEvents: "none",
               }} />
 
-              {/* Programmatic halo ring — thin, gradient, clockwise, grows over 4 stages */}
+              {/* Layer 1 — drifting particles around the ring (always moving) */}
+              {Array.from({ length: 10 }).map((_, i) => {
+                const a = (i / 10) * Math.PI * 2;
+                const rr = R + (i % 3 - 1) * 10;
+                const px = CX + Math.cos(a) * rr, py = CY + Math.sin(a) * rr;
+                return (
+                  <div key={i} aria-hidden style={{
+                    position: "absolute", left: px, top: py, width: 2.5, height: 2.5, borderRadius: "50%",
+                    background: ringColor,
+                    ["--dx" as string]: `${(i % 2 ? 5 : -5)}px`,
+                    ["--dy" as string]: `${(i % 3 ? -6 : 6)}px`,
+                    animation: `aura-drift ${7 + (i % 4)}s ease-in-out ${i * 0.4}s infinite`,
+                    filter: `drop-shadow(0 0 3px ${ringColor})`,
+                    pointerEvents: "none",
+                  }} />
+                );
+              })}
+
+              {/* Layer 2 — the halo ring: faint slowly-spinning track + continuous progress arc + orbiting highlight */}
               <svg width={SIZE} height={SIZE} viewBox={`0 0 ${SIZE} ${SIZE}`} style={{ position: "absolute", inset: 0, overflow: "visible" }}>
-                <defs>
-                  {LOADING_STAGES.map((st, i) => (
-                    <linearGradient key={i} id={`ring-grad-${i}`} x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor={st.color} stopOpacity="0.15" />
-                      <stop offset="55%" stopColor={st.color} stopOpacity="0.95" />
-                      <stop offset="100%" stopColor={st.color} stopOpacity="0.35" />
-                    </linearGradient>
-                  ))}
-                </defs>
-                {/* faint full track */}
-                <circle cx={CX} cy={CY} r={R} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={1.5} />
-                {/* four coloured quarter-arcs, revealed one per stage; completed ones keep their colour */}
-                {LOADING_STAGES.map((st, i) => (
-                  <circle
-                    key={i}
-                    cx={CX} cy={CY} r={R} fill="none"
-                    stroke={`url(#ring-grad-${i})`}
-                    strokeWidth={2} strokeLinecap="round"
-                    strokeDasharray={`${seg} ${C}`}
-                    strokeDashoffset={-i * seg}
-                    transform={`rotate(-90 ${CX} ${CY})`}
-                    style={{
-                      opacity: i < filledStages ? 1 : 0,
-                      transition: "opacity 2.1s ease",
-                      filter: `drop-shadow(0 0 5px ${st.color}) drop-shadow(0 0 12px ${st.color}55)`,
-                    }}
-                  />
-                ))}
+                {/* faint full track, forever slowly rotating so it never looks frozen */}
+                <g style={{ transformOrigin: `${CX}px ${CY}px`, animation: "aura-ring-spin 60s linear infinite" }}>
+                  <circle cx={CX} cy={CY} r={R} fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth={1.5}
+                    strokeDasharray="1 7" />
+                </g>
+                {/* continuous progress arc — fills frame-by-frame, colour morphs with progress */}
+                <circle
+                  cx={CX} cy={CY} r={R} fill="none"
+                  stroke={ringColor} strokeWidth={2} strokeLinecap="round"
+                  strokeDasharray={`${filled} ${C}`}
+                  transform={`rotate(-90 ${CX} ${CY})`}
+                  style={{ filter: `drop-shadow(0 0 5px ${ringColor}) drop-shadow(0 0 13px ${ringColor}66)` }}
+                />
+                {/* orbiting highlight — a soft moving glow that never stops */}
+                <g style={{ transformOrigin: `${CX}px ${CY}px`, animation: "aura-orbit 14s linear infinite" }}>
+                  <circle cx={CX + R} cy={CY} r={3} fill={ringColor}
+                    style={{ filter: `drop-shadow(0 0 8px ${ringColor})` }} />
+                </g>
               </svg>
 
-              {/* The Aura eye — inline SVG so the pupil can fill independently. Outline stays white. */}
+              {/* Layer 3 — the Aura eye (inline SVG). Outline stays white; pupil fills with the morphing colour and slowly pulses. */}
               <svg width={148} height={112} viewBox="0 0 673 689" style={{ position: "relative", zIndex: 2, overflow: "visible" }}>
                 <defs>
                   <clipPath id="pupil-clip">
@@ -471,14 +494,14 @@ function ProcessingMetrics({ visible, done }: { visible: boolean; done: boolean 
                   <radialGradient id="pupil-fill" cx="50%" cy="50%" r="50%">
                     <stop offset="0%" stopColor={eyeColor} stopOpacity="1" />
                     <stop offset="70%" stopColor={eyeColor} stopOpacity="0.9" />
-                    <stop offset="100%" stopColor={eyeColor} stopOpacity="0.4" />
+                    <stop offset="100%" stopColor={eyeColor} stopOpacity="0.45" />
                   </radialGradient>
                 </defs>
-                {/* Pupil colour fill — a circle that grows from the pupil centre, clipped to the pupil */}
+                {/* Pupil colour fill — clipped to the pupil, slowly pulsing 3% */}
                 <g clipPath="url(#pupil-clip)">
                   <circle cx={336} cy={343} r={70}
                     fill="url(#pupil-fill)"
-                    style={{ transition: "fill 2.4s ease", transformOrigin: "336px 343px", animation: "aura-pupil-breathe 7.5s ease-in-out infinite" }}
+                    style={{ transformOrigin: "336px 343px", animation: "aura-pupil-breathe 4s ease-in-out infinite" }}
                   />
                 </g>
                 {/* Eye almond outline — white */}
@@ -495,12 +518,11 @@ function ProcessingMetrics({ visible, done }: { visible: boolean; done: boolean 
           <div style={{ position: "relative", width: "100%", height: 10, display: "flex", alignItems: "center" }}>
             {/* base line */}
             <div style={{ position: "absolute", left: 0, right: 0, height: 1, background: "rgba(255,255,255,0.12)" }} />
-            {/* progress fill line — minimal, no glow */}
+            {/* progress fill line — continuous, driven frame-by-frame */}
             <div style={{
               position: "absolute", left: 0, height: 1,
-              width: `${(stage / (LOADING_STAGES.length - 1)) * 100}%`,
-              background: active.color, opacity: 0.5,
-              transition: "width 2.1s ease, background-color 2.1s ease",
+              width: `${progress * 100}%`,
+              background: eyeColor, opacity: 0.5,
             }} />
             {/* nodes — active glows + pulses, completed keep a faint glow, inactive muted */}
             <div style={{ position: "absolute", left: 0, right: 0, display: "flex", justifyContent: "space-between" }}>
@@ -710,6 +732,7 @@ export default function ResultPage() {
 
   const [panelsVisible, setPanelsVisible] = useState(false);
   const [processingVisible, setProcessingVisible] = useState(true);
+  const [loadingDone, setLoadingDone] = useState(false); // loading ritual finished its own timeline
 
   const [audioPlaying, setAudioPlaying] = useState(false);
   const ttsAudioRef = useRef<HTMLAudioElement | null>(null);
@@ -856,21 +879,20 @@ export default function ResultPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [result, videoUri, saved]);
 
-  // Cross-fade transition: once the ring completes (video ready) and the eye
-  // glows Ivory, hold briefly, then dissolve the loading out while the
-  // simulation fades in at the same time — no black gap between them.
+  // The loading ritual runs on its OWN timeline (independent of the video).
+  // When it finishes (its ~5s Ivory hold done), it dissolves out — even if the
+  // video isn't ready yet. Behind it the screen is black; the simulation fades
+  // in whenever the video becomes available (which may be before or after).
   useEffect(() => {
-    if (videoUrl) {
-      const HOLD = 1500; // brief linger on the fully-illuminated eye
-      const t = setTimeout(() => {
-        setProcessingVisible(false); // loading dissolves out
-        setVideoVisible(true);       // simulation fades in simultaneously
-      }, HOLD);
-      return () => clearTimeout(t);
-    } else {
-      setVideoVisible(false);
-      setProcessingVisible(true);
-    }
+    if (loadingDone) setProcessingVisible(false);
+  }, [loadingDone]);
+
+  // Reveal the simulation as soon as the video is ready. It sits behind the
+  // loading overlay, so if it's ready early it simply waits (unseen) behind the
+  // black; if it's ready late, the screen stays black until it arrives.
+  useEffect(() => {
+    if (videoUrl) setVideoVisible(true);
+    else { setVideoVisible(false); setProcessingVisible(true); setLoadingDone(false); }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [videoUrl]);
 
@@ -1211,7 +1233,7 @@ export default function ResultPage() {
             }
           </button>
         )}
-        <ProcessingMetrics visible={processingVisible} done={!!videoUrl} />
+        <ProcessingMetrics visible={processingVisible} onComplete={() => setLoadingDone(true)} />
         {error && !loading && (
           <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16, zIndex: 3 }}>
             <div style={{ fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.6)" }}>Error</div>
