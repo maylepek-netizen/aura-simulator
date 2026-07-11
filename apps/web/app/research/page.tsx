@@ -558,11 +558,21 @@ export default function ResearchPage() {
             <img src="/icons/New_logo_eye.svg" alt="" style={{ width: 22, opacity: 0.7 }} />
             AURA SIMULATOR
           </div>
-          <div className="r-nav-links">
-            <span onClick={() => router.push("/")}>About</span>
-            <span className="r-nav-active">Research</span>
-            <span onClick={() => router.push("/onboard")}>Simulator</span>
-          </div>
+          <button
+            onClick={() => router.push('/')}
+            style={{
+              background: 'transparent',
+              border: '1px solid rgba(255,201,157,0.5)',
+              color: '#FFC99D',
+              padding: '8px 20px',
+              borderRadius: 12,
+              fontSize: 13,
+              cursor: 'pointer',
+              fontFamily: 'Assistant, sans-serif',
+            }}
+          >
+            ← Back to Simulator
+          </button>
         </nav>
 
         {/* ── Main 3-col ── */}
