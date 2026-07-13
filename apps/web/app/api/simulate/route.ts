@@ -13,17 +13,17 @@ type Modifier = "monotropy" | "sudden_stimulus" | "hyperfocus_positive" | null;
 type LoadLevel = "low" | "medium" | "high" | "shutdown";
 
 const ENVIRONMENT_BLOCKS: Record<Environment, string> = {
-  A: `Eye-level static shot inside a quiet Israeli home interior. Camera locked on ONE specific mundane detail — a wall crack, dust particles in window light, a ticking clock face — occupying 30% of frame center, sharp focus. Surrounding room softly out of focus. Camera barely moves, slight breathing tremor only. Warm afternoon light through curtains. 8-second seamless loop: the detail remains fixed, only atmospheric motion (dust, light shift). Israeli home objects visible: typical furniture, Hebrew books, domestic items. Light sources (windows, lamps) have soft halation. The silence feels thick. Even small sounds (refrigerator hum, distant traffic) feel present and close.`,
+  A: `Eye-level static shot inside a quiet home interior. Camera locked on ONE specific mundane detail — a wall crack, dust particles in window light, a ticking clock face — occupying 30% of frame center, sharp focus. Surrounding room softly out of focus. Camera barely moves, slight breathing tremor only. Warm afternoon light through curtains. 8-second seamless loop: the detail remains fixed, only atmospheric motion (dust, light shift). Light sources (windows, lamps) have soft halation. The silence feels thick. Even small sounds (refrigerator hum, distant traffic) feel present and close.`,
 
-  B: `Eye-level shot in Israeli home or familiar indoor setting. Faces of known people visible but camera keeps drifting: face (soft focus) → hands on table (sharp) → cup/object nearby (sharp) → back to face (soft). Processing delay: 0.5s before camera responds to movement. People are Caucasian, light-skinned, interacting with each other. Camera never fully settles. Warm domestic lighting.`,
+  B: `Eye-level shot with a close person (family member, parent, friend). IF CONFLICT/YELLING: Their face fills 50% of frame, expression intense and hard to decode — mouth moving fast, eyes too direct. Camera involuntarily backs away but face keeps filling frame. Space feels too close, sound feels too loud, their voice dominates everything. IF CALM: Camera drifts between their face (soft focus) → hands → nearby object → back to face. Processing delay visible. People are Caucasian, light-skinned. Warm or neutral domestic lighting.`,
 
   C: `Eye-level shot. Stranger's face visible at left frame edge, slightly out of focus. Camera fixates on their collar fabric texture, a small mole, or watch strap — close-up, 25cm from lens, sharp. Stranger is Caucasian, light-skinned, speaking toward camera but camera keeps sliding DOWN to their clothing details, never holding eye contact. Space feels 20% too close. Person never looks directly into lens center. The stranger feels physically larger than they are. Their face, even partially visible, carries an unreadable expression — not hostile, not friendly. Unsettling neutral.`,
 
-  D: `Eye-level shot in Israeli classroom or meeting room. Multiple Caucasian, light-skinned faces, camera doing fast rack focus: mouth of speaker A (sharp, 0.5s) → blurs as speaker B starts → snaps to B's mouth (sharp, 0.5s) → blurs again. Camera always 0.3s behind the conversation. Background faces are equal-weight visual noise. Fluorescent office lighting. Tight framing, slightly claustrophobic. Fluorescent lights feel harsh and too bright. The room feels smaller than it is. Voices overlap and compete equally with chair scrapes and ventilation hum.`,
+  D: `Eye-level shot in classroom or meeting room. Multiple Caucasian, light-skinned faces, camera doing fast rack focus: mouth of speaker A (sharp, 0.5s) → blurs as speaker B starts → snaps to B's mouth (sharp, 0.5s) → blurs again. Camera always 0.3s behind the conversation. Background faces are equal-weight visual noise. Fluorescent office lighting. Tight framing, slightly claustrophobic. Fluorescent lights feel harsh and too bright. The room feels smaller than it is. Voices overlap and compete equally with chair scrapes and ventilation hum.`,
 
-  E: `Eye-level walking shot through busy Israeli street or mall. Camera movement: heavy slow forward motion with sudden sharp involuntary glances — LEFT to a flash of light (0.2s snap) → back forward → RIGHT to movement (0.2s snap) → back forward. Slight overexposure on glass/metal reflections. Hebrew signage visible in background. People are Caucasian, light-skinned, moving as background crowd. Audio environment implied by visual density. Sunlight reflects off surfaces with aggressive brightness. Crowd feels physically larger — bodies loom. Sound implied by visual density: everything hitting at once.`,
+  E: `Eye-level walking shot through busy street or shopping mall. Camera movement: heavy slow forward motion with sudden sharp involuntary glances — LEFT to a flash of light (0.2s snap) → back forward → RIGHT to movement (0.2s snap) → back forward. Slight overexposure on glass/metal reflections. People are Caucasian, light-skinned, moving as background crowd. Audio environment implied by visual density. Sunlight reflects off surfaces with aggressive brightness. Crowd feels physically larger — bodies loom. Sound implied by visual density: everything hitting at once.`,
 
-  F: `Eye-level shot in crowded Israeli event space. Visual hierarchy completely lost — camera cuts rapidly between face fragments (eyes), hands, overhead lights, exit signs — each cut 0.3-0.5s. Frame edges gradually darken (vignette grows 0-15% during loop, physically motivated by exhaustion). By loop end, movement slows noticeably. Caucasian, light-skinned crowd. Indoor venue. DO NOT use graphic vignette effect — darken gradually and realistically. Lights feel blinding. Bodies feel massive and enclosing. The overwhelm is physical — the frame itself starts to feel too full to contain.`,
+  F: `Eye-level shot in crowded event space. Visual hierarchy completely lost — camera cuts rapidly between face fragments (eyes), hands, overhead lights, exit signs — each cut 0.3-0.5s. Frame edges gradually darken (vignette grows 0-15% during loop, physically motivated by exhaustion). By loop end, movement slows noticeably. Caucasian, light-skinned crowd. Indoor venue. DO NOT use graphic vignette effect — darken gradually and realistically. Lights feel blinding. Bodies feel massive and enclosing. The overwhelm is physical — the frame itself starts to feel too full to contain.`,
 };
 
 const MODIFIER_BLOCKS: Record<Exclude<Modifier, null>, string> = {
@@ -46,7 +46,7 @@ AUTISTIC SENSORY AMPLIFICATION (always active in all environments):
 
 TECHNICAL RULES FOR VEO:
 - Camera IS the protagonist's eyes. Never show protagonist body, hands, face, shadow or reflection.
-- Israeli setting. People are Caucasian, light-skinned. Hebrew signage where appropriate.
+- People are Caucasian, light-skinned.
 - Photorealistic. Documentary style. 4K quality.
 - Single continuous shot. Absolutely no cuts unless specified in block F.
 - 8-second seamless loop: last frame must match first frame.
@@ -65,7 +65,7 @@ async function classifyEnvironment(situation: string, apiKey: string): Promise<{
     `Situation: ${situation}\n\n` +
     `Environment types:\n` +
     `A = home/familiar space (low load)\n` +
-    `B = close friends/family gathering\n` +
+    `B = family member or close friend — includes BOTH calm interaction AND emotional conflict/yelling (parent yelling, argument at home = B not A)\n` +
     `C = interaction with stranger/service worker\n` +
     `D = classroom/work meeting/small group (3-6 people)\n` +
     `E = street/mall/public transport/crowded outdoor\n` +
@@ -116,7 +116,7 @@ function buildDirectingBlock(
   const envBlock = ENVIRONMENT_BLOCKS[classification.environment] ?? ENVIRONMENT_BLOCKS.A;
   const modBlock = classification.modifier ? MODIFIER_BLOCKS[classification.modifier] : "";
   const rules = UNIVERSAL_RULES.replace("[AGE_HEIGHT]", String(height));
-  return [envBlock, modBlock, rules, `Scene: ${situation}`]
+  return [envBlock, modBlock, rules, `Scene: ${situation}`, "IMPORTANT: No real people, no celebrities, no named individuals. All people are anonymous fictional characters only."]
     .filter(Boolean)
     .join("\n\n");
 }
