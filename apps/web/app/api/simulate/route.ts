@@ -13,17 +13,17 @@ type Modifier = "monotropy" | "sudden_stimulus" | "hyperfocus_positive" | null;
 type LoadLevel = "low" | "medium" | "high" | "shutdown";
 
 const ENVIRONMENT_BLOCKS: Record<Environment, string> = {
-  A: `Eye-level static shot inside a quiet Israeli home interior. Camera locked on ONE specific mundane detail — a wall crack, dust particles in window light, a ticking clock face — occupying 30% of frame center, sharp focus. Surrounding room softly out of focus. Camera barely moves, slight breathing tremor only. Warm afternoon light through curtains. 8-second seamless loop: the detail remains fixed, only atmospheric motion (dust, light shift). Israeli home objects visible: typical furniture, Hebrew books, domestic items.`,
+  A: `Eye-level static shot inside a quiet Israeli home interior. Camera locked on ONE specific mundane detail — a wall crack, dust particles in window light, a ticking clock face — occupying 30% of frame center, sharp focus. Surrounding room softly out of focus. Camera barely moves, slight breathing tremor only. Warm afternoon light through curtains. 8-second seamless loop: the detail remains fixed, only atmospheric motion (dust, light shift). Israeli home objects visible: typical furniture, Hebrew books, domestic items. Light sources (windows, lamps) have soft halation. The silence feels thick. Even small sounds (refrigerator hum, distant traffic) feel present and close.`,
 
   B: `Eye-level shot in Israeli home or familiar indoor setting. Faces of known people visible but camera keeps drifting: face (soft focus) → hands on table (sharp) → cup/object nearby (sharp) → back to face (soft). Processing delay: 0.5s before camera responds to movement. People are Caucasian, light-skinned, interacting with each other. Camera never fully settles. Warm domestic lighting.`,
 
-  C: `Eye-level shot. Stranger's face visible at left frame edge, slightly out of focus. Camera fixates on their collar fabric texture, a small mole, or watch strap — close-up, 25cm from lens, sharp. Stranger is Caucasian, light-skinned, speaking toward camera but camera keeps sliding DOWN to their clothing details, never holding eye contact. Space feels 20% too close. Person never looks directly into lens center.`,
+  C: `Eye-level shot. Stranger's face visible at left frame edge, slightly out of focus. Camera fixates on their collar fabric texture, a small mole, or watch strap — close-up, 25cm from lens, sharp. Stranger is Caucasian, light-skinned, speaking toward camera but camera keeps sliding DOWN to their clothing details, never holding eye contact. Space feels 20% too close. Person never looks directly into lens center. The stranger feels physically larger than they are. Their face, even partially visible, carries an unreadable expression — not hostile, not friendly. Unsettling neutral.`,
 
-  D: `Eye-level shot in Israeli classroom or meeting room. Multiple Caucasian, light-skinned faces, camera doing fast rack focus: mouth of speaker A (sharp, 0.5s) → blurs as speaker B starts → snaps to B's mouth (sharp, 0.5s) → blurs again. Camera always 0.3s behind the conversation. Background faces are equal-weight visual noise. Fluorescent office lighting. Tight framing, slightly claustrophobic.`,
+  D: `Eye-level shot in Israeli classroom or meeting room. Multiple Caucasian, light-skinned faces, camera doing fast rack focus: mouth of speaker A (sharp, 0.5s) → blurs as speaker B starts → snaps to B's mouth (sharp, 0.5s) → blurs again. Camera always 0.3s behind the conversation. Background faces are equal-weight visual noise. Fluorescent office lighting. Tight framing, slightly claustrophobic. Fluorescent lights feel harsh and too bright. The room feels smaller than it is. Voices overlap and compete equally with chair scrapes and ventilation hum.`,
 
-  E: `Eye-level walking shot through busy Israeli street or mall. Camera movement: heavy slow forward motion with sudden sharp involuntary glances — LEFT to a flash of light (0.2s snap) → back forward → RIGHT to movement (0.2s snap) → back forward. Slight overexposure on glass/metal reflections. Hebrew signage visible in background. People are Caucasian, light-skinned, moving as background crowd. Audio environment implied by visual density.`,
+  E: `Eye-level walking shot through busy Israeli street or mall. Camera movement: heavy slow forward motion with sudden sharp involuntary glances — LEFT to a flash of light (0.2s snap) → back forward → RIGHT to movement (0.2s snap) → back forward. Slight overexposure on glass/metal reflections. Hebrew signage visible in background. People are Caucasian, light-skinned, moving as background crowd. Audio environment implied by visual density. Sunlight reflects off surfaces with aggressive brightness. Crowd feels physically larger — bodies loom. Sound implied by visual density: everything hitting at once.`,
 
-  F: `Eye-level shot in crowded Israeli event space. Visual hierarchy completely lost — camera cuts rapidly between face fragments (eyes), hands, overhead lights, exit signs — each cut 0.3-0.5s. Frame edges gradually darken (vignette grows 0-15% during loop, physically motivated by exhaustion). By loop end, movement slows noticeably. Caucasian, light-skinned crowd. Indoor venue. DO NOT use graphic vignette effect — darken gradually and realistically.`,
+  F: `Eye-level shot in crowded Israeli event space. Visual hierarchy completely lost — camera cuts rapidly between face fragments (eyes), hands, overhead lights, exit signs — each cut 0.3-0.5s. Frame edges gradually darken (vignette grows 0-15% during loop, physically motivated by exhaustion). By loop end, movement slows noticeably. Caucasian, light-skinned crowd. Indoor venue. DO NOT use graphic vignette effect — darken gradually and realistically. Lights feel blinding. Bodies feel massive and enclosing. The overwhelm is physical — the frame itself starts to feel too full to contain.`,
 };
 
 const MODIFIER_BLOCKS: Record<Exclude<Modifier, null>, string> = {
@@ -35,6 +35,15 @@ const MODIFIER_BLOCKS: Record<Exclude<Modifier, null>, string> = {
 };
 
 const UNIVERSAL_RULES = `
+AUTISTIC SENSORY AMPLIFICATION (always active in all environments):
+- Lights feel 30% brighter than normal — windows and lamps slightly overexposed, halation glow around light sources
+- Colors are slightly oversaturated — reds feel aggressive, whites feel blinding
+- People appear slightly larger than expected — as if the camera has a mild wide angle making figures loom closer
+- Facial expressions feel unreadable and slightly threatening — even neutral faces look ambiguous
+- Everything has equal visual weight — foreground and background compete, no natural hierarchy
+- The camera has a constant micro-tremor — alive, never perfectly still, like a body under stress
+- Space feels slightly too small — walls closer, ceiling lower than they should be
+
 TECHNICAL RULES FOR VEO:
 - Camera IS the protagonist's eyes. Never show protagonist body, hands, face, shadow or reflection.
 - Israeli setting. People are Caucasian, light-skinned. Hebrew signage where appropriate.
