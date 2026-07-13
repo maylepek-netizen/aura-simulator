@@ -24,6 +24,7 @@ export async function saveSimulationToSupabase(simulation: {
   soundscape: string
   objective: string
   visual_effect: string
+  ambient_sound: string
 }) {
   const supabase = getSupabase()
   if (!supabase) return null

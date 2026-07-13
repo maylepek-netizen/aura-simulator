@@ -6,6 +6,7 @@ import { useNavigate } from "../TransitionProvider";
 import { loadExperienceDraft, loadProfile } from "@/lib/experienceStorage";
 import { saveSimulation } from "@/lib/simulationStorage";
 import { saveSimulationToSupabase } from "@/lib/supabase";
+import { SOUND_MAP, AMBIENT_FALLBACK } from "@/lib/soundMap";
 import { CITATIONS } from "@/lib/researchCitations";
 
 declare global {
@@ -47,38 +48,7 @@ type SimulationResult = {
 };
 
 // ─── Ambient Sound Map ────────────────────────────────────────────────────────
-
-const SOUND_MAP: Record<string, string> = {
-  crowd: "/sounds/mall.wav",
-  children: "/sounds/classroom.wav",
-  storm: "/sounds/storm.wav",
-  alarm: "/sounds/alarm.mp3",
-  restaurant: "/sounds/resturant.wav",
-  transport: "/sounds/train.wav",
-  nature: "/sounds/nature.wav",
-  party: "/sounds/party.wav",
-  classroom: "/sounds/classroom.wav",
-  street: "/sounds/street.m4a",
-  hospital: "/sounds/hospital.m4a",
-  home: "/sounds/home.m4a",
-  supermarket: "/sounds/supermarket.m4a",
-  office: "/sounds/office.m4a",
-  beach: "/sounds/beach.m4a",
-  construction: "/sounds/construction.m4a",
-  library: "/sounds/library.m4a",
-  sports: "/sounds/sports.wav",
-  airport: "/sounds/airport.m4a",
-  cafe: "/sounds/cafe.m4a",
-  nightclub: "/sounds/nightclub.m4a",
-  traffic: "/sounds/highway.m4a",
-  park: "/sounds/birds.m4a",
-  baby: "/sounds/baby.m4a",
-  dogs: "/sounds/dogs.m4a",
-  forest: "/sounds/forest.m4a",
-  rain: "/sounds/rain.m4a",
-};
-
-const AMBIENT_FALLBACK = "/sounds/mall.wav";
+// Shared with the explore playback — see lib/soundMap.ts (single source of truth).
 
 type AuditoryType = "scream" | "crowd" | "machine" | "default";
 
@@ -870,10 +840,11 @@ export default function ResultPage() {
       video_url: "/api/video-proxy?uri=" + encodeURIComponent(videoUri),
       internal_thoughts: Array.isArray(result.monologue) ? result.monologue.join(" | ") : "",
       sensory_load: result.overall_load ?? 0,
-      emotional_landscape: Array.isArray(result.emotional_landscape) ? result.emotional_landscape.join(", ") : "",
+      emotional_landscape: Array.isArray(result.emotions) ? result.emotions.join(", ") : (Array.isArray(result.emotional_landscape) ? result.emotional_landscape.join(", ") : ""),
       soundscape: result.soundscape ?? "",
       objective: result.objective ?? "",
       visual_effect: result.visual_effect ?? "",
+      ambient_sound: typeof result.ambient_sound === "string" ? result.ambient_sound : "",
     });
     setSaved(true);
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1095,10 +1066,11 @@ export default function ResultPage() {
       video_url: "/api/video-proxy?uri=" + encodeURIComponent(videoUri),
       internal_thoughts: Array.isArray(result.monologue) ? result.monologue.join(" | ") : "",
       sensory_load: result.overall_load ?? 0,
-      emotional_landscape: Array.isArray(result.emotional_landscape) ? result.emotional_landscape.join(", ") : "",
+      emotional_landscape: Array.isArray(result.emotions) ? result.emotions.join(", ") : (Array.isArray(result.emotional_landscape) ? result.emotional_landscape.join(", ") : ""),
       soundscape: result.soundscape ?? "",
       objective: result.objective ?? "",
       visual_effect: result.visual_effect ?? "",
+      ambient_sound: typeof result.ambient_sound === "string" ? result.ambient_sound : "",
     });
   }
 
@@ -1134,10 +1106,11 @@ export default function ResultPage() {
         video_url: "/api/video-proxy?uri=" + encodeURIComponent(videoUri),
         internal_thoughts: Array.isArray(result.monologue) ? result.monologue.join(" | ") : "",
         sensory_load: result.overall_load ?? 0,
-        emotional_landscape: Array.isArray(result.emotional_landscape) ? result.emotional_landscape.join(", ") : "",
+        emotional_landscape: Array.isArray(result.emotions) ? result.emotions.join(", ") : (Array.isArray(result.emotional_landscape) ? result.emotional_landscape.join(", ") : ""),
         soundscape: result.soundscape ?? "",
         objective: result.objective ?? "",
         visual_effect: result.visual_effect ?? "",
+        ambient_sound: typeof result.ambient_sound === "string" ? result.ambient_sound : "",
       });
     }
 
