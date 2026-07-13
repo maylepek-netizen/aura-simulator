@@ -13,41 +13,36 @@ type Modifier = "monotropy" | "sudden_stimulus" | "hyperfocus_positive" | null;
 type LoadLevel = "low" | "medium" | "high" | "shutdown";
 
 const ENVIRONMENT_BLOCKS: Record<Environment, string> = {
-  A: `Wide open shot at eye level. Natural depth of field, the whole frame is sharp and stable. Camera movement is smooth and calm, following the gaze at an unhurried pace. Warm natural light. Nothing competes for attention.`,
+  A: `Eye-level static shot inside a quiet Israeli home interior. Camera locked on ONE specific mundane detail — a wall crack, dust particles in window light, a ticking clock face — occupying 30% of frame center, sharp focus. Surrounding room softly out of focus. Camera barely moves, slight breathing tremor only. Warm afternoon light through curtains. 8-second seamless loop: the detail remains fixed, only atmospheric motion (dust, light shift). Israeli home objects visible: typical furniture, Hebrew books, domestic items.`,
 
-  B: `Eye level in a familiar gathering. The frame is mostly stable but the gaze cannot rest on faces for long — it drifts to hands, a cup, a pattern on the table, then reluctantly returns. Warm light, comfortable but slightly effortful. A gentle processing delay before reacting to who is speaking.`,
+  B: `Eye-level shot in Israeli home or familiar indoor setting. Faces of known people visible but camera keeps drifting: face (soft focus) → hands on table (sharp) → cup/object nearby (sharp) → back to face (soft). Processing delay: 0.5s before camera responds to movement. People are Caucasian, light-skinned, interacting with each other. Camera never fully settles. Warm domestic lighting.`,
 
-  C: `The camera avoids eye contact: the stranger's face stays out of frame or softly out of focus. Intense close-up on a single detail instead — the fabric of their shirt, a mole, the watch on their wrist. Space feels intrusive and slightly too close. When the camera drifts toward the face, it automatically slides back down to peripheral details.`,
+  C: `Eye-level shot. Stranger's face visible at left frame edge, slightly out of focus. Camera fixates on their collar fabric texture, a small mole, or watch strap — close-up, 25cm from lens, sharp. Stranger is Caucasian, light-skinned, speaking toward camera but camera keeps sliding DOWN to their clothing details, never holding eye contact. Space feels 20% too close. Person never looks directly into lens center.`,
 
-  D: `Very fast focus pulls between different people's mouths as they speak. The camera can never hold the full picture — whoever is not speaking dissolves into a blurred stain. Each focus shift arrives slightly too late, as if attention is always catching up.`,
+  D: `Eye-level shot in Israeli classroom or meeting room. Multiple Caucasian, light-skinned faces, camera doing fast rack focus: mouth of speaker A (sharp, 0.5s) → blurs as speaker B starts → snaps to B's mouth (sharp, 0.5s) → blurs again. Camera always 0.3s behind the conversation. Background faces are equal-weight visual noise. Fluorescent office lighting. Tight framing, slightly claustrophobic.`,
 
-  E: `The camera darts uncontrollably toward light sources, flashing signs and the sharp movement of cars — attention is captured, not directed. Slight overexposure when sunlight reflects off surfaces. Camera movement is heavy and slow when trying to navigate forward, a feeling of pushing against a current, while the darting glances stay fast.`,
+  E: `Eye-level walking shot through busy Israeli street or mall. Camera movement: heavy slow forward motion with sudden sharp involuntary glances — LEFT to a flash of light (0.2s snap) → back forward → RIGHT to movement (0.2s snap) → back forward. Slight overexposure on glass/metal reflections. Hebrew signage visible in background. People are Caucasian, light-skinned, moving as background crowd. Audio environment implied by visual density.`,
 
-  F: `Complete loss of visual hierarchy. The edges of the frame darken and narrow gradually (subtle tunnel vision, physically plausible like exhaustion, not a graphic vignette effect). Fast harsh cuts between fragments — faces, hands, lights — everything happens in the present but the rhythm is dizzying. Toward the end of the loop, movement slows as if the body stops responding.`,
+  F: `Eye-level shot in crowded Israeli event space. Visual hierarchy completely lost — camera cuts rapidly between face fragments (eyes), hands, overhead lights, exit signs — each cut 0.3-0.5s. Frame edges gradually darken (vignette grows 0-15% during loop, physically motivated by exhaustion). By loop end, movement slows noticeably. Caucasian, light-skinned crowd. Indoor venue. DO NOT use graphic vignette effect — darken gradually and realistically.`,
 };
 
 const MODIFIER_BLOCKS: Record<Exclude<Modifier, null>, string> = {
-  monotropy: `One small object holds the entire attention: sharp focus on it, the surrounding scene softly blurred behind. The camera drifts around the object in a very slow arc. The world exists only at the edges.`,
+  monotropy: `ADDITIONAL: One object in frame receives 80% of camera attention — extreme close-up, fills 40% of frame, razor sharp. Camera orbits it in ultra-slow arc (360° over 8 seconds). Everything else exists at 20% visual weight.`,
 
-  sudden_stimulus: `The camera is completely neutral and still — until one single sharp moment mid-loop (a shout, a door, a balloon) when the frame snaps toward the source, then slowly returns. One quiet beat right before the spike.`,
+  sudden_stimulus: `ADDITIONAL: Camera completely still for first 4 seconds — then at 4s mark: single sharp involuntary snap toward stimulus source (0.1s movement), freeze, then 3-second slow drift back to original position. One complete cycle per loop.`,
 
-  hyperfocus_positive: `Static wide comfortable frame. Nothing moves except the activity itself. Time feels suspended, stable and pleasant. No external stimulus enters the frame.`,
+  hyperfocus_positive: `ADDITIONAL: Static wide frame, camera does not move. Only the activity itself has motion. Edges of frame are soft, center is sharp. Atmosphere is stable and safe.`,
 };
 
 const UNIVERSAL_RULES = `
-ALWAYS:
-- First person POV, realistic human eye level
-- One dominant sensory element per loop
-- Seamless loop: last frame returns to first frame state
-- Lens, focus and movement do the work — not filters
-
-NEVER:
-- Fisheye/swirl/psychedelic color distortions
-- Heavy camera shake (GoPro style)
-- Distorted or monstrous faces
-- Medical lab aesthetic or flickering screens
-- Any surrealist effects
-- No protagonist body/hands/face visible — pure POV
+TECHNICAL RULES FOR VEO:
+- Camera IS the protagonist's eyes. Never show protagonist body, hands, face, shadow or reflection.
+- Israeli setting. People are Caucasian, light-skinned. Hebrew signage where appropriate.
+- Photorealistic. Documentary style. 4K quality.
+- Single continuous shot. Absolutely no cuts unless specified in block F.
+- 8-second seamless loop: last frame must match first frame.
+- No surreal effects. No fisheye. No color distortion. No horror aesthetics.
+- Camera height: [AGE_HEIGHT]cm eye level.
 `;
 
 // Fast classification call — returns the environment/modifier/load for a situation.
@@ -103,11 +98,14 @@ async function classifyEnvironment(situation: string, apiKey: string): Promise<{
 // Assemble the final video prompt from the classification.
 function buildDirectingBlock(
   classification: { environment: Environment; modifier: Modifier; load_level: LoadLevel },
-  situation: string
+  situation: string,
+  age: number
 ): string {
+  const height = age <= 12 ? 105 : age <= 17 ? 145 : 165; // child / teen / adult eye level
   const envBlock = ENVIRONMENT_BLOCKS[classification.environment] ?? ENVIRONMENT_BLOCKS.A;
   const modBlock = classification.modifier ? MODIFIER_BLOCKS[classification.modifier] : "";
-  return [envBlock, modBlock, UNIVERSAL_RULES, `Scene: ${situation}`]
+  const rules = UNIVERSAL_RULES.replace("[AGE_HEIGHT]", String(height));
+  return [envBlock, modBlock, rules, `Scene: ${situation}`]
     .filter(Boolean)
     .join("\n\n");
 }
@@ -221,7 +219,7 @@ export async function POST(req: NextRequest) {
 
     // Build the video_prompt from the two-step classification (our code, not Gemini).
     const classification = await classificationPromise;
-    result.video_prompt = buildDirectingBlock(classification, String(situation));
+    result.video_prompt = buildDirectingBlock(classification, String(situation), Number(age));
 
     // Generate reference image for image-to-video pipeline
     let imageBase64: string | null = null;
