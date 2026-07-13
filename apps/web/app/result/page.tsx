@@ -828,25 +828,49 @@ export default function ResultPage() {
   }, [result]);
 
   // Auto-save every successful simulation once the video is ready.
-  // Fires without any user action; the `saved` guard prevents duplicates,
-  // so a later manual "Save"/"End Simulation" click won't save twice.
+  // Veo links expire, so we first upload the video to Cloudinary for permanent
+  // storage, then persist the PERMANENT url to Supabase (falling back to the
+  // temporary proxy url if the upload fails). Playback switches to Cloudinary.
+  // Fires without any user action; the `saved` guard prevents duplicates.
   useEffect(() => {
     if (!result || !videoUri || saved) return;
+    setSaved(true); // guard immediately so this runs exactly once
+    const proxyUrl = "/api/video-proxy?uri=" + encodeURIComponent(videoUri);
     try {
       saveSimulation({ situation: snapshot.situation, name: snapshot.name, age: snapshot.age, gender: snapshot.gender, result, videoUri });
     } catch {}
-    void saveSimulationToSupabase({
-      situation: snapshot.situation,
-      video_url: "/api/video-proxy?uri=" + encodeURIComponent(videoUri),
-      internal_thoughts: Array.isArray(result.monologue) ? result.monologue.join(" | ") : "",
-      sensory_load: result.overall_load ?? 0,
-      emotional_landscape: Array.isArray(result.emotions) ? result.emotions.join(", ") : (Array.isArray(result.emotional_landscape) ? result.emotional_landscape.join(", ") : ""),
-      soundscape: result.soundscape ?? "",
-      objective: result.objective ?? "",
-      visual_effect: result.visual_effect ?? "",
-      ambient_sound: typeof result.ambient_sound === "string" ? result.ambient_sound : "",
-    });
-    setSaved(true);
+
+    (async () => {
+      let permanentUrl = proxyUrl;
+      try {
+        const res = await fetch("/api/upload-to-cloudinary", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ videoUri }),
+        });
+        const data = await res.json();
+        if (res.ok && data.url) {
+          permanentUrl = data.url;
+          setVideoUrl(data.url); // switch playback to the permanent Cloudinary url
+        } else {
+          console.warn("Cloudinary upload failed, keeping proxy url:", data?.error);
+        }
+      } catch (e) {
+        console.warn("Cloudinary upload error, keeping proxy url:", e);
+      }
+
+      void saveSimulationToSupabase({
+        situation: snapshot.situation,
+        video_url: permanentUrl,
+        internal_thoughts: Array.isArray(result.monologue) ? result.monologue.join(" | ") : "",
+        sensory_load: result.overall_load ?? 0,
+        emotional_landscape: Array.isArray(result.emotions) ? result.emotions.join(", ") : (Array.isArray(result.emotional_landscape) ? result.emotional_landscape.join(", ") : ""),
+        soundscape: result.soundscape ?? "",
+        objective: result.objective ?? "",
+        visual_effect: result.visual_effect ?? "",
+        ambient_sound: typeof result.ambient_sound === "string" ? result.ambient_sound : "",
+      });
+    })();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [result, videoUri, saved]);
 

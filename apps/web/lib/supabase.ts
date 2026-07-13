@@ -35,6 +35,18 @@ export async function saveSimulationToSupabase(simulation: {
   return data
 }
 
+// Replace a simulation's temporary video-proxy URL with a permanent Cloudinary URL.
+export async function updateSimulationVideoUrl(id: string | number, cloudinaryUrl: string) {
+  const supabase = getSupabase()
+  if (!supabase) return null
+  const { data, error } = await supabase
+    .from('simulations')
+    .update({ video_url: cloudinaryUrl })
+    .eq('id', id)
+  if (error) console.error('Supabase video_url update error:', error)
+  return data
+}
+
 export async function getSimulationsFromSupabase() {
   const supabase = getSupabase()
   if (!supabase) return []
