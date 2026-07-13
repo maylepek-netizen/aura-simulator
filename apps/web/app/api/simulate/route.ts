@@ -3,6 +3,115 @@ import { generateSceneImage } from "@/lib/gemini";
 
 const GEMINI_MODEL = "gemini-2.5-flash";
 
+// ─── Video prompt: two-step classification pipeline ──────────────────────────
+// Step 1: a fast Gemini call classifies the situation (environment A–F +
+// optional modifier + load). Step 2: we assemble the exact directing text from
+// the blocks below. The video_prompt is built by OUR code, not written by Gemini.
+
+type Environment = "A" | "B" | "C" | "D" | "E" | "F";
+type Modifier = "monotropy" | "sudden_stimulus" | "hyperfocus_positive" | null;
+type LoadLevel = "low" | "medium" | "high" | "shutdown";
+
+const ENVIRONMENT_BLOCKS: Record<Environment, string> = {
+  A: `Wide open shot at eye level. Natural depth of field, the whole frame is sharp and stable. Camera movement is smooth and calm, following the gaze at an unhurried pace. Warm natural light. Nothing competes for attention.`,
+
+  B: `Eye level in a familiar gathering. The frame is mostly stable but the gaze cannot rest on faces for long — it drifts to hands, a cup, a pattern on the table, then reluctantly returns. Warm light, comfortable but slightly effortful. A gentle processing delay before reacting to who is speaking.`,
+
+  C: `The camera avoids eye contact: the stranger's face stays out of frame or softly out of focus. Intense close-up on a single detail instead — the fabric of their shirt, a mole, the watch on their wrist. Space feels intrusive and slightly too close. When the camera drifts toward the face, it automatically slides back down to peripheral details.`,
+
+  D: `Very fast focus pulls between different people's mouths as they speak. The camera can never hold the full picture — whoever is not speaking dissolves into a blurred stain. Each focus shift arrives slightly too late, as if attention is always catching up.`,
+
+  E: `The camera darts uncontrollably toward light sources, flashing signs and the sharp movement of cars — attention is captured, not directed. Slight overexposure when sunlight reflects off surfaces. Camera movement is heavy and slow when trying to navigate forward, a feeling of pushing against a current, while the darting glances stay fast.`,
+
+  F: `Complete loss of visual hierarchy. The edges of the frame darken and narrow gradually (subtle tunnel vision, physically plausible like exhaustion, not a graphic vignette effect). Fast harsh cuts between fragments — faces, hands, lights — everything happens in the present but the rhythm is dizzying. Toward the end of the loop, movement slows as if the body stops responding.`,
+};
+
+const MODIFIER_BLOCKS: Record<Exclude<Modifier, null>, string> = {
+  monotropy: `One small object holds the entire attention: sharp focus on it, the surrounding scene softly blurred behind. The camera drifts around the object in a very slow arc. The world exists only at the edges.`,
+
+  sudden_stimulus: `The camera is completely neutral and still — until one single sharp moment mid-loop (a shout, a door, a balloon) when the frame snaps toward the source, then slowly returns. One quiet beat right before the spike.`,
+
+  hyperfocus_positive: `Static wide comfortable frame. Nothing moves except the activity itself. Time feels suspended, stable and pleasant. No external stimulus enters the frame.`,
+};
+
+const UNIVERSAL_RULES = `
+ALWAYS:
+- First person POV, realistic human eye level
+- One dominant sensory element per loop
+- Seamless loop: last frame returns to first frame state
+- Lens, focus and movement do the work — not filters
+
+NEVER:
+- Fisheye/swirl/psychedelic color distortions
+- Heavy camera shake (GoPro style)
+- Distorted or monstrous faces
+- Medical lab aesthetic or flickering screens
+- Any surrealist effects
+- No protagonist body/hands/face visible — pure POV
+`;
+
+// Fast classification call — returns the environment/modifier/load for a situation.
+async function classifyEnvironment(situation: string, apiKey: string): Promise<{
+  environment: Environment;
+  modifier: Modifier;
+  load_level: LoadLevel;
+}> {
+  const prompt =
+    `Classify this situation for an autism sensory simulation. Return ONLY valid JSON.\n\n` +
+    `Situation: ${situation}\n\n` +
+    `Environment types:\n` +
+    `A = home/familiar space (low load)\n` +
+    `B = close friends/family gathering\n` +
+    `C = interaction with stranger/service worker\n` +
+    `D = classroom/work meeting/small group (3-6 people)\n` +
+    `E = street/mall/public transport/crowded outdoor\n` +
+    `F = large crowd/party/event/shutdown level\n\n` +
+    `Modifier (choose ONE or null):\n` +
+    `- monotropy: situation mentions focusing on specific object/detail\n` +
+    `- sudden_stimulus: situation mentions sudden noise/unexpected event\n` +
+    `- hyperfocus_positive: situation involves beloved hobby/interest\n\n` +
+    `Return: {"environment": "X", "modifier": "X or null", "load_level": "low|medium|high|shutdown"}`;
+
+  const fallback = { environment: "A" as Environment, modifier: null as Modifier, load_level: "medium" as LoadLevel };
+
+  try {
+    const res = await fetch(
+      "https://generativelanguage.googleapis.com/v1beta/models/" + GEMINI_MODEL + ":generateContent?key=" + apiKey,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ role: "user", parts: [{ text: prompt }] }],
+          generationConfig: { temperature: 0.2, maxOutputTokens: 200 },
+        }),
+      }
+    );
+    if (!res.ok) return fallback;
+    const data = await res.json();
+    const raw = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+    const cleaned = raw.replace(/```json/gi, "").replace(/```/g, "").trim();
+    const parsed = JSON.parse(cleaned);
+    const env: Environment = ["A", "B", "C", "D", "E", "F"].includes(parsed.environment) ? parsed.environment : "A";
+    const mod: Modifier = ["monotropy", "sudden_stimulus", "hyperfocus_positive"].includes(parsed.modifier) ? parsed.modifier : null;
+    const load: LoadLevel = ["low", "medium", "high", "shutdown"].includes(parsed.load_level) ? parsed.load_level : "medium";
+    return { environment: env, modifier: mod, load_level: load };
+  } catch {
+    return fallback;
+  }
+}
+
+// Assemble the final video prompt from the classification.
+function buildDirectingBlock(
+  classification: { environment: Environment; modifier: Modifier; load_level: LoadLevel },
+  situation: string
+): string {
+  const envBlock = ENVIRONMENT_BLOCKS[classification.environment] ?? ENVIRONMENT_BLOCKS.A;
+  const modBlock = classification.modifier ? MODIFIER_BLOCKS[classification.modifier] : "";
+  return [envBlock, modBlock, UNIVERSAL_RULES, `Scene: ${situation}`]
+    .filter(Boolean)
+    .join("\n\n");
+}
+
 const RESEARCH_CONTEXT =
   "Key research grounding this simulation:\n" +
   "[DEP] Milton et al. — Double Empathy Problem (2022): 'the double empathy problem refers to a breakdown in mutual understanding — a problem for both parties — interaction between autistic and non-autistic people as a primarily mutual and interpersonal issue.' → Social situations feel confusing and unsafe not because of a deficit but because of a genuine mismatch in communication styles.\n" +
@@ -47,67 +156,7 @@ function loadVisuals(load: number): string {
   return "severe chromatic aberration with red/blue fringing, extreme overexposure on light sources, faces completely distorted, fast jump cuts, flickering, panic-inducing camera movement";
 }
 
-function ageApproximateCameraHeight(age: number): string {
-  if (age >= 5 && age <= 12) return "approximately 1.0m";
-  if (age >= 13 && age <= 17) return "approximately 1.5m";
-  return "approximately 1.6-1.7m";
-}
-
-function buildVideoPromptInstructions(age: number, gender: string, situation: string): string {
-  const camHeight = ageApproximateCameraHeight(age);
-
-  return (
-    "Write a video prompt in English. Maximum 1000 characters. Plain string, not JSON.\n\n" +
-    "SITUATION: \"" + situation + "\"\n" +
-    "Camera height: " + camHeight + " (eye level) — state it explicitly in the prompt.\n\n" +
-    "CORE PRINCIPLE:\n" +
-    "ABSOLUTE RULE - NEVER VIOLATE:\n" +
-    "This video is shot FROM the person's eyes. We NEVER see the person themselves.\n" +
-    "- No face, no body, no hands, no feet, no reflection, no shadow of the PROTAGONIST (the person whose eyes we see). Other people's faces ARE allowed and encouraged when they are directly interacting with the viewer.\n" +
-    "- The camera IS their eyes - we see what THEY see, not them\n" +
-    "- Other people may appear in the scene, but never the protagonist themselves\n" +
-    "- If the situation says 'I am looking at the ceiling' → we see the ceiling, not a person looking up\n" +
-    "BANNED VISUAL ELEMENTS - never include these:\n" +
-    "- Magical glowing circles, orbs, or light effects\n" +
-    "- Sparkles, particles, or supernatural glows\n" +
-    "- Hands as the primary subject (hands may appear but never as the main focus)\n" +
-    "- Any effect that looks CGI, animated, or non-photorealistic\n\n" +
-    "The scene is realistic. The strangeness comes ONLY from the autistic lens - how the camera perceives, not what happens.\n" +
-    "Think: an alien anthropologist observing human behavior. Present but not participating. Studying, not understanding.\n" +
-    "VISUAL VARIETY: Mix between two modes based on situation:\n" +
-    "- PERSON-FOCUSED scenes (one person talking to you): show their face, close, slightly unreadable\n" +
-    "- ENVIRONMENT scenes (crowds, places, alone): hyperfocus on inanimate anchor, people blurred\n\n" +
-    "SITUATION GUIDE:\n" +
-    "ALONE (familiar place): Camera locks on one irrelevant detail. Time stretches. Near silence.\n" +
-    "ALONE (unfamiliar place): Slightly unstable camera. Everything too bright or too loud.\n" +
-    "ONE PERSON (familiar): PRIMARY SUBJECT: Their FACE. Not their hands. Not objects they hold. Their face. Camera cannot maintain eye contact but IS drawn back to their face. Their expressions look slightly unreadable - like watching someone speak a foreign language. Their face fills 40-50% of frame. Eyes seem too intense. Mouth movements don't fully sync with what you expect. Camera drifts: face → their hands → object nearby → back to face involuntarily. FOCUS: Their FACE is the primary focus point, sharp. Hands and objects are secondary - slightly out of focus. The camera keeps returning to the face even when it tries to look away. FACIAL EXPRESSION: Their expression is ambiguous and slightly unsettling - not clearly friendly or hostile. Hard to decode. A smile that might not be a smile. Eyes that hold too long or not long enough. The autistic viewer cannot read what this person is feeling - and that uncertainty feels threatening.\n" +
-    "ONE PERSON (stranger): PRIMARY SUBJECT: Their FACE. Not their hands. Not objects they hold. Their face. Their face uncomfortably close, fills 50-60% of frame. Eyes too direct. Expression hard to decode - is it friendly? Threatening? Camera wants to look away but returns. Their body slightly too close to camera. The stranger's FACE is the primary anchor - not their hands, not objects they hold. Their expression is hard to read - professional but unreadable. Camera is drawn to their face even though it's uncomfortable. FACIAL EXPRESSION: Their expression is ambiguous and slightly unsettling - not clearly friendly or hostile. Hard to decode. A smile that might not be a smile. Eyes that hold too long or not long enough. The autistic viewer cannot read what this person is feeling - and that uncertainty feels threatening.\n" +
-    "SMALL GROUP (familiar, 2-5): Camera outside the group. Invisible barrier. They talk to each other, not to viewer. FACES: When camera drifts to their faces, expressions are warm but somehow unreadable - like watching people through glass. Laughter feels foreign. Eye contact between them feels like a code you can't crack.\n" +
-    "SMALL GROUP (strangers): Rapid scanning. Cannot follow conversation. Lost. FACES: Multiple faces, all slightly ambiguous. None fully readable. Expressions flicker between friendly and indifferent. Hard to know who is reacting to what. The social code is invisible.\n" +
-    "LARGE CROWD (6+): Chaotic. Everything at equal volume. ONE inanimate anchor object in foreground. People blurred behind.\n" +
-    "QUIET SPACE: Slow camera. Natural textures. Rare peace.\n\n" +
-    "PROMPT FORMAT (always follow this structure):\n" +
-    "CAMERA: [position and behavior - locked/slow drift/unstable] at " + camHeight + " eye level. Extremely slow involuntary drift - like the camera is losing focus, barely held steady. As if consciousness is slightly slipping. The kind of slow unfocused movement you see when a character in a film is about to faint or dissociate.\n" +
-    "ANCHOR: [one hyper-specific object - material, color, distance, texture].\n" +
-    "BACKGROUND: [what exists behind - blurred, never the main focus].\n" +
-    "LIGHT: [specific lighting - fluorescent/window/harsh/soft]. Slightly desaturated at edges, sharp only in the center hyperfocus point. Soft vignette. Like the world is slightly out of reach - present but not fully real. The visual language of dissociation.\n" +
-    "MOTION: [one atmospheric loop motion - dust/steam/flicker/breath].\n" +
-    "SOUND: [amplified natural ambient - no voiceover, no music, no single intelligible voice].\n\n" +
-    "RULES:\n" +
-    "1. ONE moment, ONE anchor object, ONE motion. Nothing more. The anchor is hyper-specific and SMALL in frame (occupies max 20-30% of frame, not center-dominant). Choose objects that make sense for the situation: shoelaces, a crumpled cup on the floor, a sticker on a desk, a phone screen face-down, a food wrapper at the edge. The anchor is in the lower portion of frame, camera looks slightly downward to it naturally. It does NOT fill the entire frame. EXCEPTION: If the situation involves ONE specific person interacting directly with the viewer (parent yelling, friend talking, teacher addressing you), the anchor CAN be that person - but show them at eye level, face in sharp focus filling 40-60% of frame. Their expression ambiguous and hard to read. Hands and clothing visible but secondary and soft. Never a static object when a person is directly addressing you.\n" +
-    "2. Scene must be 100% realistic - only objects that belong in that location.\n" +
-    "3. People in LARGE CROWD scenes never look at camera. In 1-on-1 scenes, brief eye contact is natural.\n" +
-    "4. No morphing, no transitions, no invented gestures, no magical elements.\n" +
-    "5. Colors slightly oversaturated. Sound amplified beyond normal.\n" +
-    "6. Seamless 8-second loop - first frame = last frame.\n" +
-    "7. Setting is contemporary Israel - locations, signage, and people reflect an everyday Israeli environment. Let the situation determine who appears.\n" +
-    "8. NO magical effects, NO light circles, NO glowing orbs, NO supernatural visual elements. Everything must look like it was filmed with a real camera in a real location.\n\n" +
-    "END EVERY PROMPT WITH:\n" +
-    "'Single continuous shot. No cuts. No transitions. Camera at [X]cm. No voiceover. No narration. Seamless loop.'"
-  );
-}
-
-function buildSchema(age: number, gender: string, situation: string): string {
+function buildSchema(gender: string): string {
   return (
     '{\n' +
     '  "sensory_scores": { "auditory": 0, "visual": 0, "tactile": 0, "social": 0 },\n' +
@@ -115,7 +164,6 @@ function buildSchema(age: number, gender: string, situation: string): string {
     '  "visual_effect": "glitch_heavy",\n' +
     '  "scene_caption": "10-15 word ' + captionVoice(gender) + ', describing this exact moment in the situation",\n' +
     '  "monologue": ["thought1","thought2","thought3","thought4","thought5","thought6","thought7","thought8"],\n' +
-    '  "video_prompt": "' + buildVideoPromptInstructions(age, gender, situation).replace(/"/g, "'").replace(/[\r\n\t]/g, " ").replace(/  +/g, " ") + '",\n' +
     '  "sensory_channels": { "auditory": "description", "visual": "description", "tactile": "description", "interoception": "description" },\n' +
     '  "emotions": ["emotion1","emotion2","emotion3"],\n' +
     '  "coping_actions": ["action1","action2","action3"],\n' +
@@ -133,7 +181,7 @@ export async function POST(req: NextRequest) {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) return NextResponse.json({ error: "Missing API key" }, { status: 401 });
 
-    const schema = buildSchema(Number(age), String(gender), String(situation));
+    const schema = buildSchema(String(gender));
 
     const userPrompt =
       "Simulate the internal autistic experience for:\n" +
@@ -141,6 +189,9 @@ export async function POST(req: NextRequest) {
       "Situation: \"" + situation + "\"\n\n" +
       "Return this exact JSON (all text in English):\n" +
       schema;
+
+    // Kick off the fast classification in parallel with the main simulation call.
+    const classificationPromise = classifyEnvironment(String(situation), apiKey);
 
     const res = await fetch(
       "https://generativelanguage.googleapis.com/v1beta/models/" + GEMINI_MODEL + ":generateContent?key=" + apiKey,
@@ -167,6 +218,10 @@ export async function POST(req: NextRequest) {
     const raw = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
     const cleaned = raw.replace(/```json/gi, "").replace(/```/g, "").trim();
     const result = JSON.parse(cleaned);
+
+    // Build the video_prompt from the two-step classification (our code, not Gemini).
+    const classification = await classificationPromise;
+    result.video_prompt = buildDirectingBlock(classification, String(situation));
 
     // Generate reference image for image-to-video pipeline
     let imageBase64: string | null = null;
