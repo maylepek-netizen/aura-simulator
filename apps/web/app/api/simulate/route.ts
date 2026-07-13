@@ -98,6 +98,7 @@ async function classifyEnvironment(situation: string, apiKey: string): Promise<{
     const env: Environment = ["A", "B", "C", "D", "E", "F"].includes(parsed.environment) ? parsed.environment : "A";
     const mod: Modifier = ["monotropy", "sudden_stimulus", "hyperfocus_positive"].includes(parsed.modifier) ? parsed.modifier : null;
     const load: LoadLevel = ["low", "medium", "high", "shutdown"].includes(parsed.load_level) ? parsed.load_level : "medium";
+    console.log("CLASSIFICATION RESULT:", JSON.stringify({ environment: env, modifier: mod, load_level: load }));
     return { environment: env, modifier: mod, load_level: load };
   } catch {
     return fallback;
@@ -110,6 +111,7 @@ function buildDirectingBlock(
   situation: string,
   age: number
 ): string {
+  console.log("DIRECTING BLOCK SELECTED:", classification.environment, classification.modifier);
   const height = age <= 12 ? 105 : age <= 17 ? 145 : 165; // child / teen / adult eye level
   const envBlock = ENVIRONMENT_BLOCKS[classification.environment] ?? ENVIRONMENT_BLOCKS.A;
   const modBlock = classification.modifier ? MODIFIER_BLOCKS[classification.modifier] : "";
