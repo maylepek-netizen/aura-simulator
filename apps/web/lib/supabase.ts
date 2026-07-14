@@ -53,6 +53,7 @@ export async function getSimulationsFromSupabase() {
   const { data, error } = await supabase
     .from('simulations')
     .select('*')
+    .filter('video_url', 'like', 'https://res.cloudinary.com%')
     .order('created_at', { ascending: false })
   if (error) console.error('Supabase fetch error:', error)
   return data || []
