@@ -50,6 +50,107 @@ const SOUND_MAP: Record<string, string> = {
   rain: "/sounds/rain.m4a",
 };
 
+// ─── Synthesized heartbeat (Web Audio) ────────────────────────────────────────
+// Mirrors the heartbeat used on /result: a low sine "thump" whose rate scales
+// with sensory load. Kept minimal here (no ambient/breath layers).
+class HeartbeatEngine {
+  private ctx: AudioContext;
+  private timeout: ReturnType<typeof setTimeout> | null = null;
+  private running = false;
+
+  constructor() {
+    this.ctx = new AudioContext();
+  }
+
+  private bpmForLoad(load: number) {
+    if (load < 40) return 60;
+    if (load <= 70) return 90;
+    return 130;
+  }
+
+  private beatPulse(when: number, gain: number) {
+    gain = gain * 1.4;
+    const osc = this.ctx.createOscillator();
+    const gainNode = this.ctx.createGain();
+    const filter = this.ctx.createBiquadFilter();
+    filter.type = "lowpass";
+    filter.frequency.value = 80;
+    filter.Q.value = 8;
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(55, when);
+    osc.frequency.exponentialRampToValueAtTime(30, when + 0.08);
+    gainNode.gain.setValueAtTime(0, when);
+    gainNode.gain.linearRampToValueAtTime(gain, when + 0.01);
+    gainNode.gain.exponentialRampToValueAtTime(0.001, when + 0.15);
+    osc.connect(filter);
+    filter.connect(gainNode);
+    gainNode.connect(this.ctx.destination);
+    osc.start(when);
+    osc.stop(when + 0.2);
+  }
+
+  private loop(load: number) {
+    if (!this.running) return;
+    const now = this.ctx.currentTime;
+    this.beatPulse(now, 0.9);
+    this.beatPulse(now + 0.12, 0.55);
+    const interval = (60 / this.bpmForLoad(load)) * 1000;
+    this.timeout = setTimeout(() => this.loop(load), interval);
+  }
+
+  start(load: number) {
+    if (this.running) return;
+    this.running = true;
+    if (this.ctx.state === "suspended") this.ctx.resume();
+    this.loop(load);
+  }
+
+  stop() {
+    this.running = false;
+    if (this.timeout) clearTimeout(this.timeout);
+    this.timeout = null;
+    try { this.ctx.suspend(); } catch {}
+  }
+
+  destroy() {
+    this.stop();
+    try { this.ctx.close(); } catch {}
+  }
+}
+
+// matchMedia-based mobile detection (max-width: 768px)
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 768px)");
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+  return isMobile;
+}
+
+// Pulsing eye loading screen — quick visual transition (not waiting on data).
+function LoadingScreen({ visible, isMobile }: { visible: boolean; isMobile: boolean }) {
+  return (
+    <div style={{
+      position: "fixed", inset: 0, zIndex: 60,
+      background: "#0a0807",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      opacity: visible ? 1 : 0,
+      transition: "opacity 0.8s ease",
+      pointerEvents: visible ? "auto" : "none",
+    }}>
+      <img src="/icons/New_logo_eye.svg" alt="" style={{
+        width: isMobile ? 60 : 80,
+        opacity: 0.9,
+        animation: "eye-pulse 1.6s ease-in-out infinite",
+      }} />
+    </div>
+  );
+}
+
 function CyclingMonologue({ lines }: { lines: string[] }) {
   const [idx, setIdx] = useState(0);
   const [opacity, setOpacity] = useState(1);
@@ -83,21 +184,74 @@ function LiveMetricBar({ label, value, color }: { label: string; value: number; 
   );
 }
 
+// Reflection screen shown when the viewer ends the simulation.
+function ReflectionScreen({ onBank, onNew }: { onBank: () => void; onNew: () => void }) {
+  const [visible, setVisible] = useState(false);
+  useEffect(() => { const t = setTimeout(() => setVisible(true), 30); return () => clearTimeout(t); }, []);
+  return (
+    <div style={{
+      position: "fixed", inset: 0, zIndex: 70,
+      background: "#0a0807",
+      display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+      gap: 40, padding: "0 24px",
+      opacity: visible ? 1 : 0, transition: "opacity 0.9s ease",
+    }}>
+      <img src="/icons/New_logo_eye.svg" alt="" style={{ width: 64, opacity: 0.85, animation: "eye-pulse 3s ease-in-out infinite" }} />
+      <h1 style={{
+        fontFamily: "'Amiri', serif", fontSize: "clamp(26px, 6vw, 40px)",
+        color: "rgba(255,255,255,0.92)", margin: 0, textAlign: "center", fontWeight: 400,
+      }}>
+        How did that feel?
+      </h1>
+      <div style={{ display: "flex", flexDirection: "column", gap: 12, width: "100%", maxWidth: 300 }}>
+        <button type="button" onClick={onBank} style={{
+          width: "100%", height: 50, borderRadius: 8,
+          border: "1px solid rgba(255,201,157,0.5)", background: "rgba(255,201,157,0.06)",
+          fontSize: 13, letterSpacing: "0.14em", textTransform: "uppercase",
+          color: "#FFC99D", cursor: "pointer", fontFamily: "var(--font-body)",
+        }}>
+          Simulation Bank
+        </button>
+        <button type="button" onClick={onNew} style={{
+          width: "100%", height: 50, borderRadius: 8,
+          border: "1px solid rgba(255,255,255,0.2)", background: "rgba(255,255,255,0.04)",
+          fontSize: 13, letterSpacing: "0.14em", textTransform: "uppercase",
+          color: "rgba(255,255,255,0.8)", cursor: "pointer", fontFamily: "var(--font-body)",
+        }}>
+          New Simulation
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function BankReplayPage() {
   const navigate = useNavigate();
   const params = useParams();
   const id = params.id as string;
+  const isMobile = useIsMobile();
 
   const [record, setRecord] = useState<SimulationRecord | null>(null);
   const [loading, setLoading] = useState(true);
+  const [transitionLoading, setTransitionLoading] = useState(true); // brief pulsing-eye screen before reveal
+  const [reflecting, setReflecting] = useState(false);
   const [ambientPlaying, setAmbientPlaying] = useState(false);
+  const [heartbeatPlaying, setHeartbeatPlaying] = useState(false);
   const ambientRef = useRef<HTMLAudioElement | null>(null);
+  const heartbeatRef = useRef<HeartbeatEngine | null>(null);
 
   useEffect(() => {
     const found = getSimulationById(id);
     if (found) setRecord(found);
     setLoading(false);
   }, [id]);
+
+  // Quick loading transition — a visual dissolve, not waiting on anything.
+  useEffect(() => {
+    if (loading) return;
+    const t = setTimeout(() => setTransitionLoading(false), 900);
+    return () => clearTimeout(t);
+  }, [loading]);
 
   // Auto-play ambient sound when record loads
   useEffect(() => {
@@ -115,6 +269,17 @@ export default function BankReplayPage() {
     return () => { audio.pause(); audio.src = ""; };
   }, [record]);
 
+  // Auto-play synthesized heartbeat when record loads
+  useEffect(() => {
+    if (!record) return;
+    const result = record.result as SimResult;
+    const engine = new HeartbeatEngine();
+    heartbeatRef.current = engine;
+    engine.start(result.overall_load ?? 50);
+    setHeartbeatPlaying(true);
+    return () => { engine.destroy(); heartbeatRef.current = null; };
+  }, [record]);
+
   function toggleAmbient() {
     const audio = ambientRef.current;
     if (!audio) return;
@@ -122,10 +287,39 @@ export default function BankReplayPage() {
     else { audio.play().catch(() => {}); setAmbientPlaying(true); }
   }
 
+  function toggleHeartbeat() {
+    const engine = heartbeatRef.current;
+    if (!engine) return;
+    if (heartbeatPlaying) { engine.stop(); setHeartbeatPlaying(false); }
+    else { engine.start((record?.result as SimResult)?.overall_load ?? 50); setHeartbeatPlaying(true); }
+  }
+
+  function endSimulation() {
+    ambientRef.current?.pause();
+    heartbeatRef.current?.stop();
+    setAmbientPlaying(false);
+    setHeartbeatPlaying(false);
+    setReflecting(true);
+  }
+
+  const sharedStyle = (
+    <style>{`
+      @import url('https://fonts.googleapis.com/css2?family=Amiri:ital@0;1&display=swap');
+      @keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.8)} }
+      @keyframes eye-pulse { 0%,100%{opacity:0.55;transform:scale(0.94)} 50%{opacity:1;transform:scale(1.06)} }
+      .sound-btn { transition: border-color 0.2s, background 0.2s, color 0.2s; }
+      .sound-btn:hover { border-color: rgba(255,255,255,0.3) !important; }
+      .bank-scroll { overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.08) transparent; }
+      .bank-scroll::-webkit-scrollbar { width: 3px; }
+      .bank-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
+      @keyframes spin { to { transform: rotate(360deg); } }
+    `}</style>
+  );
+
   if (loading) return (
-    <div style={{ position: "fixed", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "#0d0a08" }}>
-      <div style={{ width: 20, height: 20, borderRadius: "50%", border: "1px solid rgba(255,255,255,0.2)", borderTopColor: "rgba(255,255,255,0.8)", animation: "spin 0.8s linear infinite" }} />
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+    <div style={{ position: "fixed", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "#0a0807" }}>
+      {sharedStyle}
+      <img src="/icons/New_logo_eye.svg" alt="" style={{ width: isMobile ? 60 : 80, opacity: 0.9, animation: "eye-pulse 1.6s ease-in-out infinite" }} />
     </div>
   );
 
@@ -146,27 +340,149 @@ export default function BankReplayPage() {
   const panelBg = { background: "linear-gradient(to right, rgba(10,8,6,0.97) 0%, rgba(10,8,6,0.92) 100%)", borderRight: "1px solid rgba(255,255,255,0.06)" };
   const panelBgRight = { background: "linear-gradient(to left, rgba(10,8,6,0.97) 0%, rgba(10,8,6,0.92) 100%)", borderLeft: "1px solid rgba(255,255,255,0.06)" };
 
+  if (reflecting) {
+    return (
+      <>
+        {sharedStyle}
+        <ReflectionScreen onBank={() => navigate("/bank")} onNew={() => navigate("/chat")} />
+      </>
+    );
+  }
+
+  // ─── MOBILE LAYOUT ──────────────────────────────────────────────────────────
+  if (isMobile) {
+    return (
+      <>
+        {sharedStyle}
+        <LoadingScreen visible={transitionLoading} isMobile />
+        <div style={{
+          position: "fixed", inset: 0, background: "#0a0807", display: "flex", flexDirection: "column",
+          opacity: transitionLoading ? 0 : 1, transition: "opacity 0.8s ease",
+        }}>
+          {/* Fixed video area (top) */}
+          <div style={{ position: "relative", width: "100%", height: "42vh", flexShrink: 0, background: "#000" }}>
+            {videoUrl ? (
+              <video src={videoUrl} autoPlay loop playsInline style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+            ) : (
+              <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <span style={{ fontSize: 10, letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.2)" }}>No video saved</span>
+              </div>
+            )}
+            {videoUrl && (
+              <>
+                <div style={{ position: "absolute", inset: 0, background: `rgba(220,80,80,${load / 800})`, mixBlendMode: "screen", pointerEvents: "none" }} />
+                <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at center, transparent 45%, rgba(0,0,0,0.5) 100%)", pointerEvents: "none" }} />
+              </>
+            )}
+            {/* Eye icon (replaces AURA text logo) */}
+            <div style={{ position: "absolute", top: 12, left: 14, display: "flex", alignItems: "center", gap: 8, zIndex: 5 }}>
+              <img src="/icons/New_logo_eye.svg" alt="" style={{ width: 26, opacity: 0.9 }} />
+            </div>
+            {/* Back to bank */}
+            <button type="button" onClick={() => navigate("/bank")} style={{ position: "absolute", top: 12, right: 14, zIndex: 5, height: 30, padding: "0 12px", borderRadius: 6, border: "1px solid rgba(255,255,255,0.2)", background: "rgba(0,0,0,0.4)", fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.75)", cursor: "pointer" }}>
+              ← Bank
+            </button>
+            {/* Load pill */}
+            <div style={{ position: "absolute", bottom: 12, left: 14, zIndex: 5, display: "flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,0.5)", borderRadius: 20, padding: "4px 10px" }}>
+              <div style={{ width: 6, height: 6, borderRadius: "50%", background: loadColor }} />
+              <span style={{ fontSize: 10, letterSpacing: "0.1em", color: "rgba(255,255,255,0.75)" }}>Load {load}%</span>
+            </div>
+          </div>
+
+          {/* Scrollable info panel — all sections, sans-serif */}
+          <div className="bank-scroll" style={{ flex: 1, overflowY: "auto", padding: "18px 20px 24px", fontFamily: "var(--font-body)" }}>
+            {/* Situation */}
+            <p style={{ fontSize: 15, lineHeight: 1.5, color: "rgba(255,255,255,0.82)", margin: "0 0 22px", fontFamily: "var(--font-body)" }}>
+              &ldquo;{record.situation}&rdquo;
+            </p>
+
+            {/* Sound toggles */}
+            <div style={{ display: "flex", gap: 8, marginBottom: 24 }}>
+              <button type="button" onClick={toggleAmbient} className="sound-btn" style={{ flex: 1, height: 40, borderRadius: 6, border: `1px solid ${ambientPlaying ? "rgba(255,201,157,0.5)" : "rgba(255,255,255,0.14)"}`, background: ambientPlaying ? "rgba(255,201,157,0.06)" : "rgba(255,255,255,0.03)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontSize: 12, color: ambientPlaying ? "#FFC99D" : "rgba(255,255,255,0.6)", cursor: "pointer", fontFamily: "var(--font-body)" }}>
+                Environment
+                {ambientPlaying && <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#FFC99D", animation: "pulse-dot 1s infinite" }} />}
+              </button>
+              <button type="button" onClick={toggleHeartbeat} className="sound-btn" style={{ flex: 1, height: 40, borderRadius: 6, border: `1px solid ${heartbeatPlaying ? "rgba(255,193,187,0.5)" : "rgba(255,255,255,0.14)"}`, background: heartbeatPlaying ? "rgba(255,193,187,0.06)" : "rgba(255,255,255,0.03)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontSize: 12, color: heartbeatPlaying ? "#FFC1BB" : "rgba(255,255,255,0.6)", cursor: "pointer", fontFamily: "var(--font-body)" }}>
+                Heartbeat
+                {heartbeatPlaying && <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#FFC1BB", animation: "pulse-dot 0.7s infinite" }} />}
+              </button>
+            </div>
+
+            <MobileSection title="Inner Voices"><CyclingMonologue lines={result.monologue} /></MobileSection>
+
+            <MobileSection title="Sensory Overload">
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                <LiveMetricBar label="Sensory Load" value={load} color={loadColor} />
+                <LiveMetricBar label="Anxiety" value={anxiety} color="#e08c5c" />
+                <LiveMetricBar label="Overstimulation" value={overstim} color="#BCC2FF" />
+              </div>
+            </MobileSection>
+
+            <MobileSection title="Emotions">
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                {result.emotions.map((e, i) => (
+                  <span key={i} style={{ fontSize: 13, color: "rgba(255,201,157,0.85)", border: "1px solid rgba(255,201,157,0.2)", borderRadius: 4, padding: "4px 11px", fontFamily: "var(--font-body)" }}>{e}</span>
+                ))}
+              </div>
+            </MobileSection>
+
+            <MobileSection title="Sensory Channels">
+              {Object.entries(result.sensory_channels).map(([key, val]) => (
+                <div key={key} style={{ marginBottom: 14 }}>
+                  <div style={{ fontSize: 9, letterSpacing: "0.15em", textTransform: "uppercase", color: "rgba(255,255,255,0.3)", marginBottom: 4 }}>{key}</div>
+                  <p style={{ fontSize: 14, lineHeight: 1.55, color: "rgba(255,255,255,0.6)", margin: 0, fontFamily: "var(--font-body)" }}>{val}</p>
+                </div>
+              ))}
+            </MobileSection>
+
+            <MobileSection title="Social Anxiety">
+              <p style={{ fontSize: 14, lineHeight: 1.6, color: "rgba(255,255,255,0.6)", margin: 0, fontFamily: "var(--font-body)" }}>{result.masking_cost}</p>
+            </MobileSection>
+
+            <MobileSection title="Coping Actions">
+              {result.coping_actions.map((a, i) => (
+                <p key={i} style={{ fontSize: 14, lineHeight: 1.55, color: "rgba(255,255,255,0.5)", margin: "0 0 10px", borderLeft: "1px solid rgba(255,255,255,0.08)", paddingLeft: 10, fontFamily: "var(--font-body)" }}>{a}</p>
+              ))}
+            </MobileSection>
+
+            {result.research_tags?.length > 0 && (
+              <MobileSection title="Research Tags">
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
+                  {result.research_tags.map((tag) => (
+                    <span key={tag} style={{ fontSize: 10, letterSpacing: "0.08em", textTransform: "uppercase", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 3, padding: "3px 8px", color: "rgba(255,255,255,0.4)", fontFamily: "var(--font-body)" }}>{tag}</span>
+                  ))}
+                </div>
+              </MobileSection>
+            )}
+
+            <div style={{ fontSize: 10, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.25)", marginTop: 8, fontFamily: "var(--font-body)" }}>
+              {record.name} · {record.gender} · Age {record.age}
+            </div>
+
+            {/* End simulation → reflection */}
+            <button type="button" onClick={endSimulation} style={{ marginTop: 24, width: "100%", height: 50, borderRadius: 8, border: "1px solid rgba(255,255,255,0.25)", background: "rgba(255,255,255,0.06)", fontSize: 13, letterSpacing: "0.16em", textTransform: "uppercase", color: "rgba(255,255,255,0.85)", cursor: "pointer", fontFamily: "var(--font-body)" }}>
+              End Simulation
+            </button>
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  // ─── DESKTOP LAYOUT ─────────────────────────────────────────────────────────
   return (
     <>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Amiri:ital@0;1&display=swap');
-        @keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.8)} }
-        .sound-btn { transition: border-color 0.2s, background 0.2s, color 0.2s; }
-        .sound-btn:hover { border-color: rgba(255,255,255,0.3) !important; }
-        .bank-scroll { overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.08) transparent; }
-        .bank-scroll::-webkit-scrollbar { width: 3px; }
-        .bank-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-      `}</style>
+      {sharedStyle}
+      <LoadingScreen visible={transitionLoading} isMobile={false} />
 
-      <div style={{ position: "fixed", inset: 0, background: "#0d0a08", overflow: "hidden" }}>
+      <div style={{ position: "fixed", inset: 0, background: "#0d0a08", overflow: "hidden", opacity: transitionLoading ? 0 : 1, transition: "opacity 0.8s ease" }}>
 
         {/* ── CENTER VIDEO ── */}
         <div style={{ position: "absolute", top: 0, bottom: 0, left: 280, right: 280 }}>
           {videoUrl ? (
             <video
               src={videoUrl}
-              autoPlay loop muted playsInline
+              autoPlay loop playsInline
               style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
             />
           ) : (
@@ -263,6 +579,13 @@ export default function BankReplayPage() {
                 Environment Sound
                 {ambientPlaying && <div style={{ marginLeft: "auto", width: 6, height: 6, borderRadius: "50%", background: "#FFC99D", animation: "pulse-dot 1s infinite" }} />}
               </button>
+              <button type="button" onClick={toggleHeartbeat} className="sound-btn" style={{ width: "100%", height: 44, borderRadius: 6, border: `1px solid ${heartbeatPlaying ? "rgba(255,193,187,0.5)" : "rgba(255,255,255,0.14)"}`, background: heartbeatPlaying ? "rgba(255,193,187,0.06)" : "rgba(255,255,255,0.03)", display: "flex", alignItems: "center", gap: 10, padding: "0 14px", fontSize: 12, letterSpacing: "0.08em", color: heartbeatPlaying ? "#FFC1BB" : "rgba(255,255,255,0.6)", cursor: "pointer" }}>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
+                  <path d="M8 14s-6-4.5-6-8a4 4 0 0 1 6-3.46A4 4 0 0 1 14 6c0 3.5-6 8-6 8z" stroke={heartbeatPlaying ? "#FFC1BB" : "rgba(255,255,255,0.4)"} strokeWidth="1.2" fill="none"/>
+                </svg>
+                Heartbeat Sound
+                {heartbeatPlaying && <div style={{ marginLeft: "auto", width: 6, height: 6, borderRadius: "50%", background: "#FFC1BB", animation: "pulse-dot 0.7s infinite" }} />}
+              </button>
             </div>
 
             {/* Sensory Overload */}
@@ -299,18 +622,23 @@ export default function BankReplayPage() {
             )}
           </div>
 
-          {/* Bottom load indicator */}
-          <div style={{ padding: "12px 16px", borderTop: "1px solid rgba(255,255,255,0.06)", flexShrink: 0 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-              <span style={{ fontSize: 9, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.25)" }}>Sensory Load</span>
-              <span style={{ fontSize: 9, color: loadColor }}>{load}%</span>
-            </div>
-            <div style={{ height: 2, background: "rgba(255,255,255,0.06)", borderRadius: 1 }}>
-              <div style={{ height: "100%", width: `${load}%`, background: loadColor, borderRadius: 1 }} />
-            </div>
+          {/* End Simulation → reflection */}
+          <div style={{ padding: "14px 16px", borderTop: "1px solid rgba(255,255,255,0.07)", flexShrink: 0 }}>
+            <button type="button" className="sound-btn" onClick={endSimulation} style={{ width: "100%", height: 44, borderRadius: 6, border: "1px solid rgba(255,255,255,0.25)", background: "rgba(255,255,255,0.06)", fontSize: 12, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.85)", cursor: "pointer" }}>
+              End Simulation
+            </button>
           </div>
         </div>
       </div>
     </>
+  );
+}
+
+function MobileSection({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div style={{ marginBottom: 26 }}>
+      <div style={{ fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)", marginBottom: 10, fontFamily: "var(--font-body)" }}>{title}</div>
+      {children}
+    </div>
   );
 }

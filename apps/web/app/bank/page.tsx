@@ -121,11 +121,18 @@ export default function BankPage() {
   const [ageMin, setAgeMin] = useState(5);
   const [ageMax, setAgeMax] = useState(100);
 
-  // Pan state
+  // Pan + zoom state
   const canvasRef = useRef<HTMLDivElement>(null);
   const [offset, setOffset] = useState({ x: -200, y: -100 });
+  const [scale, setScale] = useState(1);
   const dragging = useRef(false);
   const lastPos = useRef({ x: 0, y: 0 });
+
+  // Touch gesture state
+  const pinchDist = useRef<number | null>(null);   // last two-finger distance
+  const pinchScale = useRef(1);                     // scale at pinch start
+  const touchMoved = useRef(false);                 // did the finger move (to distinguish tap from drag)
+  const lastTouch = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
     const all = loadSimulations().slice().reverse();
@@ -151,6 +158,41 @@ export default function BankPage() {
   };
 
   const onMouseUp = () => { dragging.current = false; };
+
+  // ── Touch: one finger pans, two fingers pinch-zoom ──
+  const dist = (a: React.Touch, b: React.Touch) =>
+    Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length === 1) {
+      touchMoved.current = false;
+      lastTouch.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    } else if (e.touches.length === 2) {
+      pinchDist.current = dist(e.touches[0], e.touches[1]);
+      pinchScale.current = scale;
+    }
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    if (e.touches.length === 2 && pinchDist.current != null) {
+      // Pinch to zoom (clamped 0.5×–2.5×)
+      const next = pinchScale.current * (dist(e.touches[0], e.touches[1]) / pinchDist.current);
+      setScale(Math.max(0.5, Math.min(2.5, next)));
+      touchMoved.current = true;
+    } else if (e.touches.length === 1 && pinchDist.current == null) {
+      // One-finger pan
+      const t = e.touches[0];
+      const dx = t.clientX - lastTouch.current.x;
+      const dy = t.clientY - lastTouch.current.y;
+      lastTouch.current = { x: t.clientX, y: t.clientY };
+      if (Math.abs(dx) > 2 || Math.abs(dy) > 2) touchMoved.current = true;
+      setOffset(prev => ({ x: prev.x + dx, y: prev.y + dy }));
+    }
+  };
+
+  const onTouchEnd = (e: React.TouchEvent) => {
+    if (e.touches.length < 2) pinchDist.current = null;
+  };
 
   const [cleaning, setCleaning] = useState(false);
 
@@ -258,14 +300,19 @@ export default function BankPage() {
         onMouseMove={onMouseMove}
         onMouseUp={onMouseUp}
         onMouseLeave={onMouseUp}
-        style={{ position: "absolute", inset: 0, cursor: dragging.current ? "grabbing" : "grab", zIndex: 1 }}
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
+        style={{ position: "absolute", inset: 0, cursor: dragging.current ? "grabbing" : "grab", zIndex: 1, touchAction: "none" }}
       >
         <div style={{
           position: "absolute",
           width: 3000, height: 2000,
           left: offset.x,
           top: offset.y + 56,
-          transition: dragging.current ? "none" : "left 0.05s, top 0.05s",
+          transform: `scale(${scale})`,
+          transformOrigin: "0 0",
+          transition: dragging.current || pinchDist.current != null ? "none" : "transform 0.1s, left 0.05s, top 0.05s",
         }}>
           {!loading && filteredRecords.map((rec, i) => {
             const origIdx = records.indexOf(rec);
@@ -277,7 +324,7 @@ export default function BankPage() {
                   index={i}
                   x={pos.x}
                   y={pos.y}
-                  onOpen={(id) => navigate("/bank/" + id)}
+                  onOpen={(id) => { if (!touchMoved.current) navigate("/bank/" + id); }}
                 />
               </div>
             );
@@ -298,44 +345,47 @@ export default function BankPage() {
 
       {/* Hint */}
       {!loading && records.length > 0 && (
-        <div style={{ position: "fixed", bottom: 20, left: "50%", transform: "translateX(-50%)", fontSize: 9, letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.2)", zIndex: 20, pointerEvents: "none" }}>
-          drag to explore · click to replay
+        <div style={{ position: "fixed", bottom: 76, left: "50%", transform: "translateX(-50%)", fontSize: 9, letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.2)", zIndex: 20, pointerEvents: "none", textAlign: "center" }}>
+          drag / swipe to explore · pinch to zoom · tap to replay
         </div>
       )}
 
-      {/* Research link */}
+      {/* Footer bar */}
       <div style={{
-        position: 'fixed',
-        bottom: 32,
-        right: 32,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'flex-end',
-        gap: 8,
-        zIndex: 20,
+        position: "fixed", bottom: 0, left: 0, right: 0, height: 60, zIndex: 20,
+        background: "linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 60%, transparent 100%)",
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        padding: "0 24px", pointerEvents: "none",
       }}>
-        <span style={{
-          fontSize: 13,
-          color: 'rgba(255,255,255,0.5)',
-          fontFamily: 'Assistant, sans-serif',
-        }}>
-          Want to understand the science behind it?
-        </span>
         <button
           type="button"
-          onClick={() => navigate('/research')}
+          className="filter-btn"
+          onClick={() => navigate("/")}
           style={{
-            background: 'transparent',
-            border: '1px solid rgba(255,201,157,0.5)',
-            color: '#FFC99D',
-            padding: '8px 20px',
-            borderRadius: 12,
-            fontSize: 13,
-            cursor: 'pointer',
-            fontFamily: 'Assistant, sans-serif',
+            pointerEvents: "auto",
+            background: "rgba(255,255,255,0.04)",
+            border: "1px solid rgba(255,255,255,0.15)",
+            color: "rgba(255,255,255,0.7)",
+            padding: "9px 20px", borderRadius: 12, fontSize: 13, cursor: "pointer",
+            fontFamily: "var(--font-body)", letterSpacing: "0.04em",
           }}
         >
-          Explore the Research →
+          ← Back to Start
+        </button>
+        <button
+          type="button"
+          className="filter-btn"
+          onClick={() => navigate("/research")}
+          style={{
+            pointerEvents: "auto",
+            background: "rgba(255,201,157,0.06)",
+            border: "1px solid rgba(255,201,157,0.5)",
+            color: "#FFC99D",
+            padding: "9px 20px", borderRadius: 12, fontSize: 13, cursor: "pointer",
+            fontFamily: "var(--font-body)", letterSpacing: "0.04em",
+          }}
+        >
+          Read the Research →
         </button>
       </div>
     </div>

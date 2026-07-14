@@ -547,6 +547,64 @@ function ProcessingMetrics({ visible, onComplete }: { visible: boolean; onComple
   );
 }
 
+// ─── Mobile detection ─────────────────────────────────────────────────────────
+
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 768px)");
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+  return isMobile;
+}
+
+// ─── Reflection screen ────────────────────────────────────────────────────────
+// Shown when the viewer ends the simulation, in place of navigating to /summary.
+
+function ReflectionScreen({ onBank, onNew }: { onBank: () => void; onNew: () => void }) {
+  const [visible, setVisible] = useState(false);
+  useEffect(() => { const t = setTimeout(() => setVisible(true), 30); return () => clearTimeout(t); }, []);
+  return (
+    <div style={{
+      position: "fixed", inset: 0, zIndex: 70,
+      background: "#0a0807",
+      display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+      gap: 40, padding: "0 24px",
+      opacity: visible ? 1 : 0, transition: "opacity 0.9s ease",
+    }}>
+      <style>{`@keyframes eye-pulse { 0%,100%{opacity:0.55;transform:scale(0.94)} 50%{opacity:1;transform:scale(1.06)} }`}</style>
+      <img src="/icons/New_logo_eye.svg" alt="" style={{ width: 64, opacity: 0.85, animation: "eye-pulse 3s ease-in-out infinite" }} />
+      <h1 style={{
+        fontFamily: "'Amiri', serif", fontSize: "clamp(26px, 6vw, 40px)",
+        color: "rgba(255,255,255,0.92)", margin: 0, textAlign: "center", fontWeight: 400,
+      }}>
+        How did that feel?
+      </h1>
+      <div style={{ display: "flex", flexDirection: "column", gap: 12, width: "100%", maxWidth: 300 }}>
+        <button type="button" onClick={onBank} style={{
+          width: "100%", height: 50, borderRadius: 8,
+          border: "1px solid rgba(255,201,157,0.5)", background: "rgba(255,201,157,0.06)",
+          fontSize: 13, letterSpacing: "0.14em", textTransform: "uppercase",
+          color: "#FFC99D", cursor: "pointer", fontFamily: "var(--font-body)",
+        }}>
+          Simulation Bank
+        </button>
+        <button type="button" onClick={onNew} style={{
+          width: "100%", height: 50, borderRadius: 8,
+          border: "1px solid rgba(255,255,255,0.2)", background: "rgba(255,255,255,0.04)",
+          fontSize: 13, letterSpacing: "0.14em", textTransform: "uppercase",
+          color: "rgba(255,255,255,0.8)", cursor: "pointer", fontFamily: "var(--font-body)",
+        }}>
+          New Simulation
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // ─── Tooltip wrapper ──────────────────────────────────────────────────────────
 
 function Tooltip({ text, children }: { text: string; children: React.ReactNode }) {
@@ -676,6 +734,8 @@ function Sparkline({ color, label }: { color: string; label: string }) {
 export default function ResultPage() {
   const router = useRouter();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
+  const [reflecting, setReflecting] = useState(false);
 
   const [snapshot] = useState(() => {
     if (typeof window === "undefined")
@@ -1138,6 +1198,17 @@ export default function ResultPage() {
       });
     }
 
+    // Stop simulation audio (ambient / heartbeat / narration) before reflecting
+    ambientEngineRef.current?.stop();
+    setHeartbeatPlaying(false);
+    if (ambientAudioRef.current) { ambientAudioRef.current.pause(); ambientAudioRef.current = null; }
+    setAmbientPlaying(false);
+    stopNarration();
+
+    // Pause the video
+    videoRef.current?.pause();
+    setVideoPaused(true);
+
     // Fade background music back in over 3 seconds
     if (typeof window !== "undefined" && window.backgroundMusic) {
       window.backgroundMusic.volume = 0;
@@ -1152,9 +1223,152 @@ export default function ResultPage() {
       }, 100);
     }
 
-    setFadingOut(true);
-    setTimeout(() => navigate("/summary"), 1500);
+    // Show the reflection screen in place of navigating to /summary
+    setReflecting(true);
   };
+
+  if (reflecting) {
+    return <ReflectionScreen onBank={() => navigate("/bank")} onNew={() => navigate("/chat")} />;
+  }
+
+  // ─── MOBILE LAYOUT ──────────────────────────────────────────────────────────
+  // Video pinned to the top, all data sections scrollable below in sans-serif.
+  // Eye icon replaces any text logo. The loading ritual still overlays until done.
+  if (isMobile) {
+    return (
+      <div style={{ position: "fixed", inset: 0, overflow: "hidden", background: "#0a0807", opacity: fadingOut ? 0 : 1, transition: "opacity 1.5s ease-in-out", display: "flex", flexDirection: "column" }}>
+        <style>{`
+          @import url('https://fonts.googleapis.com/css2?family=Amiri:ital@0;1&display=swap');
+          @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:0.3} }
+          .result-scroll::-webkit-scrollbar { width: 2px; }
+          .result-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius:2px; }
+        `}</style>
+
+        {/* Loading ritual overlays everything until it completes */}
+        <ProcessingMetrics visible={processingVisible} onComplete={() => setLoadingDone(true)} />
+
+        {/* Video (top) */}
+        <div style={{ position: "relative", width: "100%", height: "42vh", flexShrink: 0, background: "#000" }}>
+          {videoUrl && (
+            <video ref={videoRef} src={videoUrl} autoPlay loop playsInline
+              onPlay={handleVideoPlay} onTimeUpdate={handleTimeUpdate}
+              style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: videoVisible ? 1 : 0, transition: "opacity 1.4s ease" }} />
+          )}
+          {videoUrl && (
+            <>
+              <div style={{ position: "absolute", inset: 0, background: `rgba(220,80,80,${load / 800})`, mixBlendMode: "screen", pointerEvents: "none" }} />
+              <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at center, transparent 45%, rgba(0,0,0,0.5) 100%)", pointerEvents: "none" }} />
+            </>
+          )}
+          {/* Eye icon (replaces text logo) */}
+          <div style={{ position: "absolute", top: 12, left: 14, display: "flex", alignItems: "center", gap: 8, zIndex: 5 }}>
+            <img src="/icons/New_logo_eye.svg" alt="" style={{ width: 26, opacity: 0.9 }} />
+          </div>
+          {/* Load pill */}
+          {result && (
+            <div style={{ position: "absolute", bottom: 12, left: 14, zIndex: 5, display: "flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,0.5)", borderRadius: 20, padding: "4px 10px" }}>
+              <div style={{ width: 6, height: 6, borderRadius: "50%", background: loadColor }} />
+              <span style={{ fontSize: 10, letterSpacing: "0.1em", color: "rgba(255,255,255,0.75)" }}>Load {load}%</span>
+            </div>
+          )}
+          {videoUrl && (
+            <button type="button" onClick={toggleVideo} style={{ position: "absolute", bottom: 12, right: 14, zIndex: 5, background: "rgba(0,0,0,0.45)", border: "1px solid rgba(255,255,255,0.2)", borderRadius: 50, width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
+              {videoPaused
+                ? <svg width="11" height="13" viewBox="0 0 12 14" fill="white"><path d="M0 0l12 7-12 7V0z"/></svg>
+                : <svg width="11" height="13" viewBox="0 0 12 14" fill="white"><rect x="0" y="0" width="4" height="14"/><rect x="8" y="0" width="4" height="14"/></svg>}
+            </button>
+          )}
+        </div>
+
+        {/* Scrollable info panel (all sections, sans-serif) */}
+        <div className="result-scroll" style={{ flex: 1, overflowY: "auto", padding: "18px 20px 24px", fontFamily: "var(--font-body)" }}>
+          {snapshot.situation && (
+            <p style={{ fontSize: 15, lineHeight: 1.5, color: "rgba(255,255,255,0.82)", margin: "0 0 22px", fontFamily: "var(--font-body)" }}>
+              &ldquo;{snapshot.situation}&rdquo;
+            </p>
+          )}
+
+          {/* Sound toggles */}
+          <div style={{ display: "flex", gap: 8, marginBottom: 24, flexWrap: "wrap" }}>
+            <button type="button" onClick={toggleNarration} className="sound-btn" style={{ flex: "1 1 44%", height: 40, borderRadius: 6, border: `1px solid ${audioPlaying ? "rgba(188,194,255,0.5)" : "rgba(255,255,255,0.14)"}`, background: audioPlaying ? "rgba(188,194,255,0.08)" : "rgba(255,255,255,0.03)", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 12, color: audioPlaying ? "#BCC2FF" : "rgba(255,255,255,0.6)", cursor: "pointer", fontFamily: "var(--font-body)" }}>
+              Inner Thoughts
+              {audioPlaying && <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#BCC2FF", animation: "pulse-dot 1s infinite" }} />}
+            </button>
+            <button type="button" onClick={toggleAmbient} className="sound-btn" style={{ flex: "1 1 44%", height: 40, borderRadius: 6, border: `1px solid ${ambientPlaying ? "rgba(255,201,157,0.5)" : "rgba(255,255,255,0.14)"}`, background: ambientPlaying ? "rgba(255,201,157,0.06)" : "rgba(255,255,255,0.03)", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 12, color: ambientPlaying ? "#FFC99D" : "rgba(255,255,255,0.6)", cursor: "pointer", fontFamily: "var(--font-body)" }}>
+              Environment
+              {ambientPlaying && <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#FFC99D", animation: "pulse-dot 1s infinite" }} />}
+            </button>
+            <button type="button" onClick={toggleHeartbeat} className="sound-btn" style={{ flex: "1 1 44%", height: 40, borderRadius: 6, border: `1px solid ${heartbeatPlaying ? "rgba(255,193,187,0.5)" : "rgba(255,255,255,0.14)"}`, background: heartbeatPlaying ? "rgba(255,193,187,0.06)" : "rgba(255,255,255,0.03)", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 12, color: heartbeatPlaying ? "#FFC1BB" : "rgba(255,255,255,0.6)", cursor: "pointer", fontFamily: "var(--font-body)" }}>
+              Heartbeat
+              {heartbeatPlaying && <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#FFC1BB", animation: "pulse-dot 0.7s infinite" }} />}
+            </button>
+          </div>
+
+          {result && (
+            <>
+              <MobileResultSection title="Inner Voices"><CyclingMonologue lines={result.monologue} /></MobileResultSection>
+
+              <MobileResultSection title="Sensory Overload">
+                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  <LiveMetricBar label="Sensory Load" value={liveLoad} color={loadColor} tooltip="How overwhelmed the senses are right now" />
+                  <LiveMetricBar label="Anxiety" value={liveAnxiety} color="#e08c5c" tooltip="Physiological and social anxiety level" />
+                  <LiveMetricBar label="Overstimulation" value={liveMasking} color="#BCC2FF" tooltip="Total sensory overload accumulation" />
+                </div>
+              </MobileResultSection>
+
+              <MobileResultSection title="Emotions">
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                  {result.emotions.map((e, i) => (
+                    <span key={i} style={{ fontSize: 13, color: "rgba(255,201,157,0.85)", border: "1px solid rgba(255,201,157,0.2)", borderRadius: 4, padding: "4px 11px", fontFamily: "var(--font-body)" }}>{e}</span>
+                  ))}
+                </div>
+              </MobileResultSection>
+
+              <MobileResultSection title="Sensory Channels">
+                {Object.entries(result.sensory_channels).map(([key, val]) => (
+                  <div key={key} style={{ marginBottom: 14 }}>
+                    <div style={{ fontSize: 9, letterSpacing: "0.15em", textTransform: "uppercase", color: "rgba(255,255,255,0.3)", marginBottom: 4 }}>{key}</div>
+                    <p style={{ fontSize: 14, lineHeight: 1.55, color: "rgba(255,255,255,0.6)", margin: 0, fontFamily: "var(--font-body)" }}>{val}</p>
+                  </div>
+                ))}
+              </MobileResultSection>
+
+              <MobileResultSection title="Social Anxiety">
+                <p style={{ fontSize: 14, lineHeight: 1.6, color: "rgba(255,255,255,0.6)", margin: 0, fontFamily: "var(--font-body)" }}>{result.masking_cost}</p>
+              </MobileResultSection>
+
+              <MobileResultSection title="Coping Actions">
+                {result.coping_actions.map((a, i) => (
+                  <p key={i} style={{ fontSize: 14, lineHeight: 1.55, color: "rgba(255,255,255,0.5)", margin: "0 0 10px", borderLeft: "1px solid rgba(255,255,255,0.08)", paddingLeft: 10, fontFamily: "var(--font-body)" }}>{a}</p>
+                ))}
+              </MobileResultSection>
+
+              {result.research_tags?.length > 0 && (
+                <MobileResultSection title="Research Tags">
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
+                    {result.research_tags.map((tag) => (
+                      <span key={tag} style={{ fontSize: 10, letterSpacing: "0.08em", textTransform: "uppercase", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 3, padding: "3px 8px", color: "rgba(255,255,255,0.4)", fontFamily: "var(--font-body)" }}>{tag}</span>
+                    ))}
+                  </div>
+                </MobileResultSection>
+              )}
+
+              <button type="button" onClick={handleEndSimulation} style={{ marginTop: 12, width: "100%", height: 50, borderRadius: 8, border: "1px solid rgba(255,255,255,0.25)", background: "rgba(255,255,255,0.06)", fontSize: 13, letterSpacing: "0.16em", textTransform: "uppercase", color: "rgba(255,255,255,0.85)", cursor: "pointer", fontFamily: "var(--font-body)" }}>
+                End Simulation
+              </button>
+            </>
+          )}
+
+          {error && !loading && (
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14, padding: "24px 0" }}>
+              <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", textAlign: "center" }}>{error}</p>
+              <button type="button" onClick={() => void runSimulation()} style={{ fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", border: "1px solid rgba(255,255,255,0.2)", borderRadius: 4, padding: "8px 16px", color: "rgba(255,255,255,0.6)", background: "transparent", cursor: "pointer" }}>Retry</button>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ position: "fixed", inset: 0, overflow: "hidden", background: "#0d0a08", opacity: fadingOut ? 0 : 1, transition: "opacity 1.5s ease-in-out" }}>
@@ -1454,6 +1668,15 @@ export default function ResultPage() {
           </Tooltip>
         </div>
       )}
+    </div>
+  );
+}
+
+function MobileResultSection({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div style={{ marginBottom: 26 }}>
+      <div style={{ fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)", marginBottom: 10, fontFamily: "var(--font-body)" }}>{title}</div>
+      {children}
     </div>
   );
 }
