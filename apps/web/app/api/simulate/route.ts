@@ -111,14 +111,63 @@ function buildDirectingBlock(
   situation: string,
   age: number
 ): string {
-  console.log("DIRECTING BLOCK SELECTED:", classification.environment, classification.modifier);
-  const height = age <= 12 ? 105 : age <= 17 ? 145 : 165; // child / teen / adult eye level
-  const envBlock = ENVIRONMENT_BLOCKS[classification.environment] ?? ENVIRONMENT_BLOCKS.A;
-  const modBlock = classification.modifier ? MODIFIER_BLOCKS[classification.modifier] : "";
-  const rules = UNIVERSAL_RULES.replace("[AGE_HEIGHT]", String(height));
-  return [envBlock, modBlock, rules, `Scene: ${situation}`, "IMPORTANT: No real people, no celebrities, no named individuals. All people are anonymous fictional characters only."]
+  const height = age <= 12 ? 105 : age <= 17 ? 145 : 165;
+
+  const CAMERA_BEHAVIORS: Record<Environment, string> = {
+    A: "locked-off tripod, micro-tremor only",
+    B: "slow involuntary drift between face and nearby objects, 0.5s processing delay",
+    C: "slides away from face toward clothing details, returns reluctantly",
+    D: "fast rack focus between speakers, always 0.3s late",
+    E: "heavy slow forward motion with sudden involuntary glances left/right (0.2s snap)",
+    F: "rapid cuts between face fragments, edges darkening gradually"
+  };
+
+  const FRAMING: Record<Environment, string> = {
+    A: "close-up on one small mundane detail, 30% of frame center",
+    B: "medium shot, face fills 50% of frame",
+    C: "face at frame edge soft focus, clothing detail sharp center",
+    D: "tight group shot, claustrophobic",
+    E: "wide shot, crowd looming larger than normal",
+    F: "extreme close-ups fragmenting the scene"
+  };
+
+  const LIGHTING: Record<Environment, string> = {
+    A: "warm afternoon window light, soft halation on lamps",
+    B: "domestic interior light, slightly overexposed",
+    C: "neutral indoor light, person feels too close",
+    D: "harsh fluorescent, too bright, clinical",
+    E: "overexposed daylight, aggressive reflections on glass",
+    F: "blinding overhead lights, vignette growing darker at edges"
+  };
+
+  const AUDIO: Record<Environment, string> = {
+    A: "audio:: refrigerator hum, distant traffic, thick silence between sounds",
+    B: "audio:: voice too loud and close, background sounds compete equally",
+    C: "audio:: breathing amplified, fabric rustle, words losing meaning",
+    D: "audio:: overlapping voices equal volume, fluorescent hum, chair scrapes",
+    E: "audio:: wall of sound - engines, voices, footsteps all at same volume",
+    F: "audio:: white noise crescendo, high frequency ringing, voices muffled"
+  };
+
+  const MODIFIER_ADD: Record<Exclude<Modifier, null>, string> = {
+    monotropy: "One specific object fills 40% of frame, razor sharp. Everything else at 20% visual weight.",
+    sudden_stimulus: "Camera still for 4s, then single sharp snap to stimulus source, slow return.",
+    hyperfocus_positive: "Static frame, stable and safe. Only the activity moves."
+  };
+
+  const subject = `First-person POV at ${height}cm eye level. No protagonist visible — camera IS their eyes.`;
+  const action = CAMERA_BEHAVIORS[classification.environment];
+  const setting = `Scene: ${situation}`;
+  const framing = FRAMING[classification.environment];
+  const lighting = LIGHTING[classification.environment];
+  const audio = AUDIO[classification.environment];
+  const modifier = classification.modifier ? MODIFIER_ADD[classification.modifier] : "";
+
+  const rules = "Caucasian light-skinned people. Photorealistic documentary 4K. Single continuous 8-second loop. No surreal effects. No protagonist body visible.";
+
+  return [subject, action, framing, lighting, setting, modifier, audio, rules]
     .filter(Boolean)
-    .join("\n\n");
+    .join(" ");
 }
 
 const RESEARCH_CONTEXT =
