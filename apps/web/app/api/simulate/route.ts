@@ -12,48 +12,6 @@ type Environment = "A" | "B" | "C" | "D" | "E" | "F";
 type Modifier = "monotropy" | "sudden_stimulus" | "hyperfocus_positive" | null;
 type LoadLevel = "low" | "medium" | "high" | "shutdown";
 
-const ENVIRONMENT_BLOCKS: Record<Environment, string> = {
-  A: `Eye-level static shot inside a quiet home interior. Camera locked on ONE specific mundane detail — a wall crack, dust particles in window light, a ticking clock face — occupying 30% of frame center, sharp focus. Surrounding room softly out of focus. Camera barely moves, slight breathing tremor only. Warm afternoon light through curtains. 8-second seamless loop: the detail remains fixed, only atmospheric motion (dust, light shift). Light sources (windows, lamps) have soft halation. The silence feels thick. Even small sounds (refrigerator hum, distant traffic) feel present and close.`,
-
-  B: `Eye-level shot with a close person (family member, parent, friend). IF CONFLICT/YELLING: Their face fills 50% of frame, expression intense and hard to decode — mouth moving fast, eyes too direct. Camera involuntarily backs away but face keeps filling frame. Space feels too close, sound feels too loud, their voice dominates everything. IF CALM: Camera drifts between their face (soft focus) → hands → nearby object → back to face. Processing delay visible. People are Caucasian, light-skinned. Warm or neutral domestic lighting.`,
-
-  C: `Eye-level shot. Stranger's face visible at left frame edge, slightly out of focus. Camera fixates on their collar fabric texture, a small mole, or watch strap — close-up, 25cm from lens, sharp. Stranger is Caucasian, light-skinned, speaking toward camera but camera keeps sliding DOWN to their clothing details, never holding eye contact. Space feels 20% too close. Person never looks directly into lens center. The stranger feels physically larger than they are. Their face, even partially visible, carries an unreadable expression — not hostile, not friendly. Unsettling neutral.`,
-
-  D: `Eye-level shot in classroom or meeting room. Multiple Caucasian, light-skinned faces, camera doing fast rack focus: mouth of speaker A (sharp, 0.5s) → blurs as speaker B starts → snaps to B's mouth (sharp, 0.5s) → blurs again. Camera always 0.3s behind the conversation. Background faces are equal-weight visual noise. Fluorescent office lighting. Tight framing, slightly claustrophobic. Fluorescent lights feel harsh and too bright. The room feels smaller than it is. Voices overlap and compete equally with chair scrapes and ventilation hum.`,
-
-  E: `Eye-level walking shot through busy street or shopping mall. Camera movement: heavy slow forward motion with sudden sharp involuntary glances — LEFT to a flash of light (0.2s snap) → back forward → RIGHT to movement (0.2s snap) → back forward. Slight overexposure on glass/metal reflections. People are Caucasian, light-skinned, moving as background crowd. Audio environment implied by visual density. Sunlight reflects off surfaces with aggressive brightness. Crowd feels physically larger — bodies loom. Sound implied by visual density: everything hitting at once.`,
-
-  F: `Eye-level shot in crowded event space. Visual hierarchy completely lost — camera cuts rapidly between face fragments (eyes), hands, overhead lights, exit signs — each cut 0.3-0.5s. Frame edges gradually darken (vignette grows 0-15% during loop, physically motivated by exhaustion). By loop end, movement slows noticeably. Caucasian, light-skinned crowd. Indoor venue. DO NOT use graphic vignette effect — darken gradually and realistically. Lights feel blinding. Bodies feel massive and enclosing. The overwhelm is physical — the frame itself starts to feel too full to contain.`,
-};
-
-const MODIFIER_BLOCKS: Record<Exclude<Modifier, null>, string> = {
-  monotropy: `ADDITIONAL: One object in frame receives 80% of camera attention — extreme close-up, fills 40% of frame, razor sharp. Camera orbits it in ultra-slow arc (360° over 8 seconds). Everything else exists at 20% visual weight.`,
-
-  sudden_stimulus: `ADDITIONAL: Camera completely still for first 4 seconds — then at 4s mark: single sharp involuntary snap toward stimulus source (0.1s movement), freeze, then 3-second slow drift back to original position. One complete cycle per loop.`,
-
-  hyperfocus_positive: `ADDITIONAL: Static wide frame, camera does not move. Only the activity itself has motion. Edges of frame are soft, center is sharp. Atmosphere is stable and safe.`,
-};
-
-const UNIVERSAL_RULES = `
-AUTISTIC SENSORY AMPLIFICATION (always active in all environments):
-- Lights feel 30% brighter than normal — windows and lamps slightly overexposed, halation glow around light sources
-- Colors are slightly oversaturated — reds feel aggressive, whites feel blinding
-- People appear slightly larger than expected — as if the camera has a mild wide angle making figures loom closer
-- Facial expressions feel unreadable and slightly threatening — even neutral faces look ambiguous
-- Everything has equal visual weight — foreground and background compete, no natural hierarchy
-- The camera has a constant micro-tremor — alive, never perfectly still, like a body under stress
-- Space feels slightly too small — walls closer, ceiling lower than they should be
-
-TECHNICAL RULES FOR VEO:
-- Camera IS the protagonist's eyes. Never show protagonist body, hands, face, shadow or reflection.
-- People are Caucasian, light-skinned.
-- Photorealistic. Documentary style. 4K quality.
-- Single continuous shot. Absolutely no cuts unless specified in block F.
-- 8-second seamless loop: last frame must match first frame.
-- No surreal effects. No fisheye. No color distortion. No horror aesthetics.
-- Camera height: [AGE_HEIGHT]cm eye level.
-`;
-
 // Fast classification call — returns the environment/modifier/load for a situation.
 async function classifyEnvironment(situation: string, apiKey: string): Promise<{
   environment: Environment;
@@ -111,6 +69,7 @@ function buildDirectingBlock(
   situation: string,
   age: number
 ): string {
+  console.log("DIRECTING BLOCK SELECTED:", classification.environment, classification.modifier);
   const height = age <= 12 ? 105 : age <= 17 ? 145 : 165;
 
   const CAMERA_BEHAVIORS: Record<Environment, string> = {
@@ -163,7 +122,7 @@ function buildDirectingBlock(
   const audio = AUDIO[classification.environment];
   const modifier = classification.modifier ? MODIFIER_ADD[classification.modifier] : "";
 
-  const rules = "Caucasian light-skinned people. Photorealistic documentary 4K. Single continuous 8-second loop. No surreal effects. No protagonist body visible.";
+  const rules = "Caucasian light-skinned people. Photorealistic documentary 4K. Single continuous 8-second loop. No surreal effects. No protagonist body visible. No real people, no celebrities, no named individuals. All people are anonymous fictional characters only.";
 
   return [subject, action, framing, lighting, setting, modifier, audio, rules]
     .filter(Boolean)
