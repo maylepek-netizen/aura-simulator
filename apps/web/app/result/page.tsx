@@ -588,40 +588,119 @@ function ReflectionScreen({ onBank, onNew }: { onBank: () => void; onNew: () => 
   const [visible, setVisible] = useState(false);
   useEffect(() => { const t = setTimeout(() => setVisible(true), 30); return () => clearTimeout(t); }, []);
   return (
-    <div style={{
-      position: "fixed", inset: 0, zIndex: 70,
-      background: "#0a0807",
-      display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-      gap: 40, padding: "0 24px",
-      opacity: visible ? 1 : 0, transition: "opacity 0.9s ease",
-    }}>
-      <style>{`@keyframes eye-pulse { 0%,100%{opacity:0.55;transform:scale(0.94)} 50%{opacity:1;transform:scale(1.06)} }`}</style>
-      <img src="/icons/New_logo_eye.svg" alt="" style={{ width: 64, opacity: 0.85, animation: "eye-pulse 3s ease-in-out infinite" }} />
-      <h1 style={{
-        fontFamily: "'Amiri', serif", fontSize: "clamp(26px, 6vw, 40px)",
-        color: "rgba(255,255,255,0.92)", margin: 0, textAlign: "center", fontWeight: 400,
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Amiri:ital@0;1&display=swap');
+      `}</style>
+
+      <div style={{
+        position: "fixed", inset: 0, overflow: "hidden", background: "#000", zIndex: 70,
+        opacity: visible ? 1 : 0, transition: "opacity 1.5s ease-in-out",
       }}>
-        How did that feel?
-      </h1>
-      <div style={{ display: "flex", flexDirection: "column", gap: 12, width: "100%", maxWidth: 300 }}>
-        <button type="button" onClick={onBank} style={{
-          width: "100%", height: 50, borderRadius: 8,
-          border: "1px solid rgba(255,201,157,0.5)", background: "rgba(255,201,157,0.06)",
-          fontSize: 13, letterSpacing: "0.14em", textTransform: "uppercase",
-          color: "#FFC99D", cursor: "pointer", fontFamily: "var(--font-body)",
+        {/* Radial gradient */}
+        <div style={{
+          position: "absolute", inset: 0,
+          background: "radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.85) 100%)",
+          pointerEvents: "none",
+        }} />
+
+        {/* Centered content */}
+        <div style={{
+          position: "absolute", inset: 0,
+          display: "flex", flexDirection: "column",
+          alignItems: "center", justifyContent: "center",
+          padding: "0 24px",
+          gap: 0,
         }}>
-          Simulation Bank
-        </button>
-        <button type="button" onClick={onNew} style={{
-          width: "100%", height: 50, borderRadius: 8,
-          border: "1px solid rgba(255,255,255,0.2)", background: "rgba(255,255,255,0.04)",
-          fontSize: 13, letterSpacing: "0.14em", textTransform: "uppercase",
-          color: "rgba(255,255,255,0.8)", cursor: "pointer", fontFamily: "var(--font-body)",
-        }}>
-          New Simulation
-        </button>
+          {/* Italic headline */}
+          <h1 style={{
+            fontFamily: "'Amiri', serif",
+            fontStyle: "italic",
+            fontSize: "clamp(2rem, 4vw, 3.2rem)",
+            color: "#FFC99D",
+            margin: "0 0 8px",
+            textAlign: "center",
+            fontWeight: 400,
+            lineHeight: 1.2,
+          }}>
+            Every perception tells a different story.
+          </h1>
+
+          {/* Main statement */}
+          <p style={{
+            fontFamily: "'Amiri', serif",
+            fontSize: "clamp(1.6rem, 3.2vw, 2.6rem)",
+            color: "white",
+            textAlign: "center",
+            lineHeight: 1.35,
+            fontWeight: 400,
+            margin: "0 0 56px",
+            maxWidth: 820,
+          }}>
+            What you experienced was only one possible<br />interpretation of the world.
+          </p>
+
+          {/* Subtitle */}
+          <p style={{
+            fontSize: "clamp(0.75rem, 1.2vw, 0.95rem)",
+            letterSpacing: "0.22em",
+            textTransform: "uppercase",
+            color: "rgba(255,255,255,0.45)",
+            textAlign: "center",
+            margin: "0 0 64px",
+            fontWeight: 400,
+          }}>
+            Would you like to explore another perspective?
+          </p>
+
+          {/* Buttons */}
+          <div style={{ display: "flex", gap: 20, alignItems: "center", flexWrap: "wrap", justifyContent: "center" }}>
+            <button
+              type="button"
+              onClick={onBank}
+              onMouseEnter={(e) => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.boxShadow = "0 0 16px rgba(255,201,157,0.5)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.opacity = "0.8"; e.currentTarget.style.boxShadow = "none"; }}
+              style={{
+                background: "#FFC99D",
+                color: "#1a0f00",
+                border: "none",
+                borderRadius: 12,
+                padding: "16px 52px",
+                fontSize: 14,
+                letterSpacing: "0.06em",
+                fontWeight: 600,
+                cursor: "pointer",
+                whiteSpace: "nowrap",
+                opacity: 0.8,
+                transition: "all 0.2s ease",
+              }}
+            >
+              Simulation Bank
+            </button>
+
+            <button
+              type="button"
+              className="aura-btn"
+              onClick={onNew}
+              style={{
+                background: "transparent",
+                color: "white",
+                border: "1.5px solid rgba(255,255,255,0.5)",
+                borderRadius: 50,
+                padding: "16px 52px",
+                fontSize: 14,
+                letterSpacing: "0.06em",
+                fontWeight: 400,
+                cursor: "pointer",
+                whiteSpace: "nowrap",
+              }}
+            >
+              New Simulation
+            </button>
+          </div>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
