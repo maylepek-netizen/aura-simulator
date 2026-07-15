@@ -282,6 +282,26 @@ class AmbientSoundEngine {
     this.startAmbientSoundscape(auditoryType, load);
   }
 
+  // Heartbeat ONLY — used to start the heartbeat immediately, before the
+  // breath/soundscape layers (which come in later via startAmbient).
+  startHeartbeat(load: number) {
+    if (this.running) return;
+    this.running = true;
+    if (this.ctx.state === "suspended") this.ctx.resume();
+    this.playHeartbeat(load);
+  }
+
+  // Breath + soundscape layers — started after the heartbeat is already going.
+  // Assumes the engine is already running (from startHeartbeat).
+  startAmbient(load: number, auditoryType: AuditoryType = "default") {
+    if (!this.running) {
+      this.running = true;
+      if (this.ctx.state === "suspended") this.ctx.resume();
+    }
+    this.playBreath(load, true);
+    this.startAmbientSoundscape(auditoryType, load);
+  }
+
   stop() {
     this.running = false;
     if (this.heartbeatTimeout) clearTimeout(this.heartbeatTimeout);
@@ -810,33 +830,38 @@ export default function ResultPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Timed reveal sequence
+  // Timed reveal + audio sequence.
+  // Audio order: heartbeat FIRST (0s) → synth ambient/breath layers (+5s) →
+  // (TTS narration starts at 7s, handled in its own effect below).
   useEffect(() => {
     if (!result) return;
     revealTimersRef.current.forEach(clearTimeout);
     revealTimersRef.current = [];
     const load = result.overall_load ?? 0;
+    const auditoryText = result.sensory_channels?.auditory?.toLowerCase() ?? "";
+    const auditoryType: AuditoryType =
+      auditoryText.includes("scream") || auditoryText.includes("shout") ? "scream"
+      : auditoryText.includes("crowd") || auditoryText.includes("people") ? "crowd"
+      : auditoryText.includes("machine") || auditoryText.includes("buzz") || auditoryText.includes("hum") ? "machine"
+      : "default";
 
-    const t5 = setTimeout(() => { setPanelsVisible(true); }, 10000);
+    // 0s — heartbeat starts immediately.
+    if (!ambientEngineRef.current) {
+      ambientEngineRef.current = new AmbientSoundEngine();
+    }
+    ambientEngineRef.current.startHeartbeat(load);
+    setHeartbeatPlaying(true);
 
-    const t15 = setTimeout(() => {
-      if (!ambientEngineRef.current) {
-        ambientEngineRef.current = new AmbientSoundEngine();
-      }
-      const auditoryText = result.sensory_channels?.auditory?.toLowerCase() ?? "";
-      const auditoryType: AuditoryType =
-        auditoryText.includes("scream") || auditoryText.includes("shout") ? "scream"
-        : auditoryText.includes("crowd") || auditoryText.includes("people") ? "crowd"
-        : auditoryText.includes("machine") || auditoryText.includes("buzz") || auditoryText.includes("hum") ? "machine"
-        : "default";
-      ambientEngineRef.current.start(load, auditoryType);
+    // 5s — synth ambient/breath layers fade in on top of the heartbeat.
+    const tAmbient = setTimeout(() => {
+      ambientEngineRef.current?.startAmbient(load, auditoryType);
       setAmbientPlaying(true);
-      setHeartbeatPlaying(true);
-    }, 15000);
+    }, 5000);
 
-    const t30 = setTimeout(() => { setStimmingActive(true); }, 30000);
+    const tPanels = setTimeout(() => { setPanelsVisible(true); }, 10000);
+    const tStim = setTimeout(() => { setStimmingActive(true); }, 30000);
 
-    revealTimersRef.current = [t5, t15, t30];
+    revealTimersRef.current = [tAmbient, tPanels, tStim];
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [result !== null]);
 
@@ -858,23 +883,46 @@ export default function ResultPage() {
     return () => clearInterval(t);
   }, [result]);
 
-  // Ambient sound
+  // Ambient sound (file) — starts 5s after load, fading in (after the heartbeat).
   useEffect(() => {
     if (!result?.ambient_sound) return;
     const category = result.ambient_sound.toLowerCase().trim();
     const url = SOUND_MAP[category] ?? Object.entries(SOUND_MAP).find(([key]) => category.includes(key))?.[1] ?? AMBIENT_FALLBACK;
+    const targetVolume = Math.min(0.75, 0.55 + (result.overall_load / 100) * 0.2);
     const audio = new Audio(url);
     audio.loop = true;
-    audio.volume = Math.min(0.75, 0.55 + (result.overall_load / 100) * 0.2);
+    audio.volume = 0;
     ambientAudioRef.current = audio;
-    audio.play().catch(() => {
-      document.addEventListener("click", () => audio.play().catch(() => {}), { once: true });
-    });
-    return () => { ambientAudioRef.current?.pause(); ambientAudioRef.current = null; };
+
+    let fade: ReturnType<typeof setInterval> | null = null;
+    const startAmbientFile = () => {
+      audio.play().catch(() => {
+        document.addEventListener("click", () => audio.play().catch(() => {}), { once: true });
+      });
+      // Fade in to the target volume over ~1.5s.
+      fade = setInterval(() => {
+        if (!ambientAudioRef.current) { if (fade) clearInterval(fade); return; }
+        if (audio.volume < targetVolume - 0.03) {
+          audio.volume = Math.min(targetVolume, audio.volume + 0.03);
+        } else {
+          audio.volume = targetVolume;
+          if (fade) clearInterval(fade);
+        }
+      }, 60);
+    };
+
+    const delay = setTimeout(startAmbientFile, 5000);
+
+    return () => {
+      clearTimeout(delay);
+      if (fade) clearInterval(fade);
+      ambientAudioRef.current?.pause();
+      ambientAudioRef.current = null;
+    };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [result?.ambient_sound]);
 
-  // Narration at T=20s
+  // Narration at T=7s (2s after the ambient layers come in at 5s)
   useEffect(() => {
     if (!result) return;
     const timer = setTimeout(() => {
@@ -882,7 +930,7 @@ export default function ResultPage() {
         narrationStartedRef.current = true;
         void startNarration(result);
       }
-    }, 20000);
+    }, 7000);
     return () => clearTimeout(timer);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [result]);
