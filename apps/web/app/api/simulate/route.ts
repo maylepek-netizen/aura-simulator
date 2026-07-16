@@ -132,6 +132,21 @@ NO GLITCH EFFECTS. No digital artifacts. No pixelation. No AI-style morphing.
 All strangeness comes from CAMERA BEHAVIOR and LIGHT, not from visual effects.
 The world looks real - the perception is what's different.
 
+LOOP STRUCTURE - this is critical:
+The 8-second loop must have a natural internal rhythm that creates the seamless loop:
+- Start on anchor detail (object, floor, hand)
+- Camera slowly drifts UP or SIDEWAYS to the social scene (faces, people, environment)
+- Holds there for a moment - faces feel slightly too aware, too close
+- Camera drifts BACK DOWN to the anchor detail
+- End frame = start frame (the anchor detail, same angle)
+
+This drift up-hold-drift down IS the loop. It should feel like an involuntary gaze cycle - the autistic person cannot help returning to the safe anchor detail but keeps getting pulled back to the overwhelming social scene.
+
+Example for cafe alone:
+Start on coffee cup surface (sharp) → slow drift up to other cafe patrons (soft focus, slightly too aware) → hold 2s → slow drift back down to cup → end on cup surface (sharp).
+
+This natural cycle makes the loop invisible.
+
 ABSOLUTE RULES - NEVER VIOLATE:
 - This is 100% first-person POV - the camera IS the autistic person's eyes
 - NEVER show: the protagonist's hands, feet, body, face, reflection in mirror/glass, or shadow
