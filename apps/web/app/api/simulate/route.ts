@@ -102,62 +102,55 @@ async function buildVeoPrompt(
 
   const directingStyle = DIRECTING_STYLES[styleIndex];
 
-  const prompt = `Write a Veo 3.1 Fast video prompt for an autism sensory simulation.
+  const prompt = `You are a cinematic director creating a video prompt for Google Veo 3.1 Fast.
+Create a first-person POV autism sensory simulation video prompt.
 
-The prompt must be exactly 100-130 words. Use this structure:
+USER PROFILE:
+- Age: ${age} years old → Camera height: ${height}cm eye level
+- Situation: "${situation}"
+- Environment type: ${ENVIRONMENT_CONTEXT[classification.environment]}
 
-Shot type + Subject + Action + Setting + Camera + Audio
+REFERENCE STYLE (replicate this cinematic language):
+The video should feel like the reference film "Life, Animated" or sensory overload documentaries:
+- Shaky handheld camera with sudden erratic whip-pans when attention is captured
+- Extremely shallow depth of field - heavy background blur (bokeh)
+- Aggressive rack focus locking onto micro-details (a tile pattern, a light, a texture)
+- Momentary overexposure on bright surfaces - lights feel 40% too bright
+- Subtle dark vignette at edges creating mild tunnel vision
+- Colors slightly oversaturated on the focused detail
 
-SITUATION: "${situation}"
-ENVIRONMENT TYPE: ${ENVIRONMENT_CONTEXT[classification.environment]}
-CAMERA TECHNIQUE: ${directingStyle}
-CAMERA HEIGHT: ${height}cm eye level (first-person POV - we see THROUGH their eyes, never see their body)
+DIRECTING TECHNIQUE FOR THIS SCENE:
+${directingStyle}
 
-MANDATORY VISUAL ELEMENTS (include at least 3 of these in every prompt):
-- Focus pull: start sharp on one element, slowly lose focus, then snap sharp on something unexpected
-- Light overexposure: windows, phone screens, overhead lights feel 40% too bright, almost burning
-- Faces feel threatening even when neutral: slightly too close, expressions unreadable
-- Involuntary gaze: camera drifts to irrelevant detail (floor texture, someone's shoe, ceiling light) then snaps back to social scene
-- People loom slightly larger than normal - mild wide angle distortion making them feel imposing
-- Two competing focal points: camera cannot decide between two things and oscillates
+LOOP STRUCTURE (critical for 8-second seamless loop):
+- Start: camera resting on anchor detail (object, floor, surface) - SHARP FOCUS
+- Middle: camera drifts up/across to social scene - faces feel slightly too aware
+- Return: camera drifts back to anchor detail - SAME SHARP FOCUS as start
+- End frame must perfectly match start frame in composition and camera angle
 
-DIRECTING VARIETY - each situation must feel different. Choose movements that match the situation:
-- On transport (bus/train): camera drifts between faces → floor pattern → window reflections → face again. Faces turn and seem to look back.
-- In classroom: rack focus between mouths of different speakers, always 0.3s too late. Fluorescent lights pulse slightly.
-- With one person: their face fills frame, expression shifts between readable and unreadable. Camera pulls back then gets pulled close again.
-- In crowd: camera overwhelmed, rapid micro-movements, everything at equal visual volume.
-- Alone: camera hyper-focuses on one mundane detail. Time feels thick. Small sounds amplified.
+WRITE THE PROMPT using this template:
+"Realistic first-person POV shot from the exact eye-level of a ${age} year-old.
+Scene: [describe specific setting in detail].
+[Directing instructions based on environment and loop structure above].
+Shaky handheld with sudden whip-pans to [specific detail in this scene].
+Extremely shallow depth of field, heavy bokeh on background.
+Rack focus locks onto [specific micro-detail matching the situation].
+Momentary overexposure on [specific light source in scene].
+Subtle dark vignette at frame edges.
+Seamless 8-second loop: final frame matches opening frame exactly.
+Audio: [specific overwhelming ambient sounds for this situation, all at equal volume].
+No visual glitches. No AI artifacts. Photorealistic."
 
-NO GLITCH EFFECTS. No digital artifacts. No pixelation. No AI-style morphing.
-All strangeness comes from CAMERA BEHAVIOR and LIGHT, not from visual effects.
-The world looks real - the perception is what's different.
+RULES:
+- 100-130 words maximum
+- First-person POV only - never show protagonist face or body (hands are acceptable at bottom of frame if natural)
+- Other people's faces CAN appear - they look slightly unreadable and too-aware
+- Single continuous shot, no cuts
+- No narration, no text on screen
+- White/Caucasian light-skinned people
+- No celebrities or named individuals
 
-LOOP STRUCTURE - this is critical:
-The 8-second loop must have a natural internal rhythm that creates the seamless loop:
-- Start on anchor detail (object, floor, hand)
-- Camera slowly drifts UP or SIDEWAYS to the social scene (faces, people, environment)
-- Holds there for a moment - faces feel slightly too aware, too close
-- Camera drifts BACK DOWN to the anchor detail
-- End frame = start frame (the anchor detail, same angle)
-
-This drift up-hold-drift down IS the loop. It should feel like an involuntary gaze cycle - the autistic person cannot help returning to the safe anchor detail but keeps getting pulled back to the overwhelming social scene.
-
-Example for cafe alone:
-Start on coffee cup surface (sharp) → slow drift up to other cafe patrons (soft focus, slightly too aware) → hold 2s → slow drift back down to cup → end on cup surface (sharp).
-
-This natural cycle makes the loop invisible.
-
-ABSOLUTE RULES - NEVER VIOLATE:
-- This is 100% first-person POV - the camera IS the autistic person's eyes
-- NEVER show: the protagonist's hands, feet, body, face, reflection in mirror/glass, or shadow
-- Other people CAN appear - they are who the protagonist sees
-- Single continuous shot - no cuts, no scene changes, no transitions
-- One location only - do not switch environments mid-video
-- The loop must be seamless - the last frame flows naturally back to the first frame
-- No narration, no subtitles, no text on screen
-- No horror aesthetics - the strangeness comes from perception, not from monsters
-
-Write ONLY the video prompt, nothing else. No explanation.`;
+Write ONLY the video prompt. No explanation. No preamble.`;
 
   try {
     const res = await fetch(
