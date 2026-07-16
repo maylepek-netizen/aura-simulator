@@ -124,6 +124,16 @@ RULES:
 - Audio: tag at end with specific ambient sounds that feel overwhelming
 - No celebrities, no named individuals
 
+ABSOLUTE RULES - NEVER VIOLATE:
+- This is 100% first-person POV - the camera IS the autistic person's eyes
+- NEVER show: the protagonist's hands, feet, body, face, reflection in mirror/glass, or shadow
+- Other people CAN appear - they are who the protagonist sees
+- Single continuous shot - no cuts, no scene changes, no transitions
+- One location only - do not switch environments mid-video
+- The loop must be seamless - the last frame flows naturally back to the first frame
+- No narration, no subtitles, no text on screen
+- No horror aesthetics - the strangeness comes from perception, not from monsters
+
 Write ONLY the video prompt, nothing else. No explanation.`;
 
   try {
