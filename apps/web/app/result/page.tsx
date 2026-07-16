@@ -1541,9 +1541,9 @@ export default function ResultPage() {
 
               <MobileResultSection title="Sensory Overload">
                 <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                  <LiveMetricBar label="Sensory Load" value={liveLoad} color={loadColor} tooltip="How overwhelmed the senses are right now" />
-                  <LiveMetricBar label="Anxiety" value={liveAnxiety} color="#e08c5c" tooltip="Physiological and social anxiety level" />
-                  <LiveMetricBar label="Overstimulation" value={liveMasking} color="#BCC2FF" tooltip="Total sensory overload accumulation" />
+                  <LiveMetricBar label="Sensory Load" value={liveLoad} color="#FFC99D" tooltip="How overwhelmed the senses are right now" />
+                  <LiveMetricBar label="Anxiety" value={liveAnxiety} color="#BCC2FF" tooltip="Physiological and social anxiety level" />
+                  <LiveMetricBar label="Overstimulation" value={liveMasking} color="#FFC1BB" tooltip="Total sensory overload accumulation" />
                 </div>
               </MobileResultSection>
 
@@ -1637,29 +1637,6 @@ export default function ResultPage() {
             src={videoUrl} autoPlay loop playsInline
             onPlay={handleVideoPlay} onTimeUpdate={handleTimeUpdate}
           />
-        )}
-        {videoUrl && (
-          <a
-            href={videoUrl}
-            download="aura-simulation.mp4"
-            target="_blank"
-            style={{
-              position: 'absolute',
-              bottom: 16,
-              left: 16,
-              background: 'rgba(255,201,157,0.15)',
-              border: '1px solid #FFC99D',
-              color: '#FFC99D',
-              padding: '6px 12px',
-              fontSize: 11,
-              letterSpacing: '0.1em',
-              textDecoration: 'none',
-              borderRadius: 4,
-              zIndex: 10,
-            }}
-          >
-            ↓ SAVE
-          </a>
         )}
         {videoUrl && (
           <>
@@ -1796,7 +1773,10 @@ export default function ResultPage() {
             </Tooltip>
             <Tooltip text="Environmental sounds from the scene">
               <button type="button" onClick={toggleAmbient} style={{ width: "100%", height: 44, borderRadius: 6, border: `1px solid ${ambientPlaying ? "rgba(255,201,157,0.5)" : "rgba(255,255,255,0.14)"}`, background: ambientPlaying ? "rgba(255,201,157,0.06)" : "rgba(255,255,255,0.03)", display: "flex", alignItems: "center", gap: 10, padding: "0 14px", fontSize: 12, letterSpacing: "0.08em", color: ambientPlaying ? "#FFC99D" : "rgba(255,255,255,0.6)", cursor: "pointer" }} className="sound-btn">
-                <img src="/icons/ear.svg" alt="" style={{ width: 14, flexShrink: 0, opacity: ambientPlaying ? 1 : 0.6 }} />
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ flexShrink: 0, opacity: ambientPlaying ? 1 : 0.6 }}>
+                  <path d="M3 18v-6a9 9 0 0 1 18 0v6"/>
+                  <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 1 2 2h1a2 2 0 0 1 2-2v-3a2 2 0 0 1-2-2H3z"/>
+                </svg>
                 Environment Sound
                 {ambientPlaying && <div style={{ marginLeft: "auto", width: 6, height: 6, borderRadius: "50%", background: "#FFC99D", animation: "pulse-dot 1s infinite" }} />}
               </button>
@@ -1817,9 +1797,9 @@ export default function ResultPage() {
             <div style={{ marginBottom: 28 }}>
               <div style={{ fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)", marginBottom: 12 }}>Sensory Overload</div>
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                <LiveMetricBar label="Sensory Load" value={liveLoad} color={loadColor} tooltip="How overwhelmed the senses are right now" />
-                <LiveMetricBar label="Anxiety" value={liveAnxiety} color="#e08c5c" tooltip="Physiological and social anxiety level" />
-                <LiveMetricBar label="Overstimulation" value={liveMasking} color="#BCC2FF" tooltip="Total sensory overload accumulation" />
+                <LiveMetricBar label="Sensory Load" value={liveLoad} color="#FFC99D" tooltip="How overwhelmed the senses are right now" />
+                <LiveMetricBar label="Anxiety" value={liveAnxiety} color="#BCC2FF" tooltip="Physiological and social anxiety level" />
+                <LiveMetricBar label="Overstimulation" value={liveMasking} color="#FFC1BB" tooltip="Total sensory overload accumulation" />
               </div>
             </div>
           )}
