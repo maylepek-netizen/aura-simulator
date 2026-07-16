@@ -102,55 +102,31 @@ async function buildVeoPrompt(
 
   const directingStyle = DIRECTING_STYLES[styleIndex];
 
-  const prompt = `You are a cinematic director creating a video prompt for Google Veo 3.1 Fast.
-Create a first-person POV autism sensory simulation video prompt.
+  const prompt = `You are a cinematic director. Create a Veo 3.1 Fast video prompt.
+
+THE SITUATION IS THE MOST IMPORTANT THING:
+"${situation}"
+
+Everything in the video must directly reflect THIS specific situation.
+The setting, the people, the sounds, the details - all must match exactly what is described above.
 
 USER PROFILE:
-- Age: ${age} years old → Camera height: ${height}cm eye level
-- Situation: "${situation}"
-- Environment type: ${ENVIRONMENT_CONTEXT[classification.environment]}
+- Age: ${age} years old → Camera height: ${height}cm
+- Environment classification: ${ENVIRONMENT_CONTEXT[classification.environment]}
 
-REFERENCE STYLE (replicate this cinematic language):
-The video should feel like the reference film "Life, Animated" or sensory overload documentaries:
-- Shaky handheld camera with sudden erratic whip-pans when attention is captured
-- Extremely shallow depth of field - heavy background blur (bokeh)
-- Aggressive rack focus locking onto micro-details (a tile pattern, a light, a texture)
-- Momentary overexposure on bright surfaces - lights feel 40% too bright
-- Subtle dark vignette at edges creating mild tunnel vision
-- Colors slightly oversaturated on the focused detail
-
-DIRECTING TECHNIQUE FOR THIS SCENE:
+DIRECTING STYLE FOR THIS SCENE:
 ${directingStyle}
 
-LOOP STRUCTURE (critical for 8-second seamless loop):
-- Start: camera resting on anchor detail (object, floor, surface) - SHARP FOCUS
-- Middle: camera drifts up/across to social scene - faces feel slightly too aware
-- Return: camera drifts back to anchor detail - SAME SHARP FOCUS as start
-- End frame must perfectly match start frame in composition and camera angle
+Now write a 100-130 word video prompt that:
+1. STARTS by establishing the exact setting from the situation above
+2. Describes the specific people/objects that would be in THIS situation
+3. Applies the directing technique (shaky handheld, rack focus, overexposure)
+4. Includes specific ambient sounds from THIS situation
+5. Ends with seamless loop instruction
 
-WRITE THE PROMPT using this template:
-"Realistic first-person POV shot from the exact eye-level of a ${age} year-old.
-Scene: [describe specific setting in detail].
-[Directing instructions based on environment and loop structure above].
-Shaky handheld with sudden whip-pans to [specific detail in this scene].
-Extremely shallow depth of field, heavy bokeh on background.
-Rack focus locks onto [specific micro-detail matching the situation].
-Momentary overexposure on [specific light source in scene].
-Subtle dark vignette at frame edges.
-Seamless 8-second loop: final frame matches opening frame exactly.
-Audio: [specific overwhelming ambient sounds for this situation, all at equal volume].
-No visual glitches. No AI artifacts. Photorealistic."
+The situation "${situation}" must be clearly recognizable in the video.
 
-RULES:
-- 100-130 words maximum
-- First-person POV only - never show protagonist face or body (hands are acceptable at bottom of frame if natural)
-- Other people's faces CAN appear - they look slightly unreadable and too-aware
-- Single continuous shot, no cuts
-- No narration, no text on screen
-- White/Caucasian light-skinned people
-- No celebrities or named individuals
-
-Write ONLY the video prompt. No explanation. No preamble.`;
+Write ONLY the prompt. No explanation.`;
 
   try {
     const res = await fetch(
