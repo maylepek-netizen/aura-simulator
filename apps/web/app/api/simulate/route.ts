@@ -102,31 +102,51 @@ async function buildVeoPrompt(
 
   const directingStyle = DIRECTING_STYLES[styleIndex];
 
-  const prompt = `You are a cinematic director. Create a Veo 3.1 Fast video prompt.
+  const prompt = `You are writing a video prompt for Google Veo 3.1 Fast for an autism sensory simulation.
 
-THE SITUATION IS THE MOST IMPORTANT THING:
-"${situation}"
+THE SITUATION: "${situation}"
+USER: ${age} year old, camera at ${height}cm eye level.
+ENVIRONMENT: ${ENVIRONMENT_CONTEXT[classification.environment]}
+DIRECTING STYLE: ${directingStyle}
 
-Everything in the video must directly reflect THIS specific situation.
-The setting, the people, the sounds, the details - all must match exactly what is described above.
+CRITICAL RULES TO BREAK THE MODEL'S DEFAULT "BEAUTIFUL VIDEO" TENDENCY:
 
-USER PROFILE:
-- Age: ${age} years old → Camera height: ${height}cm
-- Environment classification: ${ENVIRONMENT_CONTEXT[classification.environment]}
+1. START with the micro-detail, not the room:
+   - Do NOT describe the full room first
+   - FIRST describe one specific small object/texture that the eye is locked onto
+   - Only THEN mention the blurry overwhelming background
 
-DIRECTING STYLE FOR THIS SCENE:
-${directingStyle}
+2. USE THESE EXACT TERMS (they force the model to stay close and raw):
+   - "Extreme macro close-up" or "Action-camera style first-person"
+   - "Incredibly shallow depth of field (f/1.2)"
+   - "Hyper-sharp focus locked onto [specific texture/object]"
+   - "Unrecognizable blurry figures in extreme background bokeh"
 
-Now write a 100-130 word video prompt that:
-1. STARTS by establishing the exact setting from the situation above
-2. Describes the specific people/objects that would be in THIS situation
-3. Applies the directing technique (shaky handheld, rack focus, overexposure)
-4. Includes specific ambient sounds from THIS situation
-5. Ends with seamless loop instruction
+3. FORBID WIDE SHOTS:
+   - Never describe the full room
+   - Camera is always within 20-40cm of the anchor object
+   - Faces are either forbidden OR appear only at extreme edges, blurred
 
-The situation "${situation}" must be clearly recognizable in the video.
+4. FORCE SPECIFIC ANCHOR OBJECT:
+   - Choose one hyper-specific small object that fits "${situation}"
+   - Describe its texture, material, color
+   - Example: "the worn plastic edge of a school desk" / "a coffee cup rim with steam" / "a bus seat seam"
 
-Write ONLY the prompt. No explanation.`;
+5. AUDIO must feel overwhelming:
+   - All sounds at equal volume
+   - Specific sounds that match "${situation}" exactly
+
+WRITE THE PROMPT in this structure:
+"[Shot type: Extreme macro / Action-camera POV] at ${height}cm eye level.
+Hyper-sharp focus locked onto [SPECIFIC OBJECT FROM THE SITUATION - describe texture and material].
+Incredibly shallow depth of field (f/1.2).
+In the extreme background bokeh: [blurry chaotic elements matching the situation].
+[Directing style applied: shaky/rack focus/whip-pan etc.]
+[Overexposure/lighting specific to situation].
+Seamless 8-second loop: final frame identical to opening frame in composition and focus point.
+Audio: [overwhelming specific sounds from this exact situation, all at equal crushing volume]."
+
+Maximum 120 words. Write ONLY the prompt. No explanation.`;
 
   try {
     const res = await fetch(
