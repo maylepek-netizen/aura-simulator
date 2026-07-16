@@ -113,16 +113,24 @@ ENVIRONMENT TYPE: ${ENVIRONMENT_CONTEXT[classification.environment]}
 CAMERA TECHNIQUE: ${directingStyle}
 CAMERA HEIGHT: ${height}cm eye level (first-person POV - we see THROUGH their eyes, never see their body)
 
-RULES:
-- First-person POV only. Never show the protagonist's body, hands, face or shadow
-- Everything feels slightly alien and overwhelming - the autistic person is visiting a foreign world
-- Facial expressions of others are unreadable and slightly unsettling even when neutral
-- Multiple simultaneous stimuli compete for attention
-- Single continuous 8-second loop - last frame matches first frame
-- Photorealistic, no AI artifacts, no glitch effects
-- White/Caucasian light-skinned people
-- Audio: tag at end with specific ambient sounds that feel overwhelming
-- No celebrities, no named individuals
+MANDATORY VISUAL ELEMENTS (include at least 3 of these in every prompt):
+- Focus pull: start sharp on one element, slowly lose focus, then snap sharp on something unexpected
+- Light overexposure: windows, phone screens, overhead lights feel 40% too bright, almost burning
+- Faces feel threatening even when neutral: slightly too close, expressions unreadable
+- Involuntary gaze: camera drifts to irrelevant detail (floor texture, someone's shoe, ceiling light) then snaps back to social scene
+- People loom slightly larger than normal - mild wide angle distortion making them feel imposing
+- Two competing focal points: camera cannot decide between two things and oscillates
+
+DIRECTING VARIETY - each situation must feel different. Choose movements that match the situation:
+- On transport (bus/train): camera drifts between faces → floor pattern → window reflections → face again. Faces turn and seem to look back.
+- In classroom: rack focus between mouths of different speakers, always 0.3s too late. Fluorescent lights pulse slightly.
+- With one person: their face fills frame, expression shifts between readable and unreadable. Camera pulls back then gets pulled close again.
+- In crowd: camera overwhelmed, rapid micro-movements, everything at equal visual volume.
+- Alone: camera hyper-focuses on one mundane detail. Time feels thick. Small sounds amplified.
+
+NO GLITCH EFFECTS. No digital artifacts. No pixelation. No AI-style morphing.
+All strangeness comes from CAMERA BEHAVIOR and LIGHT, not from visual effects.
+The world looks real - the perception is what's different.
 
 ABSOLUTE RULES - NEVER VIOLATE:
 - This is 100% first-person POV - the camera IS the autistic person's eyes
