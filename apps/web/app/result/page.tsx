@@ -567,6 +567,110 @@ function ProcessingMetrics({ visible, onComplete }: { visible: boolean; onComple
   );
 }
 
+// ─── Analog noise texture (video generation loading) ─────────────────────────
+// Pure Canvas API. Dark animated film grain (pixel values 0–60) refreshed every
+// 50ms. A subtle orange glow rims the area. Over ~30s the grain contrast slowly
+// decreases (pixels converge toward mid-gray) so it reads as "coming into focus".
+// Shown while the simulation data exists but the video is still generating.
+
+function NoiseCanvas({ visible }: { visible: boolean }) {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  useEffect(() => {
+    if (!visible) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    // Size the backing store to the displayed size (kept low-res: the grain is
+    // scaled up by CSS, which is cheaper and looks chunkier/filmic).
+    const resize = () => {
+      const rect = canvas.getBoundingClientRect();
+      // Cap resolution for performance; CSS stretches it to fill.
+      canvas.width = Math.max(1, Math.min(480, Math.round(rect.width / 2)));
+      canvas.height = Math.max(1, Math.min(320, Math.round(rect.height / 2)));
+    };
+    resize();
+    window.addEventListener("resize", resize);
+
+    const FOCUS_MS = 30000;   // over 30s the contrast eases toward mid-gray
+    const MAX = 60;           // darkest-noise ceiling (pixels range 0–60)
+    const MID = MAX / 2;      // convergence point (~30)
+    let startTs = 0;
+    let interval: ReturnType<typeof setInterval> | null = null;
+
+    const draw = (elapsed: number) => {
+      const w = canvas.width, h = canvas.height;
+      if (w === 0 || h === 0) return;
+      const img = ctx.createImageData(w, h);
+      const data = img.data;
+      // Amplitude shrinks from MID (full 0–60 spread) toward ~4 over FOCUS_MS.
+      const t = Math.min(1, elapsed / FOCUS_MS);
+      const amplitude = MID * (1 - t) + 4 * t; // MID → 4
+      for (let i = 0; i < data.length; i += 4) {
+        // value centered on MID, spread by the current amplitude → dark noise.
+        let v = MID + (Math.random() * 2 - 1) * amplitude;
+        if (v < 0) v = 0; else if (v > MAX) v = MAX;
+        v = v | 0;
+        data[i] = v; data[i + 1] = v; data[i + 2] = v; data[i + 3] = 255;
+      }
+      ctx.putImageData(img, 0, 0);
+    };
+
+    // Refresh grain every 50ms.
+    const tick = () => {
+      const now = performance.now();
+      if (!startTs) startTs = now;
+      draw(now - startTs);
+    };
+    tick();
+    interval = setInterval(tick, 50);
+
+    return () => {
+      if (interval) clearInterval(interval);
+      window.removeEventListener("resize", resize);
+    };
+  }, [visible]);
+
+  return (
+    <div
+      style={{
+        position: "absolute",
+        inset: 0,
+        zIndex: 2,
+        opacity: visible ? 1 : 0,
+        transition: "opacity 1s ease",
+        pointerEvents: "none",
+        // Subtle orange glow on the borders.
+        boxShadow: "0 0 40px rgba(255,201,157,0.15) inset, 0 0 20px rgba(255,201,157,0.1)",
+        overflow: "hidden",
+      }}
+    >
+      <canvas
+        ref={canvasRef}
+        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", imageRendering: "pixelated" }}
+      />
+      {/* Generating text */}
+      <div
+        style={{
+          position: "absolute",
+          bottom: 24,
+          left: 0,
+          right: 0,
+          textAlign: "center",
+          fontFamily: "var(--font-body)",
+          fontSize: 11,
+          letterSpacing: "0.2em",
+          color: "rgba(255,201,157,0.4)",
+        }}
+      >
+        Generating simulation...
+      </div>
+    </div>
+  );
+}
+
 // ─── Mobile detection ─────────────────────────────────────────────────────────
 
 function useIsMobile() {
@@ -1517,6 +1621,8 @@ export default function ResultPage() {
 
       {/* ── FULLSCREEN VIDEO (center) ─────────────────────────── */}
       <div style={{ position: "fixed", inset: 0, zIndex: 0, background: "#000000" }}>
+        {/* Analog noise texture while the video is still generating */}
+        <NoiseCanvas visible={Boolean(result) && !videoUrl} />
         {videoUrl && (
           <video ref={videoRef}
             style={{
