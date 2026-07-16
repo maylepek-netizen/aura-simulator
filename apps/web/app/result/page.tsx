@@ -567,6 +567,191 @@ function ProcessingMetrics({ visible, onComplete }: { visible: boolean; onComple
   );
 }
 
+// ─── Loading tour (during video generation) ──────────────────────────────────
+// Shown while the simulation data is ready but the video is still generating.
+// A centered 280px loading square + a fake progress bar that fills over ~60s,
+// plus sequential tooltips pointing at where the UI elements WILL be. Tooltips
+// cycle: appear at 2s / 5s / 8s / 11s, then loop back silently.
+
+type TourTip = {
+  text: string;
+  // Fixed screen anchor + the side the little arrow points from.
+  style: React.CSSProperties;
+  arrow: "left" | "right" | "top" | "bottom";
+};
+
+const TOUR_TIPS: TourTip[] = [
+  {
+    // Tooltip 1 → END SIMULATION button (bottom of right panel)
+    text: "Tap here when you're ready to end the experience",
+    style: { position: "fixed", right: 296, bottom: 24, maxWidth: 200 },
+    arrow: "right",
+  },
+  {
+    // Tooltip 2 → sound controls (upper area of right panel)
+    text: "Control the sensory sounds here",
+    style: { position: "fixed", right: 296, top: 120, maxWidth: 200 },
+    arrow: "right",
+  },
+  {
+    // Tooltip 3 → left panel data (internal monologue)
+    text: "Your internal monologue will appear here",
+    style: { position: "fixed", left: 296, top: "45%", maxWidth: 200 },
+    arrow: "left",
+  },
+  {
+    // Tooltip 4 → right panel (sensory data / emotional landscape)
+    text: "Sensory data and emotional landscape",
+    style: { position: "fixed", right: 296, top: "45%", maxWidth: 200 },
+    arrow: "right",
+  },
+];
+
+function TourTooltip({ tip, shown }: { tip: TourTip; shown: boolean }) {
+  const arrowBase: React.CSSProperties = {
+    position: "absolute",
+    width: 8,
+    height: 8,
+    background: "rgba(0,0,0,0.8)",
+    borderRight: "1px solid rgba(255,201,157,0.4)",
+    borderBottom: "1px solid rgba(255,201,157,0.4)",
+  };
+  const arrowStyle: React.CSSProperties =
+    tip.arrow === "right"
+      ? { ...arrowBase, right: -5, top: "50%", transform: "translateY(-50%) rotate(-45deg)" }
+      : tip.arrow === "left"
+      ? { ...arrowBase, left: -5, top: "50%", transform: "translateY(-50%) rotate(135deg)" }
+      : tip.arrow === "top"
+      ? { ...arrowBase, top: -5, left: "50%", transform: "translateX(-50%) rotate(-135deg)" }
+      : { ...arrowBase, bottom: -5, left: "50%", transform: "translateX(-50%) rotate(45deg)" };
+
+  return (
+    <div
+      style={{
+        ...tip.style,
+        zIndex: 30,
+        opacity: shown ? 1 : 0,
+        transition: "opacity 0.5s ease",
+        pointerEvents: "none",
+      }}
+    >
+      <div
+        style={{
+          position: "relative",
+          background: "rgba(0,0,0,0.8)",
+          border: "1px solid rgba(255,201,157,0.4)",
+          borderRadius: 8,
+          padding: "8px 12px",
+          fontFamily: "var(--font-body)",
+          fontSize: 12,
+          lineHeight: 1.4,
+          color: "white",
+        }}
+      >
+        {tip.text}
+        <span style={arrowStyle} />
+      </div>
+    </div>
+  );
+}
+
+function LoadingTour({ visible }: { visible: boolean }) {
+  const [progress, setProgress] = useState(0); // 0→1 over ~60s
+  const [tipIndex, setTipIndex] = useState(-1); // -1 = none shown yet
+
+  // Fake progress bar — fills over ~60s.
+  useEffect(() => {
+    if (!visible) return;
+    let raf = 0;
+    let start = 0;
+    const DURATION = 60000;
+    const loop = (now: number) => {
+      if (!start) start = now;
+      setProgress(Math.min(1, (now - start) / DURATION));
+      raf = requestAnimationFrame(loop);
+    };
+    raf = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(raf);
+  }, [visible]);
+
+  // Sequential tooltips: tip 1 at 2s, tip 2 at 5s, tip 3 at 8s, tip 4 at 11s,
+  // then (after tooltip 4) loop back to tip 1 silently every ~3s.
+  useEffect(() => {
+    if (!visible) return;
+    const timers: ReturnType<typeof setTimeout>[] = [];
+    let interval: ReturnType<typeof setInterval> | null = null;
+    // Scripted first pass at the requested absolute times.
+    [2000, 5000, 8000, 11000].forEach((t, i) => {
+      timers.push(setTimeout(() => setTipIndex(i), t));
+    });
+    // Start the silent cycle only after the scripted pass finishes (~14s = 11s + 3s).
+    timers.push(setTimeout(() => {
+      interval = setInterval(() => {
+        setTipIndex((prev) => (prev < 0 ? 0 : (prev + 1) % TOUR_TIPS.length));
+      }, 3000);
+    }, 14000));
+    return () => {
+      timers.forEach(clearTimeout);
+      if (interval) clearInterval(interval);
+    };
+  }, [visible]);
+
+  return (
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 25,
+        opacity: visible ? 1 : 0,
+        transition: "opacity 0.8s ease",
+        pointerEvents: visible ? "auto" : "none",
+      }}
+    >
+      <style>{`@keyframes tour-eye-pulse { 0%,100%{opacity:0.55;transform:scale(0.92)} 50%{opacity:1;transform:scale(1.08)} }`}</style>
+
+      {/* Centered loading square */}
+      <div
+        style={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: 280,
+          height: 280,
+          background: "rgba(10,8,7,0.95)",
+          border: "1px solid rgba(255,201,157,0.3)",
+          borderRadius: 8,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 18,
+          overflow: "hidden",
+        }}
+      >
+        <img
+          src="/icons/New_logo_eye.svg"
+          alt=""
+          style={{ width: 32, opacity: 0.9, animation: "tour-eye-pulse 1.6s ease-in-out infinite" }}
+        />
+        <div style={{ fontFamily: "var(--font-body)", fontSize: 13, letterSpacing: "0.04em", color: "rgba(255,255,255,0.8)" }}>
+          Generating your simulation...
+        </div>
+
+        {/* Fake progress bar */}
+        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 3, background: "rgba(255,255,255,0.08)" }}>
+          <div style={{ height: "100%", width: `${progress * 100}%`, background: "#FFC99D", opacity: 0.7 }} />
+        </div>
+      </div>
+
+      {/* Tooltips — only the active one is shown */}
+      {TOUR_TIPS.map((tip, i) => (
+        <TourTooltip key={i} tip={tip} shown={visible && tipIndex === i} />
+      ))}
+    </div>
+  );
+}
+
 // ─── Mobile detection ─────────────────────────────────────────────────────────
 
 function useIsMobile() {
@@ -1289,6 +1474,8 @@ export default function ResultPage() {
 
   const load = result?.overall_load ?? 0;
   const loadColor = load > 70 ? "#e05c5c" : load > 45 ? "#FFC99D" : "#5ce08c";
+  // Loading tour window: simulation data is ready but the video is still generating.
+  const tourActive = Boolean(result) && !videoUrl;
   const stimmingAnimation = !stimmingActive ? "none"
     : load > 70 ? "stimming-high 1s ease-in-out infinite"
     : load >= 40 ? "stimming-med 2.5s ease-in-out infinite"
@@ -1571,7 +1758,9 @@ export default function ResultPage() {
             }
           </button>
         )}
-        <ProcessingMetrics visible={processingVisible} onComplete={() => setLoadingDone(true)} />
+        {/* The loading tour replaces the ritual while the video generates. */}
+        <ProcessingMetrics visible={processingVisible && !tourActive} onComplete={() => setLoadingDone(true)} />
+        <LoadingTour visible={tourActive} />
         {error && !loading && (
           <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16, zIndex: 3 }}>
             <div style={{ fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.6)" }}>Error</div>
