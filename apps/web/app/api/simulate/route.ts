@@ -73,66 +73,81 @@ function buildVeoPrompt(
 ): string {
   const height = age <= 12 ? 105 : age <= 17 ? 145 : 165;
 
-  const ANCHOR: Record<Environment, string> = {
-    A: "a small household object nearby — its texture and surface detail in extreme close-up",
-    B: "the hands or clothing of the person — fabric texture, rings, sleeve edge in sharp close-up",
-    C: "the stranger's collar, badge, or watch strap — material and texture in extreme close-up",
-    D: "the edge of a desk or chair, a pen, or a notebook corner — surface texture sharp",
-    E: "the floor, a shelf edge, or a product label — texture and material in close-up",
-    F: "any fixed surface nearby — floor tile, railing, wall — anchoring amid the chaos"
+  const DIRECTING_STYLE: Record<Environment, {
+    camera: string,
+    focus: string,
+    lighting: string,
+    details: string
+  }> = {
+    A: { // Hyper-Focus / Stimming - calm familiar space
+      camera: "Locked, incredibly still first-person POV. Camera glued to one specific micro-detail. Slight involuntary breathing tremor only.",
+      focus: "Extreme macro lens effect. Background completely non-existent due to immense bokeh. Everything but the tiny focal point washed away. f/1.2.",
+      lighting: "Focused object brightly lit and vividly colored. Rest of world dull grey or heavily shadowed.",
+      details: "Camera slowly tracks mesmerizing detail — texture, surface pattern, subtle movement. Total isolation from surroundings."
+    },
+    B: { // Personal Space - close person
+      camera: "Tense defensive first-person POV. Camera moves jerkily, trying to pull away but face keeps filling frame.",
+      focus: "Face takes up 50-60% of frame. Shallow depth of field — clothing details sharp, face slightly soft. Camera oscillates between face and nearby safe object.",
+      lighting: "Face harshly lit. Background obscured by heavy blur. Slightly overexposed on skin.",
+      details: "Expression unreadable, neither hostile nor friendly. Camera drifts to collar/shoulder/object, returns reluctantly to face."
+    },
+    C: { // Anxiety / Unpredictability - stranger
+      camera: "Claustrophobic first-person POV. Camera mostly pointed downward or locked on unimportant object. Defensive.",
+      focus: "Tunnel vision effect — heavy dark vignette around edges. Shallow depth of field. Background blurs in and out rapidly.",
+      lighting: "Dark moody lighting. Flickering or harsh artificial light in background. Colors muted and cold.",
+      details: "Foreground shows floor or nearby safe surface. Background elements blur in and out in flashes. Space feels too small."
+    },
+    D: { // Anxiety / Group - classroom/meeting
+      camera: "Claustrophobic first-person POV. Gaze jumps between speakers always half a second late. Cannot settle.",
+      focus: "Rack focus between faces — never fully sharp on anyone. Fluorescent overhead creates harsh shadows. f/1.8.",
+      lighting: "Harsh fluorescent overhead, clinical and too bright. High contrast shadows on faces.",
+      details: "Multiple faces at equal visual weight. No hierarchy. Room feels smaller than it is. Voices and sounds compete equally."
+    },
+    E: { // Sensory Overload - public space
+      camera: "Frantic highly unstable first-person POV. Extremely shaky with violent whip-pans side-to-side. Eyes sweep down to floor then involuntarily up to crowd.",
+      focus: "Zero stable focal point. Camera cannot stay on one object more than a fraction of a second. Heavy motion blur between movements.",
+      lighting: "Harsh blinding overexposure. Over-saturated clashing colors mixed with washed-out skin tones. Light sources burn 50% too bright.",
+      details: "Faces moving too fast to recognize. Overwhelming background clutter. Bodies loom larger than normal. Everything at equal crushing volume."
+    },
+    F: { // Shutdown - large crowd
+      camera: "Overwhelmed eyes dart in short bursts. Frame edges darken progressively. Movement slows toward end of loop as if body shutting down.",
+      focus: "Complete loss of visual hierarchy. Brief sharp focus on one anchor then overwhelmed. Vignette grows from 0 to 20% during loop.",
+      lighting: "Blinding overhead lights. Colors desaturate toward end of loop. Tunnel vision increasing.",
+      details: "Bodies feel massive and enclosing. Frame too full to contain. By loop end movement nearly stops."
+    }
   };
 
-  const SCENE: Record<Environment, string> = {
-    A: "quiet familiar home interior, warm light, safe but hyper-aware of every small detail",
-    B: "domestic setting with one or two known people, warm lighting, emotionally charged",
-    C: "face-to-face with a stranger, neutral indoor space, uncomfortable proximity",
-    D: "classroom or meeting room, fluorescent lighting, multiple people talking",
-    E: "busy public space — street, mall, or transport — crowds moving in all directions",
-    F: "overwhelmingly crowded event or venue, lights too bright, no escape"
+  const ANCHOR_OBJECT: Record<Environment, string> = {
+    A: "one small specific object nearby — its texture, surface pattern, or subtle movement",
+    B: "the person's collar, sleeve edge, or a nearby object — fabric texture in extreme close-up",
+    C: "the floor surface, a nearby fixed object, or own hands — any safe anchor detail",
+    D: "edge of desk, notebook corner, or pen — surface texture as safe anchor amid chaos",
+    E: "floor tiles, shelf edge, or product label — texture close-up before gaze sweeps up",
+    F: "any fixed nearby surface — floor, railing, wall — brief anchor before chaos overwhelms"
   };
 
-  const CAMERA: Record<Environment, string> = {
-    A: "eyes barely move, locked on one detail with slight involuntary tremor, breathing visible in micro-shake",
-    B: "gaze drifts involuntarily: anchor → face (soft) → back to anchor, slight hesitation before each movement",
-    C: "eyes want to look away from face, pull toward clothing detail, forced back by social pressure",
-    D: "gaze jumps between speakers always half a second late, never lands where intended",
-    E: "eyes sweep DOWN to floor/anchor then involuntarily UP to crowd, sudden reflexive snap to movement",
-    F: "overwhelmed eyes dart in short bursts, nothing holds focus, brief anchor before chaos returns"
+  const AMBIENT_AUDIO: Record<Environment, string> = {
+    A: "near-silence with subtle room tone — faint hum, distant muffled sounds, own breathing amplified",
+    B: "voice too close and present, background domestic sounds competing equally, no audio hierarchy",
+    C: "close breathing, fabric rustle, muffled voices, own heartbeat audible",
+    D: "overlapping voices at equal volume, fluorescent hum, chair scrapes, ventilation — no priority",
+    E: "wall of crowd noise — voices, footsteps, music fragments, announcements all at equal crushing volume",
+    F: "overwhelming sound mass — crowd roar, music, noise merging into white noise crescendo"
   };
 
-  const AUDIO: Record<Environment, string> = {
-    A: "quiet home ambience — subtle room tone, distant sounds, thick silence",
-    B: "voices overlapping, domestic sounds competing equally, no audio priority",
-    C: "close breathing, fabric sounds, muffled words losing meaning",
-    D: "multiple voices at equal volume, room noise, chairs, ventilation hum",
-    E: "crowd noise wall — indistinct voices, footsteps, music fragments, announcements all equal",
-    F: "overwhelming sound mass — crowd roar, music, noise all merging into white noise"
-  };
-
-  const LIGHT: Record<Environment, string> = {
-    A: "warm afternoon window light, soft halation on lamps",
-    B: "domestic interior, slightly overexposed, too warm",
-    C: "neutral indoor light, person feels physically too close",
-    D: "harsh fluorescent overhead, clinical and too bright",
-    E: "overexposed daylight, aggressive reflections on glass and metal surfaces",
-    F: "blinding overhead lights, vignette grows darker at frame edges"
-  };
-
-  const anchor = ANCHOR[classification.environment];
-  const scene = SCENE[classification.environment];
-  const camera = CAMERA[classification.environment];
-  const audio = AUDIO[classification.environment];
-  const light = LIGHT[classification.environment];
+  const style = DIRECTING_STYLE[classification.environment];
+  const anchor = ANCHOR_OBJECT[classification.environment];
+  const audio = AMBIENT_AUDIO[classification.environment];
 
   const modifierText = classification.modifier === 'sudden_stimulus'
-    ? " At 4 seconds: single sharp involuntary snap toward a sound source, then slow return."
+    ? " At 4 seconds: single sharp involuntary snap toward sudden sound source, then slow 3-second return."
     : classification.modifier === 'monotropy'
-    ? " Camera obsessively returns to anchor detail, cannot leave it for more than 1 second."
+    ? " Camera locked obsessively on anchor — cannot leave it for more than 0.5 seconds."
     : classification.modifier === 'hyperfocus_positive'
-    ? " Camera stable and calm, focused entirely on the pleasant activity, no anxiety."
+    ? " Camera stable and calm, entirely focused on pleasant activity. No anxiety in movement."
     : "";
 
-  return `GoPro-style first-person eye-level shot at ${height}cm. Scene context: ${situation}. Extreme macro close-up on ${anchor} — this fills the frame first, hyper-sharp. Shallow depth of field f/1.2. Background: ${scene} — blurred, overwhelming, unrecognizable figures in bokeh. ${camera}. ${light} overexposed 40% on light sources. Colors slightly oversaturated on anchor detail. Seamless 8-second loop: final frame identical to opening frame. Audio: ${audio}. No glitch effects. No AI artifacts. Photorealistic. No protagonist body visible.${modifierText}`;
+  return `GoPro-style first-person eye-level shot at ${height}cm. Scene context: ${situation}. ${style.camera} ${style.focus} Extreme close-up on ${anchor} — sharp foreground anchor. ${style.lighting} ${style.details}${modifierText} Seamless 8-second loop: final frame identical to opening frame. Audio: ${audio}. No glitch effects. No AI artifacts. Photorealistic. No protagonist body visible. White light-skinned people.`;
 }
 
 const RESEARCH_CONTEXT =
