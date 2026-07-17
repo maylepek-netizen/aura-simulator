@@ -132,7 +132,7 @@ function buildVeoPrompt(
     ? " Camera stable and calm, focused entirely on the pleasant activity, no anxiety."
     : "";
 
-  return `GoPro-style first-person eye-level shot at ${height}cm. Extreme macro close-up on ${anchor} — this fills the frame first, hyper-sharp. Shallow depth of field f/1.2. Background: ${scene} — blurred, overwhelming, unrecognizable figures in bokeh. ${camera}. ${light} overexposed 40% on light sources. Colors slightly oversaturated on anchor detail. Seamless 8-second loop: final frame identical to opening frame. Audio: ${audio}. No glitch effects. No AI artifacts. Photorealistic. No protagonist body visible.${modifierText}`;
+  return `GoPro-style first-person eye-level shot at ${height}cm. Scene context: ${situation}. Extreme macro close-up on ${anchor} — this fills the frame first, hyper-sharp. Shallow depth of field f/1.2. Background: ${scene} — blurred, overwhelming, unrecognizable figures in bokeh. ${camera}. ${light} overexposed 40% on light sources. Colors slightly oversaturated on anchor detail. Seamless 8-second loop: final frame identical to opening frame. Audio: ${audio}. No glitch effects. No AI artifacts. Photorealistic. No protagonist body visible.${modifierText}`;
 }
 
 const RESEARCH_CONTEXT =
