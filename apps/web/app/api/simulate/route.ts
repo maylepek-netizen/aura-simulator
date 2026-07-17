@@ -20,20 +20,15 @@ async function classifyEnvironment(situation: string, apiKey: string): Promise<{
 }> {
   console.log("CLASSIFYING:", situation);
   const prompt =
-    `Classify this situation for an autism sensory simulation. Return ONLY valid JSON.\n\n` +
-    `Situation: ${situation}\n\n` +
-    `Environment types:\n` +
-    `A = home/familiar space (low load)\n` +
-    `B = family member or close friend — includes BOTH calm interaction AND emotional conflict/yelling (parent yelling, argument at home = B not A)\n` +
-    `C = interaction with stranger/service worker\n` +
-    `D = classroom/school/work meeting/small group (3-6 people) — teacher talking, lesson, meeting\n` +
-    `E = street/mall/public transport/crowded outdoor\n` +
-    `F = large crowd/party/event/shutdown level\n\n` +
-    `Modifier (choose ONE or null):\n` +
-    `- monotropy: situation mentions focusing on specific object/detail\n` +
-    `- sudden_stimulus: situation mentions sudden noise/unexpected event\n` +
-    `- hyperfocus_positive: situation involves beloved hobby/interest\n\n` +
-    `Return: {"environment": "X", "modifier": "X or null", "load_level": "low|medium|high|shutdown"}`;
+    `Classify this situation. Return ONLY this JSON, nothing else, no markdown:
+{"environment":"X","modifier":"X","load_level":"X"}
+
+Situation: ${situation}
+
+environment must be ONE of: A, B, C, D, E, F
+A=home alone, B=close family/friend, C=stranger, D=classroom/school/work, E=public crowd/street, F=large crowd/shutdown
+modifier must be ONE of: monotropy, sudden_stimulus, hyperfocus_positive, null
+load_level must be ONE of: low, medium, high, shutdown`;
 
   const fallback = { environment: "A" as Environment, modifier: null as Modifier, load_level: "medium" as LoadLevel };
 
@@ -45,7 +40,7 @@ async function classifyEnvironment(situation: string, apiKey: string): Promise<{
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           contents: [{ role: "user", parts: [{ text: prompt }] }],
-          generationConfig: { temperature: 0.2, maxOutputTokens: 200 },
+          generationConfig: { temperature: 0.2, maxOutputTokens: 500 },
         }),
       }
     );
