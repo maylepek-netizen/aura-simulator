@@ -25,7 +25,7 @@ async function classifyEnvironment(situation: string, apiKey: string): Promise<{
     `A = home/familiar space (low load)\n` +
     `B = family member or close friend — includes BOTH calm interaction AND emotional conflict/yelling (parent yelling, argument at home = B not A)\n` +
     `C = interaction with stranger/service worker\n` +
-    `D = classroom/work meeting/small group (3-6 people)\n` +
+    `D = classroom/school/work meeting/small group (3-6 people) — teacher talking, lesson, meeting\n` +
     `E = street/mall/public transport/crowded outdoor\n` +
     `F = large crowd/party/event/shutdown level\n\n` +
     `Modifier (choose ONE or null):\n` +
@@ -56,7 +56,7 @@ async function classifyEnvironment(situation: string, apiKey: string): Promise<{
     const env: Environment = ["A", "B", "C", "D", "E", "F"].includes(parsed.environment) ? parsed.environment : "A";
     const mod: Modifier = ["monotropy", "sudden_stimulus", "hyperfocus_positive"].includes(parsed.modifier) ? parsed.modifier : null;
     const load: LoadLevel = ["low", "medium", "high", "shutdown"].includes(parsed.load_level) ? parsed.load_level : "medium";
-    console.log("CLASSIFICATION RESULT:", JSON.stringify({ environment: env, modifier: mod, load_level: load }));
+    console.log("CLASSIFICATION:", JSON.stringify({ environment: env, modifier: mod, load_level: load }));
     return { environment: env, modifier: mod, load_level: load };
   } catch {
     return fallback;
