@@ -92,21 +92,21 @@ function buildVeoPrompt(
   };
 
   const CAMERA: Record<Environment, string> = {
-    A: "camera barely moves, locked on anchor detail with micro-tremor, slow drift around it",
-    B: "slow involuntary drift: anchor detail → face (soft blur) → back to anchor. 0.5s processing delay",
-    C: "camera pulls toward anchor detail, resists looking at face, slowly returns — oscillates",
-    D: "rack focus: anchor → speaker A mouth (sharp 1s) → blurs → speaker B mouth (sharp 1s) → anchor",
-    E: "gaze drifts DOWN to anchor (sharp) → lifts UP slowly to crowd (slight blur) → involuntary snap to light → drifts back DOWN to anchor",
-    F: "erratic micro-pans, brief sharp focus on anchor, then overwhelmed by surroundings, edges darken"
+    A: "eyes barely move, locked on one detail with slight involuntary tremor, breathing visible in micro-shake",
+    B: "gaze drifts involuntarily: anchor → face (soft) → back to anchor, slight hesitation before each movement",
+    C: "eyes want to look away from face, pull toward clothing detail, forced back by social pressure",
+    D: "gaze jumps between speakers always half a second late, never lands where intended",
+    E: "eyes sweep DOWN to floor/anchor then involuntarily UP to crowd, sudden reflexive snap to movement",
+    F: "overwhelmed eyes dart in short bursts, nothing holds focus, brief anchor before chaos returns"
   };
 
   const AUDIO: Record<Environment, string> = {
-    A: "refrigerator hum, clock ticking, distant muffled sounds — all uncomfortably present",
-    B: "voice too close and loud, background sounds compete equally, no audio hierarchy",
-    C: "breathing amplified, fabric rustle, words losing meaning in the anxiety",
-    D: "overlapping voices equal volume, fluorescent hum, chair scrapes, paper shuffle",
-    E: "wall of sound — engines, voices, footsteps, announcements — all at equal crushing volume",
-    F: "white noise crescendo, high frequency ringing, voices muffled beneath overwhelming din"
+    A: "quiet home ambience — subtle room tone, distant sounds, thick silence",
+    B: "voices overlapping, domestic sounds competing equally, no audio priority",
+    C: "close breathing, fabric sounds, muffled words losing meaning",
+    D: "multiple voices at equal volume, room noise, chairs, ventilation hum",
+    E: "crowd noise wall — indistinct voices, footsteps, music fragments, announcements all equal",
+    F: "overwhelming sound mass — crowd roar, music, noise all merging into white noise"
   };
 
   const LIGHT: Record<Environment, string> = {
@@ -132,7 +132,7 @@ function buildVeoPrompt(
     ? " Camera stable and calm, focused entirely on the pleasant activity, no anxiety."
     : "";
 
-  return `Action-camera first-person POV at ${height}cm eye level. Scene: ${situation}. ${scene}. Extreme close-up on ${anchor}. Shallow depth of field f/1.4. ${camera}.${modifierText} ${light} — 40% overexposed on light sources. Colors slightly oversaturated. Background figures Caucasian light-skinned, blurred in bokeh. Seamless 8-second loop: final frame identical to opening frame. Audio: ${audio}. No glitch effects. No AI artifacts. Photorealistic documentary style. No protagonist body visible.`;
+  return `GoPro-style first-person eye-level shot at ${height}cm. Extreme macro close-up on ${anchor} — this fills the frame first, hyper-sharp. Shallow depth of field f/1.2. Background: ${scene} — blurred, overwhelming, unrecognizable figures in bokeh. ${camera}. ${light} overexposed 40% on light sources. Colors slightly oversaturated on anchor detail. Seamless 8-second loop: final frame identical to opening frame. Audio: ${audio}. No glitch effects. No AI artifacts. Photorealistic. No protagonist body visible.${modifierText}`;
 }
 
 const RESEARCH_CONTEXT =
