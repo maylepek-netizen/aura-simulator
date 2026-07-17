@@ -55,7 +55,12 @@ async function classifyEnvironment(situation: string, apiKey: string): Promise<{
     }
     const data = await res.json();
     const raw = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
-    const cleaned = raw.replace(/```json/gi, "").replace(/```/g, "").trim();
+    console.log("CLASSIFICATION RAW:", raw.substring(0, 200));
+    const cleaned = raw
+      .replace(/```json/gi, "")
+      .replace(/```/g, "")
+      .replace(/^\s*[\r\n]/gm, "")
+      .trim();
     const parsed = JSON.parse(cleaned);
     const env: Environment = ["A", "B", "C", "D", "E", "F"].includes(parsed.environment) ? parsed.environment : "A";
     const mod: Modifier = ["monotropy", "sudden_stimulus", "hyperfocus_positive"].includes(parsed.modifier) ? parsed.modifier : null;
