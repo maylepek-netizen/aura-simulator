@@ -83,20 +83,23 @@ async function buildVeoPrompt(
     F: "erratic whip-pans between face fragments, edges darkening gradually, everything blinding and massive"
   };
 
-  const prompt = `Write a Veo 3.1 Fast video prompt. Output ONLY the prompt text, nothing else. Maximum 120 words.
+  const prompt = `You are a film director creating a video for an autism sensory simulation app.
 
-THE SITUATION IS: "${situation}"
-EVERY visual element MUST come directly from this specific situation. Do not invent generic scenes.
-If the situation says bus → show bus interior. If it says classroom → show classroom. If it says mom yelling → show person yelling close.
+The user is experiencing this situation: "${situation}"
+The user is ${age} years old (camera at ${height}cm eye level).
+Camera style: ${CAMERA_MOVE[classification.environment]}
 
-USER: ${age} years old. Camera height: ${height}cm (first-person eye level).
-CAMERA TECHNIQUE: ${CAMERA_MOVE[classification.environment]}
+Write a single paragraph video prompt (100-120 words) for Google Veo 3.1.
+The prompt must describe EXACTLY what appears in the video when someone is in this situation: "${situation}"
 
-Write the prompt using this structure - replace ALL brackets with specific details from "${situation}":
+Requirements:
+- Start with the specific location from the situation
+- Include one specific small object to hyperfocus on (texture, material, color)
+- Apply this camera movement: ${CAMERA_MOVE[classification.environment]}
+- Include specific sounds from this exact situation
+- End with: "Seamless 8-second loop. No glitch effects. Photorealistic."
 
-Action-camera first-person POV at ${height}cm inside [EXACT PLACE from "${situation}"]. Extreme close-up: hyper-sharp focus locked onto [ONE SMALL OBJECT that physically exists in "${situation}" - describe its exact texture, color, material]. Shallow depth of field f/1.2 - background shows [SPECIFIC BLURRY PEOPLE/THINGS from "${situation}"]. ${CAMERA_MOVE[classification.environment]}. [SPECIFIC LIGHT SOURCE in this exact location] overexposed 40% too bright. Seamless 8-second loop: final frame identical to opening frame. Audio: [4-5 SPECIFIC SOUNDS that exist ONLY in "${situation}"] all at equal crushing volume.
-
-Photorealistic. No glitch effects. No AI artifacts. No protagonist body visible. White light-skinned background people. No named real individuals.`;
+Do NOT use brackets or placeholders. Write the actual prompt with real specific details.`;
 
   try {
     const res = await fetch(
