@@ -151,7 +151,15 @@ function buildVeoPrompt(
     ? `Primary subject: ${anchor}. No random objects as main focus.`
     : `Extreme close-up on ${anchor} — sharp foreground anchor.`;
 
-  return `GoPro-style first-person eye-level shot at ${height}cm. Scene context: ${situation}. ${style.camera} ${style.focus} ${anchorInstruction} ${style.lighting} ${style.details}${modifierText} Seamless 8-second loop: final frame identical to opening frame. Audio: ${audio}. No glitch effects. No AI artifacts. Photorealistic. No protagonist body visible. White light-skinned people. The scene must show exactly what is described in the situation — no random unrelated objects as focal point.`;
+  if (classification.environment === 'B' || classification.environment === 'C') {
+    return `First-person POV at ${height}cm eye level. Scene: ${situation}. ${style.camera} The person in front of me is the main subject — their face fills 40-60% of the frame. ${style.focus} ${style.lighting} ${style.details}${modifierText} Seamless 8-second loop. Audio: ${audio}. Photorealistic. No glitch effects. No protagonist body visible. White light-skinned people.`;
+  }
+
+  if (classification.environment === 'D') {
+    return `First-person POV at ${height}cm eye level inside a classroom or meeting room. Scene: ${situation}. ${style.camera} Teacher or speaker visible in front, other people around. ${style.focus} ${style.lighting} ${style.details}${modifierText} Seamless 8-second loop. Audio: ${audio}. Photorealistic. No glitch effects. No protagonist body visible. White light-skinned people.`;
+  }
+
+  return `GoPro-style first-person eye-level shot at ${height}cm. Scene context: ${situation}. ${style.camera} ${style.focus} ${anchorInstruction} ${style.lighting} ${style.details}${modifierText} Seamless 8-second loop: final frame identical to opening frame. Audio: ${audio}. No glitch effects. No AI artifacts. Photorealistic. No protagonist body visible. White light-skinned people. The scene must show exactly what is described in the situation.`;
 }
 
 const RESEARCH_CONTEXT =
