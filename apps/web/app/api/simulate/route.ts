@@ -132,12 +132,12 @@ function buildVeoPrompt(
   };
 
   const AMBIENT_AUDIO: Record<Environment, string> = {
-    A: "near-silence with subtle room tone — faint hum, distant muffled sounds, own breathing amplified",
-    B: "voice too close and present, background domestic sounds competing equally, no audio hierarchy",
-    C: "close breathing, fabric rustle, muffled voices, own heartbeat audible",
-    D: "overlapping voices at equal volume, fluorescent hum, chair scrapes, ventilation — no priority",
-    E: "wall of crowd noise — voices, footsteps, music fragments, announcements all at equal crushing volume",
-    F: "overwhelming sound mass — crowd roar, music, noise merging into white noise crescendo"
+    A: "audio: refrigerator hum and clock ticking at SAME volume as any distant voice — no audio hierarchy, all sounds equally present, own breathing audible",
+    B: "audio: voice of person speaking competes equally with background hum, fabric rustle, distant traffic — no foreground audio, all tracks equal volume",
+    C: "audio: stranger's voice mixed equally with room noise, own heartbeat, air conditioning — words lose meaning, blur into ambient texture",
+    D: "audio: teacher voice, student shuffles, fluorescent hum, pencil taps, ventilation — ALL at identical crushing volume, overlapping without hierarchy",
+    E: "audio: wall of sound — voices, engines, music, footsteps, announcements — multiple simultaneous tracks, sharp unexpected sounds pan left to right abruptly",
+    F: "audio: total audio overload — all sounds merge into undifferentiated white noise, high frequency ringing emerges, human voices lose intelligibility"
   };
 
   const style = DIRECTING_STYLE[classification.environment];
@@ -157,11 +157,11 @@ function buildVeoPrompt(
     : `Extreme close-up on ${anchor} — sharp foreground anchor.`;
 
   if (classification.environment === 'B' || classification.environment === 'C') {
-    return `First-person POV at ${height}cm eye level. Scene: ${situation}. Slow and dissociative — not dramatic. Person's face center frame, 40-60% of frame. Focus on micro-details: mouth moving when speaking, eyes blinking, jaw tension, neck muscles. Camera drifts involuntarily between face (soft focus) and irrelevant nearby detail (sharp focus, 1-2 seconds) then pulled back to face. Slight overexposure on skin and light sources. Intermittent blur: consciousness briefly disconnects, scene softens, then snaps back sharp. Background blurred, any other people in soft bokeh. Seamless 8-second loop. Audio: ${audio}. No glitch effects. Photorealistic. No protagonist body visible. White light-skinned people.${modifierText}`;
+    return `First-person POV at ${height}cm eye level. Scene: ${situation}. Slow, dissociative, slightly detached. Camera never looks directly into eyes — focuses on chin, collarbone, shirt button, or mouth. Shallow depth of field: world goes completely blurry between micro-gaze shifts. 0-3s: locked on one facial detail (mouth moving, jaw tensing) in sharp close-up. 3-5s: slow involuntary drift to nearby irrelevant detail — texture of their shirt, a pattern, their hands. 5-7s: 1-2 second processing delay then gaze pulled back to face, soft then snaps sharp. Subtle rhythmic camera sway. Overexposed skin, harsh light. Audio: ${audio}. Photorealistic. No glitch effects. No protagonist body visible. White light-skinned people.${modifierText}`;
   }
 
   if (classification.environment === 'D') {
-    return `First-person POV at ${height}cm eye level. Scene: ${situation}. The teacher or main speaker is directly in front, face filling 50% of frame, sharp focus. Slow gaze cycle: 0-3s face in sharp focus — study mouth movement, jaw, eyes blinking, expression shifting and unreadable. 3-5s gaze drifts slowly to background — blurred students moving slowly, soft bokeh. 5-7s gaze drifts back to face, slight soft focus then snaps sharp. 7-8s back to starting frame. Imperceptible camera sway — body barely moving. Fluorescent light overhead overexposed 30%, clinical. Colors slightly oversaturated. Seamless 8-second loop. Audio: ${audio}. Photorealistic. No glitch effects. No protagonist body visible. White light-skinned people.${modifierText}`;
+    return `First-person POV at ${height}cm eye level. Scene: ${situation}. Slow, dissociative. Camera avoids direct eye contact — locked on teacher's chin, collarbone, or mouth area rather than eyes. Face fills 50% frame. Shallow depth of field: any shift in gaze makes world go completely blurry before refocusing. 0-3s: teacher's mouth and jaw in focus, eyes avoided, expression unreadable. 3-5s: gaze drifts slowly to background — blurred students in slow motion bokeh, a geometric pattern on wall, texture of board. 5-7s: gaze returns, 1-second processing delay visible as frame briefly freezes soft then snaps sharp. 7-8s: back to starting frame. Subtle rhythmic camera rock — slight forward-back stimming motion. Fluorescent lights flicker imperceptibly, overexposed 30%. Audio: ${audio}. Photorealistic. No glitch effects. No protagonist body visible. White light-skinned people.${modifierText}`;
   }
 
   return `GoPro-style first-person eye-level shot at ${height}cm. Scene context: ${situation}. ${style.camera} ${style.focus} ${anchorInstruction} ${style.lighting} ${style.details}${modifierText} Seamless 8-second loop: final frame identical to opening frame. Audio: ${audio}. No glitch effects. No AI artifacts. Photorealistic. No protagonist body visible. White light-skinned people. The scene must show exactly what is described in the situation.`;
