@@ -74,79 +74,29 @@ async function buildVeoPrompt(
 ): Promise<string> {
   const height = age <= 12 ? 105 : age <= 17 ? 145 : 165;
 
-  const ENVIRONMENT_CONTEXT: Record<Environment, string> = {
-    A: "calm familiar home space, low stimulation, safe",
-    B: "with close family/friend - could be calm or conflict",
-    C: "interacting with a stranger - uncomfortable proximity",
-    D: "classroom or small group - attention splitting between speakers",
-    E: "busy public space - street, mall, transport - sensory overload",
-    F: "large crowd or event - shutdown level overload"
+  const CAMERA_MOVE: Record<Environment, string> = {
+    A: "camera barely moves, micro-tremor only, hyper-focuses on one mundane detail for entire shot",
+    B: "slow involuntary drift between face and nearby objects, 0.5s processing delay, rack focus cycles",
+    C: "camera slides away from face toward clothing detail, returns reluctantly, everything feels too close",
+    D: "fast rack focus between speakers mouths, always 0.3s too late catching up to conversation",
+    E: "heavy slow forward motion with sudden whip-pans LEFT and RIGHT to lights and movement, shaky handheld",
+    F: "erratic whip-pans between face fragments, edges darkening gradually, everything blinding and massive"
   };
 
-  const DIRECTING_STYLES = [
-    "rack focus: sharp on one face, everything else blurs, then slowly refocuses on a different detail",
-    "slow head-turn pan: camera drifts across the scene as if scanning, pausing involuntarily on an irrelevant detail",
-    "sudden snap: camera completely still, then a quick involuntary turn toward a sound or movement, then slow return",
-    "hyperfocus drift: camera slowly orbits one specific texture or object while the social scene continues in soft background",
-    "sensory burn: slight overexposure on light sources, camera barely moves but everything feels too bright and too close",
-    "delayed response: camera turns toward someone speaking 0.5 seconds too late, always catching up to the conversation"
-  ];
+  const prompt = `Write a Veo 3.1 Fast video prompt. Output ONLY the prompt text, nothing else. Maximum 120 words.
 
-  // Pick a directing style based on environment and modifier
-  const styleIndex = classification.environment === 'A' ? 3 :
-    classification.environment === 'B' ? (classification.modifier === 'sudden_stimulus' ? 2 : 0) :
-    classification.environment === 'C' ? 4 :
-    classification.environment === 'D' ? 0 :
-    classification.environment === 'E' ? 5 :
-    1; // F
+THE SITUATION IS: "${situation}"
+EVERY visual element MUST come directly from this specific situation. Do not invent generic scenes.
+If the situation says bus → show bus interior. If it says classroom → show classroom. If it says mom yelling → show person yelling close.
 
-  const directingStyle = DIRECTING_STYLES[styleIndex];
+USER: ${age} years old. Camera height: ${height}cm (first-person eye level).
+CAMERA TECHNIQUE: ${CAMERA_MOVE[classification.environment]}
 
-  const prompt = `You are writing a video prompt for Google Veo 3.1 Fast for an autism sensory simulation.
+Write the prompt using this structure - replace ALL brackets with specific details from "${situation}":
 
-THE SITUATION: "${situation}"
-USER: ${age} year old, camera at ${height}cm eye level.
-ENVIRONMENT: ${ENVIRONMENT_CONTEXT[classification.environment]}
-DIRECTING STYLE: ${directingStyle}
+Action-camera first-person POV at ${height}cm inside [EXACT PLACE from "${situation}"]. Extreme close-up: hyper-sharp focus locked onto [ONE SMALL OBJECT that physically exists in "${situation}" - describe its exact texture, color, material]. Shallow depth of field f/1.2 - background shows [SPECIFIC BLURRY PEOPLE/THINGS from "${situation}"]. ${CAMERA_MOVE[classification.environment]}. [SPECIFIC LIGHT SOURCE in this exact location] overexposed 40% too bright. Seamless 8-second loop: final frame identical to opening frame. Audio: [4-5 SPECIFIC SOUNDS that exist ONLY in "${situation}"] all at equal crushing volume.
 
-CRITICAL RULES TO BREAK THE MODEL'S DEFAULT "BEAUTIFUL VIDEO" TENDENCY:
-
-1. START with the micro-detail, not the room:
-   - Do NOT describe the full room first
-   - FIRST describe one specific small object/texture that the eye is locked onto
-   - Only THEN mention the blurry overwhelming background
-
-2. USE THESE EXACT TERMS (they force the model to stay close and raw):
-   - "Extreme macro close-up" or "Action-camera style first-person"
-   - "Incredibly shallow depth of field (f/1.2)"
-   - "Hyper-sharp focus locked onto [specific texture/object]"
-   - "Unrecognizable blurry figures in extreme background bokeh"
-
-3. FORBID WIDE SHOTS:
-   - Never describe the full room
-   - Camera is always within 20-40cm of the anchor object
-   - Faces are either forbidden OR appear only at extreme edges, blurred
-
-4. FORCE SPECIFIC ANCHOR OBJECT:
-   - Choose one hyper-specific small object that fits "${situation}"
-   - Describe its texture, material, color
-   - Example: "the worn plastic edge of a school desk" / "a coffee cup rim with steam" / "a bus seat seam"
-
-5. AUDIO must feel overwhelming:
-   - All sounds at equal volume
-   - Specific sounds that match "${situation}" exactly
-
-WRITE THE PROMPT in this structure:
-"[Shot type: Extreme macro / Action-camera POV] at ${height}cm eye level.
-Hyper-sharp focus locked onto [SPECIFIC OBJECT FROM THE SITUATION - describe texture and material].
-Incredibly shallow depth of field (f/1.2).
-In the extreme background bokeh: [blurry chaotic elements matching the situation].
-[Directing style applied: shaky/rack focus/whip-pan etc.]
-[Overexposure/lighting specific to situation].
-Seamless 8-second loop: final frame identical to opening frame in composition and focus point.
-Audio: [overwhelming specific sounds from this exact situation, all at equal crushing volume]."
-
-Maximum 120 words. Write ONLY the prompt. No explanation.`;
+Photorealistic. No glitch effects. No AI artifacts. No protagonist body visible. White light-skinned background people. No named real individuals.`;
 
   try {
     const res = await fetch(
@@ -156,21 +106,22 @@ Maximum 120 words. Write ONLY the prompt. No explanation.`;
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           contents: [{ role: "user", parts: [{ text: prompt }] }],
-          generationConfig: { temperature: 0.7, maxOutputTokens: 300 },
+          generationConfig: { temperature: 0.4, maxOutputTokens: 250 },
         }),
       }
     );
-    if (!res.ok) return fallbackPrompt(situation, height, directingStyle);
+    if (!res.ok) return fallbackPrompt(situation, height, CAMERA_MOVE[classification.environment]);
     const data = await res.json();
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
-    return text.trim() || fallbackPrompt(situation, height, directingStyle);
+    console.log("VEO PROMPT SENT:", text.substring(0, 300));
+    return text.trim() || fallbackPrompt(situation, height, CAMERA_MOVE[classification.environment]);
   } catch {
-    return fallbackPrompt(situation, height, directingStyle);
+    return fallbackPrompt(situation, height, CAMERA_MOVE[classification.environment]);
   }
 }
 
-function fallbackPrompt(situation: string, height: number, style: string): string {
-  return `First-person POV at ${height}cm eye level. Scene: ${situation}. ${style}. White light-skinned people. Photorealistic 8-second loop. Audio: ambient sounds at overwhelming equal volume, all competing simultaneously.`;
+function fallbackPrompt(situation: string, height: number, cameraMove: string): string {
+  return `Action-camera first-person POV at ${height}cm. Scene: ${situation}. Extreme close-up on one small object, shallow depth of field f/1.2. ${cameraMove}. Overexposed harsh lighting. Seamless 8-second loop. Audio: overwhelming sounds from this exact scene at equal volume. Photorealistic, no glitch effects, white light-skinned people.`;
 }
 
 const RESEARCH_CONTEXT =
