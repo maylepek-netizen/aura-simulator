@@ -49,7 +49,10 @@ async function classifyEnvironment(situation: string, apiKey: string): Promise<{
         }),
       }
     );
-    if (!res.ok) return fallback;
+    if (!res.ok) {
+      console.error("CLASSIFICATION API ERROR:", res.status);
+      return fallback;
+    }
     const data = await res.json();
     const raw = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
     const cleaned = raw.replace(/```json/gi, "").replace(/```/g, "").trim();
