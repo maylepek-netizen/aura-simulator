@@ -75,12 +75,12 @@ async function buildVeoPrompt(
   const height = age <= 12 ? 105 : age <= 17 ? 145 : 165;
 
   const CAMERA_MOVE: Record<Environment, string> = {
-    A: "camera barely moves, micro-tremor only, hyper-focuses on one mundane detail for entire shot",
-    B: "slow involuntary drift between face and nearby objects, 0.5s processing delay, rack focus cycles",
-    C: "camera slides away from face toward clothing detail, returns reluctantly, everything feels too close",
-    D: "fast rack focus between speakers mouths, always 0.3s too late catching up to conversation",
-    E: "heavy slow forward motion with sudden whip-pans LEFT and RIGHT to lights and movement, shaky handheld",
-    F: "erratic whip-pans between face fragments, edges darkening gradually, everything blinding and massive"
+    A: "camera locked on one mundane detail, micro-tremor, slow drift around it then back - hypnotic loop",
+    B: "slow gaze cycle: face (sharp) → drifts to nearby irrelevant detail (sharp) → back to face (soft then sharp) - processing delay visible",
+    C: "camera pulls away from face to clothing texture, slowly returns, never fully comfortable - oscillates",
+    D: "rack focus cycles between speakers' mouths, always 0.3s late, background faces blur in and out equally",
+    E: "gaze drifts DOWN to floor/feet/product (sharp) → slowly lifts back UP to crowd (slightly blurred) → repeat. Sudden involuntary snap to light source mid-cycle",
+    F: "rapid involuntary pans, everything briefly goes soft/blurry between movements as if consciousness skips frames, then snaps back sharp"
   };
 
   const prompt = `You are a film director creating a video for an autism sensory simulation app.
@@ -89,17 +89,19 @@ The user is experiencing this situation: "${situation}"
 The user is ${age} years old (camera at ${height}cm eye level).
 Camera style: ${CAMERA_MOVE[classification.environment]}
 
-Write a single paragraph video prompt (100-120 words) for Google Veo 3.1.
-The prompt must describe EXACTLY what appears in the video when someone is in this situation: "${situation}"
+Write a single paragraph video prompt (110-130 words) for Google Veo 3.1.
+Describe EXACTLY what appears in this specific situation: "${situation}"
 
-Requirements:
-- Start with the specific location from the situation
-- Include one specific small object to hyperfocus on (texture, material, color)
-- Apply this camera movement: ${CAMERA_MOVE[classification.environment]}
-- Include specific sounds from this exact situation
-- End with: "Seamless 8-second loop. No glitch effects. Photorealistic."
+MANDATORY DIRECTING ELEMENTS to include:
+1. GAZE CYCLE (creates the loop): camera starts on ANCHOR (small specific object/detail from the situation) → slowly drifts to MAIN SCENE (people/environment) → returns to ANCHOR. First and last frame are identical on the anchor.
+2. FOCUS PLAY: between the anchor and the scene, the focus softens and then sharpens - like a moment of dissociation before snapping back to reality
+3. ONE INVOLUNTARY MOMENT: mid-loop, an unexpected micro-movement toward a light or sound, then slow return
+4. SENSORY AMPLIFICATION: lights feel too bright, colors slightly oversaturated on the anchor detail
+5. AUDIO: specific overwhelming sounds from this exact situation, all at equal crushing volume
 
-Do NOT use brackets or placeholders. Write the actual prompt with real specific details.`;
+Apply camera style: ${CAMERA_MOVE[classification.environment]}
+
+Do NOT use brackets or placeholders. Write actual specific details. End with: "Seamless 8-second loop, first and last frame identical. No glitch effects. Photorealistic."`;
 
   try {
     const res = await fetch(
