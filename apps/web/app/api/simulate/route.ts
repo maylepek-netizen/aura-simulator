@@ -147,7 +147,11 @@ function buildVeoPrompt(
     ? " Camera stable and calm, entirely focused on pleasant activity. No anxiety in movement."
     : "";
 
-  return `GoPro-style first-person eye-level shot at ${height}cm. Scene context: ${situation}. ${style.camera} ${style.focus} Extreme close-up on ${anchor} — sharp foreground anchor. ${style.lighting} ${style.details}${modifierText} Seamless 8-second loop: final frame identical to opening frame. Audio: ${audio}. No glitch effects. No AI artifacts. Photorealistic. No protagonist body visible. White light-skinned people.`;
+  const anchorInstruction = (classification.environment === 'B' || classification.environment === 'C')
+    ? `Primary subject: ${anchor}. No random objects as main focus.`
+    : `Extreme close-up on ${anchor} — sharp foreground anchor.`;
+
+  return `GoPro-style first-person eye-level shot at ${height}cm. Scene context: ${situation}. ${style.camera} ${style.focus} ${anchorInstruction} ${style.lighting} ${style.details}${modifierText} Seamless 8-second loop: final frame identical to opening frame. Audio: ${audio}. No glitch effects. No AI artifacts. Photorealistic. No protagonist body visible. White light-skinned people. The scene must show exactly what is described in the situation — no random unrelated objects as focal point.`;
 }
 
 const RESEARCH_CONTEXT =
