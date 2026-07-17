@@ -63,102 +63,76 @@ async function classifyEnvironment(situation: string, apiKey: string): Promise<{
   }
 }
 
-// Second Gemini call: writes the full Veo prompt from the classification, using
-// a directing style chosen per environment/modifier. Falls back to a simple
-// deterministic prompt if the call fails.
-async function buildVeoPrompt(
+// Builds the full Veo prompt deterministically from the classification — no
+// Gemini call. Per-environment anchor/scene/camera/audio/light blocks are
+// assembled directly in code, with an optional modifier clause.
+function buildVeoPrompt(
   classification: { environment: Environment; modifier: Modifier; load_level: LoadLevel },
   situation: string,
-  age: number,
-  apiKey: string
-): Promise<string> {
+  age: number
+): string {
   const height = age <= 12 ? 105 : age <= 17 ? 145 : 165;
 
-  const ENVIRONMENT_CONTEXT: Record<Environment, string> = {
-    A: "calm familiar home space, low stimulation, safe",
-    B: "with close family/friend - could be calm or conflict",
-    C: "interacting with a stranger - uncomfortable proximity",
-    D: "classroom or small group - attention splitting between speakers",
-    E: "busy public space - street, mall, transport - sensory overload",
-    F: "large crowd or event - shutdown level overload"
+  const ANCHOR: Record<Environment, string> = {
+    A: "a small household object nearby — its texture and surface detail in extreme close-up",
+    B: "the hands or clothing of the person — fabric texture, rings, sleeve edge in sharp close-up",
+    C: "the stranger's collar, badge, or watch strap — material and texture in extreme close-up",
+    D: "the edge of a desk or chair, a pen, or a notebook corner — surface texture sharp",
+    E: "the floor, a shelf edge, or a product label — texture and material in close-up",
+    F: "any fixed surface nearby — floor tile, railing, wall — anchoring amid the chaos"
   };
 
-  const DIRECTING_STYLES = [
-    "rack focus: sharp on one face, everything else blurs, then slowly refocuses on a different detail",
-    "slow head-turn pan: camera drifts across the scene as if scanning, pausing involuntarily on an irrelevant detail",
-    "sudden snap: camera completely still, then a quick involuntary turn toward a sound or movement, then slow return",
-    "hyperfocus drift: camera slowly orbits one specific texture or object while the social scene continues in soft background",
-    "sensory burn: slight overexposure on light sources, camera barely moves but everything feels too bright and too close",
-    "delayed response: camera turns toward someone speaking 0.5 seconds too late, always catching up to the conversation"
-  ];
+  const SCENE: Record<Environment, string> = {
+    A: "quiet familiar home interior, warm light, safe but hyper-aware of every small detail",
+    B: "domestic setting with one or two known people, warm lighting, emotionally charged",
+    C: "face-to-face with a stranger, neutral indoor space, uncomfortable proximity",
+    D: "classroom or meeting room, fluorescent lighting, multiple people talking",
+    E: "busy public space — street, mall, or transport — crowds moving in all directions",
+    F: "overwhelmingly crowded event or venue, lights too bright, no escape"
+  };
 
-  // Pick a directing style based on environment and modifier
-  const styleIndex = classification.environment === 'A' ? 3 :
-    classification.environment === 'B' ? (classification.modifier === 'sudden_stimulus' ? 2 : 0) :
-    classification.environment === 'C' ? 4 :
-    classification.environment === 'D' ? 0 :
-    classification.environment === 'E' ? 5 :
-    1; // F
+  const CAMERA: Record<Environment, string> = {
+    A: "camera barely moves, locked on anchor detail with micro-tremor, slow drift around it",
+    B: "slow involuntary drift: anchor detail → face (soft blur) → back to anchor. 0.5s processing delay",
+    C: "camera pulls toward anchor detail, resists looking at face, slowly returns — oscillates",
+    D: "rack focus: anchor → speaker A mouth (sharp 1s) → blurs → speaker B mouth (sharp 1s) → anchor",
+    E: "gaze drifts DOWN to anchor (sharp) → lifts UP slowly to crowd (slight blur) → involuntary snap to light → drifts back DOWN to anchor",
+    F: "erratic micro-pans, brief sharp focus on anchor, then overwhelmed by surroundings, edges darken"
+  };
 
-  const directingStyle = DIRECTING_STYLES[styleIndex];
+  const AUDIO: Record<Environment, string> = {
+    A: "refrigerator hum, clock ticking, distant muffled sounds — all uncomfortably present",
+    B: "voice too close and loud, background sounds compete equally, no audio hierarchy",
+    C: "breathing amplified, fabric rustle, words losing meaning in the anxiety",
+    D: "overlapping voices equal volume, fluorescent hum, chair scrapes, paper shuffle",
+    E: "wall of sound — engines, voices, footsteps, announcements — all at equal crushing volume",
+    F: "white noise crescendo, high frequency ringing, voices muffled beneath overwhelming din"
+  };
 
-  const prompt = `Write a Veo 3.1 Fast video prompt for an autism sensory simulation.
+  const LIGHT: Record<Environment, string> = {
+    A: "warm afternoon window light, soft halation on lamps",
+    B: "domestic interior, slightly overexposed, too warm",
+    C: "neutral indoor light, person feels physically too close",
+    D: "harsh fluorescent overhead, clinical and too bright",
+    E: "overexposed daylight, aggressive reflections on glass and metal surfaces",
+    F: "blinding overhead lights, vignette grows darker at frame edges"
+  };
 
-The prompt must be exactly 100-130 words. Use this structure:
+  const anchor = ANCHOR[classification.environment];
+  const scene = SCENE[classification.environment];
+  const camera = CAMERA[classification.environment];
+  const audio = AUDIO[classification.environment];
+  const light = LIGHT[classification.environment];
 
-Shot type + Subject + Action + Setting + Camera + Audio
+  const modifierText = classification.modifier === 'sudden_stimulus'
+    ? " At 4 seconds: single sharp involuntary snap toward a sound source, then slow return."
+    : classification.modifier === 'monotropy'
+    ? " Camera obsessively returns to anchor detail, cannot leave it for more than 1 second."
+    : classification.modifier === 'hyperfocus_positive'
+    ? " Camera stable and calm, focused entirely on the pleasant activity, no anxiety."
+    : "";
 
-SITUATION: "${situation}"
-ENVIRONMENT TYPE: ${ENVIRONMENT_CONTEXT[classification.environment]}
-CAMERA TECHNIQUE: ${directingStyle}
-CAMERA HEIGHT: ${height}cm eye level (first-person POV - we see THROUGH their eyes, never see their body)
-
-RULES:
-- First-person POV only. Never show the protagonist's body, hands, face or shadow
-- Everything feels slightly alien and overwhelming - the autistic person is visiting a foreign world
-- Facial expressions of others are unreadable and slightly unsettling even when neutral
-- Multiple simultaneous stimuli compete for attention
-- Single continuous 8-second loop - last frame matches first frame
-- Photorealistic, no AI artifacts, no glitch effects
-- White/Caucasian light-skinned people
-- Audio: tag at end with specific ambient sounds that feel overwhelming
-- No celebrities, no named individuals
-
-ABSOLUTE RULES - NEVER VIOLATE:
-- This is 100% first-person POV - the camera IS the autistic person's eyes
-- NEVER show: the protagonist's hands, feet, body, face, reflection in mirror/glass, or shadow
-- Other people CAN appear - they are who the protagonist sees
-- Single continuous shot - no cuts, no scene changes, no transitions
-- One location only - do not switch environments mid-video
-- The loop must be seamless - the last frame flows naturally back to the first frame
-- No narration, no subtitles, no text on screen
-- No horror aesthetics - the strangeness comes from perception, not from monsters
-
-Write ONLY the video prompt, nothing else. No explanation.`;
-
-  try {
-    const res = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/" + GEMINI_MODEL + ":generateContent?key=" + apiKey,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ role: "user", parts: [{ text: prompt }] }],
-          generationConfig: { temperature: 0.7, maxOutputTokens: 300 },
-        }),
-      }
-    );
-    if (!res.ok) return fallbackPrompt(situation, height, directingStyle);
-    const data = await res.json();
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
-    return text.trim() || fallbackPrompt(situation, height, directingStyle);
-  } catch {
-    return fallbackPrompt(situation, height, directingStyle);
-  }
-}
-
-function fallbackPrompt(situation: string, height: number, style: string): string {
-  return `First-person POV at ${height}cm eye level. Scene: ${situation}. ${style}. White light-skinned people. Photorealistic 8-second loop. Audio: ambient sounds at overwhelming equal volume, all competing simultaneously.`;
+  return `Action-camera first-person POV at ${height}cm eye level. Scene: ${situation}. ${scene}. Extreme close-up on ${anchor}. Shallow depth of field f/1.4. ${camera}.${modifierText} ${light} — 40% overexposed on light sources. Colors slightly oversaturated. Background figures Caucasian light-skinned, blurred in bokeh. Seamless 8-second loop: final frame identical to opening frame. Audio: ${audio}. No glitch effects. No AI artifacts. Photorealistic documentary style. No protagonist body visible.`;
 }
 
 const RESEARCH_CONTEXT =
@@ -268,10 +242,9 @@ export async function POST(req: NextRequest) {
     const cleaned = raw.replace(/```json/gi, "").replace(/```/g, "").trim();
     const result = JSON.parse(cleaned);
 
-    // Build the video_prompt: a second Gemini call writes the full Veo prompt
-    // from the classification + a directing style.
+    // Build the video_prompt deterministically from the classification (no Gemini call).
     const classification = await classificationPromise;
-    result.video_prompt = await buildVeoPrompt(classification, String(situation), Number(age), apiKey);
+    result.video_prompt = buildVeoPrompt(classification, String(situation), Number(age));
 
     // Generate reference image for image-to-video pipeline
     let imageBase64: string | null = null;
