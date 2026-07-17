@@ -132,12 +132,12 @@ function buildVeoPrompt(
   };
 
   const AMBIENT_AUDIO: Record<Environment, string> = {
-    A: "audio: refrigerator hum and clock ticking at SAME volume as any distant voice — no audio hierarchy, all sounds equally present, own breathing audible",
-    B: "audio: voice of person speaking competes equally with background hum, fabric rustle, distant traffic — no foreground audio, all tracks equal volume",
-    C: "audio: stranger's voice mixed equally with room noise, own heartbeat, air conditioning — words lose meaning, blur into ambient texture",
-    D: "audio: teacher voice, student shuffles, fluorescent hum, pencil taps, ventilation — ALL at identical crushing volume, overlapping without hierarchy",
-    E: "audio: wall of sound — voices, engines, music, footsteps, announcements — multiple simultaneous tracks, sharp unexpected sounds pan left to right abruptly",
-    F: "audio: total audio overload — all sounds merge into undifferentiated white noise, high frequency ringing emerges, human voices lose intelligibility"
+    A: "refrigerator hum and clock ticking at SAME volume as any distant voice — no audio hierarchy, all sounds equally present, own breathing audible",
+    B: "voice of person speaking competes equally with background hum, fabric rustle, distant traffic — no foreground audio, all tracks equal volume",
+    C: "stranger's voice mixed equally with room noise, own heartbeat, air conditioning — words lose meaning, blur into ambient texture",
+    D: "teacher voice, student shuffles, fluorescent hum, pencil taps, ventilation — ALL at identical crushing volume, overlapping without hierarchy",
+    E: "wall of sound — voices, engines, music, footsteps, announcements — multiple simultaneous tracks, sharp unexpected sounds pan left to right abruptly",
+    F: "total audio overload — all sounds merge into undifferentiated white noise, high frequency ringing emerges, human voices lose intelligibility"
   };
 
   const style = DIRECTING_STYLE[classification.environment];
