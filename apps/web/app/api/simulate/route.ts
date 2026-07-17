@@ -18,6 +18,7 @@ async function classifyEnvironment(situation: string, apiKey: string): Promise<{
   modifier: Modifier;
   load_level: LoadLevel;
 }> {
+  console.log("CLASSIFYING:", situation);
   const prompt =
     `Classify this situation for an autism sensory simulation. Return ONLY valid JSON.\n\n` +
     `Situation: ${situation}\n\n` +
@@ -58,7 +59,8 @@ async function classifyEnvironment(situation: string, apiKey: string): Promise<{
     const load: LoadLevel = ["low", "medium", "high", "shutdown"].includes(parsed.load_level) ? parsed.load_level : "medium";
     console.log("CLASSIFICATION:", JSON.stringify({ environment: env, modifier: mod, load_level: load }));
     return { environment: env, modifier: mod, load_level: load };
-  } catch {
+  } catch (e) {
+    console.error("CLASSIFICATION FAILED - using fallback A:", e);
     return fallback;
   }
 }
