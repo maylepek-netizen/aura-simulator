@@ -74,31 +74,67 @@ async function buildVeoPrompt(
 ): Promise<string> {
   const height = age <= 12 ? 105 : age <= 17 ? 145 : 165;
 
-  const CAMERA_MOVE: Record<Environment, string> = {
-    A: "camera locked on one mundane detail, micro-tremor, slow drift around it then back - hypnotic loop",
-    B: "slow gaze cycle: face (sharp) → drifts to nearby irrelevant detail (sharp) → back to face (soft then sharp) - processing delay visible",
-    C: "camera pulls away from face to clothing texture, slowly returns, never fully comfortable - oscillates",
-    D: "rack focus cycles between speakers' mouths, always 0.3s late, background faces blur in and out equally",
-    E: "gaze drifts DOWN to floor/feet/product (sharp) → slowly lifts back UP to crowd (slightly blurred) → repeat. Sudden involuntary snap to light source mid-cycle",
-    F: "rapid involuntary pans, everything briefly goes soft/blurry between movements as if consciousness skips frames, then snaps back sharp"
+  const ENVIRONMENT_CONTEXT: Record<Environment, string> = {
+    A: "calm familiar home space, low stimulation, safe",
+    B: "with close family/friend - could be calm or conflict",
+    C: "interacting with a stranger - uncomfortable proximity",
+    D: "classroom or small group - attention splitting between speakers",
+    E: "busy public space - street, mall, transport - sensory overload",
+    F: "large crowd or event - shutdown level overload"
   };
 
-  const prompt = `Film director prompt for Google Veo 3.1. Write 110-120 words. No brackets. No explanation.
+  const DIRECTING_STYLES = [
+    "rack focus: sharp on one face, everything else blurs, then slowly refocuses on a different detail",
+    "slow head-turn pan: camera drifts across the scene as if scanning, pausing involuntarily on an irrelevant detail",
+    "sudden snap: camera completely still, then a quick involuntary turn toward a sound or movement, then slow return",
+    "hyperfocus drift: camera slowly orbits one specific texture or object while the social scene continues in soft background",
+    "sensory burn: slight overexposure on light sources, camera barely moves but everything feels too bright and too close",
+    "delayed response: camera turns toward someone speaking 0.5 seconds too late, always catching up to the conversation"
+  ];
+
+  // Pick a directing style based on environment and modifier
+  const styleIndex = classification.environment === 'A' ? 3 :
+    classification.environment === 'B' ? (classification.modifier === 'sudden_stimulus' ? 2 : 0) :
+    classification.environment === 'C' ? 4 :
+    classification.environment === 'D' ? 0 :
+    classification.environment === 'E' ? 5 :
+    1; // F
+
+  const directingStyle = DIRECTING_STYLES[styleIndex];
+
+  const prompt = `Write a Veo 3.1 Fast video prompt for an autism sensory simulation.
+
+The prompt must be exactly 100-130 words. Use this structure:
+
+Shot type + Subject + Action + Setting + Camera + Audio
 
 SITUATION: "${situation}"
-This is what the video shows. Everything must come from: "${situation}"
+ENVIRONMENT TYPE: ${ENVIRONMENT_CONTEXT[classification.environment]}
+CAMERA TECHNIQUE: ${directingStyle}
+CAMERA HEIGHT: ${height}cm eye level (first-person POV - we see THROUGH their eyes, never see their body)
 
-USER: ${age} years old, camera at ${height}cm eye level, first-person POV.
+RULES:
+- First-person POV only. Never show the protagonist's body, hands, face or shadow
+- Everything feels slightly alien and overwhelming - the autistic person is visiting a foreign world
+- Facial expressions of others are unreadable and slightly unsettling even when neutral
+- Multiple simultaneous stimuli compete for attention
+- Single continuous 8-second loop - last frame matches first frame
+- Photorealistic, no AI artifacts, no glitch effects
+- White/Caucasian light-skinned people
+- Audio: tag at end with specific ambient sounds that feel overwhelming
+- No celebrities, no named individuals
 
-The video structure (8-second seamless loop):
-- Seconds 0-2: camera on specific small detail from "${situation}" (sharp focus)
-- Seconds 2-5: gaze slowly lifts to the main scene from "${situation}" (slight blur between, then sharp)
-- Seconds 5-7: one involuntary snap to a light/sound, slow return
-- Seconds 7-8: gaze drifts back to starting detail (same as second 0)
+ABSOLUTE RULES - NEVER VIOLATE:
+- This is 100% first-person POV - the camera IS the autistic person's eyes
+- NEVER show: the protagonist's hands, feet, body, face, reflection in mirror/glass, or shadow
+- Other people CAN appear - they are who the protagonist sees
+- Single continuous shot - no cuts, no scene changes, no transitions
+- One location only - do not switch environments mid-video
+- The loop must be seamless - the last frame flows naturally back to the first frame
+- No narration, no subtitles, no text on screen
+- No horror aesthetics - the strangeness comes from perception, not from monsters
 
-Apply: ${CAMERA_MOVE[classification.environment]}
-
-Write the actual video prompt now. Start with the location from "${situation}". Include specific sounds from "${situation}".`;
+Write ONLY the video prompt, nothing else. No explanation.`;
 
   try {
     const res = await fetch(
@@ -108,22 +144,21 @@ Write the actual video prompt now. Start with the location from "${situation}". 
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           contents: [{ role: "user", parts: [{ text: prompt }] }],
-          generationConfig: { temperature: 0.4, maxOutputTokens: 250 },
+          generationConfig: { temperature: 0.7, maxOutputTokens: 300 },
         }),
       }
     );
-    if (!res.ok) return fallbackPrompt(situation, height, CAMERA_MOVE[classification.environment]);
+    if (!res.ok) return fallbackPrompt(situation, height, directingStyle);
     const data = await res.json();
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
-    console.log("VEO PROMPT SENT:", text.substring(0, 300));
-    return text.trim() || fallbackPrompt(situation, height, CAMERA_MOVE[classification.environment]);
+    return text.trim() || fallbackPrompt(situation, height, directingStyle);
   } catch {
-    return fallbackPrompt(situation, height, CAMERA_MOVE[classification.environment]);
+    return fallbackPrompt(situation, height, directingStyle);
   }
 }
 
-function fallbackPrompt(situation: string, height: number, cameraMove: string): string {
-  return `Action-camera first-person POV at ${height}cm. Scene: ${situation}. Extreme close-up on one small object, shallow depth of field f/1.2. ${cameraMove}. Overexposed harsh lighting. Seamless 8-second loop. Audio: overwhelming sounds from this exact scene at equal volume. Photorealistic, no glitch effects, white light-skinned people.`;
+function fallbackPrompt(situation: string, height: number, style: string): string {
+  return `First-person POV at ${height}cm eye level. Scene: ${situation}. ${style}. White light-skinned people. Photorealistic 8-second loop. Audio: ambient sounds at overwhelming equal volume, all competing simultaneously.`;
 }
 
 const RESEARCH_CONTEXT =
