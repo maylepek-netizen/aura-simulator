@@ -83,25 +83,22 @@ async function buildVeoPrompt(
     F: "rapid involuntary pans, everything briefly goes soft/blurry between movements as if consciousness skips frames, then snaps back sharp"
   };
 
-  const prompt = `You are a film director creating a video for an autism sensory simulation app.
+  const prompt = `Film director prompt for Google Veo 3.1. Write 110-120 words. No brackets. No explanation.
 
-The user is experiencing this situation: "${situation}"
-The user is ${age} years old (camera at ${height}cm eye level).
-Camera style: ${CAMERA_MOVE[classification.environment]}
+SITUATION: "${situation}"
+This is what the video shows. Everything must come from: "${situation}"
 
-Write a single paragraph video prompt (110-130 words) for Google Veo 3.1.
-Describe EXACTLY what appears in this specific situation: "${situation}"
+USER: ${age} years old, camera at ${height}cm eye level, first-person POV.
 
-MANDATORY DIRECTING ELEMENTS to include:
-1. GAZE CYCLE (creates the loop): camera starts on ANCHOR (small specific object/detail from the situation) → slowly drifts to MAIN SCENE (people/environment) → returns to ANCHOR. First and last frame are identical on the anchor.
-2. FOCUS PLAY: between the anchor and the scene, the focus softens and then sharpens - like a moment of dissociation before snapping back to reality
-3. ONE INVOLUNTARY MOMENT: mid-loop, an unexpected micro-movement toward a light or sound, then slow return
-4. SENSORY AMPLIFICATION: lights feel too bright, colors slightly oversaturated on the anchor detail
-5. AUDIO: specific overwhelming sounds from this exact situation, all at equal crushing volume
+The video structure (8-second seamless loop):
+- Seconds 0-2: camera on specific small detail from "${situation}" (sharp focus)
+- Seconds 2-5: gaze slowly lifts to the main scene from "${situation}" (slight blur between, then sharp)
+- Seconds 5-7: one involuntary snap to a light/sound, slow return
+- Seconds 7-8: gaze drifts back to starting detail (same as second 0)
 
-Apply camera style: ${CAMERA_MOVE[classification.environment]}
+Apply: ${CAMERA_MOVE[classification.environment]}
 
-Do NOT use brackets or placeholders. Write actual specific details. End with: "Seamless 8-second loop, first and last frame identical. No glitch effects. Photorealistic."`;
+Write the actual video prompt now. Start with the location from "${situation}". Include specific sounds from "${situation}".`;
 
   try {
     const res = await fetch(
