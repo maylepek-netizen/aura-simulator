@@ -87,7 +87,7 @@ function buildVeoPrompt(
     },
     B: { // Personal Space - close person
       camera: "Tense defensive first-person POV. Camera moves jerkily, trying to pull away but face keeps filling frame.",
-      focus: "Face takes up 50-60% of frame. Shallow depth of field — clothing details sharp, face slightly soft. Camera oscillates between face and nearby safe object.",
+      focus: "Face of the person fills 50-60% of frame. Expression intense and unreadable — mouth moving, eyes too direct. Camera drifts involuntarily to their collar or shoulder (sharp, 1 second) then pulled back to face. f/1.4.",
       lighting: "Face harshly lit. Background obscured by heavy blur. Slightly overexposed on skin.",
       details: "Expression unreadable, neither hostile nor friendly. Camera drifts to collar/shoulder/object, returns reluctantly to face."
     },
@@ -119,7 +119,7 @@ function buildVeoPrompt(
 
   const ANCHOR_OBJECT: Record<Environment, string> = {
     A: "one small specific object nearby — its texture, surface pattern, or subtle movement",
-    B: "the person's collar, sleeve edge, or a nearby object — fabric texture in extreme close-up",
+    B: "the person's face and upper body — their expression, mouth movement, and gestures are the anchor",
     C: "the floor surface, a nearby fixed object, or own hands — any safe anchor detail",
     D: "edge of desk, notebook corner, or pen — surface texture as safe anchor amid chaos",
     E: "floor tiles, shelf edge, or product label — texture close-up before gaze sweeps up",
