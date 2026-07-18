@@ -280,9 +280,16 @@ export default function ResearchPage() {
         }
 
         /* ── Left column ── */
-        /* No side padding — the grid's column-gap provides the spacing, so the
-           gaps left-of-wheel and right-of-wheel stay visually equal. */
-        .r-left { padding-right: 0; }
+        /* Capped and pushed to the track's right edge so leftover space in the
+           track doesn't inflate the gap before the wheel. Mirrors the right
+           card's 340px for symmetry. The description is width-capped too so the
+           column's text block reads as a solid edge rather than ragged space. */
+        .r-left {
+          padding-right: 0;
+          width: 100%;
+          max-width: 340px;
+          margin-left: auto;   /* hug the wheel side of the track */
+        }
         .r-heading {
           font-family: 'Amiri', serif;
           font-size: clamp(38px, 3.4vw, 52px);
@@ -328,6 +335,10 @@ export default function ResearchPage() {
           display: flex; flex-direction: column;
           align-items: center; justify-content: center;
           width: 100%;
+          /* The left column's text edge is ragged (glyphs, no border) while the
+             right card has a hard border, so an exactly-centred wheel still
+             reads as sitting right. Nudge left to balance it optically. */
+          transform: translateX(-14px);
         }
         .r-map-label {
           font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
@@ -336,12 +347,15 @@ export default function ResearchPage() {
         /* Breathing room between the prompt and the wheel */
         .r-map-arrow { color: rgba(255,255,255,0.25); font-size: 12px; text-align: center; margin: 0 0 20px; }
 
-        /* The wheel shrinks to fit the available height — never forces a scroll */
+        /* The wheel shrinks to fit the available height — never forces a scroll.
+           margin: 0 auto guarantees it is centred within the middle column. */
         .r-wheel {
+          display: block;
           width: 100%;
           height: auto;
           max-width: 500px;
           max-height: calc(100vh - 260px);
+          margin: 0 auto;
         }
 
         .topic-node { cursor: pointer; transition: all 0.25s ease; }
@@ -765,20 +779,20 @@ export default function ResearchPage() {
               })}
 
               {/* ── Centre: warm glow + dotted ring + the AURA eye ── */}
-              <circle cx={CX} cy={CY} r={78} fill="url(#eyeGlow)" />
+              <circle cx={CX} cy={CY} r={47} fill="url(#eyeGlow)" />
               <circle
-                cx={CX} cy={CY} r={62}
+                cx={CX} cy={CY} r={37}
                 fill="none"
                 stroke="rgba(255,201,157,0.26)"
                 strokeWidth={1}
-                strokeDasharray="1 7"
+                strokeDasharray="1 6"
                 className="eye-ring"
                 style={{ transformOrigin: `${CX}px ${CY}px` }}
               />
               <image
                 href="/icons/New_logo_eye.svg"
-                x={CX - 48} y={CY - 48}
-                width={96} height={96}
+                x={CX - 29} y={CY - 29}
+                width={58} height={58}
                 preserveAspectRatio="xMidYMid meet"
                 opacity={0.9}
               />
