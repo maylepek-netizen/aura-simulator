@@ -10,11 +10,12 @@ import type { SimulationRecord } from "@/lib/simulationStorage";
 type AgeBand = "All" | "Child" | "Teen" | "Adult";
 type LoadBand = "All" | "Low" | "Medium" | "High" | "Shutdown";
 
-const AGE_BANDS: { key: AgeBand; label: string }[] = [
-  { key: "All", label: "All" },
-  { key: "Child", label: "Child (5-12)" },
-  { key: "Teen", label: "Teen (13-18)" },
-  { key: "Adult", label: "Adult (18+)" },
+// Ordered low→high so the age slider reads left-to-right as increasing age.
+const AGE_BANDS: { key: AgeBand; label: string; sliderLabel: string }[] = [
+  { key: "All", label: "All", sliderLabel: "All ages" },
+  { key: "Child", label: "Child (5-12)", sliderLabel: "Child 5–12" },
+  { key: "Teen", label: "Teen (13-18)", sliderLabel: "Teen 13–18" },
+  { key: "Adult", label: "Adult (18+)", sliderLabel: "Adult 18+" },
 ];
 
 const LOAD_BANDS: LoadBand[] = ["All", "Low", "Medium", "High", "Shutdown"];
@@ -279,6 +280,43 @@ export default function BankPage() {
         @keyframes pageFadeIn { from { opacity: 0; } to { opacity: 1; } }
         .filter-btn { transition: background 0.2s, border-color 0.2s, color 0.2s; }
         .filter-btn:hover { background: rgba(255,255,255,0.08) !important; }
+
+        /* Age slider — thin, minimal, warm accent */
+        .age-slider {
+          -webkit-appearance: none;
+          appearance: none;
+          width: 150px;
+          height: 2px;
+          border-radius: 2px;
+          background: rgba(255,255,255,0.14);
+          outline: none;
+          cursor: pointer;
+          margin: 0;
+        }
+        .age-slider::-webkit-slider-thumb {
+          -webkit-appearance: none;
+          appearance: none;
+          width: 11px; height: 11px;
+          border-radius: 50%;
+          background: #FFC99D;
+          border: none;
+          cursor: pointer;
+          box-shadow: 0 0 6px rgba(255,201,157,0.5);
+          transition: box-shadow 0.2s;
+        }
+        .age-slider::-webkit-slider-thumb:hover { box-shadow: 0 0 10px rgba(255,201,157,0.8); }
+        .age-slider::-moz-range-thumb {
+          width: 11px; height: 11px;
+          border-radius: 50%;
+          background: #FFC99D;
+          border: none;
+          cursor: pointer;
+        }
+        .age-slider::-moz-range-track {
+          height: 2px;
+          border-radius: 2px;
+          background: rgba(255,255,255,0.14);
+        }
       `}</style>
 
       {/* Radial gradient overlay */}
@@ -289,74 +327,79 @@ export default function BankPage() {
         position: "fixed", top: 0, left: 0, right: 0, zIndex: 20,
         background: "rgba(0,0,0,0.72)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)",
         borderBottom: "1px solid rgba(255,255,255,0.07)",
-        display: "flex", flexDirection: "column", gap: 10, padding: "12px 28px 14px",
+        display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap",
+        padding: "12px 24px",
         animation: "pageFadeIn 0.8s ease",
       }}>
-        {/* Row 1 — title + gender + actions */}
-        <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10, marginRight: 8 }}>
-            <img src="/icons/bank.svg" alt="" style={{ width: 18, opacity: 0.6 }} />
-            <span style={{ fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.7)" }}>Simulation Bank</span>
-            <span style={{ fontSize: 10, letterSpacing: "0.1em", color: "rgba(255,255,255,0.25)", fontFamily: "var(--font-body)" }}>{records.length} saved</span>
-          </div>
-
-          <div style={{ width: 1, height: 20, background: "rgba(255,255,255,0.1)" }} />
-
-          {/* Gender filter */}
-          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <span style={{ fontSize: 9, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)" }}>Gender</span>
-            {["All", "Male", "Female", "Non-binary"].map(g => (
-              <button key={g} type="button" className="filter-btn" onClick={() => setGenderFilter(g)} style={{
-                height: 24, padding: "0 10px", borderRadius: 4,
-                border: `1px solid ${genderFilter === g ? "rgba(255,201,157,0.5)" : "rgba(255,255,255,0.12)"}`,
-                background: genderFilter === g ? "rgba(255,201,157,0.08)" : "transparent",
-                fontSize: 9, letterSpacing: "0.12em", textTransform: "uppercase",
-                color: genderFilter === g ? "#FFC99D" : "rgba(255,255,255,0.45)",
-                cursor: "pointer",
-              }}>{g}</button>
-            ))}
-          </div>
-
-          <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
-            <button type="button" className="filter-btn" onClick={() => navigate("/chat")} style={{ height: 30, padding: "0 14px", borderRadius: 5, border: "1px solid rgba(255,255,255,0.15)", background: "transparent", fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.55)", cursor: "pointer" }}>
-              New Simulation
-            </button>
-          </div>
+        {/* Title */}
+        <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
+          <img src="/icons/bank.svg" alt="" style={{ width: 17, opacity: 0.6 }} />
+          <span style={{ fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.7)", whiteSpace: "nowrap" }}>Simulation Bank</span>
+          <span style={{ fontSize: 10, letterSpacing: "0.1em", color: "rgba(255,255,255,0.25)", fontFamily: "var(--font-body)", whiteSpace: "nowrap" }}>{records.length} saved</span>
         </div>
 
-        {/* Row 2 — age band + anxiety/sensory level */}
-        <div style={{ display: "flex", alignItems: "center", gap: 24, flexWrap: "wrap" }}>
-          {/* Age band */}
-          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <span style={{ fontSize: 9, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)" }}>Age</span>
-            {AGE_BANDS.map(({ key, label }) => (
-              <button key={key} type="button" className="filter-btn" onClick={() => setAgeFilter(key)} style={{
-                height: 24, padding: "0 10px", borderRadius: 4,
-                border: `1px solid ${ageFilter === key ? "rgba(255,201,157,0.5)" : "rgba(255,255,255,0.12)"}`,
-                background: ageFilter === key ? "rgba(255,201,157,0.08)" : "transparent",
-                fontSize: 9, letterSpacing: "0.12em", textTransform: "uppercase",
-                color: ageFilter === key ? "#FFC99D" : "rgba(255,255,255,0.45)",
-                cursor: "pointer",
-              }}>{label}</button>
-            ))}
-          </div>
+        <div style={{ width: 1, height: 18, background: "rgba(255,255,255,0.1)", flexShrink: 0 }} />
 
-          <div style={{ width: 1, height: 20, background: "rgba(255,255,255,0.1)" }} />
+        {/* Gender pills */}
+        <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+          <span style={{ fontSize: 9, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)", marginRight: 1 }}>Gender</span>
+          {["All", "Male", "Female", "Non-binary"].map(g => (
+            <button key={g} type="button" className="filter-btn" onClick={() => setGenderFilter(g)} style={{
+              height: 22, padding: "0 8px", borderRadius: 4,
+              border: `1px solid ${genderFilter === g ? "rgba(255,201,157,0.5)" : "rgba(255,255,255,0.12)"}`,
+              background: genderFilter === g ? "rgba(255,201,157,0.08)" : "transparent",
+              fontSize: 8.5, letterSpacing: "0.1em", textTransform: "uppercase",
+              color: genderFilter === g ? "#FFC99D" : "rgba(255,255,255,0.45)",
+              cursor: "pointer", whiteSpace: "nowrap",
+            }}>{g}</button>
+          ))}
+        </div>
 
-          {/* Anxiety / sensory level */}
-          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <span style={{ fontSize: 9, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)" }}>Level</span>
-            {LOAD_BANDS.map(b => (
-              <button key={b} type="button" className="filter-btn" onClick={() => setLoadFilter(b)} style={{
-                height: 24, padding: "0 10px", borderRadius: 4,
-                border: `1px solid ${loadFilter === b ? "rgba(255,201,157,0.5)" : "rgba(255,255,255,0.12)"}`,
-                background: loadFilter === b ? "rgba(255,201,157,0.08)" : "transparent",
-                fontSize: 9, letterSpacing: "0.12em", textTransform: "uppercase",
-                color: loadFilter === b ? "#FFC99D" : "rgba(255,255,255,0.45)",
-                cursor: "pointer",
-              }}>{b}</button>
-            ))}
-          </div>
+        <div style={{ width: 1, height: 18, background: "rgba(255,255,255,0.1)", flexShrink: 0 }} />
+
+        {/* Age slider — snaps to the four bands */}
+        <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
+          <span style={{ fontSize: 9, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)" }}>Age</span>
+          <input
+            type="range"
+            className="age-slider"
+            min={0}
+            max={AGE_BANDS.length - 1}
+            step={1}
+            value={AGE_BANDS.findIndex(b => b.key === ageFilter)}
+            onChange={(e) => setAgeFilter(AGE_BANDS[Number(e.target.value)].key)}
+            aria-label="Filter by age band"
+          />
+          <span style={{
+            fontSize: 9, letterSpacing: "0.12em", textTransform: "uppercase",
+            color: ageFilter === "All" ? "rgba(255,255,255,0.45)" : "#FFC99D",
+            whiteSpace: "nowrap", minWidth: 74, fontFamily: "var(--font-body)",
+          }}>
+            {AGE_BANDS.find(b => b.key === ageFilter)?.sliderLabel}
+          </span>
+        </div>
+
+        <div style={{ width: 1, height: 18, background: "rgba(255,255,255,0.1)", flexShrink: 0 }} />
+
+        {/* Level pills — label dropped to save width */}
+        <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+          {LOAD_BANDS.map(b => (
+            <button key={b} type="button" className="filter-btn" onClick={() => setLoadFilter(b)} style={{
+              height: 22, padding: "0 8px", borderRadius: 4,
+              border: `1px solid ${loadFilter === b ? "rgba(255,201,157,0.5)" : "rgba(255,255,255,0.12)"}`,
+              background: loadFilter === b ? "rgba(255,201,157,0.08)" : "transparent",
+              fontSize: 8.5, letterSpacing: "0.1em", textTransform: "uppercase",
+              color: loadFilter === b ? "#FFC99D" : "rgba(255,255,255,0.45)",
+              cursor: "pointer", whiteSpace: "nowrap",
+            }}>{b}</button>
+          ))}
+        </div>
+
+        {/* New Simulation — far right */}
+        <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
+          <button type="button" className="filter-btn" onClick={() => navigate("/chat")} style={{ height: 28, padding: "0 13px", borderRadius: 5, border: "1px solid rgba(255,255,255,0.15)", background: "transparent", fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.55)", cursor: "pointer", whiteSpace: "nowrap" }}>
+            New Simulation
+          </button>
         </div>
       </div>
 
@@ -376,7 +419,7 @@ export default function BankPage() {
           position: "absolute",
           width: 3000, height: 2000,
           left: offset.x,
-          top: offset.y + 100, // clears the two-row filter bar
+          top: offset.y + 64, // clears the single-row filter bar
           transform: `scale(${scale})`,
           transformOrigin: "0 0",
           transition: dragging.current || pinchDist.current != null ? "none" : "transform 0.1s, left 0.05s, top 0.05s",
@@ -413,7 +456,7 @@ export default function BankPage() {
       {/* Drag hint — near the top, fades 3s after the first drag */}
       {!loading && records.length > 0 && (
         <div style={{
-          position: "fixed", top: 116, left: "50%", transform: "translateX(-50%)",
+          position: "fixed", top: 78, left: "50%", transform: "translateX(-50%)",
           display: "flex", alignItems: "center", gap: 8,
           fontFamily: "var(--font-body)",
           fontSize: 11, letterSpacing: "0.16em", textTransform: "uppercase",
