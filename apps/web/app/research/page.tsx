@@ -210,11 +210,12 @@ export default function ResearchPage() {
     setActiveTopic(idx);
   }
 
-  // SVG circle layout
-  const CX = 220;
-  const CY = 230;
-  const RX = 165;
-  const RY = 165;
+  // SVG circle layout — the wheel is the dominant element, so it runs large.
+  const SVG = 620;
+  const CX = SVG / 2;
+  const CY = SVG / 2;
+  const RX = 236;
+  const RY = 236;
 
   return (
     <>
@@ -257,45 +258,46 @@ export default function ResearchPage() {
         /* ── Main 3-column grid ── */
         .r-main {
           display: grid;
-          grid-template-columns: 300px 1fr 340px;
-          gap: 40px;
-          min-height: calc(100vh - 60px - 340px);
-          padding: 64px 32px 0;
+          grid-template-columns: 25% 50% 25%;
+          gap: 32px;
+          align-items: center;              /* vertically centre the wheel */
+          min-height: calc(100vh - 60px);
+          padding: 48px 48px 24px;
           width: 100%;
-          max-width: 1100px;
+          max-width: 1500px;
           margin: 0 auto;
         }
-        @media (max-width: 1100px) {
-          .r-main { grid-template-columns: 1fr; gap: 48px; padding: 40px 24px 0; }
-          .r-right { padding-left: 0 !important; border-left: none !important; }
+        @media (max-width: 1200px) {
+          .r-main { grid-template-columns: 1fr; gap: 56px; padding: 40px 24px 0; align-items: start; }
+          .r-right { padding-left: 0 !important; border-left: none !important; margin: 0 auto !important; }
           .r-left { padding-right: 0 !important; }
         }
 
         /* ── Left column ── */
-        .r-left { padding-right: 40px; }
+        .r-left { padding-right: 32px; }
         .r-heading {
           font-family: 'Amiri', serif;
-          font-size: clamp(40px, 4vw, 56px);
+          font-size: clamp(38px, 3.4vw, 52px);
           font-weight: 400;
           line-height: 1.05;
-          color: #fff;
+          color: #FFE9D2;                    /* peach/cream serif, not white */
           margin: 0 0 20px;
         }
         .r-desc {
-          font-size: 15px;
-          line-height: 1.8;
-          color: rgba(255,255,255,0.5);
-          margin: 0 0 44px;
+          font-size: 14px;
+          line-height: 1.75;
+          color: rgba(255,255,255,0.45);
+          margin: 0 0 36px;
         }
         .r-stats {
           display: grid; grid-template-columns: 1fr 1fr;
-          gap: 24px 16px;
-          margin-bottom: 36px;
+          gap: 20px 14px;
+          margin-bottom: 30px;
         }
         .r-stat-num {
           font-family: 'Amiri', serif;
-          font-size: 32px; color: #FFC99D; line-height: 1;
-          margin-bottom: 4px;
+          font-size: 30px; color: #FFC99D; line-height: 1;
+          margin-bottom: 3px;
         }
         .r-stat-label {
           font-size: 10px; letter-spacing: 0.18em;
@@ -314,24 +316,32 @@ export default function ResearchPage() {
         .r-cta-btn:hover { background: rgba(255,201,157,0.06); border-color: #FFC99D; }
 
         /* ── Center: SVG map ── */
-        .r-center { display: flex; flex-direction: column; align-items: center; }
+        .r-center { display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .r-map-label {
           font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
-          color: rgba(255,255,255,0.3); text-align: center; margin-bottom: 8px;
+          color: rgba(255,255,255,0.3); text-align: center; margin: 0 0 6px;
         }
-        .r-map-arrow { color: rgba(255,255,255,0.25); font-size: 12px; text-align: center; margin-bottom: 16px; }
+        /* Clear breathing room between the prompt and the wheel */
+        .r-map-arrow { color: rgba(255,255,255,0.25); font-size: 12px; text-align: center; margin: 0 0 40px; }
+
+        /* The wheel scales down on smaller viewports but keeps its proportions */
+        .r-wheel { width: 100%; height: auto; max-width: 620px; }
 
         .topic-node { cursor: pointer; transition: all 0.25s ease; }
         .topic-node:hover .node-circle { filter: drop-shadow(0 0 10px rgba(255,201,157,0.5)); }
 
+        /* Slow rotation on the dotted ring around the eye */
+        @keyframes eyeRingSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .eye-ring { animation: eyeRingSpin 90s linear infinite; }
+
         .r-counter {
-          margin-top: 12px; text-align: center;
+          margin-top: 40px; text-align: center;
           font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase;
           color: rgba(255,255,255,0.35);
         }
         .r-counter span { color: rgba(255,255,255,0.7); font-size: 16px; font-family: 'Amiri', serif; letter-spacing: 0; }
         .r-progress {
-          display: flex; gap: 3px; justify-content: center; margin-top: 8px;
+          display: flex; gap: 4px; justify-content: center; margin-top: 12px;
         }
         .r-prog-seg {
           height: 2px; width: 22px; border-radius: 1px;
@@ -340,11 +350,43 @@ export default function ResearchPage() {
         }
         .r-prog-seg.active { background: #FFC99D; }
 
-        /* ── Right panel ── */
+        /* ── Right panel — a contained card, not an open column ── */
         .r-right {
-          padding-left: 32px;
-          border-left: 1px solid rgba(255,255,255,0.06);
+          width: 100%;
+          max-width: 360px;
+          margin-left: auto;
+          background: rgba(255,255,255,0.02);
+          border: 1px solid rgba(255,255,255,0.09);
+          border-radius: 16px;
+          padding: 26px 24px;
         }
+        /* Thin divider between the header block and the finding */
+        .r-divider {
+          height: 1px;
+          background: rgba(255,255,255,0.09);
+          margin: 0 0 20px;
+        }
+        /* Filled peach CTA at the bottom of the card */
+        .r-full-research {
+          display: block;
+          width: 100%;
+          margin-top: 4px;
+          background: #FFC99D;
+          color: #1a0f00;
+          border: none;
+          border-radius: 10px;
+          padding: 13px 18px;
+          font-size: 11px;
+          letter-spacing: 0.18em;
+          text-transform: uppercase;
+          font-weight: 600;
+          font-family: 'Assistant', sans-serif;
+          cursor: pointer;
+          transition: box-shadow 0.2s ease, opacity 0.2s ease;
+          opacity: 0.92;
+        }
+        .r-full-research:hover { opacity: 1; box-shadow: 0 0 20px rgba(255,201,157,0.5); }
+
         .r-topic-num {
           font-size: 11px; letter-spacing: 0.22em;
           color: rgba(255,255,255,0.25); margin-bottom: 6px;
@@ -628,6 +670,10 @@ export default function ResearchPage() {
                 <div className="r-stat-label">Data Points</div>
               </div>
             </div>
+
+            <button type="button" className="r-cta-btn">
+              View Methodology <span aria-hidden>→</span>
+            </button>
           </div>
 
           {/* CENTER — SVG knowledge map */}
@@ -635,14 +681,27 @@ export default function ResearchPage() {
             <p className="r-map-label">Explore the research<br />by selecting a topic</p>
             <p className="r-map-arrow">↓</p>
 
-            <svg width={440} height={460} viewBox="0 0 440 460" style={{ overflow: "visible" }}>
-              {/* Dashed orbit ring */}
+            <svg
+              className="r-wheel"
+              width={SVG} height={SVG} viewBox={`0 0 ${SVG} ${SVG}`}
+              style={{ overflow: "visible" }}
+            >
+              <defs>
+                {/* Warm glow behind the centre eye */}
+                <radialGradient id="eyeGlow" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stopColor="#FFC99D" stopOpacity="0.20" />
+                  <stop offset="55%" stopColor="#FFC99D" stopOpacity="0.07" />
+                  <stop offset="100%" stopColor="#FFC99D" stopOpacity="0" />
+                </radialGradient>
+              </defs>
+
+              {/* Dotted orbit ring the nodes sit on */}
               <circle
                 cx={CX} cy={CY} r={RX}
                 fill="none"
-                stroke="rgba(255,201,157,0.15)"
+                stroke="rgba(255,201,157,0.22)"
                 strokeWidth={1}
-                strokeDasharray="4 6"
+                strokeDasharray="2 8"
               />
 
               {/* Connecting lines between adjacent nodes */}
@@ -661,13 +720,36 @@ export default function ResearchPage() {
                 );
               })}
 
-              {/* Eye logo in center */}
+              {/* Small coloured dot nodes on the ring, between the circles */}
+              {TOPICS.map((_, i) => {
+                const mid = getNodePos(i + 0.5, TOPICS.length, RX, RY);
+                return (
+                  <circle
+                    key={`dot-${i}`}
+                    cx={CX + mid.x} cy={CY + mid.y} r={2.5}
+                    fill={accent(i)}
+                    opacity={0.55}
+                  />
+                );
+              })}
+
+              {/* ── Centre: warm glow + dotted ring + the AURA eye ── */}
+              <circle cx={CX} cy={CY} r={132} fill="url(#eyeGlow)" />
+              <circle
+                cx={CX} cy={CY} r={104}
+                fill="none"
+                stroke="rgba(255,201,157,0.28)"
+                strokeWidth={1}
+                strokeDasharray="1 7"
+                className="eye-ring"
+                style={{ transformOrigin: `${CX}px ${CY}px` }}
+              />
               <image
                 href="/icons/New_logo_eye.svg"
-                x={CX - 30} y={CY - 30}
-                width={60} height={60}
+                x={CX - 82} y={CY - 82}
+                width={164} height={164}
                 preserveAspectRatio="xMidYMid meet"
-                opacity={0.8}
+                opacity={0.92}
               />
 
               {/* Topic nodes */}
@@ -677,8 +759,8 @@ export default function ResearchPage() {
                 const y = CY + pos.y;
                 const isActive = activeTopic === i;
                 const isHovered = hoveredNode === i;
-                const scale = isActive ? 1.18 : isHovered ? 1.08 : 1;
-                const nodeR = 36;
+                const scale = isActive ? 1.22 : isHovered ? 1.08 : 1;
+                const nodeR = 52;
                 const words = t.label.split(" ");
 
                 return (
@@ -691,41 +773,44 @@ export default function ResearchPage() {
                     onMouseLeave={() => setHoveredNode(null)}
                     style={{ transformOrigin: "0 0", transformBox: "fill-box" }}
                   >
-                    {/* Glow for active */}
+                    {/* Elevated glow for the selected topic */}
                     {isActive && (
-                      <circle r={nodeR + 6} fill={`${accent(i)}18`} />
+                      <>
+                        <circle r={nodeR + 14} fill={`${accent(i)}14`} />
+                        <circle r={nodeR + 7} fill={`${accent(i)}1A`} />
+                      </>
                     )}
                     <circle
                       className="node-circle"
                       r={nodeR}
-                      fill={isActive ? `${accent(i)}1F` : "rgba(10,8,6,0.92)"}
-                      stroke={isActive ? accent(i) : `${accent(i)}59`}
-                      strokeWidth={isActive ? 1.5 : 1}
+                      fill={isActive ? `${accent(i)}26` : "rgba(10,8,6,0.9)"}
+                      stroke={isActive ? accent(i) : `${accent(i)}8C`}
+                      strokeWidth={isActive ? 2 : 1.25}
                     />
                     {/* Number */}
                     <text
-                      x={0} y={-nodeR + 13}
+                      x={0} y={-nodeR + 19}
                       textAnchor="middle"
-                      fontSize={7}
-                      fill={`${accent(i)}80`}
-                      letterSpacing="0.1em"
+                      fontSize={9}
+                      fill={isActive ? accent(i) : `${accent(i)}99`}
+                      letterSpacing="0.12em"
                       fontFamily="Assistant, sans-serif"
                     >
                       {String(t.id).padStart(2, "0")}
                     </text>
                     {/* Label text — split into lines */}
                     {words.length <= 1 ? (
-                      <text x={0} y={4} textAnchor="middle" fontSize={8.5} fill="white" fontFamily="Assistant, sans-serif">{t.label}</text>
+                      <text x={0} y={6} textAnchor="middle" fontSize={11.5} fill="white" fontFamily="Assistant, sans-serif">{t.label}</text>
                     ) : words.length === 2 ? (
                       <>
-                        <text x={0} y={-1} textAnchor="middle" fontSize={8.5} fill="white" fontFamily="Assistant, sans-serif">{words[0]}</text>
-                        <text x={0} y={10} textAnchor="middle" fontSize={8.5} fill="white" fontFamily="Assistant, sans-serif">{words[1]}</text>
+                        <text x={0} y={1} textAnchor="middle" fontSize={11.5} fill="white" fontFamily="Assistant, sans-serif">{words[0]}</text>
+                        <text x={0} y={15} textAnchor="middle" fontSize={11.5} fill="white" fontFamily="Assistant, sans-serif">{words[1]}</text>
                       </>
                     ) : (
                       <>
-                        <text x={0} y={-5} textAnchor="middle" fontSize={8} fill="white" fontFamily="Assistant, sans-serif">{words[0]}</text>
-                        <text x={0} y={5} textAnchor="middle" fontSize={8} fill="white" fontFamily="Assistant, sans-serif">{words[1]}</text>
-                        <text x={0} y={15} textAnchor="middle" fontSize={8} fill="white" fontFamily="Assistant, sans-serif">{words[2]}</text>
+                        <text x={0} y={-4} textAnchor="middle" fontSize={10.5} fill="white" fontFamily="Assistant, sans-serif">{words[0]}</text>
+                        <text x={0} y={9} textAnchor="middle" fontSize={10.5} fill="white" fontFamily="Assistant, sans-serif">{words[1]}</text>
+                        <text x={0} y={22} textAnchor="middle" fontSize={10.5} fill="white" fontFamily="Assistant, sans-serif">{words[2]}</text>
                       </>
                     )}
                   </g>
@@ -759,6 +844,8 @@ export default function ResearchPage() {
               ))}
             </div>
 
+            <div className="r-divider" />
+
             {/* Key finding */}
             <div className="r-card">
               <div className="r-card-label">Key Finding</div>
@@ -788,8 +875,12 @@ export default function ResearchPage() {
                   </div>
                 ))}
               </div>
-              <div className="r-view-all">VIEW ALL SOURCES →</div>
             </div>
+
+            {/* Filled peach CTA */}
+            <button type="button" className="r-full-research">
+              View Full Research →
+            </button>
           </div>
 
         </div>
