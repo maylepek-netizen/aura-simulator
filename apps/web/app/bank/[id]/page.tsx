@@ -506,9 +506,6 @@ export default function BankReplayPage() {
 
           {/* Nav */}
           <div style={{ padding: "14px 16px 12px", display: "flex", gap: 8, flexShrink: 0 }}>
-            <button type="button" className="sound-btn" onClick={() => navigate("/bank")} style={{ flex: 1, height: 32, borderRadius: 6, border: "1px solid rgba(255,255,255,0.18)", background: "rgba(255,255,255,0.05)", fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.7)", cursor: "pointer" }}>
-              ← Bank
-            </button>
             <button type="button" className="sound-btn" onClick={() => navigate("/chat")} style={{ flex: 1, height: 32, borderRadius: 6, border: "1px solid rgba(255,255,255,0.18)", background: "rgba(255,255,255,0.05)", fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.7)", cursor: "pointer" }}>
               New
             </button>
@@ -624,7 +621,7 @@ export default function BankReplayPage() {
 
           {/* Back to the bank listing */}
           <div style={{ padding: "14px 16px", borderTop: "1px solid rgba(255,255,255,0.07)", flexShrink: 0 }}>
-            <button type="button" className="sound-btn" onClick={() => navigate("/bank")} style={{ width: "100%", height: 44, borderRadius: 6, border: "1px solid rgba(255,255,255,0.25)", background: "rgba(255,255,255,0.06)", fontSize: 12, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.85)", cursor: "pointer" }}>
+            <button type="button" onClick={() => navigate("/bank")} style={{ width: "100%", background: '#FFC99D', color: '#0a0807', border: 'none', borderRadius: 12, padding: '12px 24px', fontFamily: 'Assistant, sans-serif', cursor: 'pointer', opacity: 0.9, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase", fontWeight: 600 }}>
               ← Back to Bank
             </button>
           </div>
