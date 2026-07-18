@@ -202,7 +202,9 @@ export default function OnboardingPage() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Your Name"
-                  autoComplete="name"
+                  autoComplete="off"
+                  autoCorrect="off"
+                  spellCheck={false}
                 />
               </div>
 
@@ -213,12 +215,22 @@ export default function OnboardingPage() {
                   className="onboard-select"
                   value={gender}
                   onChange={(e) => setGender(e.target.value as Gender)}
+                  style={{
+                    background: '#0a0807',
+                    color: 'white',
+                    border: '1px solid rgba(255,201,157,0.3)',
+                    borderRadius: 8,
+                    padding: '10px 16px',
+                    appearance: 'none',
+                    WebkitAppearance: 'none',
+                    cursor: 'pointer',
+                  }}
                 >
-                  <option value="" disabled>Select Gender</option>
-                  <option value="Male">Male</option>
-                  <option value="Female">Female</option>
-                  <option value="Non-binary">Other</option>
-                  <option value="Prefer not to say">Prefer not to say</option>
+                  <option value="" disabled style={{ background: '#0a0807', color: 'white' }}>Select Gender</option>
+                  <option value="Male" style={{ background: '#0a0807', color: 'white' }}>Male</option>
+                  <option value="Female" style={{ background: '#0a0807', color: 'white' }}>Female</option>
+                  <option value="Non-binary" style={{ background: '#0a0807', color: 'white' }}>Other</option>
+                  <option value="Prefer not to say" style={{ background: '#0a0807', color: 'white' }}>Prefer not to say</option>
                 </select>
               </div>
 

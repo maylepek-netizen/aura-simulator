@@ -140,7 +140,7 @@ export default function QuestionPage() {
                 margin: 0,
                 maxWidth: 820,
               }}>
-                {capitalizeFirst(name)}, what if the world around you felt different than it does today?
+                {capitalizeFirst(name)}, what if the world around you felt different than it does today
               </h1>
 
               <p style={{

@@ -118,8 +118,6 @@ export default function BankPage() {
 
   // Filters
   const [genderFilter, setGenderFilter] = useState("All");
-  const [ageMin, setAgeMin] = useState(5);
-  const [ageMax, setAgeMax] = useState(100);
 
   // Pan + zoom state
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -222,7 +220,6 @@ export default function BankPage() {
   const filteredRecords = records.filter(r => {
     if (!r.videoUri) return false;
     if (genderFilter !== "All" && r.gender !== genderFilter) return false;
-    if (r.age < ageMin || r.age > ageMax) return false;
     return true;
   });
 
@@ -271,24 +268,9 @@ export default function BankPage() {
           ))}
         </div>
 
-        <div style={{ width: 1, height: 20, background: "rgba(255,255,255,0.1)" }} />
-
-        {/* Age range */}
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <span style={{ fontSize: 9, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)" }}>Age</span>
-          <span style={{ fontSize: 9, color: "rgba(255,255,255,0.45)", fontFamily: "var(--font-body)" }}>{ageMin}–{ageMax}</span>
-          <input type="range" min={5} max={ageMax} value={ageMin} onChange={e => setAgeMin(Number(e.target.value))}
-            style={{ width: 60, accentColor: "#FFC99D", cursor: "pointer" }} />
-          <input type="range" min={ageMin} max={100} value={ageMax} onChange={e => setAgeMax(Number(e.target.value))}
-            style={{ width: 60, accentColor: "#FFC99D", cursor: "pointer" }} />
-        </div>
-
         <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
           <button type="button" className="filter-btn" onClick={() => navigate("/chat")} style={{ height: 30, padding: "0 14px", borderRadius: 5, border: "1px solid rgba(255,255,255,0.15)", background: "transparent", fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.55)", cursor: "pointer" }}>
             New Simulation
-          </button>
-          <button type="button" className="filter-btn" onClick={() => navigate("/")} style={{ height: 30, padding: "0 14px", borderRadius: 5, border: "1px solid rgba(255,255,255,0.15)", background: "transparent", fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.55)", cursor: "pointer" }}>
-            ← Home
           </button>
         </div>
       </div>
@@ -363,9 +345,9 @@ export default function BankPage() {
           onClick={() => navigate("/")}
           style={{
             pointerEvents: "auto",
-            background: "rgba(255,255,255,0.04)",
-            border: "1px solid rgba(255,255,255,0.15)",
-            color: "rgba(255,255,255,0.7)",
+            background: "transparent",
+            border: "1px solid #FFC99D",
+            color: "#FFC99D",
             padding: "9px 20px", borderRadius: 12, fontSize: 13, cursor: "pointer",
             fontFamily: "var(--font-body)", letterSpacing: "0.04em",
           }}
@@ -378,9 +360,10 @@ export default function BankPage() {
           onClick={() => navigate("/research")}
           style={{
             pointerEvents: "auto",
-            background: "rgba(255,201,157,0.06)",
-            border: "1px solid rgba(255,201,157,0.5)",
-            color: "#FFC99D",
+            background: "#FFC99D",
+            border: "1px solid #FFC99D",
+            color: "#1a0f00",
+            fontWeight: 600,
             padding: "9px 20px", borderRadius: 12, fontSize: 13, cursor: "pointer",
             fontFamily: "var(--font-body)", letterSpacing: "0.04em",
           }}

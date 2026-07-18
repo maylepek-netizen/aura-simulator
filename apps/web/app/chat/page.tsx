@@ -56,24 +56,46 @@ function generateSituation(age: number, gender: string): string {
   return adult[Math.floor(Math.random() * adult.length)];
 }
 
+// Age/gender-aware example situations.
+//   age < 15  → school, friends, family
+//   age 15-20 → school, social events, parties
+//   age > 20  → work, bars, dating, adult scenarios
 function getExamples(age: number, gender: string): string[] {
   const g = gender.toLowerCase();
+
+  if (age < 15) {
+    const base = [
+      "Sudden fire alarm at school",
+      "Supermarket with bright fluorescent lights",
+      "Family dinner with relatives visiting",
+      "Waiting at a crowded doctor's office",
+    ];
+    return g === "female"
+      ? ["Noisy school cafeteria", "Group project with classmates", "Sleepover at a friend's house", ...base]
+      : ["Crowded school hallway", "PE class with lots of shouting", "Playing outside with neighbourhood kids", ...base];
+  }
+
+  if (age <= 20) {
+    const base = [
+      "House party with loud music",
+      "Crowded school hallway between classes",
+      "Exam hall with clocks ticking",
+      "Bus ride home packed with students",
+    ];
+    return g === "female"
+      ? ["Noisy school cafeteria", "Getting ready with friends before a party", "Group project with classmates", ...base]
+      : ["Football practice in the rain", "Concert with friends", "Substitute teacher unexpectedly", ...base];
+  }
+
   const base = [
-    "Waiting at a crowded doctor's office",
-    "Sudden fire alarm at school",
-    "Supermarket with bright fluorescent lights",
-    "Birthday party with strangers",
+    "Open office with many sounds",
+    "Commuting on a packed train",
     "Unexpected phone call from an unknown number",
     "Plans cancelled at the last minute",
   ];
-  if (age <= 17) {
-    return g === "female"
-      ? ["Noisy school cafeteria", "Group project with classmates", "PE class with lots of shouting", ...base]
-      : ["Football practice in the rain", "Crowded school hallway", "Substitute teacher unexpectedly", ...base];
-  }
   return g === "female"
-    ? ["Commuting on a packed bus", "Open office with many sounds", "Shopping mall on a weekend", ...base]
-    : ["Crowded sports stadium", "Noisy restaurant with colleagues", "Late-night city street", ...base];
+    ? ["First date at a busy restaurant", "Crowded bar on a Friday night", "Work meeting with many speakers", ...base]
+    : ["Crowded bar on a Friday night", "First date at a noisy restaurant", "Networking event with colleagues", ...base];
 }
 
 export default function ChatPage() {
@@ -332,14 +354,14 @@ export default function ChatPage() {
           {/* ── Help buttons — spread across the full card width ── */}
           <div style={{ position: "relative", marginTop: 30, width: "100%", maxWidth: 600 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <button className="helper-btn" type="button" onClick={handleHelpMe}
+              <button className="helper-btn helper-fade-in" type="button" onClick={handleHelpMe}
                 style={{ border: "1px solid #FFC1BB", color: "#FFC1BB" }}>
                 Help me think
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                   <path d="M9.5 2a6 6 0 0 1 5 9.5M9.5 2a6 6 0 0 0-5 9.5M9.5 2v1M14.5 11.5a6 6 0 0 1-5 9.5M14.5 11.5a6 6 0 0 0-5 9.5M9.5 21v-1M3 7h1M16 7h1M3 17h1M16 17h1"/>
                 </svg>
               </button>
-              <button className="helper-btn" type="button" onClick={handleWriteForMe}
+              <button className="helper-btn helper-fade-in" type="button" onClick={handleWriteForMe}
                 style={{ border: "1px solid #BCC2FF", color: "#BCC2FF" }}>
                 Write for me
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -365,7 +387,7 @@ export default function ChatPage() {
               overflowY: "auto",
               pointerEvents: showExamples ? "auto" : "none",
               transition: "max-height 0.45s ease-out, opacity 0.45s ease-out",
-              display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center",
+              display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, alignContent: "start",
             }}>
               {examples.map((ex, i) => (
                 <button

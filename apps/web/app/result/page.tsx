@@ -974,11 +974,15 @@ export default function ResultPage() {
     ambientAudioRef.current = audio;
 
     let fade: ReturnType<typeof setInterval> | null = null;
-    const startAmbientFile = () => {
-      audio.play().catch(() => {
-        document.addEventListener("click", () => audio.play().catch(() => {}), { once: true });
-      });
-      // Fade in to the target volume over ~1.5s.
+    const unblockEvents: Array<keyof DocumentEventMap> = ["click", "touchstart", "keydown", "pointerdown"];
+    let unblock: (() => void) | null = null;
+
+    // Reflect real playback state in the UI (the indicator reads ambientPlaying).
+    audio.onplay = () => setAmbientPlaying(true);
+    audio.onpause = () => setAmbientPlaying(false);
+
+    const fadeIn = () => {
+      if (fade) clearInterval(fade);
       fade = setInterval(() => {
         if (!ambientAudioRef.current) { if (fade) clearInterval(fade); return; }
         if (audio.volume < targetVolume - 0.03) {
@@ -990,18 +994,36 @@ export default function ResultPage() {
       }, 60);
     };
 
+    const startAmbientFile = () => {
+      audio.play().then(fadeIn).catch(() => {
+        // Autoplay blocked — retry on the first real user interaction of any kind.
+        const retry = () => {
+          audio.play().then(fadeIn).catch(() => {});
+          unblock?.();
+        };
+        unblock = () => {
+          unblockEvents.forEach((ev) => document.removeEventListener(ev, retry));
+          unblock = null;
+        };
+        unblockEvents.forEach((ev) => document.addEventListener(ev, retry, { once: true }));
+      });
+    };
+
     const delay = setTimeout(startAmbientFile, 5000);
 
     return () => {
       clearTimeout(delay);
       if (fade) clearInterval(fade);
+      unblock?.();
+      audio.onplay = null;
+      audio.onpause = null;
       ambientAudioRef.current?.pause();
       ambientAudioRef.current = null;
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [result?.ambient_sound]);
 
-  // Narration at T=7s (2s after the ambient layers come in at 5s)
+  // Inner thoughts (narration) at T=30s — well after heartbeat (0s) and ambient (5s)
   useEffect(() => {
     if (!result) return;
     const timer = setTimeout(() => {
@@ -1009,7 +1031,7 @@ export default function ResultPage() {
         narrationStartedRef.current = true;
         void startNarration(result);
       }
-    }, 7000);
+    }, 30000);
     return () => clearTimeout(timer);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [result]);
@@ -1095,7 +1117,9 @@ export default function ResultPage() {
   async function startNarration(r: SimulationResult) {
     if (audioPlaying) return;
     const text = r.monologue.join(". ");
-    setAudioPlaying(true);
+    // NOTE: audioPlaying flips true only when audio actually starts (onplay),
+    // not when the request is fired — otherwise the indicator pulses while
+    // the TTS fetch is still in flight and nothing is audible yet.
     try {
       const res = await fetch("/api/tts", {
         method: "POST",
@@ -1108,12 +1132,14 @@ export default function ResultPage() {
       const el = new Audio(src);
       ttsAudioRef.current = el;
       el.loop = false;
+      el.onplay = () => setAudioPlaying(true);
       el.onended = () => { ttsAudioRef.current = null; setAudioPlaying(false); };
       el.onerror = () => { ttsAudioRef.current = null; setAudioPlaying(false); };
       await el.play();
     } catch {
       const utt = new SpeechSynthesisUtterance(text);
       utt.lang = "en-US"; utt.rate = 0.85; utt.pitch = 0.9;
+      utt.onstart = () => setAudioPlaying(true);
       utt.onend = () => setAudioPlaying(false);
       utt.onerror = () => setAudioPlaying(false);
       window.speechSynthesis.cancel();
@@ -1238,12 +1264,12 @@ export default function ResultPage() {
   }
 
   function toggleAmbient() {
+    // ambientPlaying is driven by the audio element's onplay/onpause handlers,
+    // so a blocked play() won't falsely show as "playing".
     if (ambientPlaying) {
       ambientAudioRef.current?.pause();
-      setAmbientPlaying(false);
     } else {
       ambientAudioRef.current?.play().catch(() => {});
-      setAmbientPlaying(true);
     }
   }
 

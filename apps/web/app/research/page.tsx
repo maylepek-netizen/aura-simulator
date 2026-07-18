@@ -158,28 +158,6 @@ const TOPICS = [
   },
 ];
 
-const SUGGESTED = [
-  "How does sensory overload affect daily life?",
-  "What causes meltdowns?",
-  "Tell me about autistic strengths.",
-  "Explain masking.",
-];
-
-// Hardcoded research-based answers drawn directly from the PDFs
-const HARDCODED_ANSWERS: Record<string, string> = {
-  "How does sensory overload affect daily life?":
-    'According to Robertson & Baron-Cohen (2017, "Sensory perception in autism"), atypical sensory experience is estimated to occur in as many as 90% of autistic individuals and affects every modality — taste, touch, audition, smell, and vision. Temple Grandin describes it precisely: "My hearing is like having a hearing aid with the volume control stuck on super loud. It\'s like an open microphone that picks up everything." (Grandin, "An Inside View of Autism"). The Markram Intense World Theory (2010) explains this neurobiologically: hyper-reactive local neural microcircuits lead to hyper-perception, making ordinary environments — supermarkets, offices, classrooms — genuinely painful rather than merely unpleasant. Mottron et al.\'s Enhanced Perceptual Functioning model (2006) adds that autistic perception is locally oriented, meaning individual details are processed more intensely than the whole scene, making it impossible to filter out background noise or irrelevant stimuli the way neurotypical brains do automatically.',
-
-  "What causes meltdowns?":
-    'Grandin\'s first-person account ("An Inside View of Autism") traces meltdowns directly to sensory overload: "Sudden loud noises hurt my ears like a dentist\'s drill hitting a nerve... A sudden noise will often make my heart race." The Intense World Theory (Markram & Markram, 2010) provides the neurobiological mechanism — hyper-reactive amygdala circuits amplify emotional and sensory responses far beyond what a neurotypical brain would register, creating memories that are "overly strong" and "emotionally aversive." Once the cumulative sensory and social load exceeds threshold, the nervous system goes into crisis. Critically, Milton\'s Double Empathy Problem (2012) reframes this: meltdowns are not behavioral failures but predictable outcomes of navigating a world built for a neurotype that is not yours — a world that rarely adapts, requiring constant masking until the system collapses.',
-
-  "Tell me about autistic strengths.":
-    'Mottron et al.\'s Enhanced Perceptual Functioning model (2006) is the key paper here: autistic individuals show "locally oriented visual and auditory perception, enhanced low-level discrimination... and superior performance in domain-specific cognitive tasks." This is not compensation for a deficit — it is a genuine cognitive advantage. Kunda & Goel ("Thinking in Pictures," 2010) document that many autistic individuals use visual mental representations where neurotypical people use verbal ones, producing measurably superior performance on spatial and pattern tasks. Grandin herself demonstrates this: her visual thinking drove a successful international career in engineering design. The Intense World Theory (Markram, 2010) adds that hyper-plasticity of neural circuits also enables hyper-memory and exceptional focus — what neurotypical observers call "special interests" are in fact a cognitive strength: deep, structured expertise built through sustained perceptual engagement.',
-
-  "Explain masking.":
-    'Milton\'s Double Empathy Problem (2012) is essential context: masking arises because autistic social behavior is read as a "deficit" by neurotypical observers, when in reality it is a difference in dispositional outlook. To avoid stigma and social rejection, autistic people learn to perform neurotypical behavior — suppressing stimming, forcing eye contact, scripting conversation. Milton writes: "if one can apply a label on the \'other\' locating the problem in them, it resolves the applier\'s natural attitude of responsibility." The cost of this performance is profound: Grandin documents the exhausting cognitive load of translating every interaction through explicit rules ("door imagery for getting along with people") rather than intuition. Robertson & Baron-Cohen (2017) connect masking to the sensory dimension — suppressing visible responses to pain or overload adds another layer of effort. Research consistently links chronic masking to burnout, depression, and late or missed diagnosis, particularly in women and people of color.',
-};
-
 // ─── Color palette: orange, pink, purple cycling ──────────────────────────────
 const ACCENT = ["#FFC99D", "#FFC1BB", "#BCC2FF"];
 const accent = (i: number) => ACCENT[i % 3];
@@ -194,84 +172,17 @@ function getNodePos(i: number, total: number, rx: number, ry: number) {
   };
 }
 
-// ─── Chat bubble ──────────────────────────────────────────────────────────────
-
-type Msg = { role: "user" | "assistant"; text: string };
-
-function Bubble({ msg }: { msg: Msg }) {
-  const isUser = msg.role === "user";
-  return (
-    <div style={{
-      display: "flex", justifyContent: isUser ? "flex-end" : "flex-start",
-      marginBottom: 10,
-    }}>
-      <div style={{
-        maxWidth: "80%",
-        background: isUser ? "rgba(255,201,157,0.12)" : "rgba(255,255,255,0.05)",
-        border: `1px solid ${isUser ? "rgba(255,201,157,0.25)" : "rgba(255,255,255,0.08)"}`,
-        borderRadius: isUser ? "12px 12px 3px 12px" : "12px 12px 12px 3px",
-        padding: "10px 14px",
-        fontSize: 13,
-        lineHeight: 1.6,
-        color: isUser ? "rgba(255,201,157,0.9)" : "rgba(255,255,255,0.75)",
-      }}>
-        {msg.text}
-      </div>
-    </div>
-  );
-}
-
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function ResearchPage() {
   const router = useRouter();
   const [activeTopic, setActiveTopic] = useState(0); // index into TOPICS
   const [hoveredNode, setHoveredNode] = useState<number | null>(null);
-  const [messages, setMessages] = useState<Msg[]>([]);
-  const [input, setInput] = useState("");
-  const [loading, setLoading] = useState(false);
-  const chatRef = useRef<HTMLDivElement>(null);
 
   const topic = TOPICS[activeTopic];
 
-  useEffect(() => {
-    if (chatRef.current) {
-      chatRef.current.scrollTop = chatRef.current.scrollHeight;
-    }
-  }, [messages]);
-
-  async function sendMessage(text: string) {
-    if (!text.trim() || loading) return;
-    const trimmed = text.trim();
-    const userMsg: Msg = { role: "user", text: trimmed };
-    setMessages((prev) => [...prev, userMsg]);
-    setInput("");
-
-    // Use hardcoded research-based answer if available
-    if (HARDCODED_ANSWERS[trimmed]) {
-      setMessages((prev) => [...prev, { role: "assistant", text: HARDCODED_ANSWERS[trimmed] }]);
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const res = await fetch("/api/research-chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: trimmed }),
-      });
-      const data = await res.json();
-      setMessages((prev) => [...prev, { role: "assistant", text: data.reply ?? "No response." }]);
-    } catch {
-      setMessages((prev) => [...prev, { role: "assistant", text: "Something went wrong. Please try again." }]);
-    }
-    setLoading(false);
-  }
-
   function selectTopic(idx: number) {
     setActiveTopic(idx);
-    const t = TOPICS[idx];
-    void sendMessage(`You've selected ${t.label}. Tell me the key research findings about this topic in autism.`);
   }
 
   // SVG circle layout
@@ -768,68 +679,6 @@ export default function ResearchPage() {
 
         </div>
 
-        {/* ── Chat section ── */}
-        <div id="research-chat" className="r-chat-section" style={{ margin: "40px 48px 0", borderRadius: 16 }}>
-
-          {/* Left: info */}
-          <div style={{ paddingTop: 4 }}>
-            <div className="r-chat-icon">
-              <img src="/icons/New_logo_eye.svg" alt="" style={{ width: 22, opacity: 0.7 }} />
-            </div>
-            <div className="r-chat-info-label">Research Assistant</div>
-            <div className="r-chat-info-desc">
-              Ask me anything about our research and the findings.
-            </div>
-          </div>
-
-          {/* Center: chat */}
-          <div style={{ display: "flex", flexDirection: "column" }}>
-            <div className="r-msgs" ref={chatRef}>
-              {messages.length === 0 && (
-                <p style={{ fontSize: 12, color: "rgba(255,255,255,0.2)", textAlign: "center", marginTop: 32 }}>
-                  Click a topic node or ask a question to start.
-                </p>
-              )}
-              {messages.map((m, i) => <Bubble key={i} msg={m} />)}
-              {loading && (
-                <div style={{ fontSize: 12, color: "rgba(255,255,255,0.3)", padding: "6px 0" }}>
-                  Thinking…
-                </div>
-              )}
-            </div>
-            <div className="r-input-row">
-              <input
-                className="r-input"
-                placeholder="Ask a question..."
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => { if (e.key === "Enter") void sendMessage(input); }}
-              />
-              <button className="r-send-btn" type="button" onClick={() => void sendMessage(input)}>→</button>
-            </div>
-            <div className="r-disclaimer" style={{ paddingBottom: 20 }}>
-              AI responses are based on research data and may not replace professional advice.
-            </div>
-          </div>
-
-          {/* Right: suggested */}
-          <div style={{ paddingTop: 4 }}>
-            <div className="r-suggested-label">Suggested Questions</div>
-            <div className="r-suggested-list">
-              {SUGGESTED.map((q) => (
-                <button
-                  key={q}
-                  className="r-suggested-btn"
-                  type="button"
-                  onClick={() => void sendMessage(q)}
-                >
-                  {q}
-                </button>
-              ))}
-            </div>
-          </div>
-
-        </div>
 
         {/* bottom padding */}
         <div style={{ height: 60 }} />

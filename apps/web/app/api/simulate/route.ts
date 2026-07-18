@@ -164,7 +164,13 @@ function buildVeoPrompt(
     return `First-person POV at ${height}cm eye level. Scene: ${situation}. Slow, dissociative. Camera avoids direct eye contact — locked on teacher's chin, collarbone, or mouth area rather than eyes. Face fills 50% frame. Shallow depth of field: any shift in gaze makes world go completely blurry before refocusing. 0-3s: teacher's mouth and jaw in focus, eyes avoided, expression unreadable. 3-5s: gaze drifts slowly to background — blurred students in slow motion bokeh, a geometric pattern on wall, texture of board. 5-7s: gaze returns, 1-second processing delay visible as frame briefly freezes soft then snaps sharp. 7-8s: back to starting frame. Subtle rhythmic camera rock — slight forward-back stimming motion. Fluorescent lights flicker imperceptibly, overexposed 30%. Audio: ${audio}. Photorealistic. No glitch effects. No protagonist body visible. White light-skinned people.${modifierText} ABSOLUTE: Single continuous uncut shot. No cuts. No fades. No transitions. No editing. One take, camera never stops recording. The movement between focal points must be smooth organic eye movement, not a cut.`;
   }
 
-  return `GoPro-style first-person eye-level shot at ${height}cm. Scene context: ${situation}. ${style.camera} ${style.focus} ${anchorInstruction} ${style.lighting} ${style.details}${modifierText} Seamless 8-second loop: final frame identical to opening frame. Audio: ${audio}. No glitch effects. No AI artifacts. Photorealistic. No protagonist body visible. White light-skinned people. The scene must show exactly what is described in the situation. ABSOLUTE: Single continuous uncut shot. No cuts. No fades. No transitions. No editing. One take, camera never stops recording. The movement between focal points must be smooth organic eye movement, not a cut.`;
+  // E/F are crowd/public environments — keep the crowd behaving normally so the
+  // overwhelm reads as sensory, not as horror.
+  const antiHorror = (classification.environment === 'E' || classification.environment === 'F')
+    ? " People behave naturally and normally — not staring at camera, not wearing masks, not threatening. Strangeness comes from sensory overwhelm and camera behavior only, not horror elements."
+    : "";
+
+  return `GoPro-style first-person eye-level shot at ${height}cm. Scene context: ${situation}. ${style.camera} ${style.focus} ${anchorInstruction} ${style.lighting} ${style.details}${modifierText}${antiHorror} Seamless 8-second loop: final frame identical to opening frame. Audio: ${audio}. No glitch effects. No AI artifacts. Photorealistic. No protagonist body visible. White light-skinned people. The scene must show exactly what is described in the situation. ABSOLUTE: Single continuous uncut shot. No cuts. No fades. No transitions. No editing. One take, camera never stops recording. The movement between focal points must be smooth organic eye movement, not a cut.`;
 }
 
 const RESEARCH_CONTEXT =
