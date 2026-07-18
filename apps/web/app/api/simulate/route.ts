@@ -170,6 +170,16 @@ function buildVeoPrompt(
     ? " People behave naturally and normally — not staring at camera, not wearing masks, not threatening. Strangeness comes from sensory overwhelm and camera behavior only, not horror elements."
     : "";
 
+  if (classification.environment === 'E') {
+    const isVehicle = /car|bus|train|subway|metro|truck|taxi|ride|highway|vehicle|commut|driving|passenger/i.test(situation);
+
+    if (isVehicle) {
+      return `First-person POV at ${height}cm, seated inside a vehicle. Scene: ${situation}. Camera has gentle rhythmic sway from motion — engine vibration, road bumps. Gaze cycles: 0-3s fixed on nearest surface (seat texture, window glass, door handle) in sharp close-up, shallow depth of field. 3-5s gaze drifts to window — outside scenery moves fast, motion blur, slightly overexposed daylight. 5-7s gaze returns to interior anchor, soft then snaps sharp. Subtle audio: engine hum, wind, road noise, all at equal amplified volume. Seamless 8-second loop. Photorealistic. No cuts. No protagonist body visible. White Western European people if visible. No masks.${modifierText}`;
+    }
+
+    return `GoPro-style first-person eye-level shot at ${height}cm. Scene context: ${situation}. ${style.camera} ${style.focus} ${anchorInstruction} ${style.lighting} ${style.details}${modifierText}${antiHorror} Seamless 8-second loop: final frame identical to opening frame. Audio: ${audio}. No glitch effects. Photorealistic. No protagonist body visible. White Western European appearance. No masks. The scene must show exactly what is described in the situation. ABSOLUTE: Single continuous uncut shot.`;
+  }
+
   return `GoPro-style first-person eye-level shot at ${height}cm. Scene context: ${situation}. ${style.camera} ${style.focus} ${anchorInstruction} ${style.lighting} ${style.details}${modifierText}${antiHorror} Seamless 8-second loop: final frame identical to opening frame. Audio: ${audio}. No glitch effects. No AI artifacts. Photorealistic. No protagonist body visible. White Western European appearance — fair skin, typical European features. No South Asian, East Asian, Middle Eastern or African appearance unless explicitly mentioned in the situation. No surgical masks, no medical masks, no face coverings of any kind. People have normal uncovered faces. The scene must show exactly what is described in the situation. ABSOLUTE: Single continuous uncut shot. No cuts. No fades. No transitions. No editing. One take, camera never stops recording. The movement between focal points must be smooth organic eye movement, not a cut.`;
 }
 
