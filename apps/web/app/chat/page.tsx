@@ -105,6 +105,8 @@ export default function ChatPage() {
   const [processing, setProcessing] = useState(false);
   const [showExamples, setShowExamples] = useState(false);
   const [helpHint, setHelpHint] = useState<string | null>(null);
+  // Bumped when "Write for me" fills the textarea, to re-trigger the dissolve.
+  const [inputDissolveKey, setInputDissolveKey] = useState(0);
   const [profile, setProfile] = useState<{ age: number; gender: string } | null>(null);
   // Drives the subtle fade-in transition on the helper buttons.
   const [helpersVisible, setHelpersVisible] = useState(false);
@@ -159,6 +161,8 @@ export default function ChatPage() {
     setInput(situation);
     setHelpHint(null);
     setShowExamples(false);
+    // Dissolve the newly written text in rather than having it pop.
+    setInputDissolveKey((k) => k + 1);
   }
 
   const examples = profile ? getExamples(profile.age, profile.gender) : [];
@@ -195,6 +199,22 @@ export default function ChatPage() {
           white-space: nowrap;
         }
         .helper-btn:hover { opacity: 0.75; }
+
+        /* Examples container — wider than the textarea so 4 chips fit on row 1 */
+        .examples-wrap {
+          width: max-content;
+          max-width: 90vw;
+        }
+        @media (max-width: 640px) {
+          .examples-wrap { max-width: 100%; width: 100%; }
+        }
+
+        /* Dissolve for content revealed by the helper buttons — fade only, no motion */
+        @keyframes revealDissolve {
+          from { opacity: 0; }
+          to   { opacity: 1; }
+        }
+        .reveal-dissolve { animation: revealDissolve 0.6s ease; }
 
         .example-chip {
           background: rgba(255,255,255,0.06);
@@ -320,7 +340,8 @@ export default function ChatPage() {
             padding: "24px 28px 16px",
           }}>
             <textarea
-              className="chat-textarea"
+              key={inputDissolveKey}
+              className="chat-textarea reveal-dissolve"
               rows={3}
               value={input}
               onChange={(e) => setInput(e.target.value)}
@@ -399,37 +420,48 @@ export default function ChatPage() {
               </button>
             </div>
 
-            {/* Examples list — absolutely positioned so opening does not shift the centered block */}
-            <div style={{
-              position: "absolute", top: "100%", left: 0, right: 0,
+            {/* Examples — two centered rows (4 then 3) in a container wider than
+                the textarea. On mobile each row wraps naturally. */}
+            <div className="examples-wrap" style={{
+              position: "absolute", top: "100%", left: "50%",
+              transform: "translateX(-50%)",
               marginTop: 12,
               maxHeight: showExamples ? 260 : 0,
               opacity: showExamples ? 1 : 0,
               overflowY: "auto",
               pointerEvents: showExamples ? "auto" : "none",
               transition: "max-height 0.45s ease-out, opacity 0.45s ease-out",
-              display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center", alignContent: "flex-start",
+              display: "flex", flexDirection: "column", gap: 8, alignItems: "center",
             }}>
-              {examples.map((ex, i) => (
-                <button
-                  key={ex}
-                  className="example-chip"
-                  type="button"
-                  onClick={() => { setInput(ex); setShowExamples(false); }}
-                  style={{
-                    opacity: showExamples ? 1 : 0,
-                    transform: showExamples ? "translateY(0)" : "translateY(-4px)",
-                    transition: `opacity 0.4s ease-out ${showExamples ? i * 0.06 : 0}s, transform 0.4s ease-out ${showExamples ? i * 0.06 : 0}s`,
-                  }}
-                >
-                  {ex}
-                </button>
+              {[examples.slice(0, 4), examples.slice(4, 7)].map((row, rowIdx) => (
+                <div key={rowIdx} style={{
+                  display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center",
+                }}>
+                  {row.map((ex, i) => {
+                    const delay = showExamples ? (rowIdx * 4 + i) * 0.06 : 0;
+                    return (
+                      <button
+                        key={ex}
+                        className="example-chip"
+                        type="button"
+                        onClick={() => { setInput(ex); setShowExamples(false); }}
+                        style={{
+                          opacity: showExamples ? 1 : 0,
+                          transform: showExamples ? "translateY(0)" : "translateY(-4px)",
+                          transition: `opacity 0.4s ease-out ${delay}s, transform 0.4s ease-out ${delay}s`,
+                        }}
+                      >
+                        {ex}
+                      </button>
+                    );
+                  })}
+                </div>
               ))}
             </div>
 
-            {/* Help hint */}
+            {/* Help hint — dissolves in, no jump or pop */}
             {helpHint && (
-              <div style={{
+              <div key={helpHint} className="reveal-dissolve" style={{
                 marginTop: 14, width: "100%",
                 fontSize: 13, letterSpacing: "0.08em",
                 color: "rgba(255,201,157,0.8)",
