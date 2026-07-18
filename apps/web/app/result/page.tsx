@@ -567,8 +567,42 @@ function ProcessingMetrics({ visible, onComplete }: { visible: boolean; onComple
   );
 }
 
-// ─── Generation blob (video loading state) ───────────────────────────────────
-// Rectangular video-frame murk shown while the video generates. Pure CSS, no libs.
+// ─── Generation fog (video loading state) ────────────────────────────────────
+// Wide 16:9 drift of overlapping warm colour patches — an "unresolved diffusion
+// render" that fills the video slot until the real video arrives. Pure CSS.
+// Deliberately shapeless: heavy blur on every patch, no vignette, no solid base,
+// so it melts into the black with no visible boundary.
+
+const FOG_PATCHES: React.CSSProperties[] = [
+  // Large warm amber mass, upper-left of centre
+  { top: '-18%', left: '2%', width: '62%', height: '86%',
+    background: 'radial-gradient(ellipse at 45% 45%, rgba(214,140,68,0.62) 0%, rgba(178,104,44,0.26) 45%, transparent 72%)',
+    filter: 'blur(90px)', animation: 'fogA 17s ease-in-out infinite' },
+  // Peach mass, right of centre
+  { top: '4%', right: '-4%', width: '58%', height: '84%',
+    background: 'radial-gradient(ellipse at 55% 50%, rgba(226,158,96,0.55) 0%, rgba(190,116,56,0.22) 48%, transparent 74%)',
+    filter: 'blur(100px)', animation: 'fogB 23s ease-in-out infinite' },
+  // Deep amber low-centre, adds density variation
+  { bottom: '-22%', left: '20%', width: '56%', height: '70%',
+    background: 'radial-gradient(ellipse at 50% 40%, rgba(168,92,34,0.5) 0%, transparent 68%)',
+    filter: 'blur(84px)', animation: 'fogC 19s ease-in-out infinite' },
+  // Bright hot core — off-centre so there is no symmetric "middle"
+  { top: '18%', left: '30%', width: '40%', height: '52%',
+    background: 'radial-gradient(ellipse at 50% 50%, rgba(255,204,150,0.42) 0%, rgba(236,166,96,0.16) 50%, transparent 72%)',
+    filter: 'blur(76px)', animation: 'fogB 14s ease-in-out infinite reverse' },
+  // Dark negative-space patch — breaks up any uniform glow
+  { top: '26%', left: '6%', width: '34%', height: '46%',
+    background: 'radial-gradient(ellipse, rgba(24,12,4,0.55) 0%, transparent 70%)',
+    filter: 'blur(88px)', animation: 'fogC 26s ease-in-out infinite reverse' },
+  // Cool periwinkle hint, keeps it from going monochrome
+  { bottom: '2%', right: '8%', width: '40%', height: '48%',
+    background: 'radial-gradient(ellipse, rgba(150,158,220,0.20) 0%, transparent 66%)',
+    filter: 'blur(96px)', animation: 'fogA 29s ease-in-out infinite reverse' },
+  // Faint blush, upper-right
+  { top: '-8%', right: '18%', width: '38%', height: '48%',
+    background: 'radial-gradient(ellipse, rgba(232,150,132,0.24) 0%, transparent 68%)',
+    filter: 'blur(92px)', animation: 'fogB 21s ease-in-out infinite' },
+];
 
 const GenerationBlob = () => (
   <div style={{
@@ -581,22 +615,27 @@ const GenerationBlob = () => (
     overflow: 'hidden',
   }}>
     <style>{`
-      @keyframes driftA {
-        0%   { transform: translate(0%, 0%) scale(1); opacity: 0.6; }
-        33%  { transform: translate(8%, -5%) scale(1.08); opacity: 0.45; }
-        66%  { transform: translate(-6%, 8%) scale(0.95); opacity: 0.65; }
-        100% { transform: translate(0%, 0%) scale(1); opacity: 0.6; }
+      @keyframes fogA {
+        0%   { transform: translate(0%, 0%) scale(1);    opacity: 0.85; }
+        30%  { transform: translate(7%, -5%) scale(1.14); opacity: 1;    }
+        60%  { transform: translate(-5%, 6%) scale(0.94); opacity: 0.72; }
+        100% { transform: translate(0%, 0%) scale(1);    opacity: 0.85; }
       }
-      @keyframes driftB {
-        0%   { transform: translate(0%, 0%) scale(1); opacity: 0.4; }
-        40%  { transform: translate(-10%, 6%) scale(1.05); opacity: 0.55; }
-        70%  { transform: translate(5%, -8%) scale(0.92); opacity: 0.35; }
-        100% { transform: translate(0%, 0%) scale(1); opacity: 0.4; }
+      @keyframes fogB {
+        0%   { transform: translate(0%, 0%) scale(1);     opacity: 0.75; }
+        35%  { transform: translate(-8%, 5%) scale(1.12); opacity: 0.95; }
+        70%  { transform: translate(5%, -7%) scale(0.9);  opacity: 0.65; }
+        100% { transform: translate(0%, 0%) scale(1);     opacity: 0.75; }
       }
-      @keyframes driftC {
-        0%   { transform: translate(0%, 0%) scale(1); opacity: 0.3; }
-        50%  { transform: translate(6%, 10%) scale(1.1); opacity: 0.5; }
-        100% { transform: translate(0%, 0%) scale(1); opacity: 0.3; }
+      @keyframes fogC {
+        0%   { transform: translate(0%, 0%) scale(1);      opacity: 0.7;  }
+        45%  { transform: translate(6%, 8%) scale(1.18);   opacity: 0.95; }
+        75%  { transform: translate(-4%, -4%) scale(0.96); opacity: 0.6;  }
+        100% { transform: translate(0%, 0%) scale(1);      opacity: 0.7;  }
+      }
+      @keyframes fogBreath {
+        0%, 100% { opacity: 0.9;  transform: scale(1); }
+        50%      { opacity: 1;    transform: scale(1.03); }
       }
       @keyframes textBreath {
         0%, 100% { opacity: 0.3; }
@@ -604,76 +643,19 @@ const GenerationBlob = () => (
       }
     `}</style>
 
-    {/* Rectangular frame - matches video aspect ratio */}
+    {/* Wide 16:9 fog field — fills most of the video area */}
     <div style={{
       position: 'relative',
-      width: '100%',
-      maxWidth: 640,
+      width: '82%',
+      maxWidth: 1000,
       aspectRatio: '16/9',
-      overflow: 'hidden',
+      animation: 'fogBreath 13s ease-in-out infinite',
+      /* One more blur pass over the whole field dissolves any residual edges */
+      filter: 'blur(26px)',
     }}>
-      {/* Dark murky base */}
-      <div style={{
-        position: 'absolute',
-        inset: 0,
-        background: '#0d0906',
-      }} />
-
-      {/* Warm amber patch - top left */}
-      <div style={{
-        position: 'absolute',
-        top: '-20%',
-        left: '-10%',
-        width: '70%',
-        height: '80%',
-        background: 'radial-gradient(ellipse, rgba(180,100,40,0.55) 0%, rgba(140,70,20,0.2) 50%, transparent 75%)',
-        filter: 'blur(48px)',
-        animation: 'driftA 9s ease-in-out infinite',
-      }} />
-
-      {/* Peach patch - center right */}
-      <div style={{
-        position: 'absolute',
-        top: '10%',
-        right: '-15%',
-        width: '65%',
-        height: '70%',
-        background: 'radial-gradient(ellipse, rgba(200,130,70,0.45) 0%, rgba(160,90,40,0.15) 55%, transparent 80%)',
-        filter: 'blur(56px)',
-        animation: 'driftB 12s ease-in-out infinite',
-      }} />
-
-      {/* Dark amber patch - bottom */}
-      <div style={{
-        position: 'absolute',
-        bottom: '-15%',
-        left: '20%',
-        width: '60%',
-        height: '60%',
-        background: 'radial-gradient(ellipse, rgba(120,60,20,0.4) 0%, transparent 70%)',
-        filter: 'blur(40px)',
-        animation: 'driftC 7s ease-in-out infinite',
-      }} />
-
-      {/* Cool periwinkle hint - subtle */}
-      <div style={{
-        position: 'absolute',
-        bottom: '5%',
-        right: '5%',
-        width: '40%',
-        height: '40%',
-        background: 'radial-gradient(ellipse, rgba(100,110,180,0.12) 0%, transparent 70%)',
-        filter: 'blur(36px)',
-        animation: 'driftA 15s ease-in-out infinite reverse',
-      }} />
-
-      {/* Heavy edge vignette to dissolve into black */}
-      <div style={{
-        position: 'absolute',
-        inset: 0,
-        background: 'radial-gradient(ellipse at center, transparent 20%, rgba(0,0,0,0.6) 60%, rgba(0,0,0,0.95) 100%)',
-        pointerEvents: 'none',
-      }} />
+      {FOG_PATCHES.map((patch, i) => (
+        <div key={i} aria-hidden style={{ position: 'absolute', ...patch }} />
+      ))}
     </div>
 
     {/* Text below */}
@@ -689,6 +671,7 @@ const GenerationBlob = () => (
       animation: 'textBreath 4s ease-in-out infinite',
       whiteSpace: 'nowrap',
       textTransform: 'uppercase',
+      zIndex: 4,
     }}>
       Generating simulation
     </div>
@@ -1236,7 +1219,8 @@ export default function ResultPage() {
   // Unmount the generation blob once its fade-out has finished.
   useEffect(() => {
     if (!videoUrl) { setBlobMounted(true); return; }
-    const t = setTimeout(() => setBlobMounted(false), 900);
+    // Outlast the 1s cross-fade before unmounting, so the fade actually plays.
+    const t = setTimeout(() => setBlobMounted(false), 1100);
     return () => clearTimeout(t);
   }, [videoUrl]);
 
@@ -1689,7 +1673,8 @@ export default function ResultPage() {
           <div style={{
             position: "absolute", inset: 0, zIndex: 2,
             opacity: result && !videoUrl ? 1 : 0,
-            transition: "opacity 0.8s ease",
+            // ~1s cross-fade: the fog dissolves as the video fades up beneath it.
+            transition: "opacity 1s ease",
             pointerEvents: "none",
           }}>
             <GenerationBlob />
