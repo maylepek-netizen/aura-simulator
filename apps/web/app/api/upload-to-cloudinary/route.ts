@@ -111,9 +111,36 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid videoUri" }, { status: 400 });
     }
 
+    console.log("UPLOAD: Starting upload for videoUri:", videoUri.substring(0, 50));
+
+    // Presence alone is misleading: a placeholder value is "present" but fails
+    // every request with "Invalid Compact JWS". A real service-role key is a
+    // JWT (three dot-separated segments, ~200+ chars), so report shape too —
+    // never the key itself.
+    const svcKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    const svcLooksLikeJwt = !!svcKey && svcKey.split(".").length === 3 && svcKey.length > 100;
+    console.log("UPLOAD: Service role key present:", !!svcKey);
+    console.log(
+      "UPLOAD: Service role key looks like a JWT:", svcLooksLikeJwt,
+      svcKey ? `(length ${svcKey.length})` : ""
+    );
+    console.log("UPLOAD: Supabase URL present:", !!process.env.NEXT_PUBLIC_SUPABASE_URL);
+    if (svcKey && !svcLooksLikeJwt) {
+      console.error(
+        "UPLOAD: SUPABASE_SERVICE_ROLE_KEY is set but is not a valid JWT — it is " +
+        "probably a placeholder. Storage writes will fail with 'Invalid Compact " +
+        "JWS' and the caller will silently fall back to the expiring Veo URL."
+      );
+    }
+
     const supabase = serverSupabase();
     if (!supabase) {
-      console.error("Storage upload: missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY");
+      console.error(
+        "UPLOAD: ABORT — Storage not configured. " +
+        `NEXT_PUBLIC_SUPABASE_URL=${!!process.env.NEXT_PUBLIC_SUPABASE_URL} ` +
+        `SUPABASE_SERVICE_ROLE_KEY=${!!process.env.SUPABASE_SERVICE_ROLE_KEY}. ` +
+        "The caller falls back to the expiring Veo proxy URL when this happens."
+      );
       return NextResponse.json({ error: "Storage not configured" }, { status: 500 });
     }
 
@@ -122,22 +149,29 @@ export async function POST(req: NextRequest) {
     const videoRes = await fetch(`${videoUri}${sep}key=${API_KEY}`);
     if (!videoRes.ok) {
       const body = await videoRes.text().catch(() => "");
-      console.error("Storage upload — source fetch failed:", videoRes.status, body.slice(0, 200));
+      console.error("UPLOAD: source fetch failed:", videoRes.status, body.slice(0, 200));
       return NextResponse.json({ error: "Failed to fetch source video" }, { status: 502 });
     }
     const videoBuffer = await videoRes.arrayBuffer();
+    console.log("UPLOAD: Video fetched, size:", videoBuffer.byteLength);
 
     // 2. Upload to Supabase Storage.
     const fileName = `simulation-${Date.now()}.mp4`;
-    const { error: uploadError } = await supabase.storage
+    const { data: uploadData, error: uploadError } = await supabase.storage
       .from(BUCKET)
       .upload(fileName, videoBuffer, {
         contentType: "video/mp4",
         cacheControl: "3600",
       });
 
+    console.log(
+      "UPLOAD: Supabase result:",
+      uploadData ? "success" : "failed",
+      uploadError?.message ?? ""
+    );
+
     if (uploadError) {
-      console.error("Supabase Storage upload failed:", uploadError.message);
+      console.error("UPLOAD: Storage upload failed:", uploadError.message);
       return NextResponse.json({ error: uploadError.message }, { status: 502 });
     }
 
@@ -145,8 +179,10 @@ export async function POST(req: NextRequest) {
     const { data: urlData } = supabase.storage.from(BUCKET).getPublicUrl(fileName);
     const url = urlData?.publicUrl;
     if (!url) {
+      console.error("UPLOAD: no public URL returned for", fileName);
       return NextResponse.json({ error: "No public URL returned from Storage" }, { status: 502 });
     }
+    console.log("UPLOAD: Complete —", url);
 
     // 4. Retention cleanup — never let it break the upload response.
     try {
