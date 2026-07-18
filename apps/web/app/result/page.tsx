@@ -567,6 +567,111 @@ function ProcessingMetrics({ visible, onComplete }: { visible: boolean; onComple
   );
 }
 
+// ─── Generation blob (video loading state) ───────────────────────────────────
+// Organic morphing gradient shown while the video generates. Pure CSS, no libs.
+
+const GenerationBlob = () => (
+  <div style={{
+    position: 'absolute',
+    inset: 0,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    background: '#000',
+  }}>
+    <style>{`
+      @keyframes blobMorph {
+        0%   { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; transform: scale(1) rotate(0deg); opacity: 0.7; }
+        25%  { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; transform: scale(1.05) rotate(8deg); opacity: 0.85; }
+        50%  { border-radius: 50% 60% 40% 60% / 30% 40% 60% 50%; transform: scale(0.97) rotate(-5deg); opacity: 0.75; }
+        75%  { border-radius: 40% 30% 60% 50% / 60% 70% 30% 40%; transform: scale(1.03) rotate(12deg); opacity: 0.9; }
+        100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; transform: scale(1) rotate(0deg); opacity: 0.7; }
+      }
+      @keyframes blobGlow {
+        0%, 100% { opacity: 0.15; transform: scale(1); }
+        50%       { opacity: 0.3;  transform: scale(1.08); }
+      }
+      @keyframes blobBreath {
+        0%, 100% { opacity: 0.5; }
+        50%       { opacity: 0.8; }
+      }
+    `}</style>
+
+    {/* Outer dark vignette */}
+    <div style={{
+      position: 'absolute',
+      inset: 0,
+      background: 'radial-gradient(ellipse at center, transparent 30%, #000 80%)',
+      zIndex: 3,
+      pointerEvents: 'none',
+    }} />
+
+    {/* Main morphing blob */}
+    <div style={{
+      position: 'relative',
+      width: 280,
+      height: 280,
+      zIndex: 2,
+    }}>
+      {/* Outer glow layer */}
+      <div style={{
+        position: 'absolute',
+        inset: -40,
+        background: 'radial-gradient(ellipse, rgba(255,201,157,0.12) 0%, transparent 70%)',
+        animation: 'blobGlow 4s ease-in-out infinite',
+        borderRadius: '50%',
+      }} />
+
+      {/* Main blob */}
+      <div style={{
+        position: 'absolute',
+        inset: 0,
+        background: 'radial-gradient(ellipse at 40% 40%, #FFC99D 0%, #FFC1BB 45%, rgba(255,193,187,0.3) 70%, transparent 100%)',
+        animation: 'blobMorph 8s ease-in-out infinite',
+        filter: 'blur(32px)',
+        opacity: 0.75,
+      }} />
+
+      {/* Inner bright core */}
+      <div style={{
+        position: 'absolute',
+        inset: '25%',
+        background: 'radial-gradient(ellipse, rgba(255,220,180,0.9) 0%, rgba(255,201,157,0.4) 50%, transparent 100%)',
+        animation: 'blobMorph 6s ease-in-out infinite reverse',
+        filter: 'blur(16px)',
+        opacity: 0.6,
+      }} />
+
+      {/* Periwinkle cold hint at edges */}
+      <div style={{
+        position: 'absolute',
+        inset: -20,
+        background: 'radial-gradient(ellipse at 70% 70%, rgba(188,194,255,0.15) 0%, transparent 60%)',
+        animation: 'blobGlow 7s ease-in-out infinite 2s',
+        filter: 'blur(24px)',
+        borderRadius: '50%',
+      }} />
+    </div>
+
+    {/* Bottom text */}
+    <div style={{
+      position: 'absolute',
+      bottom: 32,
+      left: '50%',
+      transform: 'translateX(-50%)',
+      color: 'rgba(255,201,157,0.45)',
+      fontSize: 11,
+      letterSpacing: '0.25em',
+      fontFamily: 'Assistant, sans-serif',
+      animation: 'blobBreath 3s ease-in-out infinite',
+      whiteSpace: 'nowrap',
+      zIndex: 4,
+    }}>
+      GENERATING SIMULATION
+    </div>
+  </div>
+);
+
 // ─── Mobile detection ─────────────────────────────────────────────────────────
 
 function useIsMobile() {
@@ -878,6 +983,8 @@ export default function ResultPage() {
   const [stimmingActive, setStimmingActive] = useState(false);
 
   const [videoVisible, setVideoVisible] = useState(false);
+  // Keeps the generation blob mounted through its 0.8s fade-out after the video arrives.
+  const [blobMounted, setBlobMounted] = useState(true);
   const revealTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
   const videoPollRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -1101,6 +1208,13 @@ export default function ResultPage() {
     if (videoUrl) setVideoVisible(true);
     else { setVideoVisible(false); setProcessingVisible(true); setLoadingDone(false); }
   // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [videoUrl]);
+
+  // Unmount the generation blob once its fade-out has finished.
+  useEffect(() => {
+    if (!videoUrl) { setBlobMounted(true); return; }
+    const t = setTimeout(() => setBlobMounted(false), 900);
+    return () => clearTimeout(t);
   }, [videoUrl]);
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -1535,10 +1649,6 @@ export default function ResultPage() {
         @keyframes stimming-high { 0%,100%{transform:translateY(0px) rotate(0deg)} 50%{transform:translateY(-14px) rotate(1deg)} }
         @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:0.3} }
         @keyframes materialize { 0%{filter:blur(20px) brightness(0.4)} 100%{filter:blur(0px) brightness(1)} }
-        @keyframes loadingBreathe {
-          0%, 100% { border-color: rgba(255,201,157,0.18); box-shadow: 0 0 24px rgba(255,201,157,0.06) inset, 0 0 12px rgba(255,201,157,0.04); }
-          50%      { border-color: rgba(255,201,157,0.45); box-shadow: 0 0 48px rgba(255,201,157,0.16) inset, 0 0 28px rgba(255,201,157,0.12); }
-        }
         .sound-btn { transition: background 0.2s, border-color 0.2s; }
         .sound-btn:hover { background: rgba(255,255,255,0.08) !important; }
         .stop-btn:hover { background: rgba(255,255,255,0.12) !important; }
@@ -1551,28 +1661,15 @@ export default function ResultPage() {
       {/* ── FULLSCREEN VIDEO (center) ─────────────────────────── */}
       <div style={{ position: "fixed", inset: 0, zIndex: 0, background: "#000000" }}>
         {/* Loading state — result is ready but the video is still generating.
-            A slow breathing orange glow makes it clear something is coming. */}
-        {result && !videoUrl && (
+            The blob stays mounted through its 0.8s fade-out once the video lands. */}
+        {blobMounted && (
           <div style={{
-            position: "absolute", top: 24, bottom: 24, left: 304, right: 304,
-            borderRadius: 12,
-            border: "1px solid rgba(255,201,157,0.35)",
-            animation: "loadingBreathe 2s ease-in-out infinite",
-            display: "flex", flexDirection: "column",
-            alignItems: "center", justifyContent: "flex-end",
-            paddingBottom: 28,
+            position: "absolute", inset: 0, zIndex: 2,
+            opacity: result && !videoUrl ? 1 : 0,
+            transition: "opacity 0.8s ease",
             pointerEvents: "none",
-            zIndex: 2,
           }}>
-            <div style={{
-              fontFamily: "var(--font-body)",
-              fontSize: 12,
-              letterSpacing: "0.2em",
-              color: "rgba(255,201,157,0.5)",
-              textTransform: "uppercase",
-            }}>
-              Generating your simulation...
-            </div>
+            <GenerationBlob />
           </div>
         )}
         {videoUrl && (
