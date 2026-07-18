@@ -218,7 +218,8 @@ export default function BankPage() {
   }
 
   const filteredRecords = records.filter(r => {
-    if (!r.videoUri) return false;
+    // Hide empty cards — a record with no usable video has nothing to show.
+    if (typeof r.videoUri !== "string" || r.videoUri.trim().length === 0) return false;
     if (genderFilter !== "All" && r.gender !== genderFilter) return false;
     return true;
   });
@@ -341,8 +342,9 @@ export default function BankPage() {
       }}>
         <button
           type="button"
-          className="filter-btn"
           onClick={() => navigate("/")}
+          onMouseEnter={(e) => { e.currentTarget.style.boxShadow = "0 0 20px rgba(255,201,157,0.4)"; }}
+          onMouseLeave={(e) => { e.currentTarget.style.boxShadow = "none"; }}
           style={{
             pointerEvents: "auto",
             background: "transparent",
@@ -350,14 +352,16 @@ export default function BankPage() {
             color: "#FFC99D",
             padding: "9px 20px", borderRadius: 12, fontSize: 13, cursor: "pointer",
             fontFamily: "var(--font-body)", letterSpacing: "0.04em",
+            transition: "box-shadow 0.2s ease",
           }}
         >
           ← Back to Start
         </button>
         <button
           type="button"
-          className="filter-btn"
           onClick={() => navigate("/research")}
+          onMouseEnter={(e) => { e.currentTarget.style.boxShadow = "0 0 20px rgba(255,201,157,0.6)"; }}
+          onMouseLeave={(e) => { e.currentTarget.style.boxShadow = "none"; }}
           style={{
             pointerEvents: "auto",
             background: "#FFC99D",
@@ -366,6 +370,7 @@ export default function BankPage() {
             fontWeight: 600,
             padding: "9px 20px", borderRadius: 12, fontSize: 13, cursor: "pointer",
             fontFamily: "var(--font-body)", letterSpacing: "0.04em",
+            transition: "box-shadow 0.2s ease",
           }}
         >
           Read the Research →

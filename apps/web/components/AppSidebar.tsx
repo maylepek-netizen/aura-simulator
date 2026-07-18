@@ -39,7 +39,6 @@ export default function AppSidebar() {
           onMouseEnter={(e) => { (e.currentTarget as HTMLImageElement).style.opacity = "1"; }}
           onMouseLeave={(e) => { (e.currentTarget as HTMLImageElement).style.opacity = "0.45"; }}
         />
-        <img src="/icons/sensory-channels.svg" alt="Sensory Channels" style={{ width: 27, opacity: 0.45 }} />
         <img
           src="/icons/insights.svg"
           alt="Research"

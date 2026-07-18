@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "../TransitionProvider";
 import AppSidebar from "@/components/AppSidebar";
 import AppHeader from "@/components/AppHeader";
@@ -11,6 +11,13 @@ function clamp(n: number, min: number, max: number) {
   return Math.min(max, Math.max(min, n));
 }
 
+const GENDER_OPTIONS: { value: Gender; label: string }[] = [
+  { value: "Male", label: "Male" },
+  { value: "Female", label: "Female" },
+  { value: "Non-binary", label: "Other" },
+  { value: "Prefer not to say", label: "Prefer not to say" },
+];
+
 export default function OnboardingPage() {
   const navigate = useNavigate();
 
@@ -18,6 +25,29 @@ export default function OnboardingPage() {
   const [age, setAge] = useState<number>(22);
   const [gender, setGender] = useState<Gender>("Prefer not to say");
   const [error, setError] = useState<string | null>(null);
+
+  // Custom gender dropdown (replaces the native <select>, which can't be styled
+  // consistently across browsers — options render in system light colors).
+  const [genderOpen, setGenderOpen] = useState(false);
+  const genderRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!genderOpen) return;
+    const onDocPointerDown = (e: MouseEvent | TouchEvent) => {
+      if (genderRef.current && !genderRef.current.contains(e.target as Node)) {
+        setGenderOpen(false);
+      }
+    };
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setGenderOpen(false); };
+    document.addEventListener("mousedown", onDocPointerDown);
+    document.addEventListener("touchstart", onDocPointerDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDocPointerDown);
+      document.removeEventListener("touchstart", onDocPointerDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [genderOpen]);
 
   function onStart() {
     const trimmed = name.trim();
@@ -208,30 +238,97 @@ export default function OnboardingPage() {
                 />
               </div>
 
-              {/* Gender */}
+              {/* Gender — custom dropdown */}
               <div>
                 <div style={fieldLabelStyle}>How do you identify?</div>
-                <select
-                  className="onboard-select"
-                  value={gender}
-                  onChange={(e) => setGender(e.target.value as Gender)}
-                  style={{
-                    background: '#0a0807',
-                    color: 'white',
-                    border: '1px solid rgba(255,201,157,0.3)',
-                    borderRadius: 8,
-                    padding: '10px 16px',
-                    appearance: 'none',
-                    WebkitAppearance: 'none',
-                    cursor: 'pointer',
-                  }}
-                >
-                  <option value="" disabled style={{ background: '#0a0807', color: 'white' }}>Select Gender</option>
-                  <option value="Male" style={{ background: '#0a0807', color: 'white' }}>Male</option>
-                  <option value="Female" style={{ background: '#0a0807', color: 'white' }}>Female</option>
-                  <option value="Non-binary" style={{ background: '#0a0807', color: 'white' }}>Other</option>
-                  <option value="Prefer not to say" style={{ background: '#0a0807', color: 'white' }}>Prefer not to say</option>
-                </select>
+                <div ref={genderRef} style={{ position: "relative" }}>
+                  {/* Trigger */}
+                  <button
+                    type="button"
+                    onClick={() => setGenderOpen((v) => !v)}
+                    aria-haspopup="listbox"
+                    aria-expanded={genderOpen}
+                    style={{
+                      width: "100%",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      gap: 12,
+                      background: "#0a0807",
+                      color: "white",
+                      border: "1px solid rgba(255,201,157,0.3)",
+                      borderRadius: 8,
+                      padding: "10px 16px",
+                      fontSize: 18,
+                      letterSpacing: "0.01em",
+                      fontFamily: "inherit",
+                      fontWeight: 400,
+                      cursor: "pointer",
+                      textAlign: "left",
+                      outline: "none",
+                    }}
+                  >
+                    <span>{GENDER_OPTIONS.find((o) => o.value === gender)?.label ?? "Select Gender"}</span>
+                    <svg width="12" height="8" viewBox="0 0 12 8" fill="none" aria-hidden
+                      style={{ flexShrink: 0, transform: genderOpen ? "rotate(180deg)" : "none", transition: "transform 0.2s ease" }}>
+                      <path d="M1 1.5L6 6.5L11 1.5" stroke="#FFC99D" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </button>
+
+                  {/* Options panel */}
+                  {genderOpen && (
+                    <ul
+                      role="listbox"
+                      style={{
+                        position: "absolute",
+                        top: "calc(100% + 6px)",
+                        left: 0,
+                        right: 0,
+                        zIndex: 40,
+                        margin: 0,
+                        padding: 4,
+                        listStyle: "none",
+                        background: "#0a0807",
+                        border: "1px solid rgba(255,201,157,0.3)",
+                        borderRadius: 8,
+                        boxShadow: "0 12px 32px rgba(0,0,0,0.6)",
+                        overflow: "hidden",
+                      }}
+                    >
+                      {GENDER_OPTIONS.map((opt) => {
+                        const selected = opt.value === gender;
+                        return (
+                          <li key={opt.value}>
+                            <button
+                              type="button"
+                              role="option"
+                              aria-selected={selected}
+                              onClick={() => { setGender(opt.value); setGenderOpen(false); }}
+                              onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,201,157,0.15)"; }}
+                              onMouseLeave={(e) => { e.currentTarget.style.background = selected ? "rgba(255,201,157,0.08)" : "transparent"; }}
+                              style={{
+                                width: "100%",
+                                textAlign: "left",
+                                background: selected ? "rgba(255,201,157,0.08)" : "transparent",
+                                border: "none",
+                                borderRadius: 6,
+                                padding: "10px 12px",
+                                color: selected ? "#FFC99D" : "white",
+                                fontSize: 16,
+                                fontFamily: "inherit",
+                                letterSpacing: "0.01em",
+                                cursor: "pointer",
+                                transition: "background 0.15s ease, color 0.15s ease",
+                              }}
+                            >
+                              {opt.label}
+                            </button>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  )}
+                </div>
               </div>
 
               {/* Age */}

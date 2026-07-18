@@ -1506,7 +1506,7 @@ export default function ResultPage() {
                 </MobileResultSection>
               )}
 
-              <button type="button" onClick={handleEndSimulation} style={{ marginTop: 12, width: "100%", height: 50, borderRadius: 8, border: "1px solid rgba(255,255,255,0.25)", background: "rgba(255,255,255,0.06)", fontSize: 13, letterSpacing: "0.16em", textTransform: "uppercase", color: "rgba(255,255,255,0.85)", cursor: "pointer", fontFamily: "var(--font-body)" }}>
+              <button type="button" onClick={handleEndSimulation} style={{ marginTop: 12, width: "100%", height: 50, borderRadius: 8, border: "none", background: "#FFC99D", opacity: 0.9, fontSize: 13, letterSpacing: "0.16em", textTransform: "uppercase", color: "#0a0807", fontWeight: 600, cursor: "pointer", fontFamily: "var(--font-body)" }}>
                 End Simulation
               </button>
             </>
@@ -1766,7 +1766,10 @@ export default function ResultPage() {
 
         {/* End Simulation CTA */}
         <div style={{ padding: "14px 16px", borderTop: "1px solid rgba(255,255,255,0.07)", flexShrink: 0 }}>
-          <button type="button" className="stop-btn" onClick={handleEndSimulation} style={{ width: "100%", height: 44, borderRadius: 6, border: "1px solid rgba(255,255,255,0.25)", background: "rgba(255,255,255,0.06)", fontSize: 12, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.85)", cursor: "pointer" }}>
+          <button type="button" onClick={handleEndSimulation}
+            onMouseEnter={(e) => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.boxShadow = "0 0 20px rgba(255,201,157,0.6)"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.opacity = "0.9"; e.currentTarget.style.boxShadow = "none"; }}
+            style={{ width: "100%", height: 44, borderRadius: 6, border: "none", background: "#FFC99D", opacity: 0.9, fontSize: 12, letterSpacing: "0.18em", textTransform: "uppercase", color: "#0a0807", fontWeight: 600, cursor: "pointer", transition: "opacity 0.2s ease, box-shadow 0.2s ease" }}>
             End Simulation
           </button>
         </div>

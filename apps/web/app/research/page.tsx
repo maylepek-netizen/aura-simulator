@@ -158,6 +158,31 @@ const TOPICS = [
   },
 ];
 
+// ─── Bottom-of-page research insights ─────────────────────────────────────────
+
+const INSIGHTS = [
+  {
+    title: "Perception is local before it is global",
+    body: "Enhanced Perceptual Functioning describes autistic perception as locally oriented: individual details are processed more intensely than the whole scene. A button, a hum, or a texture can dominate awareness before the room is ever perceived as a room — which is why filtering background noise is not a matter of trying harder.",
+    source: "Mottron et al. (2006) — Enhanced Perceptual Functioning",
+  },
+  {
+    title: "Misunderstanding runs in both directions",
+    body: "The Double Empathy Problem reframes social difficulty as a mutual mismatch rather than a one-sided deficit. Autistic and non-autistic people each struggle to read the other; autistic people communicating with each other show no such breakdown. The 'deficit' lives in the gap, not in one brain.",
+    source: "Milton (2012) — The Double Empathy Problem",
+  },
+  {
+    title: "The volume control is stuck",
+    body: "First-person accounts consistently describe sound arriving without hierarchy — every source at equal volume, impossible to modulate. Atypical sensory experience is estimated in as many as 90% of autistic individuals and spans every modality, making ordinary environments genuinely painful rather than merely unpleasant.",
+    source: "Grandin; Robertson & Baron-Cohen (2017)",
+  },
+  {
+    title: "Masking has a measurable cost",
+    body: "Camouflaging — suppressing stimming, forcing eye contact, scripting conversation — is effortful performance sustained across entire days. Research links chronic masking to burnout, depression, and late or missed diagnosis, particularly in women and people of colour whose presentation does not match the expected template.",
+    source: "Hull et al. (2017); Cage & Troxell-Whitman (2019)",
+  },
+];
+
 // ─── Color palette: orange, pink, purple cycling ──────────────────────────────
 const ACCENT = ["#FFC99D", "#FFC1BB", "#BCC2FF"];
 const accent = (i: number) => ACCENT[i % 3];
@@ -232,10 +257,18 @@ export default function ResearchPage() {
         /* ── Main 3-column grid ── */
         .r-main {
           display: grid;
-          grid-template-columns: 280px 1fr 340px;
+          grid-template-columns: 320px 1fr 380px;
           gap: 0;
           min-height: calc(100vh - 60px - 340px);
           padding: 48px 48px 0;
+          width: 100%;
+          max-width: 1200px;
+          margin: 0 auto;
+        }
+        @media (max-width: 1100px) {
+          .r-main { grid-template-columns: 1fr; gap: 40px; padding: 32px 24px 0; }
+          .r-right { padding-left: 0 !important; border-left: none !important; }
+          .r-left { padding-right: 0 !important; }
         }
 
         /* ── Left column ── */
@@ -449,6 +482,75 @@ export default function ResearchPage() {
           line-height: 1.5; margin-top: 10px;
         }
 
+        /* ── Bottom insights section ── */
+        .r-insights {
+          width: 100%;
+          max-width: 1200px;
+          margin: 56px auto 0;
+          padding: 0 48px;
+        }
+        .r-insights-heading {
+          font-family: 'Amiri', serif;
+          font-size: clamp(28px, 3vw, 40px);
+          font-weight: 400;
+          color: #fff;
+          margin: 0 0 8px;
+        }
+        .r-insights-sub {
+          font-size: 14px;
+          color: rgba(255,255,255,0.4);
+          margin: 0 0 28px;
+        }
+        .r-insights-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 20px;
+        }
+        .r-insight-card {
+          background: rgba(255,255,255,0.03);
+          border: 1px solid rgba(255,255,255,0.08);
+          border-radius: 14px;
+          padding: 24px 26px;
+          transition: border-color 0.25s ease, background 0.25s ease;
+        }
+        .r-insight-card:hover {
+          background: rgba(255,255,255,0.05);
+          border-color: rgba(255,201,157,0.25);
+        }
+        .r-insight-num {
+          font-family: 'Amiri', serif;
+          font-size: 13px;
+          letter-spacing: 0.22em;
+          opacity: 0.7;
+          margin-bottom: 10px;
+        }
+        .r-insight-title {
+          font-family: 'Amiri', serif;
+          font-style: italic;
+          font-size: clamp(19px, 1.8vw, 24px);
+          font-weight: 400;
+          line-height: 1.25;
+          margin: 0 0 12px;
+        }
+        .r-insight-body {
+          font-size: 14px;
+          line-height: 1.7;
+          color: rgba(255,255,255,0.6);
+          margin: 0 0 16px;
+        }
+        .r-insight-source {
+          font-size: 11px;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          color: rgba(255,255,255,0.3);
+          border-top: 1px solid rgba(255,255,255,0.08);
+          padding-top: 12px;
+        }
+        @media (max-width: 900px) {
+          .r-insights { padding: 0 24px; margin-top: 40px; }
+          .r-insights-grid { grid-template-columns: 1fr; gap: 16px; }
+        }
+
         @keyframes nodeBreathe {
           0%, 100% { opacity: 0.8; }
           50% { opacity: 1; }
@@ -471,15 +573,19 @@ export default function ResearchPage() {
           </div>
           <button
             onClick={() => router.push('/')}
+            onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 0 20px rgba(255,201,157,0.6)'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.boxShadow = 'none'; }}
             style={{
-              background: 'transparent',
-              border: '1px solid rgba(255,201,157,0.5)',
-              color: '#FFC99D',
+              background: '#FFC99D',
+              border: 'none',
+              color: '#0a0807',
+              fontWeight: 600,
               padding: '8px 20px',
               borderRadius: 12,
               fontSize: 13,
               cursor: 'pointer',
               fontFamily: 'Assistant, sans-serif',
+              transition: 'box-shadow 0.2s ease',
             }}
           >
             ← Back to Simulator
@@ -679,6 +785,28 @@ export default function ResearchPage() {
 
         </div>
 
+        {/* ── Research insights — fills the lower page, 2 columns on desktop ── */}
+        <section className="r-insights">
+          <h2 className="r-insights-heading">Key Insights From the Research</h2>
+          <p className="r-insights-sub">
+            Four threads run through almost every study of autistic perception.
+          </p>
+
+          <div className="r-insights-grid">
+            {INSIGHTS.map((ins, i) => (
+              <article key={ins.title} className="r-insight-card">
+                <div className="r-insight-num" style={{ color: accent(i) }}>
+                  {String(i + 1).padStart(2, "0")}
+                </div>
+                <h3 className="r-insight-title" style={{ color: accent(i) }}>{ins.title}</h3>
+                <p className="r-insight-body">{ins.body}</p>
+                <div className="r-insight-source" style={{ borderTopColor: `${accent(i)}33` }}>
+                  {ins.source}
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
 
         {/* bottom padding */}
         <div style={{ height: 60 }} />

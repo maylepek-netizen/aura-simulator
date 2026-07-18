@@ -106,12 +106,19 @@ export default function ChatPage() {
   const [showExamples, setShowExamples] = useState(false);
   const [helpHint, setHelpHint] = useState<string | null>(null);
   const [profile, setProfile] = useState<{ age: number; gender: string } | null>(null);
+  // Drives the subtle fade-in transition on the helper buttons.
+  const [helpersVisible, setHelpersVisible] = useState(false);
 
   useEffect(() => {
     const p = loadProfile();
     if (!p) { router.replace("/"); return; }
     setProfile({ age: p.age, gender: p.gender });
   }, [router]);
+
+  useEffect(() => {
+    const t = setTimeout(() => setHelpersVisible(true), 40);
+    return () => clearTimeout(t);
+  }, []);
 
   async function sendSituation(situation: string) {
     const trimmed = situation.trim();
@@ -198,6 +205,10 @@ export default function ChatPage() {
           font-size: 12px; letter-spacing: 0.04em;
           cursor: pointer;
           transition: background 0.2s, color 0.2s;
+          white-space: nowrap;
+          width: auto;
+          height: auto;
+          flex: 0 0 auto;
         }
         .example-chip:hover { background: rgba(255,255,255,0.12); color: white; }
 
@@ -354,15 +365,25 @@ export default function ChatPage() {
           {/* ── Help buttons — spread across the full card width ── */}
           <div style={{ position: "relative", marginTop: 30, width: "100%", maxWidth: 600 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <button className="helper-btn helper-fade-in" type="button" onClick={handleHelpMe}
-                style={{ border: "1px solid #FFC1BB", color: "#FFC1BB" }}>
+              <button className="helper-btn" type="button" onClick={handleHelpMe}
+                style={{
+                  border: "1px solid #FFC1BB", color: "#FFC1BB",
+                  opacity: helpersVisible ? 1 : 0,
+                  transform: helpersVisible ? "translateY(0)" : "translateY(6px)",
+                  transition: "opacity 0.5s ease, transform 0.5s ease",
+                }}>
                 Help me think
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                   <path d="M9.5 2a6 6 0 0 1 5 9.5M9.5 2a6 6 0 0 0-5 9.5M9.5 2v1M14.5 11.5a6 6 0 0 1-5 9.5M14.5 11.5a6 6 0 0 0-5 9.5M9.5 21v-1M3 7h1M16 7h1M3 17h1M16 17h1"/>
                 </svg>
               </button>
-              <button className="helper-btn helper-fade-in" type="button" onClick={handleWriteForMe}
-                style={{ border: "1px solid #BCC2FF", color: "#BCC2FF" }}>
+              <button className="helper-btn" type="button" onClick={handleWriteForMe}
+                style={{
+                  border: "1px solid #BCC2FF", color: "#BCC2FF",
+                  opacity: helpersVisible ? 1 : 0,
+                  transform: helpersVisible ? "translateY(0)" : "translateY(6px)",
+                  transition: "opacity 0.5s ease 0.08s, transform 0.5s ease 0.08s",
+                }}>
                 Write for me
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                   <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>
@@ -387,7 +408,7 @@ export default function ChatPage() {
               overflowY: "auto",
               pointerEvents: showExamples ? "auto" : "none",
               transition: "max-height 0.45s ease-out, opacity 0.45s ease-out",
-              display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, alignContent: "start",
+              display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center", alignContent: "flex-start",
             }}>
               {examples.map((ex, i) => (
                 <button

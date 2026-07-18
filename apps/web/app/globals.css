@@ -102,15 +102,6 @@ h1, h2, h3, h4, h5, h6 {
   pointer-events: none;
 }
 
-/* Fade-in for helper buttons */
-@keyframes helperFadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-.helper-fade-in {
-  animation: helperFadeIn 0.4s ease forwards;
-}
-
 /* Number input spinner arrows — invert to white on the dark UI */
 input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button {
