@@ -210,12 +210,13 @@ export default function ResearchPage() {
     setActiveTopic(idx);
   }
 
-  // SVG circle layout — the wheel is the dominant element, so it runs large.
-  const SVG = 620;
+  // SVG circle layout. Sized so the whole section (nav + headline + wheel +
+  // counter + right card) fits inside 100vh on a 1440x900 desktop.
+  const SVG = 500;
   const CX = SVG / 2;
   const CY = SVG / 2;
-  const RX = 236;
-  const RY = 236;
+  const RX = 190;
+  const RY = 190;
 
   return (
     <>
@@ -261,11 +262,14 @@ export default function ResearchPage() {
           grid-template-columns: 25% 50% 25%;
           gap: 32px;
           align-items: center;              /* vertically centre the wheel */
-          min-height: calc(100vh - 60px);
-          padding: 48px 48px 24px;
+          /* Hard constraint: the whole section fits one viewport, no scroll. */
+          height: calc(100vh - 60px);
+          max-height: calc(100vh - 60px);
+          padding: 24px 48px;
           width: 100%;
           max-width: 1500px;
           margin: 0 auto;
+          overflow: hidden;
         }
         @media (max-width: 1200px) {
           .r-main { grid-template-columns: 1fr; gap: 56px; padding: 40px 24px 0; align-items: start; }
@@ -321,11 +325,16 @@ export default function ResearchPage() {
           font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
           color: rgba(255,255,255,0.3); text-align: center; margin: 0 0 6px;
         }
-        /* Clear breathing room between the prompt and the wheel */
-        .r-map-arrow { color: rgba(255,255,255,0.25); font-size: 12px; text-align: center; margin: 0 0 40px; }
+        /* Breathing room between the prompt and the wheel */
+        .r-map-arrow { color: rgba(255,255,255,0.25); font-size: 12px; text-align: center; margin: 0 0 20px; }
 
-        /* The wheel scales down on smaller viewports but keeps its proportions */
-        .r-wheel { width: 100%; height: auto; max-width: 620px; }
+        /* The wheel shrinks to fit the available height — never forces a scroll */
+        .r-wheel {
+          width: 100%;
+          height: auto;
+          max-width: 500px;
+          max-height: calc(100vh - 260px);
+        }
 
         .topic-node { cursor: pointer; transition: all 0.25s ease; }
         .topic-node:hover .node-circle { filter: drop-shadow(0 0 10px rgba(255,201,157,0.5)); }
@@ -335,7 +344,7 @@ export default function ResearchPage() {
         .eye-ring { animation: eyeRingSpin 90s linear infinite; }
 
         .r-counter {
-          margin-top: 40px; text-align: center;
+          margin-top: 26px; text-align: center;
           font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase;
           color: rgba(255,255,255,0.35);
         }
@@ -353,18 +362,23 @@ export default function ResearchPage() {
         /* ── Right panel — a contained card, not an open column ── */
         .r-right {
           width: 100%;
-          max-width: 360px;
+          max-width: 340px;
           margin-left: auto;
           background: rgba(255,255,255,0.02);
           border: 1px solid rgba(255,255,255,0.09);
           border-radius: 16px;
-          padding: 26px 24px;
+          padding: 20px 18px;
+          /* Stay inside the viewport; scroll internally only in the worst case. */
+          max-height: calc(100vh - 108px);
+          overflow-y: auto;
+          scrollbar-width: none;
         }
+        .r-right::-webkit-scrollbar { display: none; }
         /* Thin divider between the header block and the finding */
         .r-divider {
           height: 1px;
           background: rgba(255,255,255,0.09);
-          margin: 0 0 20px;
+          margin: 0 0 14px;
         }
         /* Filled peach CTA at the bottom of the card */
         .r-full-research {
@@ -375,9 +389,9 @@ export default function ResearchPage() {
           color: #1a0f00;
           border: none;
           border-radius: 10px;
-          padding: 13px 18px;
-          font-size: 11px;
-          letter-spacing: 0.18em;
+          padding: 11px 16px;
+          font-size: 10.5px;
+          letter-spacing: 0.16em;
           text-transform: uppercase;
           font-weight: 600;
           font-family: 'Assistant', sans-serif;
@@ -393,15 +407,15 @@ export default function ResearchPage() {
         }
         .r-topic-title {
           font-family: 'Amiri', serif; font-style: italic;
-          font-size: clamp(26px, 2.8vw, 34px);
-          color: #FFC99D; font-weight: 400; margin: 0 0 12px;
+          font-size: clamp(22px, 2.2vw, 28px);
+          color: #FFC99D; font-weight: 400; margin: 0 0 10px;
           line-height: 1.1;
         }
         .r-topic-desc {
-          font-size: 13px; line-height: 1.65;
-          color: rgba(255,255,255,0.5); margin-bottom: 16px;
+          font-size: 12px; line-height: 1.6;
+          color: rgba(255,255,255,0.5); margin-bottom: 12px;
         }
-        .r-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px; }
+        .r-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 14px; }
         .r-tag {
           font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase;
           border: 1px solid rgba(255,255,255,0.15);
@@ -411,14 +425,14 @@ export default function ResearchPage() {
         .r-card {
           background: rgba(255,255,255,0.04);
           border: 1px solid rgba(255,255,255,0.08);
-          border-radius: 10px; padding: 22px; margin-bottom: 18px;
+          border-radius: 10px; padding: 14px 15px; margin-bottom: 12px;
         }
         .r-card-label {
           font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase;
-          color: rgba(255,255,255,0.3); margin-bottom: 10px;
+          color: rgba(255,255,255,0.3); margin-bottom: 8px;
         }
         .r-finding-num {
-          font-family: 'Amiri', serif; font-size: 40px;
+          font-family: 'Amiri', serif; font-size: 34px;
           color: #FFC99D; line-height: 1; display: inline;
         }
         .r-finding-text {
@@ -427,15 +441,15 @@ export default function ResearchPage() {
         }
         .r-quote {
           font-family: 'Amiri', serif; font-style: italic;
-          font-size: 13px; line-height: 1.6;
+          font-size: 12px; line-height: 1.55;
           color: rgba(255,255,255,0.6);
         }
-        .r-quote::before { content: "❝ "; color: #FFC99D; font-size: 16px; }
-        .r-studies-list { display: flex; flex-direction: column; gap: 8px; }
+        .r-quote::before { content: "❝ "; color: #FFC99D; font-size: 15px; }
+        .r-studies-list { display: flex; flex-direction: column; gap: 6px; }
         .r-study-row {
           display: flex; align-items: center; justify-content: space-between;
-          font-size: 11px; color: rgba(255,255,255,0.45);
-          padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.05);
+          font-size: 10.5px; color: rgba(255,255,255,0.45);
+          padding-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,0.05);
         }
         .r-study-row:last-child { border-bottom: none; }
         .r-study-icon { font-size: 10px; color: rgba(255,201,157,0.5); margin-right: 6px; }
@@ -689,8 +703,8 @@ export default function ResearchPage() {
               <defs>
                 {/* Warm glow behind the centre eye */}
                 <radialGradient id="eyeGlow" cx="50%" cy="50%" r="50%">
-                  <stop offset="0%" stopColor="#FFC99D" stopOpacity="0.20" />
-                  <stop offset="55%" stopColor="#FFC99D" stopOpacity="0.07" />
+                  <stop offset="0%" stopColor="#FFC99D" stopOpacity="0.12" />
+                  <stop offset="50%" stopColor="#FFC99D" stopOpacity="0.04" />
                   <stop offset="100%" stopColor="#FFC99D" stopOpacity="0" />
                 </radialGradient>
               </defs>
@@ -734,11 +748,11 @@ export default function ResearchPage() {
               })}
 
               {/* ── Centre: warm glow + dotted ring + the AURA eye ── */}
-              <circle cx={CX} cy={CY} r={132} fill="url(#eyeGlow)" />
+              <circle cx={CX} cy={CY} r={78} fill="url(#eyeGlow)" />
               <circle
-                cx={CX} cy={CY} r={104}
+                cx={CX} cy={CY} r={62}
                 fill="none"
-                stroke="rgba(255,201,157,0.28)"
+                stroke="rgba(255,201,157,0.26)"
                 strokeWidth={1}
                 strokeDasharray="1 7"
                 className="eye-ring"
@@ -746,10 +760,10 @@ export default function ResearchPage() {
               />
               <image
                 href="/icons/New_logo_eye.svg"
-                x={CX - 82} y={CY - 82}
-                width={164} height={164}
+                x={CX - 48} y={CY - 48}
+                width={96} height={96}
                 preserveAspectRatio="xMidYMid meet"
-                opacity={0.92}
+                opacity={0.9}
               />
 
               {/* Topic nodes */}
@@ -759,8 +773,8 @@ export default function ResearchPage() {
                 const y = CY + pos.y;
                 const isActive = activeTopic === i;
                 const isHovered = hoveredNode === i;
-                const scale = isActive ? 1.22 : isHovered ? 1.08 : 1;
-                const nodeR = 52;
+                const scale = isActive ? 1.18 : isHovered ? 1.07 : 1;
+                const nodeR = 42;
                 const words = t.label.split(" ");
 
                 return (
@@ -789,9 +803,9 @@ export default function ResearchPage() {
                     />
                     {/* Number */}
                     <text
-                      x={0} y={-nodeR + 19}
+                      x={0} y={-nodeR + 16}
                       textAnchor="middle"
-                      fontSize={9}
+                      fontSize={8}
                       fill={isActive ? accent(i) : `${accent(i)}99`}
                       letterSpacing="0.12em"
                       fontFamily="Assistant, sans-serif"
@@ -800,17 +814,17 @@ export default function ResearchPage() {
                     </text>
                     {/* Label text — split into lines */}
                     {words.length <= 1 ? (
-                      <text x={0} y={6} textAnchor="middle" fontSize={11.5} fill="white" fontFamily="Assistant, sans-serif">{t.label}</text>
+                      <text x={0} y={5} textAnchor="middle" fontSize={9.5} fill="white" fontFamily="Assistant, sans-serif">{t.label}</text>
                     ) : words.length === 2 ? (
                       <>
-                        <text x={0} y={1} textAnchor="middle" fontSize={11.5} fill="white" fontFamily="Assistant, sans-serif">{words[0]}</text>
-                        <text x={0} y={15} textAnchor="middle" fontSize={11.5} fill="white" fontFamily="Assistant, sans-serif">{words[1]}</text>
+                        <text x={0} y={0} textAnchor="middle" fontSize={9.5} fill="white" fontFamily="Assistant, sans-serif">{words[0]}</text>
+                        <text x={0} y={12} textAnchor="middle" fontSize={9.5} fill="white" fontFamily="Assistant, sans-serif">{words[1]}</text>
                       </>
                     ) : (
                       <>
-                        <text x={0} y={-4} textAnchor="middle" fontSize={10.5} fill="white" fontFamily="Assistant, sans-serif">{words[0]}</text>
-                        <text x={0} y={9} textAnchor="middle" fontSize={10.5} fill="white" fontFamily="Assistant, sans-serif">{words[1]}</text>
-                        <text x={0} y={22} textAnchor="middle" fontSize={10.5} fill="white" fontFamily="Assistant, sans-serif">{words[2]}</text>
+                        <text x={0} y={-4} textAnchor="middle" fontSize={9} fill="white" fontFamily="Assistant, sans-serif">{words[0]}</text>
+                        <text x={0} y={7} textAnchor="middle" fontSize={9} fill="white" fontFamily="Assistant, sans-serif">{words[1]}</text>
+                        <text x={0} y={18} textAnchor="middle" fontSize={9} fill="white" fontFamily="Assistant, sans-serif">{words[2]}</text>
                       </>
                     )}
                   </g>
