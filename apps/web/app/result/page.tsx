@@ -568,7 +568,7 @@ function ProcessingMetrics({ visible, onComplete }: { visible: boolean; onComple
 }
 
 // ─── Generation blob (video loading state) ───────────────────────────────────
-// Organic morphing gradient shown while the video generates. Pure CSS, no libs.
+// Rectangular video-frame murk shown while the video generates. Pure CSS, no libs.
 
 const GenerationBlob = () => (
   <div style={{
@@ -578,96 +578,119 @@ const GenerationBlob = () => (
     alignItems: 'center',
     justifyContent: 'center',
     background: '#000',
+    overflow: 'hidden',
   }}>
     <style>{`
-      @keyframes blobMorph {
-        0%   { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; transform: scale(1) rotate(0deg); opacity: 0.7; }
-        25%  { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; transform: scale(1.05) rotate(8deg); opacity: 0.85; }
-        50%  { border-radius: 50% 60% 40% 60% / 30% 40% 60% 50%; transform: scale(0.97) rotate(-5deg); opacity: 0.75; }
-        75%  { border-radius: 40% 30% 60% 50% / 60% 70% 30% 40%; transform: scale(1.03) rotate(12deg); opacity: 0.9; }
-        100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; transform: scale(1) rotate(0deg); opacity: 0.7; }
+      @keyframes driftA {
+        0%   { transform: translate(0%, 0%) scale(1); opacity: 0.6; }
+        33%  { transform: translate(8%, -5%) scale(1.08); opacity: 0.45; }
+        66%  { transform: translate(-6%, 8%) scale(0.95); opacity: 0.65; }
+        100% { transform: translate(0%, 0%) scale(1); opacity: 0.6; }
       }
-      @keyframes blobGlow {
-        0%, 100% { opacity: 0.15; transform: scale(1); }
-        50%       { opacity: 0.3;  transform: scale(1.08); }
+      @keyframes driftB {
+        0%   { transform: translate(0%, 0%) scale(1); opacity: 0.4; }
+        40%  { transform: translate(-10%, 6%) scale(1.05); opacity: 0.55; }
+        70%  { transform: translate(5%, -8%) scale(0.92); opacity: 0.35; }
+        100% { transform: translate(0%, 0%) scale(1); opacity: 0.4; }
       }
-      @keyframes blobBreath {
-        0%, 100% { opacity: 0.5; }
-        50%       { opacity: 0.8; }
+      @keyframes driftC {
+        0%   { transform: translate(0%, 0%) scale(1); opacity: 0.3; }
+        50%  { transform: translate(6%, 10%) scale(1.1); opacity: 0.5; }
+        100% { transform: translate(0%, 0%) scale(1); opacity: 0.3; }
+      }
+      @keyframes textBreath {
+        0%, 100% { opacity: 0.3; }
+        50%       { opacity: 0.55; }
       }
     `}</style>
 
-    {/* Outer dark vignette */}
-    <div style={{
-      position: 'absolute',
-      inset: 0,
-      background: 'radial-gradient(ellipse at center, transparent 30%, #000 80%)',
-      zIndex: 3,
-      pointerEvents: 'none',
-    }} />
-
-    {/* Main morphing blob */}
+    {/* Rectangular frame - matches video aspect ratio */}
     <div style={{
       position: 'relative',
-      width: 280,
-      height: 280,
-      zIndex: 2,
+      width: '100%',
+      maxWidth: 640,
+      aspectRatio: '16/9',
+      overflow: 'hidden',
     }}>
-      {/* Outer glow layer */}
-      <div style={{
-        position: 'absolute',
-        inset: -40,
-        background: 'radial-gradient(ellipse, rgba(255,201,157,0.12) 0%, transparent 70%)',
-        animation: 'blobGlow 4s ease-in-out infinite',
-        borderRadius: '50%',
-      }} />
-
-      {/* Main blob */}
+      {/* Dark murky base */}
       <div style={{
         position: 'absolute',
         inset: 0,
-        background: 'radial-gradient(ellipse at 40% 40%, #FFC99D 0%, #FFC1BB 45%, rgba(255,193,187,0.3) 70%, transparent 100%)',
-        animation: 'blobMorph 8s ease-in-out infinite',
-        filter: 'blur(32px)',
-        opacity: 0.75,
+        background: '#0d0906',
       }} />
 
-      {/* Inner bright core */}
+      {/* Warm amber patch - top left */}
       <div style={{
         position: 'absolute',
-        inset: '25%',
-        background: 'radial-gradient(ellipse, rgba(255,220,180,0.9) 0%, rgba(255,201,157,0.4) 50%, transparent 100%)',
-        animation: 'blobMorph 6s ease-in-out infinite reverse',
-        filter: 'blur(16px)',
-        opacity: 0.6,
+        top: '-20%',
+        left: '-10%',
+        width: '70%',
+        height: '80%',
+        background: 'radial-gradient(ellipse, rgba(180,100,40,0.55) 0%, rgba(140,70,20,0.2) 50%, transparent 75%)',
+        filter: 'blur(48px)',
+        animation: 'driftA 9s ease-in-out infinite',
       }} />
 
-      {/* Periwinkle cold hint at edges */}
+      {/* Peach patch - center right */}
       <div style={{
         position: 'absolute',
-        inset: -20,
-        background: 'radial-gradient(ellipse at 70% 70%, rgba(188,194,255,0.15) 0%, transparent 60%)',
-        animation: 'blobGlow 7s ease-in-out infinite 2s',
-        filter: 'blur(24px)',
-        borderRadius: '50%',
+        top: '10%',
+        right: '-15%',
+        width: '65%',
+        height: '70%',
+        background: 'radial-gradient(ellipse, rgba(200,130,70,0.45) 0%, rgba(160,90,40,0.15) 55%, transparent 80%)',
+        filter: 'blur(56px)',
+        animation: 'driftB 12s ease-in-out infinite',
+      }} />
+
+      {/* Dark amber patch - bottom */}
+      <div style={{
+        position: 'absolute',
+        bottom: '-15%',
+        left: '20%',
+        width: '60%',
+        height: '60%',
+        background: 'radial-gradient(ellipse, rgba(120,60,20,0.4) 0%, transparent 70%)',
+        filter: 'blur(40px)',
+        animation: 'driftC 7s ease-in-out infinite',
+      }} />
+
+      {/* Cool periwinkle hint - subtle */}
+      <div style={{
+        position: 'absolute',
+        bottom: '5%',
+        right: '5%',
+        width: '40%',
+        height: '40%',
+        background: 'radial-gradient(ellipse, rgba(100,110,180,0.12) 0%, transparent 70%)',
+        filter: 'blur(36px)',
+        animation: 'driftA 15s ease-in-out infinite reverse',
+      }} />
+
+      {/* Heavy edge vignette to dissolve into black */}
+      <div style={{
+        position: 'absolute',
+        inset: 0,
+        background: 'radial-gradient(ellipse at center, transparent 20%, rgba(0,0,0,0.6) 60%, rgba(0,0,0,0.95) 100%)',
+        pointerEvents: 'none',
       }} />
     </div>
 
-    {/* Bottom text */}
+    {/* Text below */}
     <div style={{
       position: 'absolute',
-      bottom: 32,
+      bottom: 24,
       left: '50%',
       transform: 'translateX(-50%)',
-      color: 'rgba(255,201,157,0.45)',
-      fontSize: 11,
-      letterSpacing: '0.25em',
+      color: 'rgba(255,201,157,0.4)',
+      fontSize: 10,
+      letterSpacing: '0.3em',
       fontFamily: 'Assistant, sans-serif',
-      animation: 'blobBreath 3s ease-in-out infinite',
+      animation: 'textBreath 4s ease-in-out infinite',
       whiteSpace: 'nowrap',
-      zIndex: 4,
+      textTransform: 'uppercase',
     }}>
-      GENERATING SIMULATION
+      Generating simulation
     </div>
   </div>
 );
