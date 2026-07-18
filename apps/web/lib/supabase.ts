@@ -47,6 +47,16 @@ export async function updateSimulationVideoUrl(id: string | number, cloudinaryUr
   return data
 }
 
+// NOTE: getSupabase() is client-only (it bails when there is no `window`), so
+// this helper is for client-side use. Server-side cleanup in the
+// upload-to-cloudinary route creates its own client.
+export async function deleteSimulation(id: number) {
+  const supabase = getSupabase()
+  if (!supabase) return
+  const { error } = await supabase.from('simulations').delete().eq('id', id)
+  if (error) console.error('Supabase delete error:', error)
+}
+
 export async function getSimulationsFromSupabase() {
   const supabase = getSupabase()
   if (!supabase) return []
