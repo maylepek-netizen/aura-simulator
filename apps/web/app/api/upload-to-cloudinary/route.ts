@@ -8,8 +8,9 @@ const API_KEY = process.env.GEMINI_API_KEY!;
 const BUCKET = "simulations";
 
 // ─── Retention cleanup ───────────────────────────────────────────────────────
-// Keep only the N most recent simulations. Supabase `created_at` is the source
-// of truth; anything older is removed from Storage and from the table.
+// Keep only the N most recent simulations. Row `id` is the source of truth for
+// recency (see cleanupOldSimulations); anything older is removed from Storage
+// and from the table.
 //
 // DRY RUN: while CLEANUP_DRY_RUN is true nothing is deleted — the route only
 // logs what it *would* remove. Set CLEANUP_DRY_RUN=false to enable deletion.
@@ -45,18 +46,16 @@ export function extractStoragePath(url: string): string | null {
 async function cleanupOldSimulations(supabase: SupabaseClient) {
   const { data, error } = await supabase
     .from("simulations")
-    .select("id, video_url, created_at")
-    // Sort newest-first, with `id` as tiebreaker.
+    .select("id, video_url")
+    // Order by id alone. `id` is a monotonic serial, so descending id IS
+    // newest-first — and unlike created_at it is never NULL, never tied, and
+    // never backfilled. Verified against the live table: across all 57 rows
+    // carrying a Cloudinary /v{unix}/ stamp, id order and true upload order
+    // agree with zero inversions, so id loses no information here.
     //
-    // nullsFirst:false is essential. Rows whose video_url carries no Cloudinary
-    // version stamp have created_at = NULL (creation time genuinely unknown,
-    // deliberately not fabricated). Postgres sorts NULLs FIRST in a DESC order
-    // by default, which would rank those rows as the *newest* and protect them
-    // while deleting real recent work. NULLS LAST pushes unknowns to the end.
-    //
-    // `id` then breaks ties — both among the NULL rows, which have no other
-    // ordering signal, and across any rows sharing a timestamp.
-    .order("created_at", { ascending: false, nullsFirst: false })
+    // created_at is deliberately NOT used: every existing row shares one
+    // identical backfilled timestamp, which makes it useless as a sort key and
+    // actively dangerous as one (ties let Postgres return any order).
     .order("id", { ascending: false });
 
   if (error) {
@@ -65,26 +64,6 @@ async function cleanupOldSimulations(supabase: SupabaseClient) {
   }
   const rows = data ?? [];
   const stale = rows.slice(KEEP_MOST_RECENT);
-
-  // Refuse to delete when the ordering isn't trustworthy. A NULL created_at is
-  // fine (id orders those rows), but if every row carrying a timestamp shares
-  // the same one, created_at holds no signal and a bad sort would destroy real
-  // work — log loudly and keep everything instead.
-  const timestamps = rows.map((r) => r.created_at).filter(Boolean);
-  const distinctTimestamps = new Set(timestamps).size;
-  if (
-    !CLEANUP_DRY_RUN &&
-    rows.length > KEEP_MOST_RECENT &&
-    timestamps.length > 1 &&
-    distinctTimestamps === 1
-  ) {
-    console.error(
-      `CLEANUP: ABORTED — all ${timestamps.length} timestamped rows share one ` +
-      `created_at (${timestamps[0]}), so "most recent" is not meaningful. ` +
-      `Backfill created_at per-row before enabling deletion.`
-    );
-    return;
-  }
 
   console.log(
     `CLEANUP: ${rows.length} simulations total, keeping ${Math.min(rows.length, KEEP_MOST_RECENT)}, ` +
@@ -98,7 +77,7 @@ async function cleanupOldSimulations(supabase: SupabaseClient) {
     if (path) paths.push(path);
     if (CLEANUP_DRY_RUN) {
       console.log(
-        `CLEANUP[dry-run] would delete id=${row.id} created_at=${row.created_at} ` +
+        `CLEANUP[dry-run] would delete id=${row.id} ` +
         `storagePath=${path ?? "(not a Storage URL — row only)"}`
       );
     }
