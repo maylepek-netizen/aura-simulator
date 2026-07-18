@@ -257,16 +257,16 @@ export default function ResearchPage() {
         /* ── Main 3-column grid ── */
         .r-main {
           display: grid;
-          grid-template-columns: 320px 1fr 380px;
-          gap: 0;
+          grid-template-columns: 300px 1fr 340px;
+          gap: 40px;
           min-height: calc(100vh - 60px - 340px);
-          padding: 48px 48px 0;
+          padding: 64px 32px 0;
           width: 100%;
-          max-width: 1200px;
+          max-width: 1100px;
           margin: 0 auto;
         }
         @media (max-width: 1100px) {
-          .r-main { grid-template-columns: 1fr; gap: 40px; padding: 32px 24px 0; }
+          .r-main { grid-template-columns: 1fr; gap: 48px; padding: 40px 24px 0; }
           .r-right { padding-left: 0 !important; border-left: none !important; }
           .r-left { padding-right: 0 !important; }
         }
@@ -282,10 +282,10 @@ export default function ResearchPage() {
           margin: 0 0 20px;
         }
         .r-desc {
-          font-size: 14px;
-          line-height: 1.7;
-          color: rgba(255,255,255,0.45);
-          margin: 0 0 36px;
+          font-size: 15px;
+          line-height: 1.8;
+          color: rgba(255,255,255,0.5);
+          margin: 0 0 44px;
         }
         .r-stats {
           display: grid; grid-template-columns: 1fr 1fr;
@@ -369,7 +369,7 @@ export default function ResearchPage() {
         .r-card {
           background: rgba(255,255,255,0.04);
           border: 1px solid rgba(255,255,255,0.08);
-          border-radius: 10px; padding: 16px; margin-bottom: 12px;
+          border-radius: 10px; padding: 22px; margin-bottom: 18px;
         }
         .r-card-label {
           font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase;
@@ -485,32 +485,39 @@ export default function ResearchPage() {
         /* ── Bottom insights section ── */
         .r-insights {
           width: 100%;
-          max-width: 1200px;
-          margin: 56px auto 0;
-          padding: 0 48px;
+          max-width: 1100px;
+          margin: 96px auto 0;
+          padding: 0 32px;
         }
         .r-insights-heading {
           font-family: 'Amiri', serif;
-          font-size: clamp(28px, 3vw, 40px);
+          font-size: clamp(34px, 3.6vw, 48px);
           font-weight: 400;
+          line-height: 1.15;
           color: #fff;
-          margin: 0 0 8px;
+          margin: 0 0 12px;
         }
         .r-insights-sub {
-          font-size: 14px;
-          color: rgba(255,255,255,0.4);
-          margin: 0 0 28px;
+          font-size: 15px;
+          line-height: 1.7;
+          color: rgba(255,255,255,0.45);
+          margin: 0 0 44px;
+          max-width: 620px;
         }
         .r-insights-grid {
           display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 20px;
+          grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+          gap: 28px;
+          align-items: stretch;
         }
         .r-insight-card {
+          display: flex;
+          flex-direction: column;
+          height: 100%;
           background: rgba(255,255,255,0.03);
           border: 1px solid rgba(255,255,255,0.08);
           border-radius: 14px;
-          padding: 24px 26px;
+          padding: 32px 34px;
           transition: border-color 0.25s ease, background 0.25s ease;
         }
         .r-insight-card:hover {
@@ -522,33 +529,35 @@ export default function ResearchPage() {
           font-size: 13px;
           letter-spacing: 0.22em;
           opacity: 0.7;
-          margin-bottom: 10px;
+          margin-bottom: 14px;
         }
         .r-insight-title {
           font-family: 'Amiri', serif;
           font-style: italic;
-          font-size: clamp(19px, 1.8vw, 24px);
+          font-size: clamp(22px, 2vw, 28px);
           font-weight: 400;
           line-height: 1.25;
-          margin: 0 0 12px;
+          margin: 0 0 18px;
         }
         .r-insight-body {
-          font-size: 14px;
-          line-height: 1.7;
-          color: rgba(255,255,255,0.6);
-          margin: 0 0 16px;
+          font-size: 15px;
+          line-height: 1.8;
+          color: rgba(255,255,255,0.65);
+          margin: 0 0 28px;
         }
         .r-insight-source {
+          margin-top: auto; /* pins sources to the bottom → equal-height cards */
           font-size: 11px;
           letter-spacing: 0.1em;
           text-transform: uppercase;
           color: rgba(255,255,255,0.3);
           border-top: 1px solid rgba(255,255,255,0.08);
-          padding-top: 12px;
+          padding-top: 16px;
         }
         @media (max-width: 900px) {
-          .r-insights { padding: 0 24px; margin-top: 40px; }
-          .r-insights-grid { grid-template-columns: 1fr; gap: 16px; }
+          .r-insights { padding: 0 24px; margin-top: 64px; }
+          .r-insights-grid { grid-template-columns: 1fr; gap: 20px; }
+          .r-insight-card { padding: 26px 24px; }
         }
 
         @keyframes nodeBreathe {

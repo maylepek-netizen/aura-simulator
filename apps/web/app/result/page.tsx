@@ -749,9 +749,12 @@ function CyclingMonologue({ lines }: { lines: string[] }) {
   if (!lines.length) return null;
   return (
     <p style={{
-      fontSize: 11, lineHeight: 1.75, color: "rgba(255,255,255,0.55)",
+      fontSize: 13, lineHeight: 1.7, color: "rgba(255,255,255,0.88)",
       fontStyle: "italic", margin: 0,
-      opacity, transition: "opacity 0.6s ease",
+      // Never fade below 0.85 — the cycling cross-fade used to drop text to
+      // near-invisible mid-transition, which testers found unreadable.
+      opacity: 0.85 + opacity * 0.15,
+      transition: "opacity 0.6s ease",
     }}>
       &ldquo;{lines[idx]}&rdquo;
     </p>
@@ -1532,6 +1535,10 @@ export default function ResultPage() {
         @keyframes stimming-high { 0%,100%{transform:translateY(0px) rotate(0deg)} 50%{transform:translateY(-14px) rotate(1deg)} }
         @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:0.3} }
         @keyframes materialize { 0%{filter:blur(20px) brightness(0.4)} 100%{filter:blur(0px) brightness(1)} }
+        @keyframes loadingBreathe {
+          0%, 100% { border-color: rgba(255,201,157,0.18); box-shadow: 0 0 24px rgba(255,201,157,0.06) inset, 0 0 12px rgba(255,201,157,0.04); }
+          50%      { border-color: rgba(255,201,157,0.45); box-shadow: 0 0 48px rgba(255,201,157,0.16) inset, 0 0 28px rgba(255,201,157,0.12); }
+        }
         .sound-btn { transition: background 0.2s, border-color 0.2s; }
         .sound-btn:hover { background: rgba(255,255,255,0.08) !important; }
         .stop-btn:hover { background: rgba(255,255,255,0.12) !important; }
@@ -1543,6 +1550,31 @@ export default function ResultPage() {
 
       {/* ── FULLSCREEN VIDEO (center) ─────────────────────────── */}
       <div style={{ position: "fixed", inset: 0, zIndex: 0, background: "#000000" }}>
+        {/* Loading state — result is ready but the video is still generating.
+            A slow breathing orange glow makes it clear something is coming. */}
+        {result && !videoUrl && (
+          <div style={{
+            position: "absolute", top: 24, bottom: 24, left: 304, right: 304,
+            borderRadius: 12,
+            border: "1px solid rgba(255,201,157,0.35)",
+            animation: "loadingBreathe 2s ease-in-out infinite",
+            display: "flex", flexDirection: "column",
+            alignItems: "center", justifyContent: "flex-end",
+            paddingBottom: 28,
+            pointerEvents: "none",
+            zIndex: 2,
+          }}>
+            <div style={{
+              fontFamily: "var(--font-body)",
+              fontSize: 12,
+              letterSpacing: "0.2em",
+              color: "rgba(255,201,157,0.5)",
+              textTransform: "uppercase",
+            }}>
+              Generating your simulation...
+            </div>
+          </div>
+        )}
         {videoUrl && (
           <video ref={videoRef}
             style={{
@@ -1615,7 +1647,7 @@ export default function ResultPage() {
           {result && (
             <div style={{ marginBottom: 32 }}>
               <div style={{ fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)", marginBottom: 10 }}>Current Situation</div>
-              <p style={{ fontSize: 13, lineHeight: 1.6, color: "rgba(255,255,255,0.6)", margin: 0 }}>{result.sensory_channels.auditory}</p>
+              <p style={{ fontSize: 15, lineHeight: 1.7, color: "rgba(255,255,255,0.88)", margin: 0 }}>{result.sensory_channels.auditory}</p>
             </div>
           )}
 
@@ -1623,7 +1655,7 @@ export default function ResultPage() {
           {result && (
             <div style={{ marginBottom: 32 }}>
               <div style={{ fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)", marginBottom: 10 }}>Social Anxiety</div>
-              <p style={{ fontSize: 13, lineHeight: 1.6, color: "rgba(255,255,255,0.6)", margin: 0 }}>{result.masking_cost}</p>
+              <p style={{ fontSize: 15, lineHeight: 1.7, color: "rgba(255,255,255,0.88)", margin: 0 }}>{result.masking_cost}</p>
             </div>
           )}
 
@@ -1652,7 +1684,7 @@ export default function ResultPage() {
             <div style={{ marginBottom: 12 }}>
               <div style={{ fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)", marginBottom: 10 }}>Coping Actions</div>
               {result.coping_actions.map((a, i) => (
-                <p key={i} style={{ fontSize: 13, lineHeight: 1.55, color: "rgba(255,255,255,0.45)", margin: "0 0 10px", borderLeft: "1px solid rgba(255,255,255,0.08)", paddingLeft: 10 }}>{a}</p>
+                <p key={i} style={{ fontSize: 15, lineHeight: 1.7, color: "rgba(255,255,255,0.85)", margin: "0 0 10px", borderLeft: "1px solid rgba(255,255,255,0.08)", paddingLeft: 10 }}>{a}</p>
               ))}
             </div>
           )}
@@ -1739,7 +1771,7 @@ export default function ResultPage() {
           {result && (
             <div style={{ marginBottom: 32 }}>
               <div style={{ fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)", marginBottom: 10 }}>Social Anxiety</div>
-              <p style={{ fontSize: 13, lineHeight: 1.6, color: "rgba(255,255,255,0.55)", margin: 0 }}>{result.masking_cost}</p>
+              <p style={{ fontSize: 15, lineHeight: 1.7, color: "rgba(255,255,255,0.88)", margin: 0 }}>{result.masking_cost}</p>
             </div>
           )}
 
@@ -1747,7 +1779,7 @@ export default function ResultPage() {
           {result && (
             <div style={{ marginBottom: 32 }}>
               <div style={{ fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)", marginBottom: 10 }}>Social Anxiety</div>
-              <p style={{ fontSize: 13, lineHeight: 1.6, color: "rgba(255,255,255,0.55)", margin: 0 }}>{result.sensory_channels.visual}</p>
+              <p style={{ fontSize: 15, lineHeight: 1.7, color: "rgba(255,255,255,0.88)", margin: 0 }}>{result.sensory_channels.visual}</p>
             </div>
           )}
 

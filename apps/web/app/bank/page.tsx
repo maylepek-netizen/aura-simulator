@@ -5,6 +5,36 @@ import { useNavigate } from "../TransitionProvider";
 import { loadSimulations, deleteSimulationsByIds } from "@/lib/simulationStorage";
 import type { SimulationRecord } from "@/lib/simulationStorage";
 
+// ─── Filter bands ─────────────────────────────────────────────────────────────
+
+type AgeBand = "All" | "Child" | "Teen" | "Adult";
+type LoadBand = "All" | "Low" | "Medium" | "High" | "Shutdown";
+
+const AGE_BANDS: { key: AgeBand; label: string }[] = [
+  { key: "All", label: "All" },
+  { key: "Child", label: "Child (5-12)" },
+  { key: "Teen", label: "Teen (13-18)" },
+  { key: "Adult", label: "Adult (18+)" },
+];
+
+const LOAD_BANDS: LoadBand[] = ["All", "Low", "Medium", "High", "Shutdown"];
+
+function matchesAgeBand(age: number, band: AgeBand): boolean {
+  if (band === "All") return true;
+  if (band === "Child") return age >= 5 && age <= 12;
+  if (band === "Teen") return age >= 13 && age <= 18;
+  return age >= 18; // Adult
+}
+
+// Sensory load bands: Low 0-30, Medium 31-60, High 61-85, Shutdown 86-100
+function matchesLoadBand(load: number, band: LoadBand): boolean {
+  if (band === "All") return true;
+  if (band === "Low") return load <= 30;
+  if (band === "Medium") return load > 30 && load <= 60;
+  if (band === "High") return load > 60 && load <= 85;
+  return load > 85; // Shutdown
+}
+
 // Random but stable positions across a 3000×2000 virtual canvas
 function getCardPositions(count: number): { x: number; y: number }[] {
   const positions: { x: number; y: number }[] = [];
@@ -118,6 +148,10 @@ export default function BankPage() {
 
   // Filters
   const [genderFilter, setGenderFilter] = useState("All");
+  const [ageFilter, setAgeFilter] = useState<AgeBand>("All");
+  const [loadFilter, setLoadFilter] = useState<LoadBand>("All");
+  // "Drag to explore" hint — fades out 3s after the first drag.
+  const [hintVisible, setHintVisible] = useState(true);
 
   // Pan + zoom state
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -139,11 +173,20 @@ export default function BankPage() {
     setLoading(false);
   }, []);
 
+  // Once the user starts dragging, fade the hint out after 3s.
+  const hintTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const noteDragStarted = () => {
+    if (hintTimerRef.current) return; // already scheduled
+    hintTimerRef.current = setTimeout(() => setHintVisible(false), 3000);
+  };
+  useEffect(() => () => { if (hintTimerRef.current) clearTimeout(hintTimerRef.current); }, []);
+
   // Pan handlers
   const onMouseDown = (e: React.MouseEvent) => {
     // only drag on canvas background, not on cards
     if ((e.target as HTMLElement).closest("[data-card]")) return;
     dragging.current = true;
+    noteDragStarted();
     lastPos.current = { x: e.clientX, y: e.clientY };
   };
 
@@ -162,6 +205,7 @@ export default function BankPage() {
     Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
 
   const onTouchStart = (e: React.TouchEvent) => {
+    noteDragStarted();
     if (e.touches.length === 1) {
       touchMoved.current = false;
       lastTouch.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
@@ -221,6 +265,9 @@ export default function BankPage() {
     // Hide empty cards — a record with no usable video has nothing to show.
     if (typeof r.videoUri !== "string" || r.videoUri.trim().length === 0) return false;
     if (genderFilter !== "All" && r.gender !== genderFilter) return false;
+    if (!matchesAgeBand(r.age, ageFilter)) return false;
+    const load = (r.result as { overall_load?: number })?.overall_load ?? 0;
+    if (!matchesLoadBand(load, loadFilter)) return false;
     return true;
   });
 
@@ -239,40 +286,77 @@ export default function BankPage() {
 
       {/* Top filter bar */}
       <div style={{
-        position: "fixed", top: 0, left: 0, right: 0, height: 56, zIndex: 20,
+        position: "fixed", top: 0, left: 0, right: 0, zIndex: 20,
         background: "rgba(0,0,0,0.72)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)",
         borderBottom: "1px solid rgba(255,255,255,0.07)",
-        display: "flex", alignItems: "center", gap: 24, padding: "0 28px",
+        display: "flex", flexDirection: "column", gap: 10, padding: "12px 28px 14px",
         animation: "pageFadeIn 0.8s ease",
       }}>
-        {/* Title */}
-        <div style={{ display: "flex", alignItems: "center", gap: 10, marginRight: 8 }}>
-          <img src="/icons/bank.svg" alt="" style={{ width: 18, opacity: 0.6 }} />
-          <span style={{ fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.7)" }}>Simulation Bank</span>
-          <span style={{ fontSize: 10, letterSpacing: "0.1em", color: "rgba(255,255,255,0.25)", fontFamily: "var(--font-body)" }}>{records.length} saved</span>
+        {/* Row 1 — title + gender + actions */}
+        <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginRight: 8 }}>
+            <img src="/icons/bank.svg" alt="" style={{ width: 18, opacity: 0.6 }} />
+            <span style={{ fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.7)" }}>Simulation Bank</span>
+            <span style={{ fontSize: 10, letterSpacing: "0.1em", color: "rgba(255,255,255,0.25)", fontFamily: "var(--font-body)" }}>{records.length} saved</span>
+          </div>
+
+          <div style={{ width: 1, height: 20, background: "rgba(255,255,255,0.1)" }} />
+
+          {/* Gender filter */}
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <span style={{ fontSize: 9, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)" }}>Gender</span>
+            {["All", "Male", "Female", "Non-binary"].map(g => (
+              <button key={g} type="button" className="filter-btn" onClick={() => setGenderFilter(g)} style={{
+                height: 24, padding: "0 10px", borderRadius: 4,
+                border: `1px solid ${genderFilter === g ? "rgba(255,201,157,0.5)" : "rgba(255,255,255,0.12)"}`,
+                background: genderFilter === g ? "rgba(255,201,157,0.08)" : "transparent",
+                fontSize: 9, letterSpacing: "0.12em", textTransform: "uppercase",
+                color: genderFilter === g ? "#FFC99D" : "rgba(255,255,255,0.45)",
+                cursor: "pointer",
+              }}>{g}</button>
+            ))}
+          </div>
+
+          <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
+            <button type="button" className="filter-btn" onClick={() => navigate("/chat")} style={{ height: 30, padding: "0 14px", borderRadius: 5, border: "1px solid rgba(255,255,255,0.15)", background: "transparent", fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.55)", cursor: "pointer" }}>
+              New Simulation
+            </button>
+          </div>
         </div>
 
-        <div style={{ width: 1, height: 20, background: "rgba(255,255,255,0.1)" }} />
+        {/* Row 2 — age band + anxiety/sensory level */}
+        <div style={{ display: "flex", alignItems: "center", gap: 24, flexWrap: "wrap" }}>
+          {/* Age band */}
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <span style={{ fontSize: 9, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)" }}>Age</span>
+            {AGE_BANDS.map(({ key, label }) => (
+              <button key={key} type="button" className="filter-btn" onClick={() => setAgeFilter(key)} style={{
+                height: 24, padding: "0 10px", borderRadius: 4,
+                border: `1px solid ${ageFilter === key ? "rgba(255,201,157,0.5)" : "rgba(255,255,255,0.12)"}`,
+                background: ageFilter === key ? "rgba(255,201,157,0.08)" : "transparent",
+                fontSize: 9, letterSpacing: "0.12em", textTransform: "uppercase",
+                color: ageFilter === key ? "#FFC99D" : "rgba(255,255,255,0.45)",
+                cursor: "pointer",
+              }}>{label}</button>
+            ))}
+          </div>
 
-        {/* Gender filter */}
-        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          <span style={{ fontSize: 9, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)" }}>Gender</span>
-          {["All", "Male", "Female", "Non-binary"].map(g => (
-            <button key={g} type="button" className="filter-btn" onClick={() => setGenderFilter(g)} style={{
-              height: 24, padding: "0 10px", borderRadius: 4,
-              border: `1px solid ${genderFilter === g ? "rgba(255,201,157,0.5)" : "rgba(255,255,255,0.12)"}`,
-              background: genderFilter === g ? "rgba(255,201,157,0.08)" : "transparent",
-              fontSize: 9, letterSpacing: "0.12em", textTransform: "uppercase",
-              color: genderFilter === g ? "#FFC99D" : "rgba(255,255,255,0.45)",
-              cursor: "pointer",
-            }}>{g}</button>
-          ))}
-        </div>
+          <div style={{ width: 1, height: 20, background: "rgba(255,255,255,0.1)" }} />
 
-        <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
-          <button type="button" className="filter-btn" onClick={() => navigate("/chat")} style={{ height: 30, padding: "0 14px", borderRadius: 5, border: "1px solid rgba(255,255,255,0.15)", background: "transparent", fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.55)", cursor: "pointer" }}>
-            New Simulation
-          </button>
+          {/* Anxiety / sensory level */}
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <span style={{ fontSize: 9, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)" }}>Level</span>
+            {LOAD_BANDS.map(b => (
+              <button key={b} type="button" className="filter-btn" onClick={() => setLoadFilter(b)} style={{
+                height: 24, padding: "0 10px", borderRadius: 4,
+                border: `1px solid ${loadFilter === b ? "rgba(255,201,157,0.5)" : "rgba(255,255,255,0.12)"}`,
+                background: loadFilter === b ? "rgba(255,201,157,0.08)" : "transparent",
+                fontSize: 9, letterSpacing: "0.12em", textTransform: "uppercase",
+                color: loadFilter === b ? "#FFC99D" : "rgba(255,255,255,0.45)",
+                cursor: "pointer",
+              }}>{b}</button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -292,7 +376,7 @@ export default function BankPage() {
           position: "absolute",
           width: 3000, height: 2000,
           left: offset.x,
-          top: offset.y + 56,
+          top: offset.y + 100, // clears the two-row filter bar
           transform: `scale(${scale})`,
           transformOrigin: "0 0",
           transition: dragging.current || pinchDist.current != null ? "none" : "transform 0.1s, left 0.05s, top 0.05s",
@@ -326,10 +410,25 @@ export default function BankPage() {
         </div>
       )}
 
-      {/* Hint */}
+      {/* Drag hint — near the top, fades 3s after the first drag */}
       {!loading && records.length > 0 && (
-        <div style={{ position: "fixed", bottom: 76, left: "50%", transform: "translateX(-50%)", fontSize: 9, letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.2)", zIndex: 20, pointerEvents: "none", textAlign: "center" }}>
-          drag / swipe to explore · pinch to zoom · tap to replay
+        <div style={{
+          position: "fixed", top: 116, left: "50%", transform: "translateX(-50%)",
+          display: "flex", alignItems: "center", gap: 8,
+          fontFamily: "var(--font-body)",
+          fontSize: 11, letterSpacing: "0.16em", textTransform: "uppercase",
+          color: "rgba(255,201,157,0.4)",
+          zIndex: 20, pointerEvents: "none", whiteSpace: "nowrap",
+          opacity: hintVisible ? 1 : 0,
+          transition: "opacity 0.8s ease",
+        }}>
+          <svg width="13" height="10" viewBox="0 0 13 10" fill="none" aria-hidden>
+            <path d="M4.5 1L1 5l3.5 4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          Drag to explore
+          <svg width="13" height="10" viewBox="0 0 13 10" fill="none" aria-hidden>
+            <path d="M8.5 1L12 5l-3.5 4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
         </div>
       )}
 
