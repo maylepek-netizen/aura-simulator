@@ -259,9 +259,11 @@ export default function ResearchPage() {
         /* ── Main 3-column grid ── */
         .r-main {
           display: grid;
-          grid-template-columns: 25% 50% 25%;
-          gap: 32px;
-          align-items: center;              /* vertically centre the wheel */
+          /* Side columns sized to their content so the centre column is the
+             true remaining space — the wheel then centres between them. */
+          grid-template-columns: minmax(240px, 1fr) minmax(0, 1.9fr) minmax(240px, 1fr);
+          column-gap: 56px;
+          align-items: center;              /* all three columns balanced vertically */
           /* Hard constraint: the whole section fits one viewport, no scroll. */
           height: calc(100vh - 60px);
           max-height: calc(100vh - 60px);
@@ -278,7 +280,9 @@ export default function ResearchPage() {
         }
 
         /* ── Left column ── */
-        .r-left { padding-right: 32px; }
+        /* No side padding — the grid's column-gap provides the spacing, so the
+           gaps left-of-wheel and right-of-wheel stay visually equal. */
+        .r-left { padding-right: 0; }
         .r-heading {
           font-family: 'Amiri', serif;
           font-size: clamp(38px, 3.4vw, 52px);
@@ -320,7 +324,11 @@ export default function ResearchPage() {
         .r-cta-btn:hover { background: rgba(255,201,157,0.06); border-color: #FFC99D; }
 
         /* ── Center: SVG map ── */
-        .r-center { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .r-center {
+          display: flex; flex-direction: column;
+          align-items: center; justify-content: center;
+          width: 100%;
+        }
         .r-map-label {
           font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
           color: rgba(255,255,255,0.3); text-align: center; margin: 0 0 6px;
@@ -363,7 +371,9 @@ export default function ResearchPage() {
         .r-right {
           width: 100%;
           max-width: 340px;
-          margin-left: auto;
+          /* Sits at the start of its cell (not pinned right) so the gap between
+             the wheel and the card matches the gap on the wheel's left. */
+          margin: 0;
           background: rgba(255,255,255,0.02);
           border: 1px solid rgba(255,255,255,0.09);
           border-radius: 16px;
@@ -541,9 +551,10 @@ export default function ResearchPage() {
         /* ── Bottom insights section ── */
         .r-insights {
           width: 100%;
-          max-width: 1100px;
+          /* Match the main section's container so side margins line up */
+          max-width: 1500px;
           margin: 96px auto 0;
-          padding: 0 32px;
+          padding: 0 48px;
         }
         .r-insights-heading {
           font-family: 'Amiri', serif;
@@ -560,10 +571,11 @@ export default function ResearchPage() {
           margin: 0 0 44px;
           max-width: 620px;
         }
+        /* Four equal cards in one row — never 3+1 */
         .r-insights-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-          gap: 28px;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 24px;
           align-items: stretch;
         }
         .r-insight-card {
@@ -573,7 +585,7 @@ export default function ResearchPage() {
           background: rgba(255,255,255,0.03);
           border: 1px solid rgba(255,255,255,0.08);
           border-radius: 14px;
-          padding: 32px 34px;
+          padding: 24px 22px;
           transition: border-color 0.25s ease, background 0.25s ease;
         }
         .r-insight-card:hover {
@@ -582,38 +594,43 @@ export default function ResearchPage() {
         }
         .r-insight-num {
           font-family: 'Amiri', serif;
-          font-size: 13px;
+          font-size: 12px;
           letter-spacing: 0.22em;
           opacity: 0.7;
-          margin-bottom: 14px;
+          margin-bottom: 12px;
         }
         .r-insight-title {
           font-family: 'Amiri', serif;
           font-style: italic;
-          font-size: clamp(22px, 2vw, 28px);
+          font-size: clamp(19px, 1.5vw, 23px);
           font-weight: 400;
           line-height: 1.25;
-          margin: 0 0 18px;
+          margin: 0 0 14px;
         }
         .r-insight-body {
-          font-size: 15px;
-          line-height: 1.8;
+          font-size: 13.5px;
+          line-height: 1.7;
           color: rgba(255,255,255,0.65);
-          margin: 0 0 28px;
+          margin: 0 0 22px;
         }
         .r-insight-source {
           margin-top: auto; /* pins sources to the bottom → equal-height cards */
-          font-size: 11px;
-          letter-spacing: 0.1em;
+          font-size: 10px;
+          letter-spacing: 0.09em;
           text-transform: uppercase;
           color: rgba(255,255,255,0.3);
           border-top: 1px solid rgba(255,255,255,0.08);
-          padding-top: 16px;
+          padding-top: 14px;
         }
-        @media (max-width: 900px) {
-          .r-insights { padding: 0 24px; margin-top: 64px; }
+        /* 4-across → 2x2 → 1 column. Never an orphaned 3+1. */
+        @media (max-width: 1200px) {
+          .r-insights { padding: 0 24px; }
+          .r-insights-grid { grid-template-columns: repeat(2, 1fr); gap: 22px; }
+        }
+        @media (max-width: 700px) {
+          .r-insights { margin-top: 64px; }
           .r-insights-grid { grid-template-columns: 1fr; gap: 20px; }
-          .r-insight-card { padding: 26px 24px; }
+          .r-insight-card { padding: 24px 22px; }
         }
 
         @keyframes nodeBreathe {
