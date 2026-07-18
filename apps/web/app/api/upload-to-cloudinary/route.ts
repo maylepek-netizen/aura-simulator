@@ -46,7 +46,14 @@ async function cleanupOldSimulations(supabase: SupabaseClient) {
   const { data, error } = await supabase
     .from("simulations")
     .select("id, video_url, created_at")
-    .order("created_at", { ascending: false });
+    // `id` is the tiebreaker, and it matters: every row predating the
+    // created_at column shares one identical backfilled timestamp, so ordering
+    // by created_at alone leaves Postgres free to return those rows in any
+    // order — and "keep the 20 most recent" would then keep an arbitrary 20
+    // and delete the rest. id is monotonic and unique, so it always breaks the
+    // tie in true insertion order.
+    .order("created_at", { ascending: false })
+    .order("id", { ascending: false });
 
   if (error) {
     console.error("CLEANUP: Supabase query failed:", error.message);
@@ -54,6 +61,19 @@ async function cleanupOldSimulations(supabase: SupabaseClient) {
   }
   const rows = data ?? [];
   const stale = rows.slice(KEEP_MOST_RECENT);
+
+  // Refuse to delete when the ordering isn't trustworthy. If the newest rows
+  // all share a timestamp, created_at carries no real signal and a bad sort
+  // would destroy real work — log loudly and keep everything instead.
+  const distinctTimestamps = new Set(rows.map((r) => r.created_at)).size;
+  if (!CLEANUP_DRY_RUN && rows.length > KEEP_MOST_RECENT && distinctTimestamps === 1) {
+    console.error(
+      `CLEANUP: ABORTED — all ${rows.length} rows share one created_at ` +
+      `(${rows[0]?.created_at}), so "most recent" is not meaningful. ` +
+      `Backfill created_at per-row before enabling deletion.`
+    );
+    return;
+  }
 
   console.log(
     `CLEANUP: ${rows.length} simulations total, keeping ${Math.min(rows.length, KEEP_MOST_RECENT)}, ` +
