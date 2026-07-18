@@ -171,7 +171,10 @@ function buildVeoPrompt(
     : "";
 
   if (classification.environment === 'E') {
-    const isVehicle = /car|bus|train|subway|metro|truck|taxi|ride|highway|vehicle|commut|driving|passenger/i.test(situation);
+    // \b word boundaries matter here: without them "bus" matches "busy",
+    // "ride" matches "bride"/"pride", and "car" matches "carnival" — all of
+    // which would wrongly get the seated-in-a-vehicle prompt.
+    const isVehicle = /\b(car|bus|train|subway|metro|truck|taxi|ride|riding|highway|vehicle|commut\w*|driving|passenger)\b/i.test(situation);
 
     if (isVehicle) {
       return `First-person POV at ${height}cm, seated inside a vehicle. Scene: ${situation}. Camera has gentle rhythmic sway from motion — engine vibration, road bumps. Gaze cycles: 0-3s fixed on nearest surface (seat texture, window glass, door handle) in sharp close-up, shallow depth of field. 3-5s gaze drifts to window — outside scenery moves fast, motion blur, slightly overexposed daylight. 5-7s gaze returns to interior anchor, soft then snaps sharp. Subtle audio: engine hum, wind, road noise, all at equal amplified volume. Seamless 8-second loop. Photorealistic. No cuts. No protagonist body visible. White Western European people if visible. No masks.${modifierText}`;
