@@ -133,7 +133,7 @@ export default function OnboardingPage() {
 
         {/* Blurred background video */}
         <video
-          src="https://res.cloudinary.com/duhsqezo3/video/upload/v1783753634/back_video_pqdtgp.mp4"
+          src="https://res.cloudinary.com/duhsqezo3/video/upload/v1784382507/%D7%A1%D7%A8%D7%98%D7%95%D7%9F_%D7%A1%D7%95%D7%A4%D7%99_yxy2di.mp4"
           autoPlay loop muted playsInline
           style={{
             position: "absolute", inset: 0,
