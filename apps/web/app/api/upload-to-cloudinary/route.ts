@@ -46,13 +46,17 @@ async function cleanupOldSimulations(supabase: SupabaseClient) {
   const { data, error } = await supabase
     .from("simulations")
     .select("id, video_url, created_at")
-    // `id` is the tiebreaker, and it matters: every row predating the
-    // created_at column shares one identical backfilled timestamp, so ordering
-    // by created_at alone leaves Postgres free to return those rows in any
-    // order — and "keep the 20 most recent" would then keep an arbitrary 20
-    // and delete the rest. id is monotonic and unique, so it always breaks the
-    // tie in true insertion order.
-    .order("created_at", { ascending: false })
+    // Sort newest-first, with `id` as tiebreaker.
+    //
+    // nullsFirst:false is essential. Rows whose video_url carries no Cloudinary
+    // version stamp have created_at = NULL (creation time genuinely unknown,
+    // deliberately not fabricated). Postgres sorts NULLs FIRST in a DESC order
+    // by default, which would rank those rows as the *newest* and protect them
+    // while deleting real recent work. NULLS LAST pushes unknowns to the end.
+    //
+    // `id` then breaks ties — both among the NULL rows, which have no other
+    // ordering signal, and across any rows sharing a timestamp.
+    .order("created_at", { ascending: false, nullsFirst: false })
     .order("id", { ascending: false });
 
   if (error) {
@@ -62,14 +66,21 @@ async function cleanupOldSimulations(supabase: SupabaseClient) {
   const rows = data ?? [];
   const stale = rows.slice(KEEP_MOST_RECENT);
 
-  // Refuse to delete when the ordering isn't trustworthy. If the newest rows
-  // all share a timestamp, created_at carries no real signal and a bad sort
-  // would destroy real work — log loudly and keep everything instead.
-  const distinctTimestamps = new Set(rows.map((r) => r.created_at)).size;
-  if (!CLEANUP_DRY_RUN && rows.length > KEEP_MOST_RECENT && distinctTimestamps === 1) {
+  // Refuse to delete when the ordering isn't trustworthy. A NULL created_at is
+  // fine (id orders those rows), but if every row carrying a timestamp shares
+  // the same one, created_at holds no signal and a bad sort would destroy real
+  // work — log loudly and keep everything instead.
+  const timestamps = rows.map((r) => r.created_at).filter(Boolean);
+  const distinctTimestamps = new Set(timestamps).size;
+  if (
+    !CLEANUP_DRY_RUN &&
+    rows.length > KEEP_MOST_RECENT &&
+    timestamps.length > 1 &&
+    distinctTimestamps === 1
+  ) {
     console.error(
-      `CLEANUP: ABORTED — all ${rows.length} rows share one created_at ` +
-      `(${rows[0]?.created_at}), so "most recent" is not meaningful. ` +
+      `CLEANUP: ABORTED — all ${timestamps.length} timestamped rows share one ` +
+      `created_at (${timestamps[0]}), so "most recent" is not meaningful. ` +
       `Backfill created_at per-row before enabling deletion.`
     );
     return;
