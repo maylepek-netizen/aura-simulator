@@ -302,6 +302,16 @@ class AmbientSoundEngine {
     this.startAmbientSoundscape(auditoryType, load);
   }
 
+  // Silence only the breath + soundscape layers, leaving the heartbeat running.
+  // Used by the Environment Sound toggle so muting ambient doesn't kill the pulse.
+  stopAmbientLayers() {
+    if (this.breathTimeout) clearTimeout(this.breathTimeout);
+    this.breathTimeout = null;
+    if (this.ambientTimeout) clearTimeout(this.ambientTimeout);
+    this.ambientTimeout = null;
+    this.stopAmbientNodes();
+  }
+
   stop() {
     this.running = false;
     if (this.heartbeatTimeout) clearTimeout(this.heartbeatTimeout);
@@ -577,31 +587,39 @@ const FOG_PATCHES: React.CSSProperties[] = [
   // Large warm amber mass, upper-left of centre
   { top: '-18%', left: '2%', width: '62%', height: '86%',
     background: 'radial-gradient(ellipse at 45% 45%, rgba(214,140,68,0.62) 0%, rgba(178,104,44,0.26) 45%, transparent 72%)',
-    filter: 'blur(90px)', animation: 'fogA 17s ease-in-out infinite' },
+    filter: 'blur(90px)', animation: 'fogA 9s ease-in-out infinite' },
   // Peach mass, right of centre
   { top: '4%', right: '-4%', width: '58%', height: '84%',
     background: 'radial-gradient(ellipse at 55% 50%, rgba(226,158,96,0.55) 0%, rgba(190,116,56,0.22) 48%, transparent 74%)',
-    filter: 'blur(100px)', animation: 'fogB 23s ease-in-out infinite' },
+    filter: 'blur(100px)', animation: 'fogB 13s ease-in-out infinite' },
   // Deep amber low-centre, adds density variation
   { bottom: '-22%', left: '20%', width: '56%', height: '70%',
     background: 'radial-gradient(ellipse at 50% 40%, rgba(168,92,34,0.5) 0%, transparent 68%)',
-    filter: 'blur(84px)', animation: 'fogC 19s ease-in-out infinite' },
+    filter: 'blur(84px)', animation: 'fogC 10s ease-in-out infinite' },
   // Bright hot core — off-centre so there is no symmetric "middle"
   { top: '18%', left: '30%', width: '40%', height: '52%',
     background: 'radial-gradient(ellipse at 50% 50%, rgba(255,204,150,0.42) 0%, rgba(236,166,96,0.16) 50%, transparent 72%)',
-    filter: 'blur(76px)', animation: 'fogB 14s ease-in-out infinite reverse' },
+    filter: 'blur(76px)', animation: 'fogB 8s ease-in-out infinite reverse' },
   // Dark negative-space patch — breaks up any uniform glow
   { top: '26%', left: '6%', width: '34%', height: '46%',
     background: 'radial-gradient(ellipse, rgba(24,12,4,0.55) 0%, transparent 70%)',
-    filter: 'blur(88px)', animation: 'fogC 26s ease-in-out infinite reverse' },
-  // Cool periwinkle hint, keeps it from going monochrome
-  { bottom: '2%', right: '8%', width: '40%', height: '48%',
-    background: 'radial-gradient(ellipse, rgba(150,158,220,0.20) 0%, transparent 66%)',
-    filter: 'blur(96px)', animation: 'fogA 29s ease-in-out infinite reverse' },
+    filter: 'blur(88px)', animation: 'fogC 14s ease-in-out infinite reverse' },
+  // Purple/violet hint — Midjourney-style colour bleed
+  { bottom: '2%', right: '8%', width: '44%', height: '52%',
+    background: 'radial-gradient(ellipse, rgba(150,100,200,0.30) 0%, rgba(120,80,170,0.12) 45%, transparent 70%)',
+    filter: 'blur(96px)', animation: 'fogA 16s ease-in-out infinite reverse' },
+  // Teal hint, lower-left — cool counterweight to the amber
+  { bottom: '-6%', left: '4%', width: '40%', height: '50%',
+    background: 'radial-gradient(ellipse, rgba(80,180,160,0.20) 0%, transparent 68%)',
+    filter: 'blur(100px)', animation: 'fogC 12s ease-in-out infinite' },
+  // Violet drift, upper-right
+  { top: '-10%', right: '10%', width: '36%', height: '46%',
+    background: 'radial-gradient(ellipse, rgba(168,118,214,0.22) 0%, transparent 66%)',
+    filter: 'blur(94px)', animation: 'fogB 11s ease-in-out infinite reverse' },
   // Faint blush, upper-right
   { top: '-8%', right: '18%', width: '38%', height: '48%',
     background: 'radial-gradient(ellipse, rgba(232,150,132,0.24) 0%, transparent 68%)',
-    filter: 'blur(92px)', animation: 'fogB 21s ease-in-out infinite' },
+    filter: 'blur(92px)', animation: 'fogB 12s ease-in-out infinite' },
 ];
 
 const GenerationBlob = () => (
@@ -649,7 +667,7 @@ const GenerationBlob = () => (
       width: '82%',
       maxWidth: 1000,
       aspectRatio: '16/9',
-      animation: 'fogBreath 13s ease-in-out infinite',
+      animation: 'fogBreath 7s ease-in-out infinite',
       /* One more blur pass over the whole field dissolves any residual edges */
       filter: 'blur(26px)',
     }}>
@@ -1143,7 +1161,8 @@ export default function ResultPage() {
   useEffect(() => {
     if (!result) return;
     const timer = setTimeout(() => {
-      if (!narrationStartedRef.current) {
+      // Don't auto-start if the user already stopped inner thoughts manually.
+      if (!narrationStartedRef.current && !userStoppedInnerThoughtsRef.current) {
         narrationStartedRef.current = true;
         void startNarration(result);
       }
@@ -1226,6 +1245,8 @@ export default function ResultPage() {
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const narrationStartedRef = useRef(false);
+  // Set when the user manually stops inner thoughts — blocks any auto-restart.
+  const userStoppedInnerThoughtsRef = useRef(false);
   const [videoLoopOpacity, setVideoLoopOpacity] = useState(1);
 
   const handleVideoPlay = useCallback(() => {}, []);
@@ -1383,17 +1404,32 @@ export default function ResultPage() {
 
   function toggleNarration() {
     if (!result) return;
-    if (audioPlaying) { stopNarration(); return; }
+    if (audioPlaying) {
+      // Manual stop — remember it so the timed auto-play doesn't restart it.
+      userStoppedInnerThoughtsRef.current = true;
+      stopNarration();
+      return;
+    }
+    // Manual start clears the flag again.
+    userStoppedInnerThoughtsRef.current = false;
     void startNarration(result);
   }
 
   function toggleAmbient() {
-    // ambientPlaying is driven by the audio element's onplay/onpause handlers,
-    // so a blocked play() won't falsely show as "playing".
+    // Ambient comes from TWO sources: the audio file (ambientAudioRef) and the
+    // synth layers inside AmbientSoundEngine. Both must be silenced, or muting
+    // leaves the synth ambient still audible.
+    const el = ambientAudioRef.current;
     if (ambientPlaying) {
-      ambientAudioRef.current?.pause();
+      if (el) { el.pause(); el.muted = true; }
+      ambientEngineRef.current?.stopAmbientLayers();
+      setAmbientPlaying(false);
     } else {
-      ambientAudioRef.current?.play().catch(() => {});
+      if (el) {
+        el.muted = false;
+        el.play().catch(() => {});
+      }
+      setAmbientPlaying(true);
     }
   }
 
@@ -1500,8 +1536,9 @@ export default function ResultPage() {
       }, 100);
     }
 
-    // Show the reflection screen in place of navigating to /summary
-    setReflecting(true);
+    // Dissolve to black (0.5s), then show the reflection screen.
+    setFadingOut(true);
+    setTimeout(() => setReflecting(true), 500);
   };
 
   if (reflecting) {
@@ -1513,7 +1550,16 @@ export default function ResultPage() {
   // Eye icon replaces any text logo. The loading ritual still overlays until done.
   if (isMobile) {
     return (
-      <div style={{ position: "fixed", inset: 0, overflow: "hidden", background: "#0a0807", opacity: fadingOut ? 0 : 1, transition: "opacity 1.5s ease-in-out", display: "flex", flexDirection: "column" }}>
+      <div style={{ position: "fixed", inset: 0, overflow: "hidden", background: "#0a0807", display: "flex", flexDirection: "column" }}>
+        {/* Dissolve to black on End Simulation (0.5s) */}
+        <div aria-hidden style={{
+          position: "fixed", inset: 0, background: "#000",
+          opacity: fadingOut ? 1 : 0,
+          transition: "opacity 0.5s ease",
+          pointerEvents: fadingOut ? "auto" : "none",
+          zIndex: 100,
+        }} />
+
         <style>{`
           @import url('https://fonts.googleapis.com/css2?family=Amiri:ital@0;1&display=swap');
           @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:0.3} }
@@ -1648,7 +1694,16 @@ export default function ResultPage() {
   }
 
   return (
-    <div style={{ position: "fixed", inset: 0, overflow: "hidden", background: "#0d0a08", opacity: fadingOut ? 0 : 1, transition: "opacity 1.5s ease-in-out" }}>
+    <div style={{ position: "fixed", inset: 0, overflow: "hidden", background: "#0d0a08" }}>
+        {/* Dissolve to black on End Simulation (0.5s) */}
+        <div aria-hidden style={{
+          position: "fixed", inset: 0, background: "#000",
+          opacity: fadingOut ? 1 : 0,
+          transition: "opacity 0.5s ease",
+          pointerEvents: fadingOut ? "auto" : "none",
+          zIndex: 100,
+        }} />
+
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Amiri:ital@0;1&display=swap');
         @keyframes stimming-low  { 0%,100%{transform:translateY(0px)} 50%{transform:translateY(-4px)} }

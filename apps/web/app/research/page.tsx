@@ -562,6 +562,37 @@ export default function ResearchPage() {
           line-height: 1.5; margin-top: 10px;
         }
 
+        /* ── Scroll hint between the viewport section and the insights ── */
+        .r-scroll-hint {
+          position: relative;
+          margin-top: -34px;          /* sits just inside the 100vh section's edge */
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 4px;
+          pointer-events: none;
+          /* Soft gradient so the hint melts out of the section above */
+          background: linear-gradient(to bottom, transparent, rgba(255,201,157,0.03));
+          padding-bottom: 6px;
+        }
+        .r-scroll-hint-text {
+          font-size: 9px;
+          letter-spacing: 0.22em;
+          text-transform: uppercase;
+          color: rgba(255,201,157,0.32);
+          font-family: 'Assistant', sans-serif;
+        }
+        .r-scroll-hint-arrow {
+          font-size: 13px;
+          line-height: 1;
+          color: rgba(255,201,157,0.42);
+          animation: scrollHintBob 2.4s ease-in-out infinite;
+        }
+        @keyframes scrollHintBob {
+          0%, 100% { transform: translateY(0);   opacity: 0.4; }
+          50%      { transform: translateY(5px); opacity: 0.8; }
+        }
+
         /* ── Bottom insights section ── */
         .r-insights {
           width: 100%;
@@ -715,10 +746,6 @@ export default function ResearchPage() {
                 <div className="r-stat-label">Data Points</div>
               </div>
             </div>
-
-            <button type="button" className="r-cta-btn">
-              View Methodology <span aria-hidden>→</span>
-            </button>
           </div>
 
           {/* CENTER — SVG knowledge map */}
@@ -921,13 +948,14 @@ export default function ResearchPage() {
                 ))}
               </div>
             </div>
-
-            {/* Filled peach CTA */}
-            <button type="button" className="r-full-research">
-              View Full Research →
-            </button>
           </div>
 
+        </div>
+
+        {/* Scroll hint — the section above is 100vh, so signal there is more below */}
+        <div className="r-scroll-hint" aria-hidden>
+          <span className="r-scroll-hint-text">More below</span>
+          <span className="r-scroll-hint-arrow">↓</span>
         </div>
 
         {/* ── Research insights — fills the lower page, 2 columns on desktop ── */}

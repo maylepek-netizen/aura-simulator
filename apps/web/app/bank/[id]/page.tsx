@@ -459,9 +459,9 @@ export default function BankReplayPage() {
               {record.name} · {record.gender} · Age {record.age}
             </div>
 
-            {/* End simulation → reflection */}
-            <button type="button" onClick={endSimulation} style={{ marginTop: 24, width: "100%", height: 50, borderRadius: 8, border: "1px solid rgba(255,255,255,0.25)", background: "rgba(255,255,255,0.06)", fontSize: 13, letterSpacing: "0.16em", textTransform: "uppercase", color: "rgba(255,255,255,0.85)", cursor: "pointer", fontFamily: "var(--font-body)" }}>
-              End Simulation
+            {/* Back to the bank listing */}
+            <button type="button" onClick={() => navigate("/bank")} style={{ marginTop: 24, width: "100%", height: 50, borderRadius: 8, border: "1px solid rgba(255,255,255,0.25)", background: "rgba(255,255,255,0.06)", fontSize: 13, letterSpacing: "0.16em", textTransform: "uppercase", color: "rgba(255,255,255,0.85)", cursor: "pointer", fontFamily: "var(--font-body)" }}>
+              ← Back to Bank
             </button>
           </div>
         </div>
@@ -622,10 +622,10 @@ export default function BankReplayPage() {
             )}
           </div>
 
-          {/* End Simulation → reflection */}
+          {/* Back to the bank listing */}
           <div style={{ padding: "14px 16px", borderTop: "1px solid rgba(255,255,255,0.07)", flexShrink: 0 }}>
-            <button type="button" className="sound-btn" onClick={endSimulation} style={{ width: "100%", height: 44, borderRadius: 6, border: "1px solid rgba(255,255,255,0.25)", background: "rgba(255,255,255,0.06)", fontSize: 12, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.85)", cursor: "pointer" }}>
-              End Simulation
+            <button type="button" className="sound-btn" onClick={() => navigate("/bank")} style={{ width: "100%", height: 44, borderRadius: 6, border: "1px solid rgba(255,255,255,0.25)", background: "rgba(255,255,255,0.06)", fontSize: 12, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.85)", cursor: "pointer" }}>
+              ← Back to Bank
             </button>
           </div>
         </div>

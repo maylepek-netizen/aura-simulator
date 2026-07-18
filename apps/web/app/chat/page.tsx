@@ -459,13 +459,17 @@ export default function ChatPage() {
               ))}
             </div>
 
-            {/* Help hint — dissolves in, no jump or pop */}
+            {/* Help hint — absolutely positioned so showing it never pushes
+                the buttons or any other element. Dissolves in place. */}
             {helpHint && (
               <div key={helpHint} className="reveal-dissolve" style={{
-                marginTop: 14, width: "100%",
+                position: "absolute",
+                top: "100%", left: 0, right: 0,
+                marginTop: 14,
                 fontSize: 13, letterSpacing: "0.08em",
                 color: "rgba(255,201,157,0.8)",
                 textAlign: "center",
+                pointerEvents: "none",
               }}>
                 💭 {helpHint}
               </div>

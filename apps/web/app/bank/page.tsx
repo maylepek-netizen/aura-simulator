@@ -381,8 +381,9 @@ export default function BankPage() {
 
         <div style={{ width: 1, height: 18, background: "rgba(255,255,255,0.1)", flexShrink: 0 }} />
 
-        {/* Level pills — label dropped to save width */}
+        {/* Anxiety level pills */}
         <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+          <span style={{ fontSize: 9, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)", marginRight: 1, whiteSpace: "nowrap" }}>Anxiety Level</span>
           {LOAD_BANDS.map(b => (
             <button key={b} type="button" className="filter-btn" onClick={() => setLoadFilter(b)} style={{
               height: 22, padding: "0 8px", borderRadius: 4,
