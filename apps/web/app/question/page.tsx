@@ -17,10 +17,10 @@ export default function QuestionPage() {
 
   // ui opacity: 1 = visible, 0 = faded out
   const [uiOpacity, setUiOpacity] = useState(1);
-  // overlay opacity: 0.45 = default, 0 = fully transparent
+  // overlay opacity: 0.45 = default, 0 = fully transparent.
+  // This is the whole transition now — a plain opacity dissolve of the dark
+  // overlay to reveal the clear video, then back. No blur/focus, no zoom.
   const [overlayOpacity, setOverlayOpacity] = useState(0.45);
-  // video blur: 24 = blurred, 0 = clear
-  const [videoBlur, setVideoBlur] = useState(24);
 
   useEffect(() => {
     try {
@@ -40,18 +40,16 @@ export default function QuestionPage() {
     // Phase 1 (0→1s): UI fades out
     setUiOpacity(0);
 
-    // Phase 2 (1→4s): overlay fades out, blur lifts
+    // Phase 2 (1s): overlay dissolves away (1.2s opacity) to reveal the video
     setTimeout(() => {
       setOverlayOpacity(0);
-      setVideoBlur(0);
     }, 1000);
 
-    // Phase 3 (4→7s): clean video — nothing to set, state holds
+    // Phase 3: clean video — state holds
 
-    // Phase 4 (7→9s): overlay and blur fade back in
+    // Phase 4 (7s): overlay dissolves back in
     setTimeout(() => {
       setOverlayOpacity(0.45);
-      setVideoBlur(24);
     }, 7000);
 
     // Phase 5 (9→10s): navigate
@@ -76,16 +74,18 @@ export default function QuestionPage() {
             position: "absolute", inset: 0,
             width: "100%", height: "100%", objectFit: "cover",
             transform: "scale(1.05)",
-            filter: `blur(${videoBlur}px) brightness(${videoBlur === 0 ? 1 : 0.6})`,
-            transition: "filter 1.5s ease-in-out",
+            // No blur/focus and no zoom — the video is always clear. The dark
+            // overlay above it is what dissolves.
           }}
         />
 
-        {/* Black overlay */}
+        {/* Black overlay — the only thing that animates: a simple 1.2s opacity
+            dissolve to reveal / re-cover the clear video. */}
         <div style={{
           position: "absolute", inset: 0,
-          background: `rgba(0,0,0,${overlayOpacity})`,
-          transition: "background 1.5s ease-in-out",
+          background: "#000",
+          opacity: overlayOpacity,
+          transition: "opacity 1.2s ease",
           pointerEvents: "none",
         }} />
 
@@ -94,7 +94,7 @@ export default function QuestionPage() {
           position: "absolute", inset: 0,
           background: "radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.8) 100%)",
           opacity: overlayOpacity > 0.1 ? 1 : 0,
-          transition: "opacity 1.5s ease-in-out",
+          transition: "opacity 1.2s ease",
           pointerEvents: "none",
         }} />
 
@@ -132,10 +132,12 @@ export default function QuestionPage() {
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
               <h1 style={{
                 fontFamily: "'Amiri', serif",
-                fontSize: "clamp(2.2rem, 4vw, 3.4rem)",
+                // Font reduced 15% (×0.85) and line-height 25% (×0.75) from the
+                // previous clamp(2.2rem, 4vw, 3.4rem) / 1.3.
+                fontSize: "clamp(1.87rem, 3.4vw, 2.89rem)",
                 color: "#FFC99D",
                 textAlign: "center",
-                lineHeight: 1.3,
+                lineHeight: 0.975,
                 fontWeight: 400,
                 margin: 0,
                 maxWidth: 820,

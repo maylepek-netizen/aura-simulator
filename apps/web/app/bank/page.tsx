@@ -263,8 +263,18 @@ export default function BankPage() {
   }
 
   const filteredRecords = records.filter(r => {
-    // Hide empty cards — a record with no usable video has nothing to show.
-    if (typeof r.videoUri !== "string" || r.videoUri.trim().length === 0) return false;
+    // Show ONLY simulations backed by a permanent, always-available URL. Anything
+    // else is hidden so no empty grey square ever appears in the bank:
+    //   - empty / null                       → nothing to show
+    //   - generativelanguage.googleapis.com  → raw Veo URI, expires
+    //   - /api/video-proxy…                  → proxies a Veo URI, also expires
+    // A permanent URL is a Cloudinary or Supabase Storage link.
+    const uri = typeof r.videoUri === "string" ? r.videoUri.trim() : "";
+    if (!uri) return false;
+    if (uri.includes("generativelanguage.googleapis.com")) return false;
+    if (uri.startsWith("/api/video-proxy")) return false;
+    const isPermanent = uri.includes("res.cloudinary.com") || uri.includes(".supabase.co");
+    if (!isPermanent) return false;
     if (genderFilter !== "All" && r.gender !== genderFilter) return false;
     if (!matchesAgeBand(r.age, ageFilter)) return false;
     const load = (r.result as { overall_load?: number })?.overall_load ?? 0;

@@ -318,14 +318,14 @@ export default function ChatPage() {
             fontWeight: 400, lineHeight: 1.05,
             textAlign: "center", maxWidth: 760,
           }}>
-            Build Your Simulation
+            Describe a Situation
           </h1>
 
           {/* Description — directly below heading */}
           <p style={{
             marginTop: 0, marginBottom: 25, maxWidth: 600,
             fontSize: 14, letterSpacing: "0.06em",
-            color: "rgba(255,255,255,0.35)",
+            color: "#ffffff", opacity: 1,
             textAlign: "center", lineHeight: 1.3,
           }}>
             Describe a real-life moment, place, or interaction. The simulation will reinterpret it through an autistic sensory and social perspective, informed by research, first-hand accounts, and documented autistic experiences.

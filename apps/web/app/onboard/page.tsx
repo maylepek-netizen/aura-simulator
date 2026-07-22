@@ -103,7 +103,7 @@ export default function OnboardingPage() {
           font-weight: 400;
         }
         .onboard-select:focus { border-bottom-color: rgba(255,201,157,0.5); }
-        .onboard-select option { background: #1a1410; color: white; }
+        .onboard-select option { background: #000000; color: white; }
       `}</style>
 
       <div style={{ position: "fixed", inset: 0, overflow: "hidden", background: "#1a1410" }}>
@@ -218,24 +218,17 @@ export default function OnboardingPage() {
               {/* Gender */}
               <div>
                 <div style={fieldLabelStyle}>How do you identify?</div>
+                {/* Uses the shared .onboard-select class so it matches the
+                    name/age inputs exactly: transparent field, bottom border
+                    only, no dark box. The dropdown list itself is dark (see the
+                    `select option` rule in globals.css). */}
                 <select
+                  className="onboard-select"
                   value={gender}
                   onChange={(e) => setGender(e.target.value as Gender)}
-                  style={{
-                    background: 'rgba(0,0,0,0.5)',
-                    color: 'white',
-                    border: '1px solid rgba(255,201,157,0.3)',
-                    borderRadius: 8,
-                    padding: '10px 16px',
-                    width: '100%',
-                    cursor: 'pointer',
-                    outline: 'none',
-                    fontSize: 18,
-                    fontFamily: 'inherit',
-                  }}
                 >
                   {GENDER_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value} style={{ background: '#1a1410', color: 'white' }}>
+                    <option key={opt.value} value={opt.value}>
                       {opt.label}
                     </option>
                   ))}

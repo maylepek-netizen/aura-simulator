@@ -583,115 +583,46 @@ function ProcessingMetrics({ visible, onComplete }: { visible: boolean; onComple
 // Deliberately shapeless: heavy blur on every patch, no vignette, no solid base,
 // so it melts into the black with no visible boundary.
 
-const FOG_PATCHES: React.CSSProperties[] = [
-  // Large warm amber mass, upper-left of centre
-  { top: '-18%', left: '2%', width: '62%', height: '86%',
-    background: 'radial-gradient(ellipse at 45% 45%, rgba(214,140,68,0.62) 0%, rgba(178,104,44,0.26) 45%, transparent 72%)',
-    filter: 'blur(90px)', animation: 'fogA 9s ease-in-out infinite' },
-  // Peach mass, right of centre
-  { top: '4%', right: '-4%', width: '58%', height: '84%',
-    background: 'radial-gradient(ellipse at 55% 50%, rgba(226,158,96,0.55) 0%, rgba(190,116,56,0.22) 48%, transparent 74%)',
-    filter: 'blur(100px)', animation: 'fogB 13s ease-in-out infinite' },
-  // Deep amber low-centre, adds density variation
-  { bottom: '-22%', left: '20%', width: '56%', height: '70%',
-    background: 'radial-gradient(ellipse at 50% 40%, rgba(168,92,34,0.5) 0%, transparent 68%)',
-    filter: 'blur(84px)', animation: 'fogC 10s ease-in-out infinite' },
-  // Bright hot core — off-centre so there is no symmetric "middle"
-  { top: '18%', left: '30%', width: '40%', height: '52%',
-    background: 'radial-gradient(ellipse at 50% 50%, rgba(255,204,150,0.42) 0%, rgba(236,166,96,0.16) 50%, transparent 72%)',
-    filter: 'blur(76px)', animation: 'fogB 8s ease-in-out infinite reverse' },
-  // Dark negative-space patch — breaks up any uniform glow
-  { top: '26%', left: '6%', width: '34%', height: '46%',
-    background: 'radial-gradient(ellipse, rgba(24,12,4,0.55) 0%, transparent 70%)',
-    filter: 'blur(88px)', animation: 'fogC 14s ease-in-out infinite reverse' },
-  // Purple/violet hint — Midjourney-style colour bleed
-  { bottom: '2%', right: '8%', width: '44%', height: '52%',
-    background: 'radial-gradient(ellipse, rgba(150,100,200,0.30) 0%, rgba(120,80,170,0.12) 45%, transparent 70%)',
-    filter: 'blur(96px)', animation: 'fogA 16s ease-in-out infinite reverse' },
-  // Teal hint, lower-left — cool counterweight to the amber
-  { bottom: '-6%', left: '4%', width: '40%', height: '50%',
-    background: 'radial-gradient(ellipse, rgba(80,180,160,0.20) 0%, transparent 68%)',
-    filter: 'blur(100px)', animation: 'fogC 12s ease-in-out infinite' },
-  // Violet drift, upper-right
-  { top: '-10%', right: '10%', width: '36%', height: '46%',
-    background: 'radial-gradient(ellipse, rgba(168,118,214,0.22) 0%, transparent 66%)',
-    filter: 'blur(94px)', animation: 'fogB 11s ease-in-out infinite reverse' },
-  // Faint blush, upper-right
-  { top: '-8%', right: '18%', width: '38%', height: '48%',
-    background: 'radial-gradient(ellipse, rgba(232,150,132,0.24) 0%, transparent 68%)',
-    filter: 'blur(92px)', animation: 'fogB 12s ease-in-out infinite' },
-];
-
+// Loading state: plain black with the eye logo softly pulsing and a small
+// Hebrew line below. No colourful blob — the earlier fog field was removed.
 const GenerationBlob = () => (
   <div style={{
     position: 'absolute',
     inset: 0,
     display: 'flex',
+    flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
+    gap: 20,
     background: '#000',
     overflow: 'hidden',
   }}>
     <style>{`
-      @keyframes fogA {
-        0%   { transform: translate(0%, 0%) scale(1);    opacity: 0.85; }
-        30%  { transform: translate(7%, -5%) scale(1.14); opacity: 1;    }
-        60%  { transform: translate(-5%, 6%) scale(0.94); opacity: 0.72; }
-        100% { transform: translate(0%, 0%) scale(1);    opacity: 0.85; }
-      }
-      @keyframes fogB {
-        0%   { transform: translate(0%, 0%) scale(1);     opacity: 0.75; }
-        35%  { transform: translate(-8%, 5%) scale(1.12); opacity: 0.95; }
-        70%  { transform: translate(5%, -7%) scale(0.9);  opacity: 0.65; }
-        100% { transform: translate(0%, 0%) scale(1);     opacity: 0.75; }
-      }
-      @keyframes fogC {
-        0%   { transform: translate(0%, 0%) scale(1);      opacity: 0.7;  }
-        45%  { transform: translate(6%, 8%) scale(1.18);   opacity: 0.95; }
-        75%  { transform: translate(-4%, -4%) scale(0.96); opacity: 0.6;  }
-        100% { transform: translate(0%, 0%) scale(1);      opacity: 0.7;  }
-      }
-      @keyframes fogBreath {
-        0%, 100% { opacity: 0.9;  transform: scale(1); }
-        50%      { opacity: 1;    transform: scale(1.03); }
-      }
-      @keyframes textBreath {
-        0%, 100% { opacity: 0.3; }
-        50%       { opacity: 0.55; }
+      @keyframes eyePulse {
+        0%, 100% { opacity: 0.5; transform: scale(1); }
+        50%      { opacity: 0.9; transform: scale(1.06); }
       }
     `}</style>
 
-    {/* Wide 16:9 fog field — fills most of the video area */}
-    <div style={{
-      position: 'relative',
-      width: '82%',
-      maxWidth: 1000,
-      aspectRatio: '16/9',
-      animation: 'fogBreath 7s ease-in-out infinite',
-      /* One more blur pass over the whole field dissolves any residual edges */
-      filter: 'blur(26px)',
-    }}>
-      {FOG_PATCHES.map((patch, i) => (
-        <div key={i} aria-hidden style={{ position: 'absolute', ...patch }} />
-      ))}
-    </div>
+    <img
+      src="/icons/New_logo_eye.svg"
+      alt=""
+      aria-hidden
+      style={{
+        width: 64,
+        height: 64,
+        animation: 'eyePulse 2.6s ease-in-out infinite',
+      }}
+    />
 
-    {/* Text below */}
     <div style={{
-      position: 'absolute',
-      bottom: 24,
-      left: '50%',
-      transform: 'translateX(-50%)',
-      color: 'rgba(255,201,157,0.4)',
-      fontSize: 10,
-      letterSpacing: '0.3em',
+      color: 'rgba(255,201,157,0.6)',
+      fontSize: 12,
       fontFamily: 'Assistant, sans-serif',
-      animation: 'textBreath 4s ease-in-out infinite',
-      whiteSpace: 'nowrap',
-      textTransform: 'uppercase',
-      zIndex: 4,
+      direction: 'rtl',
+      letterSpacing: '0.02em',
     }}>
-      Generating simulation
+      הסימולציה מיד עולה
     </div>
   </div>
 );
@@ -1002,6 +933,11 @@ export default function ResultPage() {
   const ambientEngineRef = useRef<AmbientSoundEngine | null>(null);
   const ambientAudioRef = useRef<HTMLAudioElement | null>(null);
   const [heartbeatPlaying, setHeartbeatPlaying] = useState(false);
+  // Guards heartbeat+ambient to a single start, after inner thoughts finish.
+  const ambientStartedRef = useRef(false);
+  // The ambient sound-file effect registers its play() here so it can be
+  // triggered on demand (once TTS ends) rather than on a fixed timer.
+  const startAmbientFileRef = useRef<(() => void) | null>(null);
 
   const [stimmingPaused] = useState(false);
   const [stimmingActive, setStimmingActive] = useState(false);
@@ -1043,13 +979,29 @@ export default function ResultPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Timed reveal + audio sequence.
-  // Audio order: heartbeat FIRST (0s) → synth ambient/breath layers (+5s) →
-  // (TTS narration starts at 7s, handled in its own effect below).
+  // Timed reveal of the UI panels/stimming. Audio is NOT started here anymore:
+  // the new order is inner-thoughts (TTS) FIRST, and only once it finishes do
+  // heartbeat + ambient begin (see startAmbientAndHeartbeat + the narration
+  // effect below).
   useEffect(() => {
     if (!result) return;
     revealTimersRef.current.forEach(clearTimeout);
     revealTimersRef.current = [];
+
+    const tPanels = setTimeout(() => { setPanelsVisible(true); }, 10000);
+    const tStim = setTimeout(() => { setStimmingActive(true); }, 30000);
+
+    revealTimersRef.current = [tPanels, tStim];
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [result !== null]);
+
+  // Starts heartbeat + synth ambient/breath layers + the ambient sound file,
+  // together, AFTER the inner-thoughts narration has finished. Idempotent — the
+  // ambientStartedRef guard means calling it more than once is a no-op.
+  const startAmbientAndHeartbeat = useCallback(() => {
+    if (!result || ambientStartedRef.current) return;
+    ambientStartedRef.current = true;
+
     const load = result.overall_load ?? 0;
     const auditoryText = result.sensory_channels?.auditory?.toLowerCase() ?? "";
     const auditoryType: AuditoryType =
@@ -1058,25 +1010,18 @@ export default function ResultPage() {
       : auditoryText.includes("machine") || auditoryText.includes("buzz") || auditoryText.includes("hum") ? "machine"
       : "default";
 
-    // 0s — heartbeat starts immediately.
     if (!ambientEngineRef.current) {
       ambientEngineRef.current = new AmbientSoundEngine();
     }
     ambientEngineRef.current.startHeartbeat(load);
     setHeartbeatPlaying(true);
+    ambientEngineRef.current.startAmbient(load, auditoryType);
+    setAmbientPlaying(true);
 
-    // 5s — synth ambient/breath layers fade in on top of the heartbeat.
-    const tAmbient = setTimeout(() => {
-      ambientEngineRef.current?.startAmbient(load, auditoryType);
-      setAmbientPlaying(true);
-    }, 5000);
-
-    const tPanels = setTimeout(() => { setPanelsVisible(true); }, 10000);
-    const tStim = setTimeout(() => { setStimmingActive(true); }, 30000);
-
-    revealTimersRef.current = [tAmbient, tPanels, tStim];
+    // Release the ambient sound-file effect, which waits on this flag.
+    startAmbientFileRef.current?.();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [result !== null]);
+  }, [result]);
 
   // Live metric animation — subtle fluctuation every 2.5s
   useEffect(() => {
@@ -1096,7 +1041,9 @@ export default function ResultPage() {
     return () => clearInterval(t);
   }, [result]);
 
-  // Ambient sound (file) — starts 5s after load, fading in (after the heartbeat).
+  // Ambient sound (file) — no longer time-delayed. It is armed here but only
+  // actually plays when startAmbientAndHeartbeat calls startAmbientFileRef,
+  // which happens after the inner-thoughts narration finishes.
   useEffect(() => {
     if (!result?.ambient_sound) return;
     const category = result.ambient_sound.toLowerCase().trim();
@@ -1143,10 +1090,13 @@ export default function ResultPage() {
       });
     };
 
-    const delay = setTimeout(startAmbientFile, 5000);
+    // Arm it: startAmbientAndHeartbeat triggers this once TTS ends. If the
+    // narration already finished before this effect ran, fire immediately.
+    startAmbientFileRef.current = startAmbientFile;
+    if (ambientStartedRef.current) startAmbientFile();
 
     return () => {
-      clearTimeout(delay);
+      startAmbientFileRef.current = null;
       if (fade) clearInterval(fade);
       unblock?.();
       audio.onplay = null;
@@ -1157,7 +1107,10 @@ export default function ResultPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [result?.ambient_sound]);
 
-  // Inner thoughts (narration) at T=30s — well after heartbeat (0s) and ambient (5s)
+  // Inner thoughts (narration) FIRST. It leads the audio; heartbeat + ambient
+  // only begin once it finishes (via startAmbientAndHeartbeat, called from the
+  // TTS onended handler). Short 3s lead-in lets the screen settle before the
+  // voice begins — nothing else is audible until then.
   useEffect(() => {
     if (!result) return;
     const timer = setTimeout(() => {
@@ -1165,8 +1118,12 @@ export default function ResultPage() {
       if (!narrationStartedRef.current && !userStoppedInnerThoughtsRef.current) {
         narrationStartedRef.current = true;
         void startNarration(result);
+      } else if (userStoppedInnerThoughtsRef.current) {
+        // User skipped inner thoughts before it began — don't leave the scene
+        // silent forever; bring in heartbeat + ambient now.
+        startAmbientAndHeartbeat();
       }
-    }, 30000);
+    }, 3000);
     return () => clearTimeout(timer);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [result]);
@@ -1278,15 +1235,18 @@ export default function ResultPage() {
       ttsAudioRef.current = el;
       el.loop = false;
       el.onplay = () => setAudioPlaying(true);
-      el.onended = () => { ttsAudioRef.current = null; setAudioPlaying(false); };
-      el.onerror = () => { ttsAudioRef.current = null; setAudioPlaying(false); };
+      // When inner thoughts finish, THAT is the cue to bring in heartbeat +
+      // ambient. onerror covers a playback failure so the scene never stays
+      // silent.
+      el.onended = () => { ttsAudioRef.current = null; setAudioPlaying(false); startAmbientAndHeartbeat(); };
+      el.onerror = () => { ttsAudioRef.current = null; setAudioPlaying(false); startAmbientAndHeartbeat(); };
       await el.play();
     } catch {
       const utt = new SpeechSynthesisUtterance(text);
       utt.lang = "en-US"; utt.rate = 0.85; utt.pitch = 0.9;
       utt.onstart = () => setAudioPlaying(true);
-      utt.onend = () => setAudioPlaying(false);
-      utt.onerror = () => setAudioPlaying(false);
+      utt.onend = () => { setAudioPlaying(false); startAmbientAndHeartbeat(); };
+      utt.onerror = () => { setAudioPlaying(false); startAmbientAndHeartbeat(); };
       window.speechSynthesis.cancel();
       window.speechSynthesis.speak(utt);
     }
@@ -1315,6 +1275,9 @@ export default function ResultPage() {
     revealTimersRef.current = [];
     if (videoPollRef.current) { clearTimeout(videoPollRef.current); videoPollRef.current = null; }
     narrationStartedRef.current = false;
+    userStoppedInnerThoughtsRef.current = false;
+    ambientStartedRef.current = false;
+    startAmbientFileRef.current = null;
     stopNarration();
     ambientEngineRef.current?.stop();
     if (ambientAudioRef.current) { ambientAudioRef.current.pause(); ambientAudioRef.current = null; }
@@ -1406,8 +1369,11 @@ export default function ResultPage() {
     if (!result) return;
     if (audioPlaying) {
       // Manual stop — remember it so the timed auto-play doesn't restart it.
+      // Stopping the voice shouldn't leave the scene silent, so bring in
+      // heartbeat + ambient now (it would otherwise wait for onended).
       userStoppedInnerThoughtsRef.current = true;
       stopNarration();
+      startAmbientAndHeartbeat();
       return;
     }
     // Manual start clears the flag again.

@@ -108,3 +108,11 @@ input[type=number]::-webkit-outer-spin-button {
   filter: invert(1);
   opacity: 0.7;
 }
+
+/* Dropdown option list: always solid black with white text, across every
+   <select> in the app. The closed field stays styled by its own class
+   (e.g. .onboard-select) — this only affects the opened options list. */
+select option {
+  background: #000000 !important;
+  color: white !important;
+}
