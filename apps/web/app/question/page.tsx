@@ -69,6 +69,17 @@ export default function QuestionPage() {
           }}
         />
 
+        {/* Permanent dark overlay — never fades or changes opacity during any
+            transition, so the screen keeps the same dark wash as the other
+            flow screens throughout. */}
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          background: 'linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.7) 100%)',
+          zIndex: 1,
+          pointerEvents: 'none',
+        }} />
+
         {/* Black overlay — the only thing that animates: a simple 1.2s opacity
             dissolve to reveal / re-cover the clear video. */}
         <div style={{
@@ -132,7 +143,7 @@ export default function QuestionPage() {
                 margin: 0,
                 maxWidth: 820,
               }}>
-                {capitalizeFirst(name)}, what if the world around you felt different than it does today
+                {capitalizeFirst(name)}, imagine the world around you felt different than it does today —
               </h1>
 
               <p style={{
