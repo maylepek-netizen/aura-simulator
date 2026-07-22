@@ -145,7 +145,7 @@ export default function QuestionPage() {
                 margin: 0,
                 maxWidth: 820,
               }}>
-                Are you ready to explore that possibility?
+                are you ready to explore that possibility
               </p>
             </div>
 
