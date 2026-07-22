@@ -17,10 +17,10 @@ export default function QuestionPage() {
 
   // ui opacity: 1 = visible, 0 = faded out
   const [uiOpacity, setUiOpacity] = useState(1);
-  // overlay opacity: 0.45 = default, 0 = fully transparent.
-  // This is the whole transition now — a plain opacity dissolve of the dark
-  // overlay to reveal the clear video, then back. No blur/focus, no zoom.
-  const [overlayOpacity, setOverlayOpacity] = useState(0.45);
+  // Dark overlay stays constant now — it never brightens/reveals the video, so
+  // there is no zoom or brightness change during the transition. The screen
+  // simply fades the UI out and cross-dissolves (black) to the chat page.
+  const overlayOpacity = 0.45;
 
   useEffect(() => {
     try {
@@ -37,25 +37,15 @@ export default function QuestionPage() {
 
     setTransitioning(true);
 
-    // Phase 1 (0→1s): UI fades out
+    // Simple smooth fade only — no reveal-the-clear-video choreography (that
+    // caused the screen to brighten), no zoom. The UI fades out over 0.8s, then
+    // we navigate; TransitionProvider handles the black cross-dissolve into the
+    // chat screen.
     setUiOpacity(0);
 
-    // Phase 2 (1s): overlay dissolves away (1.2s opacity) to reveal the video
-    setTimeout(() => {
-      setOverlayOpacity(0);
-    }, 1000);
-
-    // Phase 3: clean video — state holds
-
-    // Phase 4 (7s): overlay dissolves back in
-    setTimeout(() => {
-      setOverlayOpacity(0.45);
-    }, 7000);
-
-    // Phase 5 (9→10s): navigate
     setTimeout(() => {
       navigate("/chat");
-    }, 9000);
+    }, 800);
   }
 
   return (
@@ -98,11 +88,11 @@ export default function QuestionPage() {
           pointerEvents: "none",
         }} />
 
-        {/* ── ALL UI — fades out on transition ── */}
+        {/* ── ALL UI — fades out on transition (simple 0.8s opacity fade) ── */}
         <div style={{
           position: "absolute", inset: 0,
           opacity: uiOpacity,
-          transition: "opacity 1s ease-in-out",
+          transition: "opacity 0.8s ease",
           pointerEvents: transitioning ? "none" : "auto",
         }}>
 

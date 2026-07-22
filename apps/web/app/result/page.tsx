@@ -364,6 +364,116 @@ function colorAt(p: number): string {
   return lerpHex(LOADING_STAGES[i].color, LOADING_STAGES[i + 1].color, x - i);
 }
 
+// The animated loading eye + living halo ring, extracted so it can be reused at
+// different sizes. `size` scales the whole thing; `progress` (0→1) drives the
+// ring arc and colour; when no progress is supplied the ring endlessly cycles
+// on its own so the smaller instance (in GenerationBlob) still looks alive.
+// Everything below is lifted verbatim from the ProcessingMetrics centrepiece,
+// only parameterised by size.
+function LoadingEye({ size, progress, color }: { size: number; progress: number; color: string }) {
+  const CX = size / 2, CY = size / 2;
+  const R = size * 0.393;               // ring radius (118/300 of the original)
+  const C = 2 * Math.PI * R;            // circumference
+  const filled = C * progress;
+  const ringColor = color;
+  const eyeW = size * 0.493, eyeH = size * 0.373;  // 148x112 at size 300
+
+  return (
+    <div style={{ position: "relative", width: size, height: size, display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <style>{`
+        @keyframes aura-bloom { 0%,100%{ transform: scale(0.94); opacity: 0.5; } 50%{ transform: scale(1.06); opacity: 0.78; } }
+        @keyframes aura-pupil-breathe { 0%,100%{ transform: scale(0.97); } 50%{ transform: scale(1.02); } }
+        @keyframes aura-ring-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes aura-orbit { from { transform: rotate(0deg); } to { transform: rotate(-360deg); } }
+        @keyframes aura-drift { 0%,100%{ transform: translate(0,0); opacity: 0.15; } 50%{ transform: translate(var(--dx,4px), var(--dy,-6px)); opacity: 0.5; } }
+      `}</style>
+
+      {/* Layer 1 — soft breathing bloom */}
+      <div aria-hidden style={{
+        position: "absolute", width: size * 0.92, height: size * 0.92, borderRadius: "50%",
+        background: `radial-gradient(circle, ${ringColor}40 0%, ${ringColor}18 35%, transparent 70%)`,
+        filter: `blur(${size * 0.1}px)`,
+        animation: "aura-bloom 10s ease-in-out infinite",
+        pointerEvents: "none",
+      }} />
+
+      {/* Layer 1 — drifting particles around the ring */}
+      {Array.from({ length: 10 }).map((_, i) => {
+        const a = (i / 10) * Math.PI * 2;
+        const rr = R + (i % 3 - 1) * (size * 0.033);
+        const px = CX + Math.cos(a) * rr, py = CY + Math.sin(a) * rr;
+        return (
+          <div key={i} aria-hidden style={{
+            position: "absolute", left: px, top: py, width: 2.5, height: 2.5, borderRadius: "50%",
+            background: ringColor,
+            ["--dx" as string]: `${(i % 2 ? 5 : -5)}px`,
+            ["--dy" as string]: `${(i % 3 ? -6 : 6)}px`,
+            animation: `aura-drift ${7 + (i % 4)}s ease-in-out ${i * 0.4}s infinite`,
+            filter: `drop-shadow(0 0 3px ${ringColor})`,
+            pointerEvents: "none",
+          }} />
+        );
+      })}
+
+      {/* Layer 2 — halo ring: faint spinning track + progress arc + orbiting highlight */}
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ position: "absolute", inset: 0, overflow: "visible" }}>
+        <g style={{ transformOrigin: `${CX}px ${CY}px`, animation: "aura-ring-spin 60s linear infinite" }}>
+          <circle cx={CX} cy={CY} r={R} fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth={1.5} strokeDasharray="1 7" />
+        </g>
+        <circle
+          cx={CX} cy={CY} r={R} fill="none"
+          stroke={ringColor} strokeWidth={2} strokeLinecap="round"
+          strokeDasharray={`${filled} ${C}`}
+          transform={`rotate(-90 ${CX} ${CY})`}
+          style={{ filter: `drop-shadow(0 0 5px ${ringColor}) drop-shadow(0 0 13px ${ringColor}66)` }}
+        />
+        <g style={{ transformOrigin: `${CX}px ${CY}px`, animation: "aura-orbit 14s linear infinite" }}>
+          <circle cx={CX + R} cy={CY} r={3} fill={ringColor} style={{ filter: `drop-shadow(0 0 8px ${ringColor})` }} />
+        </g>
+      </svg>
+
+      {/* Layer 3 — the Aura eye. Outline white; pupil fills with the morphing colour. */}
+      <svg width={eyeW} height={eyeH} viewBox="0 0 673 689" style={{ position: "relative", zIndex: 2, overflow: "visible" }}>
+        <defs>
+          <clipPath id={`pupil-clip-${size}`}>
+            <path d="M331.442 281.553C364.296 279.016 393.138 303.908 396.222 337.576L396.29 338.373C398.977 372.457 374.274 402.223 341.185 405.142C307.849 408.083 278.404 382.71 275.691 348.379C272.977 314.04 298.07 284.132 331.442 281.553Z" />
+          </clipPath>
+          <radialGradient id={`pupil-fill-${size}`} cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor={ringColor} stopOpacity="1" />
+            <stop offset="70%" stopColor={ringColor} stopOpacity="0.9" />
+            <stop offset="100%" stopColor={ringColor} stopOpacity="0.45" />
+          </radialGradient>
+        </defs>
+        <g clipPath={`url(#pupil-clip-${size})`}>
+          <circle cx={336} cy={343} r={70} fill={`url(#pupil-fill-${size})`}
+            style={{ transformOrigin: "336px 343px", animation: "aura-pupil-breathe 4s ease-in-out infinite" }} />
+        </g>
+        <path d="M327.838 242.867C361.418 239.711 395.557 252.014 426.288 271.923C456.213 291.311 482.616 317.731 501.685 343.375C497.532 349.248 491.61 356.766 487.208 361.831L487.206 361.833C448.524 406.376 403.963 439.815 344.35 444.958C309.742 447.817 275.869 435.677 245.667 415.861C216.175 396.51 190.4 369.975 171.207 343.504C173.622 339.804 176.42 336.284 179.362 332.75L180.852 330.971C219.899 284.572 266.286 248.403 327.824 242.868L327.838 242.867Z" fill="none" stroke="#ffffff" strokeWidth={7} strokeOpacity={0.85} />
+        <path d="M331.442 281.553C364.296 279.016 393.138 303.908 396.222 337.576L396.29 338.373C398.977 372.457 374.274 402.223 341.185 405.142C307.849 408.083 278.404 382.71 275.691 348.379C272.977 314.04 298.07 284.132 331.442 281.553Z" fill="none" stroke="#ffffff" strokeWidth={7} strokeOpacity={0.85} />
+      </svg>
+    </div>
+  );
+}
+
+// Self-driving loading eye for the video-generation wait, where there is no
+// external progress. The ring cycles 0→full on a loop and the colour morphs.
+function CyclingLoadingEye({ size }: { size: number }) {
+  const [progress, setProgress] = useState(0);
+  useEffect(() => {
+    let raf = 0, start = 0;
+    const PERIOD = 8000; // ms per fill cycle
+    const loop = (now: number) => {
+      if (!start) start = now;
+      const p = ((now - start) % PERIOD) / PERIOD;
+      setProgress(p);
+      raf = requestAnimationFrame(loop);
+    };
+    raf = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(raf);
+  }, []);
+  return <LoadingEye size={size} progress={progress} color={colorAt(progress)} />;
+}
+
 function ProcessingMetrics({ visible, onComplete }: { visible: boolean; onComplete: () => void }) {
   const [progress, setProgress] = useState(0); // 0 → 1, continuous ring fill
   const [finishing, setFinishing] = useState(false);
@@ -425,93 +535,8 @@ function ProcessingMetrics({ visible, onComplete }: { visible: boolean; onComple
         gap: 56,
       }}>
 
-        {/* Eye + living halo ring — the ritual centerpiece */}
-        {(() => {
-          const SIZE = 300;
-          const CX = SIZE / 2, CY = SIZE / 2;
-          const R = 118;                       // ring radius
-          const C = 2 * Math.PI * R;           // circumference
-          const filled = C * progress;         // continuous arc length driven frame-by-frame
-          const ringColor = eyeColor;          // morphs smoothly with progress
-          // orbiting highlight position (endless, independent of progress)
-          return (
-            <div style={{ position: "relative", width: SIZE, height: SIZE, display: "flex", alignItems: "center", justifyContent: "center" }}>
-              {/* Layer 1 — soft breathing bloom (always moving) */}
-              <div aria-hidden style={{
-                position: "absolute", width: SIZE * 0.92, height: SIZE * 0.92, borderRadius: "50%",
-                background: `radial-gradient(circle, ${ringColor}40 0%, ${ringColor}18 35%, transparent 70%)`,
-                filter: "blur(30px)",
-                animation: "aura-bloom 10s ease-in-out infinite",
-                pointerEvents: "none",
-              }} />
-
-              {/* Layer 1 — drifting particles around the ring (always moving) */}
-              {Array.from({ length: 10 }).map((_, i) => {
-                const a = (i / 10) * Math.PI * 2;
-                const rr = R + (i % 3 - 1) * 10;
-                const px = CX + Math.cos(a) * rr, py = CY + Math.sin(a) * rr;
-                return (
-                  <div key={i} aria-hidden style={{
-                    position: "absolute", left: px, top: py, width: 2.5, height: 2.5, borderRadius: "50%",
-                    background: ringColor,
-                    ["--dx" as string]: `${(i % 2 ? 5 : -5)}px`,
-                    ["--dy" as string]: `${(i % 3 ? -6 : 6)}px`,
-                    animation: `aura-drift ${7 + (i % 4)}s ease-in-out ${i * 0.4}s infinite`,
-                    filter: `drop-shadow(0 0 3px ${ringColor})`,
-                    pointerEvents: "none",
-                  }} />
-                );
-              })}
-
-              {/* Layer 2 — the halo ring: faint slowly-spinning track + continuous progress arc + orbiting highlight */}
-              <svg width={SIZE} height={SIZE} viewBox={`0 0 ${SIZE} ${SIZE}`} style={{ position: "absolute", inset: 0, overflow: "visible" }}>
-                {/* faint full track, forever slowly rotating so it never looks frozen */}
-                <g style={{ transformOrigin: `${CX}px ${CY}px`, animation: "aura-ring-spin 60s linear infinite" }}>
-                  <circle cx={CX} cy={CY} r={R} fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth={1.5}
-                    strokeDasharray="1 7" />
-                </g>
-                {/* continuous progress arc — fills frame-by-frame, colour morphs with progress */}
-                <circle
-                  cx={CX} cy={CY} r={R} fill="none"
-                  stroke={ringColor} strokeWidth={2} strokeLinecap="round"
-                  strokeDasharray={`${filled} ${C}`}
-                  transform={`rotate(-90 ${CX} ${CY})`}
-                  style={{ filter: `drop-shadow(0 0 5px ${ringColor}) drop-shadow(0 0 13px ${ringColor}66)` }}
-                />
-                {/* orbiting highlight — a soft moving glow that never stops */}
-                <g style={{ transformOrigin: `${CX}px ${CY}px`, animation: "aura-orbit 14s linear infinite" }}>
-                  <circle cx={CX + R} cy={CY} r={3} fill={ringColor}
-                    style={{ filter: `drop-shadow(0 0 8px ${ringColor})` }} />
-                </g>
-              </svg>
-
-              {/* Layer 3 — the Aura eye (inline SVG). Outline stays white; pupil fills with the morphing colour and slowly pulses. */}
-              <svg width={148} height={112} viewBox="0 0 673 689" style={{ position: "relative", zIndex: 2, overflow: "visible" }}>
-                <defs>
-                  <clipPath id="pupil-clip">
-                    <path d="M331.442 281.553C364.296 279.016 393.138 303.908 396.222 337.576L396.29 338.373C398.977 372.457 374.274 402.223 341.185 405.142C307.849 408.083 278.404 382.71 275.691 348.379C272.977 314.04 298.07 284.132 331.442 281.553Z" />
-                  </clipPath>
-                  <radialGradient id="pupil-fill" cx="50%" cy="50%" r="50%">
-                    <stop offset="0%" stopColor={eyeColor} stopOpacity="1" />
-                    <stop offset="70%" stopColor={eyeColor} stopOpacity="0.9" />
-                    <stop offset="100%" stopColor={eyeColor} stopOpacity="0.45" />
-                  </radialGradient>
-                </defs>
-                {/* Pupil colour fill — clipped to the pupil, slowly pulsing 3% */}
-                <g clipPath="url(#pupil-clip)">
-                  <circle cx={336} cy={343} r={70}
-                    fill="url(#pupil-fill)"
-                    style={{ transformOrigin: "336px 343px", animation: "aura-pupil-breathe 4s ease-in-out infinite" }}
-                  />
-                </g>
-                {/* Eye almond outline — white */}
-                <path d="M327.838 242.867C361.418 239.711 395.557 252.014 426.288 271.923C456.213 291.311 482.616 317.731 501.685 343.375C497.532 349.248 491.61 356.766 487.208 361.831L487.206 361.833C448.524 406.376 403.963 439.815 344.35 444.958C309.742 447.817 275.869 435.677 245.667 415.861C216.175 396.51 190.4 369.975 171.207 343.504C173.622 339.804 176.42 336.284 179.362 332.75L180.852 330.971C219.899 284.572 266.286 248.403 327.824 242.868L327.838 242.867Z" fill="none" stroke="#ffffff" strokeWidth={7} strokeOpacity={0.85} />
-                {/* Pupil outline — white */}
-                <path d="M331.442 281.553C364.296 279.016 393.138 303.908 396.222 337.576L396.29 338.373C398.977 372.457 374.274 402.223 341.185 405.142C307.849 408.083 278.404 382.71 275.691 348.379C272.977 314.04 298.07 284.132 331.442 281.553Z" fill="none" stroke="#ffffff" strokeWidth={7} strokeOpacity={0.85} />
-              </svg>
-            </div>
-          );
-        })()}
+        {/* Eye + living halo ring — the ritual centerpiece (extracted component) */}
+        <LoadingEye size={300} progress={progress} color={eyeColor} />
 
         {/* Progress line + 4 nodes */}
         <div style={{ width: "100%", maxWidth: 560, display: "flex", flexDirection: "column", alignItems: "center", gap: 18 }}>
@@ -583,8 +608,9 @@ function ProcessingMetrics({ visible, onComplete }: { visible: boolean; onComple
 // Deliberately shapeless: heavy blur on every patch, no vignette, no solid base,
 // so it melts into the black with no visible boundary.
 
-// Loading state: plain black with the eye logo softly pulsing and a small
-// Hebrew line below. No colourful blob — the earlier fog field was removed.
+// Loading state: plain black with the same animated processing eye + halo ring
+// used in the initial loading ritual (reused at 80px), and a small status line
+// below. No static logo, no colourful blob.
 const GenerationBlob = () => (
   <div style={{
     position: 'absolute',
@@ -597,32 +623,15 @@ const GenerationBlob = () => (
     background: '#000',
     overflow: 'hidden',
   }}>
-    <style>{`
-      @keyframes eyePulse {
-        0%, 100% { opacity: 0.5; transform: scale(1); }
-        50%      { opacity: 0.9; transform: scale(1.06); }
-      }
-    `}</style>
-
-    <img
-      src="/icons/New_logo_eye.svg"
-      alt=""
-      aria-hidden
-      style={{
-        width: 64,
-        height: 64,
-        animation: 'eyePulse 2.6s ease-in-out infinite',
-      }}
-    />
+    <CyclingLoadingEye size={80} />
 
     <div style={{
       color: 'rgba(255,201,157,0.6)',
       fontSize: 12,
       fontFamily: 'Assistant, sans-serif',
-      direction: 'rtl',
       letterSpacing: '0.02em',
     }}>
-      הסימולציה מיד עולה
+      Simulation loading...
     </div>
   </div>
 );
