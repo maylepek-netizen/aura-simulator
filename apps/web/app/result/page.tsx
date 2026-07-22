@@ -455,25 +455,6 @@ function LoadingEye({ size, progress, color }: { size: number; progress: number;
   );
 }
 
-// Self-driving loading eye for the video-generation wait, where there is no
-// external progress. The ring cycles 0→full on a loop and the colour morphs.
-function CyclingLoadingEye({ size }: { size: number }) {
-  const [progress, setProgress] = useState(0);
-  useEffect(() => {
-    let raf = 0, start = 0;
-    const PERIOD = 8000; // ms per fill cycle
-    const loop = (now: number) => {
-      if (!start) start = now;
-      const p = ((now - start) % PERIOD) / PERIOD;
-      setProgress(p);
-      raf = requestAnimationFrame(loop);
-    };
-    raf = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(raf);
-  }, []);
-  return <LoadingEye size={size} progress={progress} color={colorAt(progress)} />;
-}
-
 function ProcessingMetrics({ visible, onComplete }: { visible: boolean; onComplete: () => void }) {
   const [progress, setProgress] = useState(0); // 0 → 1, continuous ring fill
   const [finishing, setFinishing] = useState(false);
@@ -602,15 +583,50 @@ function ProcessingMetrics({ visible, onComplete }: { visible: boolean; onComple
   );
 }
 
-// ─── Generation fog (video loading state) ────────────────────────────────────
-// Wide 16:9 drift of overlapping warm colour patches — an "unresolved diffusion
-// render" that fills the video slot until the real video arrives. Pure CSS.
-// Deliberately shapeless: heavy blur on every patch, no vignette, no solid base,
-// so it melts into the black with no visible boundary.
+// ─── Generation preview (video "still generating" state) ─────────────────────
+// A cinematic, Midjourney/Veo-style preview that fills the video slot until the
+// real video arrives. NOT a spinner or placeholder — a living, unresolved image:
+// heavily blurred cinematic colour fields (soft purples, blues, warm highlights)
+// with bloom, drifting light, film grain, gentle chromatic aberration, breathing
+// opacity and a slow blur that sharpens over time but plateaus while still soft
+// (never fully clear — the real video resolves the rest). Edges fade to black
+// via vignette + edge blur. Two lines of text only; no bars, %, or icons.
+//
+// Blurred colour blobs of the diffusion field. Purple/blue/warm, not grayscale.
+const PREVIEW_BLOBS: React.CSSProperties[] = [
+  { top: '2%',  left: '8%',  width: '46%', height: '78%',
+    background: 'radial-gradient(ellipse at 50% 45%, rgba(150,110,220,0.55) 0%, rgba(110,80,190,0.22) 45%, transparent 72%)',
+    animation: 'prev-driftA 13s ease-in-out infinite' },
+  { top: '10%', right: '4%', width: '48%', height: '74%',
+    background: 'radial-gradient(ellipse at 50% 50%, rgba(90,140,230,0.5) 0%, rgba(60,100,200,0.2) 48%, transparent 74%)',
+    animation: 'prev-driftB 17s ease-in-out infinite' },
+  { top: '22%', left: '26%', width: '44%', height: '60%',
+    background: 'radial-gradient(ellipse at 50% 50%, rgba(255,180,120,0.42) 0%, rgba(230,150,90,0.16) 50%, transparent 72%)',
+    animation: 'prev-driftC 15s ease-in-out infinite' },
+  { bottom: '-6%', left: '18%', width: '40%', height: '58%',
+    background: 'radial-gradient(ellipse at 50% 40%, rgba(120,90,200,0.4) 0%, transparent 70%)',
+    animation: 'prev-driftB 19s ease-in-out infinite reverse' },
+  { top: '14%', left: '38%', width: '30%', height: '40%',
+    background: 'radial-gradient(ellipse at 50% 50%, rgba(255,225,180,0.4) 0%, rgba(240,190,130,0.14) 55%, transparent 72%)',
+    animation: 'prev-driftA 11s ease-in-out infinite reverse' },
+  { bottom: '4%', right: '10%', width: '42%', height: '52%',
+    background: 'radial-gradient(ellipse at 50% 50%, rgba(160,120,235,0.34) 0%, transparent 70%)',
+    animation: 'prev-driftC 16s ease-in-out infinite reverse' },
+  { top: '-4%', right: '20%', width: '34%', height: '46%',
+    background: 'radial-gradient(ellipse, rgba(110,160,240,0.3) 0%, transparent 68%)',
+    animation: 'prev-driftA 14s ease-in-out infinite' },
+];
 
-// Loading state: plain black with the same animated processing eye + halo ring
-// used in the initial loading ritual (reused at 80px), and a small status line
-// below. No static logo, no colourful blob.
+// Bright bloom cores — small, hot points of light that glow through the blur.
+const PREVIEW_CORES: React.CSSProperties[] = [
+  { top: '40%', left: '30%', width: 90, height: 90,
+    background: 'radial-gradient(circle, rgba(255,210,160,0.85) 0%, rgba(255,180,120,0.3) 40%, transparent 70%)' },
+  { top: '34%', left: '54%', width: 70, height: 70,
+    background: 'radial-gradient(circle, rgba(150,180,255,0.8) 0%, rgba(110,140,240,0.28) 42%, transparent 70%)' },
+  { top: '52%', left: '46%', width: 60, height: 60,
+    background: 'radial-gradient(circle, rgba(200,160,255,0.7) 0%, transparent 68%)' },
+];
+
 const GenerationBlob = () => (
   <div style={{
     position: 'absolute',
@@ -619,19 +635,113 @@ const GenerationBlob = () => (
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 20,
+    gap: 22,
     background: '#000',
     overflow: 'hidden',
   }}>
-    <CyclingLoadingEye size={80} />
+    <style>{`
+      @keyframes prev-driftA {
+        0%,100% { transform: translate(0,0) scale(1);      opacity: 0.85; }
+        33%     { transform: translate(4%,-3%) scale(1.1); opacity: 1;    }
+        66%     { transform: translate(-3%,4%) scale(0.95);opacity: 0.7;  }
+      }
+      @keyframes prev-driftB {
+        0%,100% { transform: translate(0,0) scale(1);       opacity: 0.8;  }
+        40%     { transform: translate(-5%,3%) scale(1.12); opacity: 0.98; }
+        70%     { transform: translate(3%,-4%) scale(0.92); opacity: 0.65; }
+      }
+      @keyframes prev-driftC {
+        0%,100% { transform: translate(0,0) scale(1);      opacity: 0.7;  }
+        45%     { transform: translate(4%,5%) scale(1.14); opacity: 0.95; }
+        75%     { transform: translate(-3%,-3%) scale(0.97);opacity: 0.6; }
+      }
+      /* Slow zoom + breathing on the whole field — feels "alive". */
+      @keyframes prev-breathe {
+        0%,100% { transform: scale(1);    opacity: 0.92; }
+        50%     { transform: scale(1.06); opacity: 1;    }
+      }
+      /* Blur sharpens over the first ~9s, then PLATEAUS while still soft —
+         never fully clear. The real video resolves the rest on crossfade. */
+      @keyframes prev-resolve {
+        0%   { filter: blur(46px) saturate(1.25) brightness(1.05); }
+        70%  { filter: blur(20px) saturate(1.2)  brightness(1.02); }
+        100% { filter: blur(17px) saturate(1.2)  brightness(1.02); }
+      }
+      /* Chromatic-aberration ghosts drift oppositely for a subtle RGB split. */
+      @keyframes prev-caberr-r { 0%,100%{ transform: translate(-2px,0);} 50%{ transform: translate(3px,-1px);} }
+      @keyframes prev-caberr-b { 0%,100%{ transform: translate(2px,0);}  50%{ transform: translate(-3px,1px);} }
+      @keyframes prev-grain    { 0%{transform:translate(0,0)} 20%{transform:translate(-4%,3%)} 40%{transform:translate(3%,-2%)} 60%{transform:translate(-2%,4%)} 80%{transform:translate(4%,-3%)} 100%{transform:translate(0,0)} }
+      @keyframes prev-textbreathe { 0%,100%{ opacity:0.55 } 50%{ opacity:0.9 } }
+    `}</style>
 
+    {/* The diffusion field — blurred colour blobs that slowly resolve. */}
     <div style={{
-      color: 'rgba(255,201,157,0.6)',
-      fontSize: 12,
-      fontFamily: 'Assistant, sans-serif',
-      letterSpacing: '0.02em',
+      position: 'absolute', inset: 0,
+      animation: 'prev-breathe 9s ease-in-out infinite',
     }}>
-      Simulation loading...
+      <div style={{
+        position: 'absolute', inset: '-8%',
+        animation: 'prev-resolve 9s ease-out forwards',
+      }}>
+        {/* Chromatic aberration: same field, offset red & blue ghosts. */}
+        <div style={{ position: 'absolute', inset: 0, mixBlendMode: 'screen', filter: 'hue-rotate(8deg)', opacity: 0.5, animation: 'prev-caberr-r 7s ease-in-out infinite' }}>
+          {PREVIEW_BLOBS.map((b, i) => <div key={i} aria-hidden style={{ position: 'absolute', ...b }} />)}
+        </div>
+        <div style={{ position: 'absolute', inset: 0, mixBlendMode: 'screen', filter: 'hue-rotate(-10deg)', opacity: 0.5, animation: 'prev-caberr-b 7s ease-in-out infinite' }}>
+          {PREVIEW_BLOBS.map((b, i) => <div key={i} aria-hidden style={{ position: 'absolute', ...b }} />)}
+        </div>
+        {/* Main field */}
+        {PREVIEW_BLOBS.map((b, i) => <div key={i} aria-hidden style={{ position: 'absolute', ...b }} />)}
+        {/* Bright bloom cores */}
+        {PREVIEW_CORES.map((c, i) => (
+          <div key={i} aria-hidden style={{
+            position: 'absolute', borderRadius: '50%', filter: 'blur(8px)',
+            animation: `prev-driftA ${9 + i * 2}s ease-in-out ${i * 0.7}s infinite`,
+            ...c,
+          }} />
+        ))}
+      </div>
+    </div>
+
+    {/* Vignette + edge fade to black (Midjourney-style framed preview). */}
+    <div aria-hidden style={{
+      position: 'absolute', inset: 0, pointerEvents: 'none',
+      background: 'radial-gradient(ellipse at center, transparent 32%, rgba(0,0,0,0.55) 72%, #000 100%)',
+    }} />
+    <div aria-hidden style={{
+      position: 'absolute', inset: 0, pointerEvents: 'none',
+      boxShadow: 'inset 0 0 120px 60px #000',
+    }} />
+
+    {/* Film grain — a faint moving noise layer. */}
+    <div aria-hidden style={{
+      position: 'absolute', inset: '-20%', pointerEvents: 'none',
+      opacity: 0.06, mixBlendMode: 'overlay',
+      backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
+      animation: 'prev-grain 1.4s steps(4) infinite',
+    }} />
+
+    {/* Text — two lines only, no bars/%/icons. Sits above the preview. */}
+    <div style={{
+      position: 'absolute', bottom: '10%', left: 0, right: 0,
+      display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10,
+      zIndex: 2, pointerEvents: 'none',
+    }}>
+      <div style={{
+        fontFamily: 'Assistant, sans-serif',
+        fontSize: 15, letterSpacing: '0.28em', textTransform: 'uppercase',
+        color: 'rgba(255,255,255,0.82)',
+        animation: 'prev-textbreathe 3.4s ease-in-out infinite',
+      }}>
+        Generating your simulation...
+      </div>
+      <div style={{
+        fontFamily: 'Assistant, sans-serif',
+        fontSize: 13, letterSpacing: '0.04em',
+        color: 'rgba(255,255,255,0.42)',
+      }}>
+        Building your experience...
+      </div>
     </div>
   </div>
 );
@@ -1204,8 +1314,8 @@ export default function ResultPage() {
   // Unmount the generation blob once its fade-out has finished.
   useEffect(() => {
     if (!videoUrl) { setBlobMounted(true); return; }
-    // Outlast the 1s cross-fade before unmounting, so the fade actually plays.
-    const t = setTimeout(() => setBlobMounted(false), 1100);
+    // Outlast the 800ms cross-fade before unmounting, so the fade fully plays.
+    const t = setTimeout(() => setBlobMounted(false), 900);
     return () => clearTimeout(t);
   }, [videoUrl]);
 
@@ -1547,10 +1657,22 @@ export default function ResultPage() {
 
         {/* Video (top) */}
         <div style={{ position: "relative", width: "100%", height: "42vh", flexShrink: 0, background: "#000" }}>
+          {/* Generation preview fills the slot until the video buffers, then
+              crossfades (800ms) into the real video. */}
+          {blobMounted && (
+            <div style={{
+              position: "absolute", inset: 0, zIndex: 2,
+              opacity: result && !videoUrl ? 1 : 0,
+              transition: "opacity 800ms ease",
+              pointerEvents: "none",
+            }}>
+              <GenerationBlob />
+            </div>
+          )}
           {videoUrl && (
             <video ref={videoRef} src={videoUrl} autoPlay loop playsInline
               onPlay={handleVideoPlay} onTimeUpdate={handleTimeUpdate}
-              style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: videoVisible ? 1 : 0, transition: "opacity 1.4s ease" }} />
+              style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: videoVisible ? 1 : 0, transition: "opacity 800ms ease" }} />
           )}
           {videoUrl && (
             <>
@@ -1697,14 +1819,16 @@ export default function ResultPage() {
 
       {/* ── FULLSCREEN VIDEO (center) ─────────────────────────── */}
       <div style={{ position: "fixed", inset: 0, zIndex: 0, background: "#000000" }}>
-        {/* Loading state — result is ready but the video is still generating.
-            The blob stays mounted through its 0.8s fade-out once the video lands. */}
+        {/* Generation preview — result is ready but the video is still buffering.
+            Stays mounted through its 800ms crossfade once the video lands, so the
+            preview resolves INTO the video rather than switching abruptly. Text
+            (inside GenerationBlob) fades out with it. */}
         {blobMounted && (
           <div style={{
             position: "absolute", inset: 0, zIndex: 2,
             opacity: result && !videoUrl ? 1 : 0,
-            // ~1s cross-fade: the fog dissolves as the video fades up beneath it.
-            transition: "opacity 1s ease",
+            // 800ms crossfade: the preview dissolves as the video fades up beneath.
+            transition: "opacity 800ms ease",
             pointerEvents: "none",
           }}>
             <GenerationBlob />
@@ -1716,7 +1840,7 @@ export default function ResultPage() {
               position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover",
               opacity: videoVisible ? videoLoopOpacity : 0,
               transform: "scale(1.06)",
-              transition: "opacity 1.4s ease",
+              transition: "opacity 800ms ease",
               animation: videoVisible
                 ? `materialize 3.5s cubic-bezier(0.4,0,0.2,1) forwards${stimmingAnimation !== "none" ? `, ${stimmingAnimation}` : ""}`
                 : stimmingAnimation,
