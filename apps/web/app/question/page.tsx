@@ -143,7 +143,7 @@ export default function QuestionPage() {
                 margin: 0,
                 maxWidth: 820,
               }}>
-                {capitalizeFirst(name)}, imagine the world around you felt different than it does today —
+                {capitalizeFirst(name)}, imagine the world around you felt different than it does today,
               </h1>
 
               <p style={{
@@ -156,7 +156,7 @@ export default function QuestionPage() {
                 margin: 0,
                 maxWidth: 820,
               }}>
-                are you ready to explore that possibility
+                are you ready to explore that possibility?
               </p>
             </div>
 
