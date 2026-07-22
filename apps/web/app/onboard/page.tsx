@@ -266,7 +266,7 @@ export default function OnboardingPage() {
                   background: "#FFC99D",
                   color: "#1c0e00",
                   border: "none",
-                  borderRadius: 12,
+                  borderRadius: 3,
                   padding: "16px 0",
                   width: "100%",
                   fontSize: 13,

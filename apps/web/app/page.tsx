@@ -319,7 +319,7 @@ export default function LandingPage() {
                 style={{
                   marginTop: 24,
                   background: "#FFC99D", color: "#000",
-                  border: "none", borderRadius: 12,
+                  border: "none", borderRadius: 3,
                   padding: "16px 48px",
                   fontSize: 13, letterSpacing: "0.12em",
                   fontWeight: 600, cursor: "pointer",

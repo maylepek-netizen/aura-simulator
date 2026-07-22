@@ -205,7 +205,7 @@ function ReflectionScreen({ onBank, onNew }: { onBank: () => void; onNew: () => 
       </h1>
       <div style={{ display: "flex", flexDirection: "column", gap: 12, width: "100%", maxWidth: 300 }}>
         <button type="button" onClick={onBank} style={{
-          width: "100%", height: 50, borderRadius: 8,
+          width: "100%", height: 50, borderRadius: 3,
           border: "1px solid rgba(255,201,157,0.5)", background: "rgba(255,201,157,0.06)",
           fontSize: 13, letterSpacing: "0.14em", textTransform: "uppercase",
           color: "#FFC99D", cursor: "pointer", fontFamily: "var(--font-body)",
@@ -213,7 +213,7 @@ function ReflectionScreen({ onBank, onNew }: { onBank: () => void; onNew: () => 
           Simulation Bank
         </button>
         <button type="button" onClick={onNew} style={{
-          width: "100%", height: 50, borderRadius: 8,
+          width: "100%", height: 50, borderRadius: 3,
           border: "1px solid rgba(255,255,255,0.2)", background: "rgba(255,255,255,0.04)",
           fontSize: 13, letterSpacing: "0.14em", textTransform: "uppercase",
           color: "rgba(255,255,255,0.8)", cursor: "pointer", fontFamily: "var(--font-body)",
@@ -326,7 +326,7 @@ export default function BankReplayPage() {
   if (!record) return (
     <div style={{ position: "fixed", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16, background: "#0d0a08" }}>
       <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)" }}>Simulation not found</p>
-      <button type="button" onClick={() => navigate("/bank")} style={{ fontSize: 10, letterSpacing: "0.2em", textTransform: "uppercase", border: "1px solid rgba(255,255,255,0.2)", borderRadius: 4, padding: "8px 16px", color: "rgba(255,255,255,0.6)", background: "transparent", cursor: "pointer" }}>← Back to Bank</button>
+      <button type="button" onClick={() => navigate("/bank")} style={{ fontSize: 10, letterSpacing: "0.2em", textTransform: "uppercase", border: "1px solid rgba(255,255,255,0.2)", borderRadius: 3, padding: "8px 16px", color: "rgba(255,255,255,0.6)", background: "transparent", cursor: "pointer" }}>← Back to Bank</button>
     </div>
   );
 
@@ -379,7 +379,7 @@ export default function BankReplayPage() {
               <img src="/icons/New_logo_eye.svg" alt="" style={{ width: 26, opacity: 0.9 }} />
             </div>
             {/* Back to bank */}
-            <button type="button" onClick={() => navigate("/bank")} style={{ position: "absolute", top: 12, right: 14, zIndex: 5, height: 30, padding: "0 12px", borderRadius: 6, border: "1px solid rgba(255,255,255,0.2)", background: "rgba(0,0,0,0.4)", fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.75)", cursor: "pointer" }}>
+            <button type="button" onClick={() => navigate("/bank")} style={{ position: "absolute", top: 12, right: 14, zIndex: 5, height: 30, padding: "0 12px", borderRadius: 3, border: "1px solid rgba(255,255,255,0.2)", background: "rgba(0,0,0,0.4)", fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.75)", cursor: "pointer" }}>
               ← Bank
             </button>
             {/* Load pill */}
@@ -398,11 +398,11 @@ export default function BankReplayPage() {
 
             {/* Sound toggles */}
             <div style={{ display: "flex", gap: 8, marginBottom: 24 }}>
-              <button type="button" onClick={toggleAmbient} className="sound-btn" style={{ flex: 1, height: 40, borderRadius: 6, border: `1px solid ${ambientPlaying ? "rgba(255,201,157,0.5)" : "rgba(255,255,255,0.14)"}`, background: ambientPlaying ? "rgba(255,201,157,0.06)" : "rgba(255,255,255,0.03)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontSize: 12, color: ambientPlaying ? "#FFC99D" : "rgba(255,255,255,0.6)", cursor: "pointer", fontFamily: "var(--font-body)" }}>
+              <button type="button" onClick={toggleAmbient} className="sound-btn" style={{ flex: 1, height: 40, borderRadius: 3, border: `1px solid ${ambientPlaying ? "rgba(255,201,157,0.5)" : "rgba(255,255,255,0.14)"}`, background: ambientPlaying ? "rgba(255,201,157,0.06)" : "rgba(255,255,255,0.03)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontSize: 12, color: ambientPlaying ? "#FFC99D" : "rgba(255,255,255,0.6)", cursor: "pointer", fontFamily: "var(--font-body)" }}>
                 Environment
                 {ambientPlaying && <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#FFC99D", animation: "pulse-dot 1s infinite" }} />}
               </button>
-              <button type="button" onClick={toggleHeartbeat} className="sound-btn" style={{ flex: 1, height: 40, borderRadius: 6, border: `1px solid ${heartbeatPlaying ? "rgba(255,193,187,0.5)" : "rgba(255,255,255,0.14)"}`, background: heartbeatPlaying ? "rgba(255,193,187,0.06)" : "rgba(255,255,255,0.03)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontSize: 12, color: heartbeatPlaying ? "#FFC1BB" : "rgba(255,255,255,0.6)", cursor: "pointer", fontFamily: "var(--font-body)" }}>
+              <button type="button" onClick={toggleHeartbeat} className="sound-btn" style={{ flex: 1, height: 40, borderRadius: 3, border: `1px solid ${heartbeatPlaying ? "rgba(255,193,187,0.5)" : "rgba(255,255,255,0.14)"}`, background: heartbeatPlaying ? "rgba(255,193,187,0.06)" : "rgba(255,255,255,0.03)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontSize: 12, color: heartbeatPlaying ? "#FFC1BB" : "rgba(255,255,255,0.6)", cursor: "pointer", fontFamily: "var(--font-body)" }}>
                 Heartbeat
                 {heartbeatPlaying && <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#FFC1BB", animation: "pulse-dot 0.7s infinite" }} />}
               </button>
@@ -460,7 +460,7 @@ export default function BankReplayPage() {
             </div>
 
             {/* Back to the bank listing */}
-            <button type="button" onClick={() => navigate("/bank")} style={{ marginTop: 24, width: "100%", height: 50, borderRadius: 8, border: "1px solid rgba(255,255,255,0.25)", background: "rgba(255,255,255,0.06)", fontSize: 13, letterSpacing: "0.16em", textTransform: "uppercase", color: "rgba(255,255,255,0.85)", cursor: "pointer", fontFamily: "var(--font-body)" }}>
+            <button type="button" onClick={() => navigate("/bank")} style={{ marginTop: 24, width: "100%", height: 50, borderRadius: 3, border: "1px solid rgba(255,255,255,0.25)", background: "rgba(255,255,255,0.06)", fontSize: 13, letterSpacing: "0.16em", textTransform: "uppercase", color: "rgba(255,255,255,0.85)", cursor: "pointer", fontFamily: "var(--font-body)" }}>
               ← Back to Bank
             </button>
           </div>
@@ -506,7 +506,7 @@ export default function BankReplayPage() {
 
           {/* Nav */}
           <div style={{ padding: "14px 16px 12px", display: "flex", gap: 8, flexShrink: 0 }}>
-            <button type="button" className="sound-btn" onClick={() => navigate("/chat")} style={{ flex: 1, height: 32, borderRadius: 6, border: "1px solid rgba(255,255,255,0.18)", background: "rgba(255,255,255,0.05)", fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.7)", cursor: "pointer" }}>
+            <button type="button" className="sound-btn" onClick={() => navigate("/chat")} style={{ flex: 1, height: 32, borderRadius: 3, border: "1px solid rgba(255,255,255,0.18)", background: "rgba(255,255,255,0.05)", fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.7)", cursor: "pointer" }}>
               New
             </button>
           </div>
@@ -571,12 +571,12 @@ export default function BankReplayPage() {
 
             {/* Sound controls */}
             <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 20 }}>
-              <button type="button" onClick={toggleAmbient} className="sound-btn" style={{ width: "100%", height: 44, borderRadius: 6, border: `1px solid ${ambientPlaying ? "rgba(255,201,157,0.5)" : "rgba(255,255,255,0.14)"}`, background: ambientPlaying ? "rgba(255,201,157,0.06)" : "rgba(255,255,255,0.03)", display: "flex", alignItems: "center", gap: 10, padding: "0 14px", fontSize: 12, letterSpacing: "0.08em", color: ambientPlaying ? "#FFC99D" : "rgba(255,255,255,0.6)", cursor: "pointer" }}>
+              <button type="button" onClick={toggleAmbient} className="sound-btn" style={{ width: "100%", height: 44, borderRadius: 3, border: `1px solid ${ambientPlaying ? "rgba(255,201,157,0.5)" : "rgba(255,255,255,0.14)"}`, background: ambientPlaying ? "rgba(255,201,157,0.06)" : "rgba(255,255,255,0.03)", display: "flex", alignItems: "center", gap: 10, padding: "0 14px", fontSize: 12, letterSpacing: "0.08em", color: ambientPlaying ? "#FFC99D" : "rgba(255,255,255,0.6)", cursor: "pointer" }}>
                 <img src="/icons/ear.svg" alt="" style={{ width: 14, flexShrink: 0, opacity: ambientPlaying ? 1 : 0.6 }} />
                 Environment Sound
                 {ambientPlaying && <div style={{ marginLeft: "auto", width: 6, height: 6, borderRadius: "50%", background: "#FFC99D", animation: "pulse-dot 1s infinite" }} />}
               </button>
-              <button type="button" onClick={toggleHeartbeat} className="sound-btn" style={{ width: "100%", height: 44, borderRadius: 6, border: `1px solid ${heartbeatPlaying ? "rgba(255,193,187,0.5)" : "rgba(255,255,255,0.14)"}`, background: heartbeatPlaying ? "rgba(255,193,187,0.06)" : "rgba(255,255,255,0.03)", display: "flex", alignItems: "center", gap: 10, padding: "0 14px", fontSize: 12, letterSpacing: "0.08em", color: heartbeatPlaying ? "#FFC1BB" : "rgba(255,255,255,0.6)", cursor: "pointer" }}>
+              <button type="button" onClick={toggleHeartbeat} className="sound-btn" style={{ width: "100%", height: 44, borderRadius: 3, border: `1px solid ${heartbeatPlaying ? "rgba(255,193,187,0.5)" : "rgba(255,255,255,0.14)"}`, background: heartbeatPlaying ? "rgba(255,193,187,0.06)" : "rgba(255,255,255,0.03)", display: "flex", alignItems: "center", gap: 10, padding: "0 14px", fontSize: 12, letterSpacing: "0.08em", color: heartbeatPlaying ? "#FFC1BB" : "rgba(255,255,255,0.6)", cursor: "pointer" }}>
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
                   <path d="M8 14s-6-4.5-6-8a4 4 0 0 1 6-3.46A4 4 0 0 1 14 6c0 3.5-6 8-6 8z" stroke={heartbeatPlaying ? "#FFC1BB" : "rgba(255,255,255,0.4)"} strokeWidth="1.2" fill="none"/>
                 </svg>
@@ -621,7 +621,7 @@ export default function BankReplayPage() {
 
           {/* Back to the bank listing */}
           <div style={{ padding: "14px 16px", borderTop: "1px solid rgba(255,255,255,0.07)", flexShrink: 0 }}>
-            <button type="button" onClick={() => navigate("/bank")} style={{ width: "100%", background: '#FFC99D', color: '#0a0807', border: 'none', borderRadius: 12, padding: '12px 24px', fontFamily: 'Assistant, sans-serif', cursor: 'pointer', opacity: 0.9, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase", fontWeight: 600 }}>
+            <button type="button" onClick={() => navigate("/bank")} style={{ width: "100%", background: '#FFC99D', color: '#0a0807', border: 'none', borderRadius: 3, padding: '12px 24px', fontFamily: 'Assistant, sans-serif', cursor: 'pointer', opacity: 0.9, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase", fontWeight: 600 }}>
               ← Back to Bank
             </button>
           </div>

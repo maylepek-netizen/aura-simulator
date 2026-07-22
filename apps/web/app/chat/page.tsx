@@ -190,7 +190,7 @@ export default function ChatPage() {
           display: flex; flex-direction: row;
           justify-content: center; align-items: center;
           gap: 8px;
-          border-radius: 7px;
+          border-radius: 3px;
           background: transparent;
           font-size: 18px; letter-spacing: 0.04em;
           font-weight: 400;
@@ -236,7 +236,7 @@ export default function ChatPage() {
           display: flex; align-items: center; gap: 8px;
           background: transparent;
           border: 1px solid rgba(255,201,157,0.35);
-          border-radius: 8px;
+          border-radius: 3px;
           padding: 8px 16px;
           color: rgba(255,201,157,0.85);
           font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase;
@@ -369,7 +369,7 @@ export default function ChatPage() {
                 style={{
                   background: processing ? "rgba(255,201,157,0.5)" : "#FFC99D",
                   color: "#1a0f00",
-                  border: "none", borderRadius: 12,
+                  border: "none", borderRadius: 3,
                   padding: "11px 28px",
                   fontSize: 18, fontWeight: 600, letterSpacing: "0.04em",
                   cursor: processing || !input.trim() ? "not-allowed" : "pointer",

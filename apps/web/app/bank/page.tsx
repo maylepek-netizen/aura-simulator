@@ -355,7 +355,7 @@ export default function BankPage() {
           <span style={{ fontSize: 9, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)", marginRight: 1 }}>Gender</span>
           {["All", "Male", "Female", "Non-binary"].map(g => (
             <button key={g} type="button" className="filter-btn" onClick={() => setGenderFilter(g)} style={{
-              height: 22, padding: "0 8px", borderRadius: 4,
+              height: 22, padding: "0 8px", borderRadius: 3,
               border: `1px solid ${genderFilter === g ? "rgba(255,201,157,0.5)" : "rgba(255,255,255,0.12)"}`,
               background: genderFilter === g ? "rgba(255,201,157,0.08)" : "transparent",
               fontSize: 8.5, letterSpacing: "0.1em", textTransform: "uppercase",
@@ -396,7 +396,7 @@ export default function BankPage() {
           <span style={{ fontSize: 9, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)", marginRight: 1, whiteSpace: "nowrap" }}>Anxiety Level</span>
           {LOAD_BANDS.map(b => (
             <button key={b} type="button" className="filter-btn" onClick={() => setLoadFilter(b)} style={{
-              height: 22, padding: "0 8px", borderRadius: 4,
+              height: 22, padding: "0 8px", borderRadius: 3,
               border: `1px solid ${loadFilter === b ? "rgba(255,201,157,0.5)" : "rgba(255,255,255,0.12)"}`,
               background: loadFilter === b ? "rgba(255,201,157,0.08)" : "transparent",
               fontSize: 8.5, letterSpacing: "0.1em", textTransform: "uppercase",
@@ -408,7 +408,7 @@ export default function BankPage() {
 
         {/* New Simulation — far right */}
         <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
-          <button type="button" className="filter-btn" onClick={() => navigate("/chat")} style={{ height: 28, padding: "0 13px", borderRadius: 5, border: "1px solid rgba(255,255,255,0.15)", background: "transparent", fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.55)", cursor: "pointer", whiteSpace: "nowrap" }}>
+          <button type="button" className="filter-btn" onClick={() => navigate("/chat")} style={{ height: 28, padding: "0 13px", borderRadius: 3, border: "1px solid rgba(255,255,255,0.15)", background: "transparent", fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.55)", cursor: "pointer", whiteSpace: "nowrap" }}>
             New Simulation
           </button>
         </div>
@@ -458,7 +458,7 @@ export default function BankPage() {
         <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 20, zIndex: 10 }}>
           <img src="/icons/bank.svg" alt="" style={{ width: 40, opacity: 0.25 }} />
           <p style={{ fontSize: 11, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.3)" }}>No simulations saved yet</p>
-          <button type="button" onClick={() => navigate("/chat")} style={{ height: 36, padding: "0 24px", borderRadius: 6, border: "1px solid rgba(255,255,255,0.2)", background: "transparent", fontSize: 10, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.5)", cursor: "pointer" }}>
+          <button type="button" onClick={() => navigate("/chat")} style={{ height: 36, padding: "0 24px", borderRadius: 3, border: "1px solid rgba(255,255,255,0.2)", background: "transparent", fontSize: 10, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.5)", cursor: "pointer" }}>
             Start a simulation
           </button>
         </div>
@@ -503,7 +503,7 @@ export default function BankPage() {
             background: "transparent",
             border: "1px solid #FFC99D",
             color: "#FFC99D",
-            padding: "9px 20px", borderRadius: 12, fontSize: 13, cursor: "pointer",
+            padding: "9px 20px", borderRadius: 3, fontSize: 13, cursor: "pointer",
             fontFamily: "var(--font-body)", letterSpacing: "0.04em",
             transition: "box-shadow 0.2s ease",
           }}
@@ -521,7 +521,7 @@ export default function BankPage() {
             border: "1px solid #FFC99D",
             color: "#1a0f00",
             fontWeight: 600,
-            padding: "9px 20px", borderRadius: 12, fontSize: 13, cursor: "pointer",
+            padding: "9px 20px", borderRadius: 3, fontSize: 13, cursor: "pointer",
             fontFamily: "var(--font-body)", letterSpacing: "0.04em",
             transition: "box-shadow 0.2s ease",
           }}

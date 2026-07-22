@@ -322,7 +322,7 @@ export default function ResearchPage() {
           display: inline-flex; align-items: center; gap: 8px;
           padding: 12px 22px;
           border: 1px solid rgba(255,201,157,0.5);
-          border-radius: 50px;
+          border-radius: 3px;
           background: transparent;
           font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
           color: #FFC99D; cursor: pointer;
@@ -545,7 +545,7 @@ export default function ResearchPage() {
         .r-suggested-btn {
           background: rgba(255,255,255,0.04);
           border: 1px solid rgba(255,255,255,0.09);
-          border-radius: 8px; padding: 9px 12px;
+          border-radius: 3px; padding: 9px 12px;
           font-size: 12px; color: rgba(255,255,255,0.55);
           cursor: pointer; text-align: left;
           transition: background 0.2s, color 0.2s, border-color 0.2s;
@@ -708,7 +708,7 @@ export default function ResearchPage() {
               color: '#0a0807',
               fontWeight: 600,
               padding: '8px 20px',
-              borderRadius: 12,
+              borderRadius: 3,
               fontSize: 13,
               cursor: 'pointer',
               fontFamily: 'Assistant, sans-serif',

@@ -159,7 +159,7 @@ export default function QuestionPage() {
                   background: "#FFC99D",
                   color: "#1c0e00",
                   border: "none",
-                  borderRadius: 12,
+                  borderRadius: 3,
                   padding: "16px 64px",
                   fontSize: 15, letterSpacing: "0.08em",
                   fontWeight: 600,

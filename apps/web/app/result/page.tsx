@@ -733,7 +733,7 @@ function ReflectionScreen({ onBank, onNew }: { onBank: () => void; onNew: () => 
                 background: "#FFC99D",
                 color: "#1a0f00",
                 border: "none",
-                borderRadius: 12,
+                borderRadius: 3,
                 padding: "16px 52px",
                 fontSize: 14,
                 letterSpacing: "0.06em",
@@ -755,7 +755,7 @@ function ReflectionScreen({ onBank, onNew }: { onBank: () => void; onNew: () => 
                 background: "transparent",
                 color: "white",
                 border: "1.5px solid rgba(255,255,255,0.5)",
-                borderRadius: 50,
+                borderRadius: 3,
                 padding: "16px 52px",
                 fontSize: 14,
                 letterSpacing: "0.06em",
@@ -1588,15 +1588,15 @@ export default function ResultPage() {
 
           {/* Sound toggles */}
           <div style={{ display: "flex", gap: 8, marginBottom: 24, flexWrap: "wrap" }}>
-            <button type="button" onClick={toggleNarration} className="sound-btn" style={{ flex: "1 1 44%", height: 40, borderRadius: 6, border: `1px solid ${audioPlaying ? "rgba(188,194,255,0.5)" : "rgba(255,255,255,0.14)"}`, background: audioPlaying ? "rgba(188,194,255,0.08)" : "rgba(255,255,255,0.03)", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 12, color: audioPlaying ? "#BCC2FF" : "rgba(255,255,255,0.6)", cursor: "pointer", fontFamily: "var(--font-body)" }}>
+            <button type="button" onClick={toggleNarration} className="sound-btn" style={{ flex: "1 1 44%", height: 40, borderRadius: 3, border: `1px solid ${audioPlaying ? "rgba(188,194,255,0.5)" : "rgba(255,255,255,0.14)"}`, background: audioPlaying ? "rgba(188,194,255,0.08)" : "rgba(255,255,255,0.03)", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 12, color: audioPlaying ? "#BCC2FF" : "rgba(255,255,255,0.6)", cursor: "pointer", fontFamily: "var(--font-body)" }}>
               Inner Thoughts
               {audioPlaying && <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#BCC2FF", animation: "pulse-dot 1s infinite" }} />}
             </button>
-            <button type="button" onClick={toggleAmbient} className="sound-btn" style={{ flex: "1 1 44%", height: 40, borderRadius: 6, border: `1px solid ${ambientPlaying ? "rgba(255,201,157,0.5)" : "rgba(255,255,255,0.14)"}`, background: ambientPlaying ? "rgba(255,201,157,0.06)" : "rgba(255,255,255,0.03)", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 12, color: ambientPlaying ? "#FFC99D" : "rgba(255,255,255,0.6)", cursor: "pointer", fontFamily: "var(--font-body)" }}>
+            <button type="button" onClick={toggleAmbient} className="sound-btn" style={{ flex: "1 1 44%", height: 40, borderRadius: 3, border: `1px solid ${ambientPlaying ? "rgba(255,201,157,0.5)" : "rgba(255,255,255,0.14)"}`, background: ambientPlaying ? "rgba(255,201,157,0.06)" : "rgba(255,255,255,0.03)", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 12, color: ambientPlaying ? "#FFC99D" : "rgba(255,255,255,0.6)", cursor: "pointer", fontFamily: "var(--font-body)" }}>
               Environment
               {ambientPlaying && <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#FFC99D", animation: "pulse-dot 1s infinite" }} />}
             </button>
-            <button type="button" onClick={toggleHeartbeat} className="sound-btn" style={{ flex: "1 1 44%", height: 40, borderRadius: 6, border: `1px solid ${heartbeatPlaying ? "rgba(255,193,187,0.5)" : "rgba(255,255,255,0.14)"}`, background: heartbeatPlaying ? "rgba(255,193,187,0.06)" : "rgba(255,255,255,0.03)", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 12, color: heartbeatPlaying ? "#FFC1BB" : "rgba(255,255,255,0.6)", cursor: "pointer", fontFamily: "var(--font-body)" }}>
+            <button type="button" onClick={toggleHeartbeat} className="sound-btn" style={{ flex: "1 1 44%", height: 40, borderRadius: 3, border: `1px solid ${heartbeatPlaying ? "rgba(255,193,187,0.5)" : "rgba(255,255,255,0.14)"}`, background: heartbeatPlaying ? "rgba(255,193,187,0.06)" : "rgba(255,255,255,0.03)", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 12, color: heartbeatPlaying ? "#FFC1BB" : "rgba(255,255,255,0.6)", cursor: "pointer", fontFamily: "var(--font-body)" }}>
               Heartbeat
               {heartbeatPlaying && <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#FFC1BB", animation: "pulse-dot 0.7s infinite" }} />}
             </button>
@@ -1651,7 +1651,7 @@ export default function ResultPage() {
                 </MobileResultSection>
               )}
 
-              <button type="button" onClick={handleEndSimulation} style={{ marginTop: 12, width: "100%", height: 50, borderRadius: 8, border: "none", background: "#FFC99D", opacity: 0.9, fontSize: 13, letterSpacing: "0.16em", textTransform: "uppercase", color: "#0a0807", fontWeight: 600, cursor: "pointer", fontFamily: "var(--font-body)" }}>
+              <button type="button" onClick={handleEndSimulation} style={{ marginTop: 12, width: "100%", height: 50, borderRadius: 3, border: "none", background: "#FFC99D", opacity: 0.9, fontSize: 13, letterSpacing: "0.16em", textTransform: "uppercase", color: "#0a0807", fontWeight: 600, cursor: "pointer", fontFamily: "var(--font-body)" }}>
                 End Simulation
               </button>
             </>
@@ -1660,7 +1660,7 @@ export default function ResultPage() {
           {error && !loading && (
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14, padding: "24px 0" }}>
               <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", textAlign: "center" }}>{error}</p>
-              <button type="button" onClick={() => void runSimulation()} style={{ fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", border: "1px solid rgba(255,255,255,0.2)", borderRadius: 4, padding: "8px 16px", color: "rgba(255,255,255,0.6)", background: "transparent", cursor: "pointer" }}>Retry</button>
+              <button type="button" onClick={() => void runSimulation()} style={{ fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", border: "1px solid rgba(255,255,255,0.2)", borderRadius: 3, padding: "8px 16px", color: "rgba(255,255,255,0.6)", background: "transparent", cursor: "pointer" }}>Retry</button>
             </div>
           )}
         </div>
@@ -1746,7 +1746,7 @@ export default function ResultPage() {
           <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16, zIndex: 3 }}>
             <div style={{ fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.6)" }}>Error</div>
             <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", textAlign: "center", padding: "0 32px" }}>{error}</p>
-            <button type="button" onClick={() => void runSimulation()} style={{ fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", border: "1px solid rgba(255,255,255,0.2)", borderRadius: 4, padding: "8px 16px", color: "rgba(255,255,255,0.6)", background: "transparent", cursor: "pointer" }}>Retry</button>
+            <button type="button" onClick={() => void runSimulation()} style={{ fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", border: "1px solid rgba(255,255,255,0.2)", borderRadius: 3, padding: "8px 16px", color: "rgba(255,255,255,0.6)", background: "transparent", cursor: "pointer" }}>Retry</button>
           </div>
         )}
         {/* Screen vignette */}
@@ -1758,10 +1758,10 @@ export default function ResultPage() {
 
         {/* Nav buttons */}
         <div style={{ padding: "14px 16px 12px", display: "flex", gap: 8, flexShrink: 0 }}>
-          <button type="button" className="nav-btn" onClick={() => navigate("/")} style={{ flex: 1, height: 32, borderRadius: 6, border: "1px solid rgba(255,255,255,0.18)", background: "rgba(255,255,255,0.05)", fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.7)", cursor: "pointer" }}>
+          <button type="button" className="nav-btn" onClick={() => navigate("/")} style={{ flex: 1, height: 32, borderRadius: 3, border: "1px solid rgba(255,255,255,0.18)", background: "rgba(255,255,255,0.05)", fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.7)", cursor: "pointer" }}>
             Home
           </button>
-          <button type="button" className="nav-btn" onClick={() => navigate("/chat")} style={{ flex: 1, height: 32, borderRadius: 6, border: "1px solid rgba(255,255,255,0.18)", background: "rgba(255,255,255,0.05)", fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.7)", cursor: "pointer" }}>
+          <button type="button" className="nav-btn" onClick={() => navigate("/chat")} style={{ flex: 1, height: 32, borderRadius: 3, border: "1px solid rgba(255,255,255,0.18)", background: "rgba(255,255,255,0.05)", fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.7)", cursor: "pointer" }}>
             New Simulation
           </button>
         </div>
@@ -1831,7 +1831,7 @@ export default function ResultPage() {
           <WaveformBars active={ambientPlaying || heartbeatPlaying} />
           {/* save button */}
           {result && videoUri && (
-            <button type="button" onClick={handleSave} style={{ marginTop: 10, width: "100%", height: 30, borderRadius: 5, border: "1px solid rgba(255,255,255,0.12)", background: saved ? "rgba(134,239,172,0.1)" : "transparent", fontSize: 9, letterSpacing: "0.12em", textTransform: "uppercase", color: saved ? "rgba(134,239,172,0.8)" : "rgba(255,255,255,0.4)", cursor: saved ? "default" : "pointer" }}>
+            <button type="button" onClick={handleSave} style={{ marginTop: 10, width: "100%", height: 30, borderRadius: 3, border: "1px solid rgba(255,255,255,0.12)", background: saved ? "rgba(134,239,172,0.1)" : "transparent", fontSize: 9, letterSpacing: "0.12em", textTransform: "uppercase", color: saved ? "rgba(134,239,172,0.8)" : "rgba(255,255,255,0.4)", cursor: saved ? "default" : "pointer" }}>
               {saved ? "Saved ✓" : "Save Simulation"}
             </button>
           )}
@@ -1844,7 +1844,7 @@ export default function ResultPage() {
         <div className="result-scroll" style={{ flex: 1, overflowY: "auto", padding: "16px 16px 0" }}>
 
           {/* Simulation Bank button */}
-          <button type="button" onClick={() => navigate("/bank")} style={{ width: "100%", height: 36, borderRadius: 6, border: "1px solid rgba(255,255,255,0.2)", background: "rgba(255,255,255,0.04)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontSize: 12, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.7)", cursor: "pointer", marginBottom: 20 }} className="sound-btn">
+          <button type="button" onClick={() => navigate("/bank")} style={{ width: "100%", height: 36, borderRadius: 3, border: "1px solid rgba(255,255,255,0.2)", background: "rgba(255,255,255,0.04)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontSize: 12, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.7)", cursor: "pointer", marginBottom: 20 }} className="sound-btn">
             <img src="/icons/bank.svg" alt="" style={{ width: 16, opacity: 0.6 }} />
             Simulation Bank
           </button>
@@ -1852,14 +1852,14 @@ export default function ResultPage() {
           {/* Sound controls */}
           <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 20 }}>
             <Tooltip text="Hear the narrator's inner thoughts">
-              <button type="button" onClick={toggleNarration} style={{ width: "100%", height: 44, borderRadius: 6, border: `1px solid ${audioPlaying ? "rgba(188,194,255,0.5)" : "rgba(255,255,255,0.14)"}`, background: audioPlaying ? "rgba(188,194,255,0.08)" : "rgba(255,255,255,0.03)", display: "flex", alignItems: "center", gap: 10, padding: "0 14px", fontSize: 12, letterSpacing: "0.08em", color: audioPlaying ? "#BCC2FF" : "rgba(255,255,255,0.6)", cursor: "pointer" }} className="sound-btn">
+              <button type="button" onClick={toggleNarration} style={{ width: "100%", height: 44, borderRadius: 3, border: `1px solid ${audioPlaying ? "rgba(188,194,255,0.5)" : "rgba(255,255,255,0.14)"}`, background: audioPlaying ? "rgba(188,194,255,0.08)" : "rgba(255,255,255,0.03)", display: "flex", alignItems: "center", gap: 10, padding: "0 14px", fontSize: 12, letterSpacing: "0.08em", color: audioPlaying ? "#BCC2FF" : "rgba(255,255,255,0.6)", cursor: "pointer" }} className="sound-btn">
                 <img src="/icons/brain.svg" alt="" style={{ width: 16, flexShrink: 0 }} />
                 Inner thoughts Sound
                 {audioPlaying && <div style={{ marginLeft: "auto", width: 6, height: 6, borderRadius: "50%", background: "#BCC2FF", animation: "pulse-dot 1s infinite" }} />}
               </button>
             </Tooltip>
             <Tooltip text="Environmental sounds from the scene">
-              <button type="button" onClick={toggleAmbient} style={{ width: "100%", height: 44, borderRadius: 6, border: `1px solid ${ambientPlaying ? "rgba(255,201,157,0.5)" : "rgba(255,255,255,0.14)"}`, background: ambientPlaying ? "rgba(255,201,157,0.06)" : "rgba(255,255,255,0.03)", display: "flex", alignItems: "center", gap: 10, padding: "0 14px", fontSize: 12, letterSpacing: "0.08em", color: ambientPlaying ? "#FFC99D" : "rgba(255,255,255,0.6)", cursor: "pointer" }} className="sound-btn">
+              <button type="button" onClick={toggleAmbient} style={{ width: "100%", height: 44, borderRadius: 3, border: `1px solid ${ambientPlaying ? "rgba(255,201,157,0.5)" : "rgba(255,255,255,0.14)"}`, background: ambientPlaying ? "rgba(255,201,157,0.06)" : "rgba(255,255,255,0.03)", display: "flex", alignItems: "center", gap: 10, padding: "0 14px", fontSize: 12, letterSpacing: "0.08em", color: ambientPlaying ? "#FFC99D" : "rgba(255,255,255,0.6)", cursor: "pointer" }} className="sound-btn">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ flexShrink: 0, opacity: ambientPlaying ? 1 : 0.6 }}>
                   <path d="M3 18v-6a9 9 0 0 1 18 0v6"/>
                   <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 1 2 2h1a2 2 0 0 1 2-2v-3a2 2 0 0 1-2-2H3z"/>
@@ -1869,7 +1869,7 @@ export default function ResultPage() {
               </button>
             </Tooltip>
             <Tooltip text="Simulated heartbeat matching sensory load">
-              <button type="button" onClick={toggleHeartbeat} style={{ width: "100%", height: 44, borderRadius: 6, border: `1px solid ${heartbeatPlaying ? "rgba(255,193,187,0.5)" : "rgba(255,255,255,0.14)"}`, background: heartbeatPlaying ? "rgba(255,193,187,0.06)" : "rgba(255,255,255,0.03)", display: "flex", alignItems: "center", gap: 10, padding: "0 14px", fontSize: 12, letterSpacing: "0.08em", color: heartbeatPlaying ? "#FFC1BB" : "rgba(255,255,255,0.6)", cursor: "pointer" }} className="sound-btn">
+              <button type="button" onClick={toggleHeartbeat} style={{ width: "100%", height: 44, borderRadius: 3, border: `1px solid ${heartbeatPlaying ? "rgba(255,193,187,0.5)" : "rgba(255,255,255,0.14)"}`, background: heartbeatPlaying ? "rgba(255,193,187,0.06)" : "rgba(255,255,255,0.03)", display: "flex", alignItems: "center", gap: 10, padding: "0 14px", fontSize: 12, letterSpacing: "0.08em", color: heartbeatPlaying ? "#FFC1BB" : "rgba(255,255,255,0.6)", cursor: "pointer" }} className="sound-btn">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
                   <path d="M8 14s-6-4.5-6-8a4 4 0 0 1 6-3.46A4 4 0 0 1 14 6c0 3.5-6 8-6 8z" stroke={heartbeatPlaying ? "#FFC1BB" : "rgba(255,255,255,0.4)"} strokeWidth="1.2" fill="none"/>
                 </svg>
@@ -1936,7 +1936,7 @@ export default function ResultPage() {
           <button type="button" onClick={handleEndSimulation}
             onMouseEnter={(e) => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.boxShadow = "0 0 20px rgba(255,201,157,0.6)"; }}
             onMouseLeave={(e) => { e.currentTarget.style.opacity = "0.9"; e.currentTarget.style.boxShadow = "none"; }}
-            style={{ width: "100%", height: 44, borderRadius: 6, border: "none", background: "#FFC99D", opacity: 0.9, fontSize: 12, letterSpacing: "0.18em", textTransform: "uppercase", color: "#0a0807", fontWeight: 600, cursor: "pointer", transition: "opacity 0.2s ease, box-shadow 0.2s ease" }}>
+            style={{ width: "100%", height: 44, borderRadius: 3, border: "none", background: "#FFC99D", opacity: 0.9, fontSize: 12, letterSpacing: "0.18em", textTransform: "uppercase", color: "#0a0807", fontWeight: 600, cursor: "pointer", transition: "opacity 0.2s ease, box-shadow 0.2s ease" }}>
             End Simulation
           </button>
         </div>
