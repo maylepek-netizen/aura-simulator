@@ -128,7 +128,7 @@ export default function QuestionPage() {
             display: "flex", flexDirection: "column",
             alignItems: "center", justifyContent: "center",
             gap: 56, zIndex: 5,
-            padding: "0 30px",
+            padding: "0 var(--gutter)",
           }}>
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
               <h1 style={{
