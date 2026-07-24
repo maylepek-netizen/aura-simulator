@@ -86,24 +86,6 @@ export default function OnboardingPage() {
         }
         .onboard-input::placeholder { color: rgba(255,255,255,0.6); }
         .onboard-input:focus { border-bottom-color: rgba(255,201,157,0.5); }
-
-        .onboard-select {
-          background: transparent;
-          border: none;
-          border-bottom: 1px solid rgba(255,255,255,0.2);
-          color: white;
-          font-size: 18px;
-          letter-spacing: 0.01em;
-          padding: 0 0 12px;
-          width: 100%;
-          outline: none;
-          appearance: none;
-          cursor: pointer;
-          font-family: inherit;
-          font-weight: 400;
-        }
-        .onboard-select:focus { border-bottom-color: rgba(255,201,157,0.5); }
-        .onboard-select option { background: #000000; color: white; }
       `}</style>
 
       <div style={{ position: "fixed", inset: 0, overflow: "hidden", background: "#1a1410" }}>
@@ -236,6 +218,10 @@ export default function OnboardingPage() {
                     outline: 'none',
                     fontSize: 'inherit',
                     fontFamily: 'inherit',
+                    // Hide the native dropdown arrow so the closed field looks
+                    // identical to the name/age text inputs.
+                    appearance: 'none',
+                    WebkitAppearance: 'none',
                   }}
                 >
                   {GENDER_OPTIONS.map((opt) => (
