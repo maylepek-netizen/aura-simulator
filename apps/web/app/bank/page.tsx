@@ -263,18 +263,12 @@ export default function BankPage() {
   }
 
   const filteredRecords = records.filter(r => {
-    // Show ONLY simulations backed by a permanent, always-available URL. Anything
-    // else is hidden so no empty grey square ever appears in the bank:
-    //   - empty / null                       → nothing to show
-    //   - generativelanguage.googleapis.com  → raw Veo URI, expires
-    //   - /api/video-proxy…                  → proxies a Veo URI, also expires
-    // A permanent URL is a Cloudinary or Supabase Storage link.
+    // Show every simulation that has a videoUri, regardless of URL type. Expiring
+    // Veo/proxy URLs are no longer hidden — such a video will simply play or show
+    // as unavailable. A record with no videoUri has nothing to render, so it is
+    // still skipped.
     const uri = typeof r.videoUri === "string" ? r.videoUri.trim() : "";
     if (!uri) return false;
-    if (uri.includes("generativelanguage.googleapis.com")) return false;
-    if (uri.startsWith("/api/video-proxy")) return false;
-    const isPermanent = uri.includes("res.cloudinary.com") || uri.includes(".supabase.co");
-    if (!isPermanent) return false;
     if (genderFilter !== "All" && r.gender !== genderFilter) return false;
     if (!matchesAgeBand(r.age, ageFilter)) return false;
     const load = (r.result as { overall_load?: number })?.overall_load ?? 0;
