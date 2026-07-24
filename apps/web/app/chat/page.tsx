@@ -274,7 +274,7 @@ export default function ChatPage() {
 
         {/* ── BOTTOM RIGHT SERIAL ── */}
         <div style={{
-          position: "fixed", bottom: 20, right: 28,
+          position: "fixed", bottom: 20, right: "var(--gutter)",
           fontSize: 12, letterSpacing: "0.16em",
           color: "rgba(255,255,255,0.3)", zIndex: 10,
         }}>

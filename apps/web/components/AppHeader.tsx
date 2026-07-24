@@ -10,14 +10,20 @@ interface AppHeaderProps {
 export default function AppHeader({ step, showBank = false, onBankClick, position = "fixed" }: AppHeaderProps) {
   return (
     <div style={{
-      position, top: 0, left: 80, right: 0, height: 60,
+      // Spans the full width and takes its side inset from the shared --gutter,
+      // so the header's edge items (step label, Simulation | Exit) line up with
+      // the same margin as every page's content. Changing --gutter moves these
+      // in/out together with everything else.
+      position, top: 0, left: 0, right: 0, height: 60,
       display: "flex", alignItems: "center", justifyContent: "space-between",
-      padding: "0 40px", zIndex: 10,
+      padding: "0 var(--gutter)", zIndex: 10,
       lineHeight: 1,
     }}>
-      {/* LEFT: step label */}
+      {/* LEFT: step label — offset past the sidebar logo (which sits at the same
+          gutter inset) so the two don't overlap. */}
       <div style={{
         display: "flex", alignItems: "center",
+        marginLeft: 44,
         fontSize: 12, letterSpacing: "0.2em", textTransform: "uppercase",
         color: "rgba(255,255,255,0.9)", fontWeight: 500,
         lineHeight: 1,
