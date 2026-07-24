@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "../TransitionProvider";
 import { loadSimulations, deleteSimulationsByIds } from "@/lib/simulationStorage";
 import type { SimulationRecord } from "@/lib/simulationStorage";
-import { getBankSimulationsFromSupabase, type SupabaseSimulationRow } from "@/lib/supabase";
 
 // ─── Filter bands ─────────────────────────────────────────────────────────────
 
@@ -35,24 +34,6 @@ function matchesLoadBand(load: number, band: LoadBand): boolean {
   if (band === "Medium") return load > 30 && load <= 60;
   if (band === "High") return load > 60 && load <= 85;
   return load > 85; // Shutdown
-}
-
-// Convert a raw Supabase row into the bank's SimulationRecord shape. The table
-// has no name/age/gender columns (those live only in localStorage records), so
-// we supply neutral defaults that pass the "All" filters and read sensibly on
-// the card. `result.overall_load` is derived from the row's sensory_load, which
-// is what the load filter and the card's load bar read.
-function supabaseRowToRecord(s: SupabaseSimulationRow): SimulationRecord {
-  return {
-    id: `sb-${s.id}`, // prefix avoids colliding with localStorage numeric ids
-    situation: s.situation ?? "",
-    name: "—",
-    age: 0,
-    gender: "All",
-    result: { overall_load: s.sensory_load ?? 0 },
-    videoUri: s.video_url ?? "",
-    createdAt: s.created_at ?? new Date(0).toISOString(),
-  };
 }
 
 // Random but stable positions across a 3000×2000 virtual canvas
@@ -187,47 +168,10 @@ export default function BankPage() {
   const lastTouch = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
-    let cancelled = false;
-
-    // Load localStorage first so the bank paints immediately, then merge in
-    // Supabase records (network) when they arrive.
-    const local = loadSimulations().slice().reverse();
-
-    const applyMerged = (merged: SimulationRecord[]) => {
-      if (cancelled) return;
-      setRecords(merged);
-      setPositions(getCardPositions(merged.length));
-      setLoading(false);
-    };
-
-    applyMerged(local);
-
-    (async () => {
-      const rows = await getBankSimulationsFromSupabase(50);
-      // Debug: logged BEFORE the early-return below, so we always see the result
-      // even when 0 rows come back (or the fetch failed / Supabase unconfigured).
-      console.log("BANK: Supabase fetch result:", rows?.length, "rows");
-      console.log("BANK: First few URLs:", rows?.slice(0, 3).map((s) => s.video_url));
-      if (cancelled || rows.length === 0) return;
-      const supabaseRecords = rows.map(supabaseRowToRecord);
-
-      // Merge, de-duplicated by situation text (trimmed, lower-cased). Local
-      // records win on a tie, so a locally-saved simulation isn't replaced by
-      // its Supabase copy.
-      const seen = new Set(
-        local.map((r) => (r.situation ?? "").trim().toLowerCase()).filter(Boolean)
-      );
-      const uniqueSupabase = supabaseRecords.filter((r) => {
-        const key = (r.situation ?? "").trim().toLowerCase();
-        if (!key || seen.has(key)) return false;
-        seen.add(key);
-        return true;
-      });
-
-      applyMerged([...local, ...uniqueSupabase]);
-    })();
-
-    return () => { cancelled = true; };
+    const all = loadSimulations().slice().reverse();
+    setRecords(all);
+    setPositions(getCardPositions(all.length));
+    setLoading(false);
   }, []);
 
   // Once the user starts dragging, fade the hint out after 3s.
