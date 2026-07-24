@@ -1,16 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
+import crypto from "crypto";
 
-// NOTE: the route path is still /api/upload-to-cloudinary so result/page.tsx
-// doesn't need changing, but storage is now Supabase Storage, not Cloudinary.
+// Uploads the freshly-generated Veo video to Cloudinary (unsigned preset) for
+// permanent hosting, solving the expiring-Veo-link problem. The Supabase table
+// still stores the resulting permanent URL and drives retention cleanup.
 
 const API_KEY = process.env.GEMINI_API_KEY!;
-const BUCKET = "simulations";
+
+// Cloudinary account + unsigned upload preset.
+const CLOUD_NAME = "duhsqezo3";
+const UPLOAD_PRESET = "aura_simulations";
 
 // ─── Retention cleanup ───────────────────────────────────────────────────────
 // Keep only the N most recent simulations. Row `id` is the source of truth for
-// recency (see cleanupOldSimulations); anything older is removed from Storage
-// and from the table.
+// recency; anything older is removed from Cloudinary and from the table.
 //
 // DRY RUN: while CLEANUP_DRY_RUN is true nothing is deleted — the route only
 // logs what it *would* remove. Set CLEANUP_DRY_RUN=false to enable deletion.
@@ -18,29 +22,69 @@ const KEEP_MOST_RECENT = 20;
 const CLEANUP_DRY_RUN = process.env.CLEANUP_DRY_RUN !== "false";
 
 // Created lazily so a missing env var returns a clean 500 instead of crashing
-// the route at import time.
+// the route at import time. Used only for the DB row bookkeeping/cleanup — the
+// upload itself is unsigned and needs no Supabase.
 function serverSupabase(): SupabaseClient | null {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  // Service-role key is required to write to Storage and to delete rows under RLS.
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!url || !key) return null;
   return createClient(url, key);
 }
 
-// Turn a Supabase Storage public URL into the object path inside the bucket.
-//   https://<ref>.supabase.co/storage/v1/object/public/simulations/foo.mp4
-//     -> foo.mp4
-export function extractStoragePath(url: string): string | null {
+// Turn a Cloudinary delivery URL into the public_id needed by the Admin API.
+//   https://res.cloudinary.com/<cloud>/video/upload/v123/folder/name.mp4
+//     -> folder/name
+// Strips the version segment (v123…) and the file extension, and decodes any
+// percent-encoding (e.g. Hebrew filenames).
+export function extractPublicId(url: string): string | null {
   try {
     const u = new URL(url);
-    const marker = `/storage/v1/object/public/${BUCKET}/`;
-    const idx = u.pathname.indexOf(marker);
-    if (idx === -1) return null;
-    const path = u.pathname.slice(idx + marker.length);
-    return path ? decodeURIComponent(path) : null;
+    if (u.hostname !== "res.cloudinary.com") return null;
+    const parts = u.pathname.split("/").filter(Boolean);
+    // .../<resource_type>/upload/<maybe v123>/<...public_id parts>.<ext>
+    const uploadIdx = parts.indexOf("upload");
+    if (uploadIdx === -1) return null;
+    let rest = parts.slice(uploadIdx + 1);
+    // drop the version segment if present (e.g. "v1784387420")
+    if (rest[0] && /^v\d+$/.test(rest[0])) rest = rest.slice(1);
+    if (!rest.length) return null;
+    const joined = rest.join("/");
+    const noExt = joined.replace(/\.[^/.]+$/, "");
+    return noExt ? decodeURIComponent(noExt) : null;
   } catch {
     return null;
   }
+}
+
+// Delete one video asset from Cloudinary via the Admin API (signed with
+// api_key + api_secret). The unsigned upload preset can only upload, so deletion
+// needs the signed destroy endpoint.
+async function cloudinaryDestroy(publicId: string): Promise<boolean> {
+  const apiKey = process.env.CLOUDINARY_API_KEY;
+  const apiSecret = process.env.CLOUDINARY_API_SECRET;
+  if (!apiKey || !apiSecret) {
+    console.error("CLEANUP: Cloudinary API key/secret missing — cannot delete assets.");
+    return false;
+  }
+  const timestamp = Math.floor(Date.now() / 1000);
+  // Signature = sha1 of the sorted params + api_secret.
+  const toSign = `public_id=${publicId}&timestamp=${timestamp}${apiSecret}`;
+  const signature = crypto.createHash("sha1").update(toSign).digest("hex");
+
+  const form = new FormData();
+  form.append("public_id", publicId);
+  form.append("timestamp", String(timestamp));
+  form.append("api_key", apiKey);
+  form.append("signature", signature);
+
+  const res = await fetch(
+    `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/video/destroy`,
+    { method: "POST", body: form }
+  );
+  const json = await res.json().catch(() => ({}));
+  if (json?.result === "ok" || json?.result === "not found") return true;
+  console.error("CLEANUP: Cloudinary destroy failed for", publicId, json);
+  return false;
 }
 
 async function cleanupOldSimulations(supabase: SupabaseClient) {
@@ -48,14 +92,7 @@ async function cleanupOldSimulations(supabase: SupabaseClient) {
     .from("simulations")
     .select("id, video_url")
     // Order by id alone. `id` is a monotonic serial, so descending id IS
-    // newest-first — and unlike created_at it is never NULL, never tied, and
-    // never backfilled. Verified against the live table: across all 57 rows
-    // carrying a Cloudinary /v{unix}/ stamp, id order and true upload order
-    // agree with zero inversions, so id loses no information here.
-    //
-    // created_at is deliberately NOT used: every existing row shares one
-    // identical backfilled timestamp, which makes it useless as a sort key and
-    // actively dangerous as one (ties let Postgres return any order).
+    // newest-first — never NULL, never tied, never backfilled.
     .order("id", { ascending: false });
 
   if (error) {
@@ -71,23 +108,31 @@ async function cleanupOldSimulations(supabase: SupabaseClient) {
   );
   if (!stale.length) return;
 
-  const paths: string[] = [];
-  for (const row of stale) {
-    const path = row.video_url ? extractStoragePath(row.video_url) : null;
-    if (path) paths.push(path);
-    if (CLEANUP_DRY_RUN) {
+  // Map each stale row to its Cloudinary public_id (if it is a Cloudinary URL).
+  const targets = stale.map((row) => ({
+    id: row.id,
+    publicId: row.video_url ? extractPublicId(row.video_url) : null,
+  }));
+
+  if (CLEANUP_DRY_RUN) {
+    for (const t of targets) {
       console.log(
-        `CLEANUP[dry-run] would delete id=${row.id} ` +
-        `storagePath=${path ?? "(not a Storage URL — row only)"}`
+        `CLEANUP[dry-run] would delete id=${t.id} ` +
+        `cloudinaryPublicId=${t.publicId ?? "(not a Cloudinary URL — row only)"}`
       );
     }
+    return;
   }
-  if (CLEANUP_DRY_RUN) return;
 
-  if (paths.length) {
-    const { error: rmErr } = await supabase.storage.from(BUCKET).remove(paths);
-    if (rmErr) console.error("CLEANUP: Storage remove failed:", rmErr.message);
+  // Delete the Cloudinary assets (best-effort; a failed asset delete must not
+  // block removing the row).
+  for (const t of targets) {
+    if (t.publicId) {
+      try { await cloudinaryDestroy(t.publicId); }
+      catch (e) { console.error("CLEANUP: Cloudinary destroy threw for", t.publicId, e); }
+    }
   }
+
   const { error: delErr } = await supabase
     .from("simulations")
     .delete()
@@ -96,9 +141,8 @@ async function cleanupOldSimulations(supabase: SupabaseClient) {
   else console.log(`CLEANUP: deleted ${stale.length} simulations`);
 }
 
-// Fetches the freshly-generated Veo video from Google (while its link is still
-// alive) and re-uploads it to Supabase Storage for permanent storage, returning
-// the permanent public URL. This solves the expiring-Veo-link problem.
+// Fetches the freshly-generated Veo video from Google (directly, while its link
+// is still alive) and re-uploads it to Cloudinary, returning the permanent URL.
 export async function POST(req: NextRequest) {
   try {
     const { videoUri } = await req.json();
@@ -113,37 +157,6 @@ export async function POST(req: NextRequest) {
 
     console.log("UPLOAD: Starting upload for videoUri:", videoUri.substring(0, 50));
 
-    // Presence alone is misleading: a placeholder value is "present" but fails
-    // every request with "Invalid Compact JWS". A real service-role key is a
-    // JWT (three dot-separated segments, ~200+ chars), so report shape too —
-    // never the key itself.
-    const svcKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-    const svcLooksLikeJwt = !!svcKey && svcKey.split(".").length === 3 && svcKey.length > 100;
-    console.log("UPLOAD: Service role key present:", !!svcKey);
-    console.log(
-      "UPLOAD: Service role key looks like a JWT:", svcLooksLikeJwt,
-      svcKey ? `(length ${svcKey.length})` : ""
-    );
-    console.log("UPLOAD: Supabase URL present:", !!process.env.NEXT_PUBLIC_SUPABASE_URL);
-    if (svcKey && !svcLooksLikeJwt) {
-      console.error(
-        "UPLOAD: SUPABASE_SERVICE_ROLE_KEY is set but is not a valid JWT — it is " +
-        "probably a placeholder. Storage writes will fail with 'Invalid Compact " +
-        "JWS' and the caller will silently fall back to the expiring Veo URL."
-      );
-    }
-
-    const supabase = serverSupabase();
-    if (!supabase) {
-      console.error(
-        "UPLOAD: ABORT — Storage not configured. " +
-        `NEXT_PUBLIC_SUPABASE_URL=${!!process.env.NEXT_PUBLIC_SUPABASE_URL} ` +
-        `SUPABASE_SERVICE_ROLE_KEY=${!!process.env.SUPABASE_SERVICE_ROLE_KEY}. ` +
-        "The caller falls back to the expiring Veo proxy URL when this happens."
-      );
-      return NextResponse.json({ error: "Storage not configured" }, { status: 500 });
-    }
-
     // 1. Pull the video straight from Google while the link is still valid.
     const sep = videoUri.includes("?") ? "&" : "?";
     const videoRes = await fetch(`${videoUri}${sep}key=${API_KEY}`);
@@ -155,45 +168,40 @@ export async function POST(req: NextRequest) {
     const videoBuffer = await videoRes.arrayBuffer();
     console.log("UPLOAD: Video fetched, size:", videoBuffer.byteLength);
 
-    // 2. Upload to Supabase Storage.
-    const fileName = `simulation-${Date.now()}.mp4`;
-    const { data: uploadData, error: uploadError } = await supabase.storage
-      .from(BUCKET)
-      .upload(fileName, videoBuffer, {
-        contentType: "video/mp4",
-        cacheControl: "3600",
-      });
+    // 2. Upload to Cloudinary via the unsigned upload preset.
+    const formData = new FormData();
+    formData.append("file", new Blob([videoBuffer], { type: "video/mp4" }));
+    formData.append("upload_preset", UPLOAD_PRESET);
+    formData.append("resource_type", "video");
 
-    console.log(
-      "UPLOAD: Supabase result:",
-      uploadData ? "success" : "failed",
-      uploadError?.message ?? ""
+    const cloudinaryRes = await fetch(
+      `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/video/upload`,
+      { method: "POST", body: formData }
     );
 
-    if (uploadError) {
-      console.error("UPLOAD: Storage upload failed:", uploadError.message);
-      return NextResponse.json({ error: uploadError.message }, { status: 502 });
+    const cloudinaryData = await cloudinaryRes.json();
+    if (!cloudinaryRes.ok || !cloudinaryData?.secure_url) {
+      console.error("UPLOAD: Cloudinary upload failed:", cloudinaryRes.status, cloudinaryData?.error ?? cloudinaryData);
+      return NextResponse.json(
+        { error: cloudinaryData?.error?.message ?? "Cloudinary upload failed" },
+        { status: 502 }
+      );
     }
-
-    // 3. Public URL for the stored object.
-    const { data: urlData } = supabase.storage.from(BUCKET).getPublicUrl(fileName);
-    const url = urlData?.publicUrl;
-    if (!url) {
-      console.error("UPLOAD: no public URL returned for", fileName);
-      return NextResponse.json({ error: "No public URL returned from Storage" }, { status: 502 });
-    }
+    const url = cloudinaryData.secure_url as string;
     console.log("UPLOAD: Complete —", url);
 
-    // 4. Retention cleanup — never let it break the upload response.
+    // 3. Retention cleanup — best-effort, never blocks the upload response.
     try {
-      await cleanupOldSimulations(supabase);
+      const supabase = serverSupabase();
+      if (supabase) await cleanupOldSimulations(supabase);
+      else console.warn("CLEANUP: skipped — Supabase not configured (upload unaffected).");
     } catch (cleanupErr) {
       console.error("CLEANUP: unexpected error (upload unaffected):", cleanupErr);
     }
 
     return NextResponse.json({ url });
   } catch (err) {
-    console.error("Storage upload error:", err);
+    console.error("Cloudinary upload error:", err);
     return NextResponse.json({ error: String(err) }, { status: 500 });
   }
 }
