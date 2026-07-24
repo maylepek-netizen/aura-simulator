@@ -6,11 +6,11 @@
   --foreground: #ffffff;
   --font-heading: 'Amiri', serif;
   --font-body: var(--font-assistant), 'Assistant', sans-serif;
-  /* Shared horizontal gutter for main content containers. Every page's main
-     wrapper uses padding-inline: var(--gutter), so changing this one value
-     widens or narrows the side margins across the ENTIRE experience at once.
-     Scales down on narrow viewports below. */
-  --gutter: 120px;
+  /* Consistent safe area on ALL FOUR sides of the interface. Every fixed/
+     absolute edge element (header, sidebar icons, serial label) and each page's
+     main content inset by this same value, so the whole UI sits inside one even
+     frame. Change this single value to widen/narrow the frame everywhere. */
+  --gutter: 40px;
 }
 
 @theme inline {
@@ -18,14 +18,6 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-assistant), 'Assistant', sans-serif;
 }
-
-/* Responsive gutter: large margins on desktop, tapering down so content never
-   gets crushed on smaller screens. Every main container reads var(--gutter),
-   so this single ladder controls side margins across all pages. */
-@media (max-width: 1200px) { :root { --gutter: 80px; } }
-@media (max-width: 900px)  { :root { --gutter: 56px; } }
-@media (max-width: 640px)  { :root { --gutter: 32px; } }
-@media (max-width: 400px)  { :root { --gutter: 20px; } }
 
 body {
   background: var(--background);

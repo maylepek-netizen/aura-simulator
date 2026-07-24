@@ -6,21 +6,26 @@ export default function AppSidebar() {
   const router = useRouter();
   return (
     <div style={{
-      // Anchored to the left edge; its icons are pushed inward by the shared
-      // --gutter (via padding-left on the icon rows) so the logo and bottom
-      // icons share the same left margin as the header and page content.
-      position: "fixed", left: 0, top: 0,
-      width: "auto", height: "100vh",
+      // Fixed left strip, inset from the edges by the shared safe area:
+      // var(--gutter) from the left, top and bottom. The strip is a fixed 33px
+      // wide (widest icon) column so its children never collapse; the logo sits
+      // at the top aligned with the header row, the bank/research icons at the
+      // bottom.
+      position: "fixed",
+      left: "var(--gutter)",
+      top: "var(--gutter)",
+      bottom: "var(--gutter)",
+      width: 33,
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "space-between",
+      alignItems: "flex-start",
       background: "transparent",
       zIndex: 10,
     }}>
-      {/* Top icon — vertically centered within the 60px header row, inset by the
-          gutter so it lines up with the header's step label. */}
-      <div style={{
-        position: "absolute", top: 0, left: 0, height: 60,
-        paddingLeft: "var(--gutter)",
-        display: "flex", alignItems: "center",
-      }}>
+      {/* Top icon — sits in the header row height (32px) so it lines up with the
+          step label on the right. */}
+      <div style={{ height: 32, display: "flex", alignItems: "center" }}>
         <img
           src="/icons/New_logo_eye.svg"
           alt="Home"
@@ -33,15 +38,13 @@ export default function AppSidebar() {
 
       {/* Bottom icon group */}
       <div style={{
-        position: "absolute", bottom: 28, left: 0,
-        paddingLeft: "var(--gutter)",
         display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 32,
       }}>
         <img
           src="/icons/bank.svg"
           alt="Bank"
           onClick={() => router.push("/bank")}
-          style={{ width: 33, opacity: 0.45, cursor: "pointer", transition: "opacity 0.2s" }}
+          style={{ width: 33, opacity: 0.45, cursor: "pointer", transition: "opacity 0.2s", display: "block" }}
           onMouseEnter={(e) => { (e.currentTarget as HTMLImageElement).style.opacity = "1"; }}
           onMouseLeave={(e) => { (e.currentTarget as HTMLImageElement).style.opacity = "0.45"; }}
         />
@@ -49,7 +52,7 @@ export default function AppSidebar() {
           src="/icons/insights.svg"
           alt="Research"
           onClick={() => router.push("/research")}
-          style={{ width: 26, opacity: 0.6, cursor: "pointer", transition: "opacity 0.2s" }}
+          style={{ width: 26, opacity: 0.6, cursor: "pointer", transition: "opacity 0.2s", display: "block" }}
           onMouseEnter={(e) => { (e.currentTarget as HTMLImageElement).style.opacity = "1"; }}
           onMouseLeave={(e) => { (e.currentTarget as HTMLImageElement).style.opacity = "0.6"; }}
         />
