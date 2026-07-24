@@ -6,6 +6,8 @@
   --foreground: #ffffff;
   --font-heading: 'Amiri', serif;
   --font-body: var(--font-assistant), 'Assistant', sans-serif;
+  /* Shared horizontal gutter for main content containers. */
+  --gutter: 30px;
 }
 
 @theme inline {

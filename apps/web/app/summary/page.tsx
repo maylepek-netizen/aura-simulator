@@ -50,7 +50,7 @@ export default function SummaryPage() {
           position: "absolute", inset: 0,
           display: "flex", flexDirection: "column",
           alignItems: "center", justifyContent: "center",
-          padding: "0 60px",
+          padding: "0 30px",
           gap: 0,
         }}>
 
