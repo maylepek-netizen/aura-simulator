@@ -218,14 +218,25 @@ export default function OnboardingPage() {
               {/* Gender */}
               <div>
                 <div style={fieldLabelStyle}>How do you identify?</div>
-                {/* Uses the shared .onboard-select class so it matches the
-                    name/age inputs exactly: transparent field, bottom border
-                    only, no dark box. The dropdown list itself is dark (see the
-                    `select option` rule in globals.css). */}
+                {/* Transparent field with only a bottom border, so it matches
+                    the name/age inputs exactly when closed. The dropdown list
+                    itself is dark (see the `select option` rule in globals.css). */}
                 <select
-                  className="onboard-select"
                   value={gender}
                   onChange={(e) => setGender(e.target.value as Gender)}
+                  style={{
+                    background: 'transparent',
+                    color: 'white',
+                    border: 'none',
+                    borderBottom: '1px solid rgba(255,255,255,0.3)',
+                    borderRadius: 0,
+                    padding: '10px 0',
+                    width: '100%',
+                    cursor: 'pointer',
+                    outline: 'none',
+                    fontSize: 'inherit',
+                    fontFamily: 'inherit',
+                  }}
                 >
                   {GENDER_OPTIONS.map((opt) => (
                     <option key={opt.value} value={opt.value}>
