@@ -204,6 +204,10 @@ export default function BankPage() {
 
     (async () => {
       const rows = await getBankSimulationsFromSupabase(50);
+      // Debug: logged BEFORE the early-return below, so we always see the result
+      // even when 0 rows come back (or the fetch failed / Supabase unconfigured).
+      console.log("BANK: Supabase fetch result:", rows?.length, "rows");
+      console.log("BANK: First few URLs:", rows?.slice(0, 3).map((s) => s.video_url));
       if (cancelled || rows.length === 0) return;
       const supabaseRecords = rows.map(supabaseRowToRecord);
 
