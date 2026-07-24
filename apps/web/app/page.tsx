@@ -279,9 +279,10 @@ export default function LandingPage() {
             {/* Top header */}
             <AppHeader step="STEP 00 / INTRODUCTION" position="absolute" />
 
-            {/* Bottom-right serial */}
+            {/* Bottom-right serial — inset by the shared safe area to match the
+                rest of the interface. */}
             <div style={{
-              position: "absolute", bottom: 20, right: 24,
+              position: "absolute", bottom: "var(--gutter)", right: "var(--gutter)",
               fontSize: 12, letterSpacing: "0.16em",
               color: "rgba(255,255,255,0.35)", zIndex: 3,
             }}>
