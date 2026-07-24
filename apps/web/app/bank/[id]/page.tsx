@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { useNavigate } from "../../TransitionProvider";
 import { getSimulationById } from "@/lib/simulationStorage";
 import type { SimulationRecord } from "@/lib/simulationStorage";
+import { getBankSimulationsFromSupabase } from "@/lib/supabase";
 
 type SimResult = {
   overall_load: number;
@@ -241,9 +242,56 @@ export default function BankReplayPage() {
   const heartbeatRef = useRef<HeartbeatEngine | null>(null);
 
   useEffect(() => {
+    let cancelled = false;
+
+    // localStorage-backed ids are numeric strings; Supabase-backed ids from the
+    // merged bank are prefixed "sb-<id>".
     const found = getSimulationById(id);
-    if (found) setRecord(found);
+    if (found) {
+      setRecord(found);
+      setLoading(false);
+      return;
+    }
+
+    if (id.startsWith("sb-")) {
+      const numeric = Number(id.slice(3));
+      (async () => {
+        const rows = await getBankSimulationsFromSupabase(50);
+        if (cancelled) return;
+        const row = rows.find((r) => r.id === numeric);
+        if (row) {
+          // Map the Supabase columns onto the detail view's SimResult shape.
+          // Only the fields the table stores are populated; the rest stay empty
+          // (the detail view already tolerates missing sections).
+          setRecord({
+            id,
+            situation: row.situation ?? "",
+            name: "—",
+            age: 0,
+            gender: "—",
+            videoUri: row.video_url ?? "",
+            createdAt: row.created_at ?? new Date(0).toISOString(),
+            result: {
+              overall_load: row.sensory_load ?? 0,
+              visual_effect: row.visual_effect ?? "",
+              scene_caption: row.situation ?? "",
+              monologue: row.internal_thoughts ? row.internal_thoughts.split("|").map((s) => s.trim()).filter(Boolean) : [],
+              sensory_channels: { auditory: "", visual: "", tactile: "", interoception: "" },
+              emotions: row.emotional_landscape ? row.emotional_landscape.split(",").map((s) => s.trim()).filter(Boolean) : [],
+              coping_actions: [],
+              masking_cost: "",
+              research_tags: [],
+              ambient_sound: row.soundscape ?? "",
+            },
+          });
+        }
+        setLoading(false);
+      })();
+      return () => { cancelled = true; };
+    }
+
     setLoading(false);
+    return () => { cancelled = true; };
   }, [id]);
 
   // Quick loading transition — a visual dissolve, not waiting on anything.

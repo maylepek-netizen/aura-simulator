@@ -68,3 +68,37 @@ export async function getSimulationsFromSupabase() {
   if (error) console.error('Supabase fetch error:', error)
   return data || []
 }
+
+// Shape of a raw row in the `simulations` table (as used by the bank).
+export type SupabaseSimulationRow = {
+  id: number
+  situation: string | null
+  video_url: string | null
+  internal_thoughts: string | null
+  sensory_load: number | null
+  emotional_landscape: string | null
+  soundscape: string | null
+  objective: string | null
+  visual_effect: string | null
+  created_at?: string | null
+}
+
+// Fetch recent simulations for the bank. Orders by `id` (monotonic serial —
+// never NULL/tied/backfilled, unlike created_at). Returns [] when Supabase is
+// not configured or on error, so callers can merge with localStorage safely.
+export async function getBankSimulationsFromSupabase(
+  limit = 50
+): Promise<SupabaseSimulationRow[]> {
+  const supabase = getSupabase()
+  if (!supabase) return []
+  const { data, error } = await supabase
+    .from('simulations')
+    .select('*')
+    .order('id', { ascending: false })
+    .limit(limit)
+  if (error) {
+    console.error('Supabase bank fetch error:', error)
+    return []
+  }
+  return (data as SupabaseSimulationRow[]) || []
+}
