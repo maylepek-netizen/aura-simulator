@@ -231,6 +231,9 @@ export default function ResearchPage() {
           color: #fff;
           font-family: 'Assistant', sans-serif;
           overflow-x: hidden;
+          /* Shared safe-area frame on all four sides. */
+          padding: var(--gutter);
+          box-sizing: border-box;
         }
 
         /* ── Top nav ── */
@@ -264,9 +267,11 @@ export default function ResearchPage() {
           grid-template-columns: minmax(240px, 1fr) minmax(0, 1.9fr) minmax(240px, 1fr);
           column-gap: 56px;
           align-items: center;              /* all three columns balanced vertically */
-          /* Hard constraint: the whole section fits one viewport, no scroll. */
-          height: calc(100vh - 60px);
-          max-height: calc(100vh - 60px);
+          /* Hard constraint: the whole section fits one viewport, no scroll.
+             Subtract the header row AND the top+bottom safe-area padding on the
+             root so the wheel still fits without forcing a scroll. */
+          height: calc(100vh - 60px - 2 * var(--gutter));
+          max-height: calc(100vh - 60px - 2 * var(--gutter));
           padding: 24px 48px;
           width: 100%;
           max-width: 1500px;

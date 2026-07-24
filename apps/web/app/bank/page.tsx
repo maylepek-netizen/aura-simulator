@@ -283,7 +283,14 @@ export default function BankPage() {
   });
 
   return (
-    <div style={{ position: "fixed", inset: 0, background: "#0a0806", overflow: "hidden", userSelect: "none" }}>
+    <div style={{
+      // Inset the whole bank by the shared safe area (--gutter) on all sides.
+      // The transform makes this the containing block for the position:fixed
+      // header/footer/canvas inside, so they inset with it as one block.
+      position: "fixed", inset: "var(--gutter)", background: "#0a0806",
+      overflow: "hidden", userSelect: "none", borderRadius: 4,
+      transform: "translateZ(0)",
+    }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Amiri:ital@0;1&display=swap');
         @keyframes cardFadeIn { from { opacity: 0; transform: translateY(12px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }

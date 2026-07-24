@@ -1791,7 +1791,16 @@ export default function ResultPage() {
   }
 
   return (
-    <div style={{ position: "fixed", inset: 0, overflow: "hidden", background: "#0d0a08" }}>
+    // The whole simulator screen is inset by the shared safe area (--gutter) on
+    // all four sides, as one block. The `transform` makes this element the
+    // containing block for its position:fixed descendants (video + all panels),
+    // so they anchor to this inset frame instead of the viewport — the entire UI
+    // shrinks inward together, leaving a 40px frame around everything.
+    <div style={{
+      position: "fixed", inset: "var(--gutter)", overflow: "hidden",
+      background: "#0d0a08", borderRadius: 4,
+      transform: "translateZ(0)",
+    }}>
         {/* Dissolve to black on End Simulation (0.5s) */}
         <div aria-hidden style={{
           position: "fixed", inset: 0, background: "#000",
