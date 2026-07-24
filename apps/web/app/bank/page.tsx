@@ -151,9 +151,6 @@ export default function BankPage() {
   const [genderFilter, setGenderFilter] = useState("All");
   const [ageFilter, setAgeFilter] = useState<AgeBand>("All");
   const [loadFilter, setLoadFilter] = useState<LoadBand>("All");
-  // Ids whose video failed a live availability check on mount — hidden from the
-  // grid so no dead/expired video is ever opened.
-  const [deadIds, setDeadIds] = useState<Set<string>>(new Set());
   // "Drag to explore" hint — fades out 3s after the first drag.
   const [hintVisible, setHintVisible] = useState(true);
 
@@ -175,52 +172,6 @@ export default function BankPage() {
     setRecords(all);
     setPositions(getCardPositions(all.length));
     setLoading(false);
-
-    // Live availability check: HEAD each video and hide any that error/time out.
-    // Cards render first, then dead ones drop out as their checks resolve.
-    //
-    // The video-proxy route is GET-only and only accepts Google Veo URIs, so it
-    // can't be used as a HEAD probe (it would 405/400 and hide everything).
-    // Instead:
-    //   - permanent public URLs (Cloudinary, Supabase Storage, other https) are
-    //     HEAD-checked directly — they're public and CORS-safe for HEAD.
-    //   - raw Veo URIs / the proxy path need the server API key and expire
-    //     quickly, so we can't verify them client-side — treat as unavailable.
-    let cancelled = false;
-
-    const checkVideoAvailable = async (uri: string): Promise<boolean> => {
-      // Non-verifiable, expiring sources → treat as unavailable.
-      if (
-        uri.includes("generativelanguage.googleapis.com") ||
-        uri.startsWith("/api/video-proxy")
-      ) {
-        return false;
-      }
-      if (!/^https?:\/\//.test(uri)) return false;
-      try {
-        const res = await fetch(uri, { method: "HEAD", signal: AbortSignal.timeout(3000) });
-        return res.ok;
-      } catch {
-        // A network/CORS error on HEAD doesn't necessarily mean the video is
-        // dead, but we can't confirm it either — err toward hiding so no broken
-        // card is shown.
-        return false;
-      }
-    };
-
-    (async () => {
-      const checks = await Promise.all(
-        all.map(async (r) => {
-          const uri = typeof r.videoUri === "string" ? r.videoUri.trim() : "";
-          if (!uri) return { id: r.id, ok: false };
-          return { id: r.id, ok: await checkVideoAvailable(uri) };
-        })
-      );
-      if (cancelled) return;
-      setDeadIds(new Set(checks.filter((c) => !c.ok).map((c) => c.id)));
-    })();
-
-    return () => { cancelled = true; };
   }, []);
 
   // Once the user starts dragging, fade the hint out after 3s.
@@ -312,12 +263,10 @@ export default function BankPage() {
   }
 
   const filteredRecords = records.filter(r => {
-    // A record needs a videoUri, and its video must have passed the live
-    // availability check (see the mount effect) — dead/expired videos are hidden
-    // so visitors never open one that won't play.
+    // Show every simulation that has a videoUri, regardless of URL type — no URL
+    // filter. A record with no videoUri has nothing to render, so it is skipped.
     const uri = typeof r.videoUri === "string" ? r.videoUri.trim() : "";
     if (!uri) return false;
-    if (deadIds.has(r.id)) return false;
     if (genderFilter !== "All" && r.gender !== genderFilter) return false;
     if (!matchesAgeBand(r.age, ageFilter)) return false;
     const load = (r.result as { overall_load?: number })?.overall_load ?? 0;
