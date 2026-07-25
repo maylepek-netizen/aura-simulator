@@ -584,113 +584,164 @@ function ProcessingMetrics({ visible, onComplete }: { visible: boolean; onComple
 }
 
 // ─── Generation preview (video "still generating" state) ─────────────────────
-// A cinematic transition into the simulation: an EYE-SHAPED NEBULA made purely of
-// soft volumetric blurred light — no outline, no iris, no pupil, no hard edges.
-// Purple, blue and warm-amber light pool along the eye silhouette (bright amber
-// rim across the top, cooler tones sinking to the sides) around a dark hollow
-// centre. The whole thing breathes on a slow 5s loop: light fills from within,
-// spreads, peaks, then drains until the eye almost disappears before reforming.
-// The colours drift independently like ink in water. On reveal it brightens and
-// scales up as it fades, so the real video emerges from within the light. The
-// heading sits at bottom-centre and breathes in sync.
+// A small, centred cinematic transition: an eye SUGGESTED entirely by moving
+// blurred volumetric light — no outline, iris or pupil. Rendered on a canvas as
+// a flowing fractal-noise field (smoke / ink underwater / aurora) shaped into an
+// eye silhouette, in warm amber / deep violet / electric blue around a dark
+// hollow centre with a faint central spark. A seamless ~5s breathing loop
+// gathers → fills → empties → reforms; the colours drift independently and never
+// fully stop. The heading sits ~28px below and breathes in sync. On reveal the
+// centre brightens and the light dissolves so the video is born from within it.
 
-const GenerationBlob = () => (
-  <div style={{
-    position: 'absolute',
-    inset: 0,
-    background: '#000',
-    overflow: 'hidden',
-  }}>
-    <style>{`
-      /* The breathing of the whole eye: fills with light → peaks → drains until
-         it almost disappears → refills. 5s loop. Brightness + subtle scale. */
-      @keyframes neb-breathe {
-        0%,100% { opacity: 0.12; transform: scale(0.88); filter: blur(40px) brightness(0.8) saturate(1.1); }
-        50%     { opacity: 1;    transform: scale(1.05); filter: blur(28px) brightness(1.55) saturate(1.35); }
-      }
-      /* Colour blobs drift independently inside the blur — ink underwater. Slow,
-         each on its own timing so they flow into one another and never sync. */
-      @keyframes ink-a { 0%,100%{ transform: translate(-5%,3%) scale(1);    } 33%{ transform: translate(6%,-4%) scale(1.14);} 66%{ transform: translate(3%,5%) scale(0.9);} }
-      @keyframes ink-b { 0%,100%{ transform: translate(5%,-2%) scale(1.06); } 40%{ transform: translate(-6%,3%) scale(0.9);}  72%{ transform: translate(4%,-5%) scale(1.2);} }
-      @keyframes ink-c { 0%,100%{ transform: translate(2%,4%) scale(0.94);  } 45%{ transform: translate(-4%,-3%) scale(1.22);} 75%{ transform: translate(6%,2%) scale(1.02);} }
-      /* The bright top rim shimmers/drifts slightly so the silhouette morphs. */
-      @keyframes rim-drift { 0%,100%{ transform: translateX(-2%) scaleX(1);   } 50%{ transform: translateX(3%) scaleX(1.05);} }
-      /* Text: breathing opacity + tiny float + subtle tracking, synced to breathe. */
-      @keyframes gen-text {
-        0%,100% { opacity: 0.42; transform: translateY(1.5px);  letter-spacing: 0.26em; }
-        50%     { opacity: 0.9;  transform: translateY(-1.5px); letter-spacing: 0.32em; }
-      }
-    `}</style>
+// Draws one frame of the eye-nebula. `t` is seconds; `breath` is the 0..1 fill
+// envelope for this frame. Kept as a pure function so it's easy to reason about.
+function drawEyeNebula(
+  ctx: CanvasRenderingContext2D,
+  w: number, h: number, t: number, breath: number,
+) {
+  ctx.clearRect(0, 0, w, h);
 
-    {/* ── THE EYE-NEBULA ── centred; light only, clipped to an eye silhouette. */}
-    <div aria-hidden style={{
-      position: 'absolute', top: '50%', left: '50%',
-      width: 'clamp(340px, 46vw, 720px)',
-      aspectRatio: '2 / 1',
-      transform: 'translate(-50%, -50%)',
-      // The eye silhouette: a soft almond mask that fades at every edge, so the
-      // light inside has no border. WebkitMaskImage duplicated for Safari.
-      WebkitMaskImage: 'radial-gradient(ellipse 50% 50% at 50% 50%, #000 42%, transparent 72%)',
-      maskImage: 'radial-gradient(ellipse 50% 50% at 50% 50%, #000 42%, transparent 72%)',
-    }}>
-      {/* Breathing wrapper — fills and drains. */}
-      <div style={{
-        position: 'absolute', inset: '-10%',
-        animation: 'neb-breathe 5s ease-in-out infinite',
-        willChange: 'opacity, transform, filter',
-      }}>
-        {/* Purple pool — lower-left. */}
-        <div style={{
-          position: 'absolute', inset: 0, mixBlendMode: 'screen',
-          background: 'radial-gradient(ellipse 48% 42% at 32% 60%, rgba(176,110,255,1) 0%, rgba(130,80,230,0.5) 40%, transparent 70%)',
-          animation: 'ink-a 16s ease-in-out infinite',
-        }} />
-        {/* Blue pool — right / lower-right. */}
-        <div style={{
-          position: 'absolute', inset: 0, mixBlendMode: 'screen',
-          background: 'radial-gradient(ellipse 46% 40% at 70% 58%, rgba(96,164,255,1) 0%, rgba(60,120,235,0.48) 42%, transparent 72%)',
-          animation: 'ink-b 21s ease-in-out infinite',
-        }} />
-        {/* Bright warm-amber RIM across the top arc — the eye's brightest light. */}
-        <div style={{
-          position: 'absolute', inset: 0, mixBlendMode: 'screen',
-          background: 'radial-gradient(ellipse 64% 34% at 50% 28%, rgba(255,205,140,1) 0%, rgba(250,160,90,0.6) 40%, transparent 70%)',
-          animation: 'rim-drift 13s ease-in-out infinite',
-        }} />
-        {/* Amber lower echo — a warm glow along the bottom arc. */}
-        <div style={{
-          position: 'absolute', inset: 0, mixBlendMode: 'screen',
-          background: 'radial-gradient(ellipse 54% 30% at 52% 76%, rgba(255,180,120,0.8) 0%, transparent 66%)',
-          animation: 'ink-c 18s ease-in-out infinite',
-        }} />
-        {/* Dark hollow centre — subtracts light from the middle so no pupil/iris
-            forms; the eye reads as a rim of light around a void. */}
-        <div style={{
-          position: 'absolute', top: '50%', left: '50%',
-          width: '46%', aspectRatio: '1.4 / 1', transform: 'translate(-50%,-50%)',
-          borderRadius: '50%',
-          background: 'radial-gradient(ellipse at center, #000 0%, rgba(0,0,0,0.85) 40%, transparent 72%)',
-        }} />
-      </div>
-    </div>
+  const cx = w / 2, cy = h / 2;
+  // Eye silhouette radii (canvas is drawn at 2x for crispness).
+  const RX = w * 0.42, RY = h * 0.30;
 
-    {/* Vignette — deep black surround so the light floats in negative space. */}
-    <div aria-hidden style={{
-      position: 'absolute', inset: 0, pointerEvents: 'none',
-      background: 'radial-gradient(ellipse 60% 60% at center, transparent 40%, rgba(0,0,0,0.55) 70%, #000 88%)',
-    }} />
+  // Cheap value-noise via layered sines (domain-warped) — enough to read as
+  // flowing smoke once blurred, and cheap enough for 60fps without a shader.
+  const noise = (x: number, y: number, s: number) =>
+    Math.sin(x * s + t * 0.6) * Math.cos(y * s * 1.3 - t * 0.5) +
+    0.5 * Math.sin((x + y) * s * 1.7 + t * 0.9) +
+    0.5 * Math.cos((x - y) * s * 2.1 - t * 0.7);
 
-    {/* Heading — bottom-centre, clear of the eye; breathes in sync. */}
+  // Three colour "currents", each drifting on its own slow orbit.
+  const currents = [
+    { col: [255, 190, 120], ang: t * 0.18,        rad: 0.34, name: 'amber-top', bias: -0.55 },
+    { col: [176, 110, 255], ang: t * 0.15 + 2.2,  rad: 0.40, name: 'violet',    bias:  0.15 },
+    { col: [96, 168, 255],  ang: t * 0.13 + 4.3,  rad: 0.40, name: 'blue',      bias:  0.10 },
+    { col: [255, 170, 110], ang: t * 0.16 + 3.1,  rad: 0.30, name: 'amber-low', bias:  0.60 },
+  ];
+
+  ctx.globalCompositeOperation = 'lighter'; // additive — light adds up
+
+  // Wispy filaments: many SMALL, faint radial dabs hugging a narrow rim band,
+  // jittered by noise so they read as thin drifting smoke around a dark eye
+  // (not a solid glow). Kept low-alpha/small so the additive blend never clips
+  // to white and the colour + black background stay visible.
+  const N = 240;
+  for (let i = 0; i < N; i++) {
+    const a = (i / N) * Math.PI * 2;
+    const rimx = Math.cos(a);
+    const rimy = Math.sin(a) * 0.9;
+    // Narrow noise-driven radial band → thin wispy edge, continuous around.
+    const nz = noise(rimx * 2.4, rimy * 2.4, 1.0);
+    const wob = 0.98 + nz * 0.08;
+    // pick the current whose orbit angle is nearest this rim angle
+    let best = currents[0], bestd = 9;
+    for (const c of currents) {
+      let d = Math.abs(((a - c.ang) % (Math.PI * 2)));
+      if (d > Math.PI) d = Math.PI * 2 - d;
+      d += Math.abs(Math.sin(a) - c.bias) * 0.8;
+      if (d < bestd) { bestd = d; best = c; }
+    }
+    const px = cx + rimx * RX * wob;
+    const py = cy + rimy * RY * wob;
+    // Gentle noise modulation for a wispy (not gappy) rim: stays continuous but
+    // brighter/dimmer around the loop so it looks like drifting smoke.
+    const gate = 0.45 + 0.55 * (0.5 + 0.5 * noise(rimx * 1.5, rimy * 1.5, 1.7));
+    const alpha = breath * gate * 0.1;             // faint — additive-safe
+    const size = RY * (0.24 + 0.16 * gate);        // small dabs, thin band
+    if (alpha < 0.004) continue;
+    const g = ctx.createRadialGradient(px, py, 0, px, py, size);
+    const [r, gg, b] = best.col;
+    g.addColorStop(0, `rgba(${r},${gg},${b},${alpha})`);
+    g.addColorStop(0.6, `rgba(${r},${gg},${b},${alpha * 0.3})`);
+    g.addColorStop(1, `rgba(${r},${gg},${b},0)`);
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.arc(px, py, size, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Faint central spark — the perception forming. Small and soft.
+  const sy = cy + RY * 0.04;
+  const spark = ctx.createRadialGradient(cx, sy, 0, cx, sy, RX * 0.16);
+  spark.addColorStop(0, `rgba(255,238,214,${0.22 * breath})`);
+  spark.addColorStop(0.6, `rgba(255,200,160,${0.06 * breath})`);
+  spark.addColorStop(1, 'rgba(255,200,160,0)');
+  ctx.fillStyle = spark;
+  ctx.beginPath();
+  ctx.arc(cx, sy, RX * 0.16, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.globalCompositeOperation = 'source-over';
+}
+
+function GenerationBlob() {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // Fixed internal resolution (2x for crispness); CSS scales it down. The
+    // effect stays small and contained regardless of screen size.
+    const DPR = Math.min(2, typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1);
+    const CSS = 300;                 // ~300px composition per the brief
+    canvas.width = CSS * DPR;
+    canvas.height = CSS * DPR;
+
+    let raf = 0;
+    let start = 0;
+    const PERIOD = 5;                // seconds per breath — seamless loop
+
+    const loop = (now: number) => {
+      if (!start) start = now;
+      const t = (now - start) / 1000;
+      // Seamless breathing envelope: gather → fill → empty → reform. A raised
+      // cosine keeps it smooth with no jump at the loop seam; floored low so the
+      // eye almost disappears but never hard-cuts to nothing.
+      const phase = (t % PERIOD) / PERIOD;
+      const breath = 0.08 + 0.92 * (0.5 - 0.5 * Math.cos(phase * Math.PI * 2));
+      drawEyeNebula(ctx, canvas.width, canvas.height, t, breath);
+      raf = requestAnimationFrame(loop);
+    };
+    raf = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
+  return (
     <div style={{
-      position: 'absolute',
-      bottom: 'max(100px, calc(env(safe-area-inset-bottom) + 100px))',
-      left: 0, right: 0,
-      display: 'flex', justifyContent: 'center',
-      zIndex: 2, pointerEvents: 'none',
+      position: 'absolute', inset: 0, background: '#000', overflow: 'hidden',
+      display: 'flex', flexDirection: 'column',
+      alignItems: 'center', justifyContent: 'center', gap: 28,
     }}>
+      <style>{`
+        /* Text breathes in sync with the light: brighter/expanded on fill,
+           dimmer/tighter on empty, with a tiny vertical float. 5s = one breath. */
+        @keyframes gen-text {
+          0%,100% { opacity: 0.4;  transform: translateY(1.5px);  letter-spacing: 0.24em; }
+          50%     { opacity: 0.92; transform: translateY(-1.5px); letter-spacing: 0.30em; }
+        }
+      `}</style>
+
+      {/* The nebula canvas — soft-blurred so noise dabs melt into smoke. Small,
+          centred, ~300px. filter blur gives the volumetric softness cheaply. */}
+      <canvas
+        ref={canvasRef}
+        aria-hidden
+        style={{
+          width: 'clamp(220px, 24vw, 320px)',
+          height: 'clamp(220px, 24vw, 320px)',
+          filter: 'blur(7px)',
+          willChange: 'contents',
+        }}
+      />
+
+      {/* Heading — directly beneath the light, breathing in sync. */}
       <div style={{
         fontFamily: 'Assistant, sans-serif',
-        fontSize: 'clamp(13px, 1.4vw, 16px)',
+        fontSize: 'clamp(12px, 1.3vw, 15px)',
         textTransform: 'uppercase',
         color: 'rgba(240,235,255,0.85)',
         whiteSpace: 'nowrap',
@@ -700,8 +751,8 @@ const GenerationBlob = () => (
         Generating your simulation
       </div>
     </div>
-  </div>
-);
+  );
+}
 
 // ─── Mobile detection ─────────────────────────────────────────────────────────
 
