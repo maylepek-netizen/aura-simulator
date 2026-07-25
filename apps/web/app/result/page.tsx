@@ -584,175 +584,102 @@ function ProcessingMetrics({ visible, onComplete }: { visible: boolean; onComple
 }
 
 // ─── Generation preview (video "still generating" state) ─────────────────────
-// A small, centred cinematic transition: an eye SUGGESTED entirely by moving
-// blurred volumetric light — no outline, iris or pupil. Rendered on a canvas as
-// a flowing fractal-noise field (smoke / ink underwater / aurora) shaped into an
-// eye silhouette, in warm amber / deep violet / electric blue around a dark
-// hollow centre with a faint central spark. A seamless ~5s breathing loop
-// gathers → fills → empties → reforms; the colours drift independently and never
-// fully stop. The heading sits ~28px below and breathes in sync. On reveal the
-// centre brightens and the light dissolves so the video is born from within it.
+// Rotating ring with an animated peach glow blob inside, shown while the video
+// generates. Mounting/unmounting is handled by the caller (blobMounted +
+// the fade/scale reveal at the render sites).
+const GenerationBlob = () => (
+  <div style={{
+    position: 'absolute',
+    inset: 0,
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    background: '#000',
+  }}>
+    <style>{`
+      @keyframes ringRotate {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+      @keyframes glowPulse {
+        0%, 100% { opacity: 0.4; transform: scale(0.85); }
+        50% { opacity: 0.8; transform: scale(1.1); }
+      }
+      @keyframes glowDrift {
+        0% { transform: translate(0%, 0%) scale(1); }
+        33% { transform: translate(15%, -10%) scale(1.15); }
+        66% { transform: translate(-10%, 15%) scale(0.9); }
+        100% { transform: translate(0%, 0%) scale(1); }
+      }
+      @keyframes textFade {
+        0%, 100% { opacity: 0.4; }
+        50% { opacity: 0.7; }
+      }
+    `}</style>
 
-// Draws one frame of the eye-nebula. `t` is seconds; `breath` is the 0..1 fill
-// envelope for this frame. Kept as a pure function so it's easy to reason about.
-function drawEyeNebula(
-  ctx: CanvasRenderingContext2D,
-  w: number, h: number, t: number, breath: number,
-) {
-  ctx.clearRect(0, 0, w, h);
+    {/* Outer container - same size as the processing ring */}
+    <div style={{ position: 'relative', width: 120, height: 120 }}>
 
-  const cx = w / 2, cy = h / 2;
-  // Eye silhouette radii (canvas is drawn at 2x for crispness).
-  const RX = w * 0.42, RY = h * 0.30;
-
-  // Cheap value-noise via layered sines (domain-warped) — enough to read as
-  // flowing smoke once blurred, and cheap enough for 60fps without a shader.
-  const noise = (x: number, y: number, s: number) =>
-    Math.sin(x * s + t * 0.6) * Math.cos(y * s * 1.3 - t * 0.5) +
-    0.5 * Math.sin((x + y) * s * 1.7 + t * 0.9) +
-    0.5 * Math.cos((x - y) * s * 2.1 - t * 0.7);
-
-  // Three colour "currents", each drifting on its own slow orbit.
-  const currents = [
-    { col: [255, 190, 120], ang: t * 0.18,        rad: 0.34, name: 'amber-top', bias: -0.55 },
-    { col: [176, 110, 255], ang: t * 0.15 + 2.2,  rad: 0.40, name: 'violet',    bias:  0.15 },
-    { col: [96, 168, 255],  ang: t * 0.13 + 4.3,  rad: 0.40, name: 'blue',      bias:  0.10 },
-    { col: [255, 170, 110], ang: t * 0.16 + 3.1,  rad: 0.30, name: 'amber-low', bias:  0.60 },
-  ];
-
-  ctx.globalCompositeOperation = 'lighter'; // additive — light adds up
-
-  // Wispy filaments: many SMALL, faint radial dabs hugging a narrow rim band,
-  // jittered by noise so they read as thin drifting smoke around a dark eye
-  // (not a solid glow). Kept low-alpha/small so the additive blend never clips
-  // to white and the colour + black background stay visible.
-  const N = 240;
-  for (let i = 0; i < N; i++) {
-    const a = (i / N) * Math.PI * 2;
-    const rimx = Math.cos(a);
-    const rimy = Math.sin(a) * 0.9;
-    // Narrow noise-driven radial band → thin wispy edge, continuous around.
-    const nz = noise(rimx * 2.4, rimy * 2.4, 1.0);
-    const wob = 0.98 + nz * 0.08;
-    // pick the current whose orbit angle is nearest this rim angle
-    let best = currents[0], bestd = 9;
-    for (const c of currents) {
-      let d = Math.abs(((a - c.ang) % (Math.PI * 2)));
-      if (d > Math.PI) d = Math.PI * 2 - d;
-      d += Math.abs(Math.sin(a) - c.bias) * 0.8;
-      if (d < bestd) { bestd = d; best = c; }
-    }
-    const px = cx + rimx * RX * wob;
-    const py = cy + rimy * RY * wob;
-    // Gentle noise modulation for a wispy (not gappy) rim: stays continuous but
-    // brighter/dimmer around the loop so it looks like drifting smoke.
-    const gate = 0.45 + 0.55 * (0.5 + 0.5 * noise(rimx * 1.5, rimy * 1.5, 1.7));
-    const alpha = breath * gate * 0.1;             // faint — additive-safe
-    const size = RY * (0.24 + 0.16 * gate);        // small dabs, thin band
-    if (alpha < 0.004) continue;
-    const g = ctx.createRadialGradient(px, py, 0, px, py, size);
-    const [r, gg, b] = best.col;
-    g.addColorStop(0, `rgba(${r},${gg},${b},${alpha})`);
-    g.addColorStop(0.6, `rgba(${r},${gg},${b},${alpha * 0.3})`);
-    g.addColorStop(1, `rgba(${r},${gg},${b},0)`);
-    ctx.fillStyle = g;
-    ctx.beginPath();
-    ctx.arc(px, py, size, 0, Math.PI * 2);
-    ctx.fill();
-  }
-
-  // Faint central spark — the perception forming. Small and soft.
-  const sy = cy + RY * 0.04;
-  const spark = ctx.createRadialGradient(cx, sy, 0, cx, sy, RX * 0.16);
-  spark.addColorStop(0, `rgba(255,238,214,${0.22 * breath})`);
-  spark.addColorStop(0.6, `rgba(255,200,160,${0.06 * breath})`);
-  spark.addColorStop(1, 'rgba(255,200,160,0)');
-  ctx.fillStyle = spark;
-  ctx.beginPath();
-  ctx.arc(cx, sy, RX * 0.16, 0, Math.PI * 2);
-  ctx.fill();
-
-  ctx.globalCompositeOperation = 'source-over';
-}
-
-function GenerationBlob() {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    // Fixed internal resolution (2x for crispness); CSS scales it down. The
-    // effect stays small and contained regardless of screen size.
-    const DPR = Math.min(2, typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1);
-    const CSS = 300;                 // ~300px composition per the brief
-    canvas.width = CSS * DPR;
-    canvas.height = CSS * DPR;
-
-    let raf = 0;
-    let start = 0;
-    const PERIOD = 5;                // seconds per breath — seamless loop
-
-    const loop = (now: number) => {
-      if (!start) start = now;
-      const t = (now - start) / 1000;
-      // Seamless breathing envelope: gather → fill → empty → reform. A raised
-      // cosine keeps it smooth with no jump at the loop seam; floored low so the
-      // eye almost disappears but never hard-cuts to nothing.
-      const phase = (t % PERIOD) / PERIOD;
-      const breath = 0.08 + 0.92 * (0.5 - 0.5 * Math.cos(phase * Math.PI * 2));
-      drawEyeNebula(ctx, canvas.width, canvas.height, t, breath);
-      raf = requestAnimationFrame(loop);
-    };
-    raf = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(raf);
-  }, []);
-
-  return (
-    <div style={{
-      position: 'absolute', inset: 0, background: '#000', overflow: 'hidden',
-      display: 'flex', flexDirection: 'column',
-      alignItems: 'center', justifyContent: 'center', gap: 28,
-    }}>
-      <style>{`
-        /* Text breathes in sync with the light: brighter/expanded on fill,
-           dimmer/tighter on empty, with a tiny vertical float. 5s = one breath. */
-        @keyframes gen-text {
-          0%,100% { opacity: 0.4;  transform: translateY(1.5px);  letter-spacing: 0.24em; }
-          50%     { opacity: 0.92; transform: translateY(-1.5px); letter-spacing: 0.30em; }
-        }
-      `}</style>
-
-      {/* The nebula canvas — soft-blurred so noise dabs melt into smoke. Small,
-          centred, ~300px. filter blur gives the volumetric softness cheaply. */}
-      <canvas
-        ref={canvasRef}
-        aria-hidden
-        style={{
-          width: 'clamp(220px, 24vw, 320px)',
-          height: 'clamp(220px, 24vw, 320px)',
-          filter: 'blur(7px)',
-          willChange: 'contents',
-        }}
-      />
-
-      {/* Heading — directly beneath the light, breathing in sync. */}
+      {/* Animated peach glow blob inside the ring */}
       <div style={{
-        fontFamily: 'Assistant, sans-serif',
-        fontSize: 'clamp(12px, 1.3vw, 15px)',
-        textTransform: 'uppercase',
-        color: 'rgba(240,235,255,0.85)',
-        whiteSpace: 'nowrap',
-        animation: 'gen-text 5s ease-in-out infinite',
-        willChange: 'opacity, transform, letter-spacing',
+        position: 'absolute',
+        inset: 16,
+        borderRadius: '50%',
+        overflow: 'hidden',
       }}>
-        Generating your simulation
+        <div style={{
+          position: 'absolute',
+          inset: -20,
+          background: 'radial-gradient(ellipse at 40% 40%, rgba(255,201,157,0.9) 0%, rgba(255,193,157,0.5) 35%, rgba(188,194,255,0.2) 65%, transparent 80%)',
+          filter: 'blur(12px)',
+          animation: 'glowDrift 4s ease-in-out infinite',
+        }} />
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          background: 'radial-gradient(ellipse at 60% 60%, rgba(255,193,187,0.6) 0%, transparent 60%)',
+          filter: 'blur(8px)',
+          animation: 'glowPulse 3s ease-in-out infinite',
+        }} />
       </div>
+
+      {/* The rotating ring - same as processing ring */}
+      <svg
+        width="120"
+        height="120"
+        viewBox="0 0 120 120"
+        style={{
+          position: 'absolute',
+          inset: 0,
+          animation: 'ringRotate 2s linear infinite',
+        }}
+      >
+        <circle
+          cx="60" cy="60" r="54"
+          fill="none"
+          stroke="rgba(255,201,157,0.8)"
+          strokeWidth="2"
+          strokeDasharray="80 260"
+          strokeLinecap="round"
+        />
+      </svg>
     </div>
-  );
-}
+
+    {/* Text below */}
+    <div style={{
+      marginTop: 20,
+      color: 'rgba(255,201,157,0.55)',
+      fontSize: 11,
+      letterSpacing: '0.25em',
+      fontFamily: 'Assistant, sans-serif',
+      textTransform: 'uppercase',
+      animation: 'textFade 3s ease-in-out infinite',
+    }}>
+      Generating your simulation
+    </div>
+  </div>
+);
 
 // ─── Mobile detection ─────────────────────────────────────────────────────────
 
