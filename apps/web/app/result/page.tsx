@@ -584,103 +584,149 @@ function ProcessingMetrics({ visible, onComplete }: { visible: boolean; onComple
 }
 
 // ─── Generation preview (video "still generating" state) ─────────────────────
-// Rotating ring with an animated peach glow blob inside, shown while the video
-// generates. Mounting/unmounting is handled by the caller (blobMounted +
-// the fade/scale reveal at the render sites).
-const GenerationBlob = () => (
-  <div style={{
-    position: 'absolute',
-    inset: 0,
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    background: '#000',
-  }}>
-    <style>{`
-      @keyframes ringRotate {
-        from { transform: rotate(0deg); }
-        to { transform: rotate(360deg); }
-      }
-      @keyframes glowPulse {
-        0%, 100% { opacity: 0.4; transform: scale(0.85); }
-        50% { opacity: 0.8; transform: scale(1.1); }
-      }
-      @keyframes glowDrift {
-        0% { transform: translate(0%, 0%) scale(1); }
-        33% { transform: translate(15%, -10%) scale(1.15); }
-        66% { transform: translate(-10%, 15%) scale(0.9); }
-        100% { transform: translate(0%, 0%) scale(1); }
-      }
-      @keyframes textFade {
-        0%, 100% { opacity: 0.4; }
-        50% { opacity: 0.7; }
-      }
-    `}</style>
+// A compact (~280px) cloud of soft volumetric light — amber, deep violet and
+// electric blue drifting, mixing, dissolving and reforming like aurora / ink in
+// water / fog. Purely abstract: no ring, no orb, no solid centre, no defined
+// edge — light suspended in fog, not an object. Rendered on a canvas as a moving
+// noise field so the motion comes from the LIGHT itself (not rotating/scaling
+// shapes), with a heavy CSS blur so nothing ever has a hard edge. Breathes on a
+// slow ~5s loop (forms → dissolves → reforms). Text sits ~24px below. Caller
+// handles mount/unmount + the emerge-into-video reveal.
 
-    {/* Outer container - same size as the processing ring */}
-    <div style={{ position: 'relative', width: 120, height: 120 }}>
+// Draws one frame of the light cloud. `t` = seconds; `breath` = 0..1 fill.
+function drawLightCloud(
+  ctx: CanvasRenderingContext2D,
+  w: number, h: number, t: number, breath: number,
+) {
+  ctx.clearRect(0, 0, w, h);
+  const cx = w / 2, cy = h / 2;
+  // cheap flowing value-noise (domain-warped sines) — reads as smoke once blurred
+  const noise = (x: number, y: number, s: number, ph: number) =>
+    Math.sin(x * s + t * 0.5 + ph) * Math.cos(y * s * 1.2 - t * 0.4) +
+    0.5 * Math.sin((x + y) * s * 1.6 + t * 0.7 + ph) +
+    0.5 * Math.cos((x - y) * s * 2.0 - t * 0.55);
 
-      {/* Animated peach glow blob inside the ring */}
-      <div style={{
-        position: 'absolute',
-        inset: 16,
-        borderRadius: '50%',
-        overflow: 'hidden',
-      }}>
-        <div style={{
-          position: 'absolute',
-          inset: -20,
-          background: 'radial-gradient(ellipse at 40% 40%, rgba(255,201,157,0.9) 0%, rgba(255,193,157,0.5) 35%, rgba(188,194,255,0.2) 65%, transparent 80%)',
-          filter: 'blur(12px)',
-          animation: 'glowDrift 4s ease-in-out infinite',
-        }} />
-        <div style={{
-          position: 'absolute',
-          inset: 0,
-          background: 'radial-gradient(ellipse at 60% 60%, rgba(255,193,187,0.6) 0%, transparent 60%)',
-          filter: 'blur(8px)',
-          animation: 'glowPulse 3s ease-in-out infinite',
-        }} />
-      </div>
+  // Three colour clouds, each drifting on its own slow orbit around centre so
+  // they continuously flow into and past one another — never a fixed shape.
+  // Vivid bases; each cloud drifts on a WIDE orbit so the three colours stay in
+  // distinct, separated regions (rather than piling up grey at the centre) while
+  // still flowing past one another.
+  const clouds = [
+    { col: [255, 178, 96],  ph: 0.0, ox: 0.62, oy: 0.42, sp: 0.17 }, // amber
+    { col: [170, 96, 255],  ph: 2.1, ox: 0.58, oy: 0.60, sp: 0.13 }, // violet
+    { col: [70, 156, 255],  ph: 4.2, ox: 0.64, oy: 0.50, sp: 0.15 }, // blue
+  ];
 
-      {/* The rotating ring - same as processing ring */}
-      <svg
-        width="120"
-        height="120"
-        viewBox="0 0 120 120"
-        style={{
-          position: 'absolute',
-          inset: 0,
-          animation: 'ringRotate 2s linear infinite',
-        }}
-      >
-        <circle
-          cx="60" cy="60" r="54"
-          fill="none"
-          stroke="rgba(255,201,157,0.8)"
-          strokeWidth="2"
-          strokeDasharray="80 260"
-          strokeLinecap="round"
-        />
-      </svg>
-    </div>
+  ctx.globalCompositeOperation = 'lighter'; // additive light
 
-    {/* Text below */}
+  // Each cloud is a compact drifting smear of small dabs. A tight spread keeps
+  // its colour concentrated (so it stays saturated, not washed out) while the
+  // wide orbit above moves it around the field.
+  const R = Math.min(w, h) * 0.30;
+  for (const c of clouds) {
+    const [r, g, b] = c.col;
+    const bx = cx + Math.cos(t * c.sp + c.ph) * R * c.ox;
+    const by = cy + Math.sin(t * c.sp * 1.3 + c.ph) * R * c.oy;
+    const DABS = 22;
+    for (let i = 0; i < DABS; i++) {
+      const ia = (i / DABS) * Math.PI * 2 + c.ph;
+      const nx = noise(Math.cos(ia) * 1.4, Math.sin(ia) * 1.4, 1.1, c.ph + i);
+      const ny = noise(Math.sin(ia) * 1.4, Math.cos(ia) * 1.4, 1.3, c.ph - i);
+      const px = bx + nx * R * 0.42 + Math.cos(ia) * R * 0.2;
+      const py = by + ny * R * 0.42 + Math.sin(ia) * R * 0.2;
+      const flick = 0.4 + 0.6 * (0.5 + 0.5 * noise(px * 0.01, py * 0.01, 2.2, c.ph));
+      const alpha = breath * flick * 0.09;
+      const size = R * (0.4 + 0.42 * flick);
+      if (alpha < 0.004) continue;
+      const grad = ctx.createRadialGradient(px, py, 0, px, py, size);
+      grad.addColorStop(0, `rgba(${r},${g},${b},${alpha})`);
+      grad.addColorStop(0.55, `rgba(${r},${g},${b},${alpha * 0.3})`);
+      grad.addColorStop(1, `rgba(${r},${g},${b},0)`);
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(px, py, size, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  // Fade the outer edge to nothing so the cloud dissolves into black (no edge).
+  ctx.globalCompositeOperation = 'destination-in';
+  const fade = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.min(w, h) * 0.5);
+  fade.addColorStop(0, 'rgba(0,0,0,1)');
+  fade.addColorStop(0.62, 'rgba(0,0,0,1)');
+  fade.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = fade;
+  ctx.fillRect(0, 0, w, h);
+  ctx.globalCompositeOperation = 'source-over';
+}
+
+function GenerationBlob() {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    const DPR = Math.min(2, typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1);
+    const CSS = 280;
+    canvas.width = CSS * DPR;
+    canvas.height = CSS * DPR;
+
+    let raf = 0, start = 0;
+    const PERIOD = 5; // seconds per breath
+    const loop = (now: number) => {
+      if (!start) start = now;
+      const t = (now - start) / 1000;
+      const phase = (t % PERIOD) / PERIOD;
+      // seamless raised-cosine breathe, floored so it never fully vanishes
+      const breath = 0.14 + 0.86 * (0.5 - 0.5 * Math.cos(phase * Math.PI * 2));
+      drawLightCloud(ctx, canvas.width, canvas.height, t, breath);
+      raf = requestAnimationFrame(loop);
+    };
+    raf = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
+  return (
     <div style={{
-      marginTop: 20,
-      color: 'rgba(255,201,157,0.55)',
-      fontSize: 11,
-      letterSpacing: '0.25em',
-      fontFamily: 'Assistant, sans-serif',
-      textTransform: 'uppercase',
-      animation: 'textFade 3s ease-in-out infinite',
+      position: 'absolute', inset: 0, background: '#000', overflow: 'hidden',
+      display: 'flex', flexDirection: 'column',
+      alignItems: 'center', justifyContent: 'center', gap: 24,
     }}>
-      Generating your simulation
-    </div>
-  </div>
-);
+      <style>{`
+        @keyframes gen-text {
+          0%,100% { opacity: 0.4;  letter-spacing: 0.24em; transform: translateY(1px); }
+          50%     { opacity: 0.85; letter-spacing: 0.30em; transform: translateY(-1px); }
+        }
+      `}</style>
 
+      {/* Heavy blur melts the noise dabs into soft fog — no hard edges. */}
+      <canvas
+        ref={canvasRef}
+        aria-hidden
+        style={{
+          width: 'clamp(220px, 24vw, 300px)',
+          height: 'clamp(220px, 24vw, 300px)',
+          filter: 'blur(10px)',
+          willChange: 'contents',
+        }}
+      />
+
+      <div style={{
+        fontFamily: 'Assistant, sans-serif',
+        fontSize: 'clamp(12px, 1.3vw, 15px)',
+        textTransform: 'uppercase',
+        color: 'rgba(240,235,255,0.85)',
+        whiteSpace: 'nowrap',
+        animation: 'gen-text 5s ease-in-out infinite',
+        willChange: 'opacity, transform, letter-spacing',
+      }}>
+        Generating your simulation
+      </div>
+    </div>
+  );
+}
 // ─── Mobile detection ─────────────────────────────────────────────────────────
 
 function useIsMobile() {
