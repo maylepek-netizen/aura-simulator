@@ -167,11 +167,57 @@ export default function BankPage() {
   const touchMoved = useRef(false);                 // did the finger move (to distinguish tap from drag)
   const lastTouch = useRef({ x: 0, y: 0 });
 
+  // Background auto-cleanup: HEAD each video and remove from localStorage ONLY
+  // the ones whose asset is definitively gone (a real 403/404/410). Timeouts,
+  // network/CORS errors, and non-https URLs are treated as "unknown" and left
+  // alone — a flaky connection must never delete a good simulation, since the
+  // removal is permanent with no undo.
+  const cleanExpired = async (records: SimulationRecord[]) => {
+    const DEAD_STATUSES = new Set([403, 404, 410]);
+
+    const results = await Promise.allSettled(
+      records.map(async (r) => {
+        // Can't verify a non-https URL (e.g. /api/video-proxy or empty) from the
+        // client — don't delete on that basis.
+        if (!r.videoUri || !r.videoUri.startsWith("https://")) {
+          return { id: r.id, confirmedDead: false };
+        }
+        try {
+          const res = await fetch(r.videoUri, { method: "HEAD", signal: AbortSignal.timeout(3000) });
+          // Only a definitive "gone" status counts as dead. A transient 5xx or a
+          // network error is NOT a reason to delete.
+          return { id: r.id, confirmedDead: DEAD_STATUSES.has(res.status) };
+        } catch {
+          // Timeout / network / CORS error — unknown, keep the record.
+          return { id: r.id, confirmedDead: false };
+        }
+      })
+    );
+
+    const deadIds = new Set(
+      results
+        .map((r) => (r.status === "fulfilled" ? r.value : null))
+        .filter((r): r is { id: string; confirmedDead: boolean } => !!r && r.confirmedDead)
+        .map((r) => r.id)
+    );
+
+    if (deadIds.size > 0) {
+      deleteSimulationsByIds(deadIds);
+      // Refresh the grid to drop the removed cards.
+      const remaining = loadSimulations().slice().reverse();
+      setRecords(remaining);
+      setPositions(getCardPositions(remaining.length));
+    }
+  };
+
   useEffect(() => {
     const all = loadSimulations().slice().reverse();
     setRecords(all);
     setPositions(getCardPositions(all.length));
     setLoading(false);
+
+    // Non-blocking — runs in the background, doesn't hold up the render.
+    void cleanExpired(all);
   }, []);
 
   // Once the user starts dragging, fade the hint out after 3s.
