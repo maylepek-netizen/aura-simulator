@@ -203,6 +203,8 @@ export default function ResearchPage() {
   const router = useRouter();
   const [activeTopic, setActiveTopic] = useState(0); // index into TOPICS
   const [hoveredNode, setHoveredNode] = useState<number | null>(null);
+  // Dissolve-to-black before navigating back to the simulator.
+  const [fading, setFading] = useState(false);
 
   const topic = TOPICS[activeTopic];
 
@@ -697,6 +699,22 @@ export default function ResearchPage() {
 
       <div className="research-root">
 
+        {/* Dissolve-to-black overlay. Always mounted so the 0→1 opacity
+            transition actually animates (if it only mounted when fading were
+            already true, it would appear at full opacity with no fade). */}
+        <div
+          aria-hidden
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: '#000',
+            opacity: fading ? 1 : 0,
+            transition: 'opacity 0.6s ease',
+            pointerEvents: fading ? 'auto' : 'none',
+            zIndex: 9999,
+          }}
+        />
+
         {/* ── Nav ── */}
         <nav className="r-nav">
           <div className="r-nav-logo">
@@ -704,7 +722,10 @@ export default function ResearchPage() {
             AURA SIMULATOR
           </div>
           <button
-            onClick={() => router.push('/')}
+            onClick={() => {
+              setFading(true);
+              setTimeout(() => router.push('/'), 600);
+            }}
             onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 0 20px rgba(255,201,157,0.6)'; }}
             onMouseLeave={(e) => { e.currentTarget.style.boxShadow = 'none'; }}
             style={{
