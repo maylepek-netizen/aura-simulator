@@ -584,48 +584,15 @@ function ProcessingMetrics({ visible, onComplete }: { visible: boolean; onComple
 }
 
 // ─── Generation preview (video "still generating" state) ─────────────────────
-// A cinematic, Midjourney/Veo-style preview that fills the video slot until the
-// real video arrives. NOT a spinner or placeholder — a living, unresolved image:
-// heavily blurred cinematic colour fields (soft purples, blues, warm highlights)
-// with bloom, drifting light, film grain, gentle chromatic aberration, breathing
-// opacity and a slow blur that sharpens over time but plateaus while still soft
-// (never fully clear — the real video resolves the rest). Edges fade to black
-// via vignette + edge blur. Two lines of text only; no bars, %, or icons.
-//
-// Blurred colour blobs of the diffusion field. Purple/blue/warm, not grayscale.
-const PREVIEW_BLOBS: React.CSSProperties[] = [
-  { top: '2%',  left: '8%',  width: '46%', height: '78%',
-    background: 'radial-gradient(ellipse at 50% 45%, rgba(150,110,220,0.55) 0%, rgba(110,80,190,0.22) 45%, transparent 72%)',
-    animation: 'prev-driftA 13s ease-in-out infinite' },
-  { top: '10%', right: '4%', width: '48%', height: '74%',
-    background: 'radial-gradient(ellipse at 50% 50%, rgba(90,140,230,0.5) 0%, rgba(60,100,200,0.2) 48%, transparent 74%)',
-    animation: 'prev-driftB 17s ease-in-out infinite' },
-  { top: '22%', left: '26%', width: '44%', height: '60%',
-    background: 'radial-gradient(ellipse at 50% 50%, rgba(255,180,120,0.42) 0%, rgba(230,150,90,0.16) 50%, transparent 72%)',
-    animation: 'prev-driftC 15s ease-in-out infinite' },
-  { bottom: '-6%', left: '18%', width: '40%', height: '58%',
-    background: 'radial-gradient(ellipse at 50% 40%, rgba(120,90,200,0.4) 0%, transparent 70%)',
-    animation: 'prev-driftB 19s ease-in-out infinite reverse' },
-  { top: '14%', left: '38%', width: '30%', height: '40%',
-    background: 'radial-gradient(ellipse at 50% 50%, rgba(255,225,180,0.4) 0%, rgba(240,190,130,0.14) 55%, transparent 72%)',
-    animation: 'prev-driftA 11s ease-in-out infinite reverse' },
-  { bottom: '4%', right: '10%', width: '42%', height: '52%',
-    background: 'radial-gradient(ellipse at 50% 50%, rgba(160,120,235,0.34) 0%, transparent 70%)',
-    animation: 'prev-driftC 16s ease-in-out infinite reverse' },
-  { top: '-4%', right: '20%', width: '34%', height: '46%',
-    background: 'radial-gradient(ellipse, rgba(110,160,240,0.3) 0%, transparent 68%)',
-    animation: 'prev-driftA 14s ease-in-out infinite' },
-];
-
-// Bright bloom cores — small, hot points of light that glow through the blur.
-const PREVIEW_CORES: React.CSSProperties[] = [
-  { top: '40%', left: '30%', width: 90, height: 90,
-    background: 'radial-gradient(circle, rgba(255,210,160,0.85) 0%, rgba(255,180,120,0.3) 40%, transparent 70%)' },
-  { top: '34%', left: '54%', width: 70, height: 70,
-    background: 'radial-gradient(circle, rgba(150,180,255,0.8) 0%, rgba(110,140,240,0.28) 42%, transparent 70%)' },
-  { top: '52%', left: '46%', width: 60, height: 60,
-    background: 'radial-gradient(circle, rgba(200,160,255,0.7) 0%, transparent 68%)' },
-];
+// A cinematic transition between the intro sequence and the simulation: a small,
+// centred "eye made of soft blurred light" (~28% of viewport width) that breathes,
+// morphs, and never looks like a literal eye icon. Purple / warm-amber / blue
+// light drift inside it like ink underwater; the centre brightens and fades; the
+// blurred silhouette slowly opens and closes and is never perfectly symmetrical.
+// Over time it brightens, its breathing slows, and the shape begins to dissolve —
+// so the real video (fading up beneath this layer) feels like it emerges FROM the
+// eye's centre rather than cutting in abruptly. The heading floats/breathes in
+// sync above it.
 
 const GenerationBlob = () => (
   <div style={{
@@ -635,112 +602,124 @@ const GenerationBlob = () => (
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 22,
     background: '#000',
     overflow: 'hidden',
   }}>
     <style>{`
-      @keyframes prev-driftA {
-        0%,100% { transform: translate(0,0) scale(1);      opacity: 0.85; }
-        33%     { transform: translate(4%,-3%) scale(1.1); opacity: 1;    }
-        66%     { transform: translate(-3%,4%) scale(0.95);opacity: 0.7;  }
+      /* ── The eye's overall breathing: slow expand/contract + open/close. The
+         asymmetric scaleX/scaleY keeps the silhouette from ever being a perfect
+         circle. Very slow (16s) and hypnotic. As loading ends the reveal layer
+         above scales this whole thing up + brightens so the video emerges from
+         its centre. */
+      @keyframes eye-breathe {
+        0%,100% { transform: scale(0.94, 0.82) rotate(-1deg); }
+        30%     { transform: scale(1.06, 0.96) rotate(1.2deg); }
+        55%     { transform: scale(1.02, 1.04) rotate(0.4deg); }
+        78%     { transform: scale(0.98, 0.88) rotate(-0.8deg); }
       }
-      @keyframes prev-driftB {
-        0%,100% { transform: translate(0,0) scale(1);       opacity: 0.8;  }
-        40%     { transform: translate(-5%,3%) scale(1.12); opacity: 0.98; }
-        70%     { transform: translate(3%,-4%) scale(0.92); opacity: 0.65; }
+      /* The lid: a soft dark ellipse that drifts down over the top, giving a
+         subtle "blink"/open-close without a hard edge. Never fully closes. */
+      @keyframes eye-lid {
+        0%,100% { transform: translateY(-6%) scaleY(0.9); opacity: 0.5; }
+        45%     { transform: translateY(2%)  scaleY(1.08); opacity: 0.78; }
+        70%     { transform: translateY(-3%) scaleY(0.95); opacity: 0.6; }
       }
-      @keyframes prev-driftC {
-        0%,100% { transform: translate(0,0) scale(1);      opacity: 0.7;  }
-        45%     { transform: translate(4%,5%) scale(1.14); opacity: 0.95; }
-        75%     { transform: translate(-3%,-3%) scale(0.97);opacity: 0.6; }
+      /* Central iris glow — brightens then fades, independent rhythm. */
+      @keyframes eye-core {
+        0%,100% { transform: scale(0.85); opacity: 0.55; }
+        50%     { transform: scale(1.12); opacity: 1;    }
       }
-      /* Slow zoom + breathing on the whole field — feels "alive". */
-      @keyframes prev-breathe {
-        0%,100% { transform: scale(1);    opacity: 0.92; }
-        50%     { transform: scale(1.06); opacity: 1;    }
+      /* Colour-ink layers drift independently inside the eye, like ink under
+         water. Each on its own slow timing so they flow into one another. */
+      @keyframes ink-a { 0%,100%{ transform: translate(-6%,4%) scale(1);    } 33%{ transform: translate(5%,-5%) scale(1.15);} 66%{ transform: translate(3%,6%) scale(0.92);} }
+      @keyframes ink-b { 0%,100%{ transform: translate(5%,-3%) scale(1.05); } 40%{ transform: translate(-6%,4%) scale(0.9);} 72%{ transform: translate(4%,-6%) scale(1.18);} }
+      @keyframes ink-c { 0%,100%{ transform: translate(2%,5%) scale(0.95);  } 45%{ transform: translate(-4%,-4%) scale(1.2);} 75%{ transform: translate(6%,3%) scale(1);} }
+      /* Edges softly dissolve and reform — a slow blur pulse over the whole eye. */
+      @keyframes eye-blur {
+        0%,100% { filter: blur(30px) brightness(1);    }
+        50%     { filter: blur(22px) brightness(1.12); }
       }
-      /* Blur sharpens over the first ~9s, then PLATEAUS while still soft —
-         never fully clear. The real video resolves the rest on crossfade. */
-      @keyframes prev-resolve {
-        0%   { filter: blur(46px) saturate(1.25) brightness(1.05); }
-        70%  { filter: blur(20px) saturate(1.2)  brightness(1.02); }
-        100% { filter: blur(17px) saturate(1.2)  brightness(1.02); }
+      /* Text: breathing opacity + tiny vertical float + subtle tracking + glow,
+         synced to the eye's breathing period (16s core, ~8s here so it reads). */
+      @keyframes gen-text {
+        0%,100% { opacity: 0.5;  transform: translateY(2px);  letter-spacing: 0.26em; text-shadow: 0 0 6px rgba(200,180,255,0.0); }
+        50%     { opacity: 0.92; transform: translateY(-2px); letter-spacing: 0.32em; text-shadow: 0 0 16px rgba(210,190,255,0.45); }
       }
-      /* Chromatic-aberration ghosts drift oppositely for a subtle RGB split. */
-      @keyframes prev-caberr-r { 0%,100%{ transform: translate(-2px,0);} 50%{ transform: translate(3px,-1px);} }
-      @keyframes prev-caberr-b { 0%,100%{ transform: translate(2px,0);}  50%{ transform: translate(-3px,1px);} }
-      @keyframes prev-grain    { 0%{transform:translate(0,0)} 20%{transform:translate(-4%,3%)} 40%{transform:translate(3%,-2%)} 60%{transform:translate(-2%,4%)} 80%{transform:translate(4%,-3%)} 100%{transform:translate(0,0)} }
-      @keyframes prev-textbreathe { 0%,100%{ opacity:0.55 } 50%{ opacity:0.9 } }
     `}</style>
 
-    {/* The diffusion field — blurred colour blobs that slowly resolve. */}
-    <div style={{
-      position: 'absolute', inset: 0,
-      animation: 'prev-breathe 9s ease-in-out infinite',
+    {/* ── THE EYE OF LIGHT ── centred, ~28vw wide, generous negative space. */}
+    <div aria-hidden style={{
+      position: 'relative',
+      width: 'clamp(180px, 28vw, 420px)',
+      aspectRatio: '1.7 / 1',              // wider-than-tall, eye-like proportion
+      animation: 'eye-breathe 16s ease-in-out infinite',
+      willChange: 'transform',
     }}>
+      {/* Blur wrapper — the whole eye stays heavily blurred, edges dissolving. */}
       <div style={{
-        position: 'absolute', inset: '-8%',
-        animation: 'prev-resolve 9s ease-out forwards',
+        position: 'absolute', inset: '-14%',
+        animation: 'eye-blur 11s ease-in-out infinite',
       }}>
-        {/* Chromatic aberration: same field, offset red & blue ghosts. */}
-        <div style={{ position: 'absolute', inset: 0, mixBlendMode: 'screen', filter: 'hue-rotate(8deg)', opacity: 0.5, animation: 'prev-caberr-r 7s ease-in-out infinite' }}>
-          {PREVIEW_BLOBS.map((b, i) => <div key={i} aria-hidden style={{ position: 'absolute', ...b }} />)}
-        </div>
-        <div style={{ position: 'absolute', inset: 0, mixBlendMode: 'screen', filter: 'hue-rotate(-10deg)', opacity: 0.5, animation: 'prev-caberr-b 7s ease-in-out infinite' }}>
-          {PREVIEW_BLOBS.map((b, i) => <div key={i} aria-hidden style={{ position: 'absolute', ...b }} />)}
-        </div>
-        {/* Main field */}
-        {PREVIEW_BLOBS.map((b, i) => <div key={i} aria-hidden style={{ position: 'absolute', ...b }} />)}
-        {/* Bright bloom cores */}
-        {PREVIEW_CORES.map((c, i) => (
-          <div key={i} aria-hidden style={{
-            position: 'absolute', borderRadius: '50%', filter: 'blur(8px)',
-            animation: `prev-driftA ${9 + i * 2}s ease-in-out ${i * 0.7}s infinite`,
-            ...c,
-          }} />
-        ))}
+        {/* Ink layer — purple. Almond-ish radial so it hugs the eye silhouette. */}
+        <div style={{
+          position: 'absolute', inset: '4%', borderRadius: '50%',
+          background: 'radial-gradient(ellipse 60% 46% at 42% 52%, rgba(158,110,224,0.85) 0%, rgba(120,80,200,0.4) 38%, transparent 70%)',
+          mixBlendMode: 'screen', animation: 'ink-a 15s ease-in-out infinite',
+        }} />
+        {/* Ink layer — blue, drifts the other way. */}
+        <div style={{
+          position: 'absolute', inset: '2%', borderRadius: '50%',
+          background: 'radial-gradient(ellipse 58% 44% at 60% 48%, rgba(96,150,240,0.8) 0%, rgba(60,110,210,0.36) 40%, transparent 72%)',
+          mixBlendMode: 'screen', animation: 'ink-b 19s ease-in-out infinite',
+        }} />
+        {/* Ink layer — warm amber, lower/off-centre so it's never symmetrical. */}
+        <div style={{
+          position: 'absolute', inset: '6%', borderRadius: '50%',
+          background: 'radial-gradient(ellipse 54% 40% at 52% 62%, rgba(255,190,120,0.72) 0%, rgba(235,155,95,0.3) 42%, transparent 72%)',
+          mixBlendMode: 'screen', animation: 'ink-c 17s ease-in-out infinite',
+        }} />
+        {/* Bright iris core — brightens then fades. */}
+        <div style={{
+          position: 'absolute', top: '50%', left: '50%',
+          width: '34%', aspectRatio: '1 / 1', marginTop: '-17%', marginLeft: '-17%',
+          borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(255,244,220,0.95) 0%, rgba(240,205,255,0.5) 40%, transparent 70%)',
+          animation: 'eye-core 9s ease-in-out infinite',
+        }} />
+        {/* Soft lid — a dark ellipse drifting over the top for the blink. */}
+        <div style={{
+          position: 'absolute', left: '-6%', right: '-6%', top: '-40%', height: '78%',
+          borderRadius: '50%',
+          background: 'radial-gradient(ellipse 70% 100% at 50% 100%, transparent 60%, rgba(0,0,0,0.85) 100%)',
+          animation: 'eye-lid 13s ease-in-out infinite',
+        }} />
       </div>
     </div>
 
-    {/* Vignette + edge fade to black (Midjourney-style framed preview). */}
+    {/* Vignette — deep black surround so the eye floats in negative space. */}
     <div aria-hidden style={{
       position: 'absolute', inset: 0, pointerEvents: 'none',
-      background: 'radial-gradient(ellipse at center, transparent 32%, rgba(0,0,0,0.55) 72%, #000 100%)',
-    }} />
-    <div aria-hidden style={{
-      position: 'absolute', inset: 0, pointerEvents: 'none',
-      boxShadow: 'inset 0 0 120px 60px #000',
+      background: 'radial-gradient(ellipse at center, transparent 24%, rgba(0,0,0,0.7) 58%, #000 82%)',
     }} />
 
-    {/* Film grain — a faint moving noise layer. */}
-    <div aria-hidden style={{
-      position: 'absolute', inset: '-20%', pointerEvents: 'none',
-      opacity: 0.06, mixBlendMode: 'overlay',
-      backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
-      animation: 'prev-grain 1.4s steps(4) infinite',
-    }} />
-
-    {/* Text — two lines only, no bars/%/icons. Sits above the preview. */}
+    {/* Heading — already visible; now breathes/floats in sync above the eye. */}
     <div style={{
-      position: 'absolute', bottom: '10%', left: 0, right: 0,
-      display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10,
+      position: 'absolute',
+      top: 'calc(50% - clamp(150px, 20vw, 260px))',   // sits above the eye
+      left: 0, right: 0,
+      display: 'flex', justifyContent: 'center',
       zIndex: 2, pointerEvents: 'none',
     }}>
       <div style={{
         fontFamily: 'Assistant, sans-serif',
-        fontSize: 15, letterSpacing: '0.28em', textTransform: 'uppercase',
-        color: 'rgba(255,255,255,0.82)',
-        animation: 'prev-textbreathe 3.4s ease-in-out infinite',
+        fontSize: 'clamp(13px, 1.5vw, 16px)',
+        textTransform: 'uppercase',
+        color: 'rgba(240,235,255,0.9)',
+        whiteSpace: 'nowrap',
+        animation: 'gen-text 8s ease-in-out infinite',
+        willChange: 'opacity, transform, letter-spacing',
       }}>
-        Generating your simulation...
-      </div>
-      <div style={{
-        fontFamily: 'Assistant, sans-serif',
-        fontSize: 13, letterSpacing: '0.04em',
-        color: 'rgba(255,255,255,0.42)',
-      }}>
-        Building your experience...
+        Generating your simulation
       </div>
     </div>
   </div>
@@ -1314,8 +1293,8 @@ export default function ResultPage() {
   // Unmount the generation blob once its fade-out has finished.
   useEffect(() => {
     if (!videoUrl) { setBlobMounted(true); return; }
-    // Outlast the 800ms cross-fade before unmounting, so the fade fully plays.
-    const t = setTimeout(() => setBlobMounted(false), 900);
+    // Outlast the 900ms reveal (scale-up + fade) before unmounting, so it plays.
+    const t = setTimeout(() => setBlobMounted(false), 1000);
     return () => clearTimeout(t);
   }, [videoUrl]);
 
@@ -1663,7 +1642,12 @@ export default function ResultPage() {
             <div style={{
               position: "absolute", inset: 0, zIndex: 2,
               opacity: result && !videoUrl ? 1 : 0,
-              transition: "opacity 800ms ease",
+              // Same emerge-from-the-eye reveal as desktop: scale up + brighten
+              // as it fades, so the video appears from the eye's centre.
+              transform: result && !videoUrl ? "scale(1)" : "scale(1.35)",
+              filter: result && !videoUrl ? "brightness(1)" : "brightness(1.6)",
+              transformOrigin: "center center",
+              transition: "opacity 900ms ease, transform 900ms cubic-bezier(0.4,0,0.2,1), filter 900ms ease",
               pointerEvents: "none",
             }}>
               <GenerationBlob />
@@ -1836,8 +1820,13 @@ export default function ResultPage() {
           <div style={{
             position: "absolute", inset: 0, zIndex: 2,
             opacity: result && !videoUrl ? 1 : 0,
-            // 800ms crossfade: the preview dissolves as the video fades up beneath.
-            transition: "opacity 800ms ease",
+            // On reveal the eye scales up and brightens as it fades, so the video
+            // (fading up beneath) appears to emerge from the eye's centre rather
+            // than a flat crossfade. 900ms so the expansion reads.
+            transform: result && !videoUrl ? "scale(1)" : "scale(1.35)",
+            filter: result && !videoUrl ? "brightness(1)" : "brightness(1.6)",
+            transformOrigin: "center center",
+            transition: "opacity 900ms ease, transform 900ms cubic-bezier(0.4,0,0.2,1), filter 900ms ease",
             pointerEvents: "none",
           }}>
             <GenerationBlob />
