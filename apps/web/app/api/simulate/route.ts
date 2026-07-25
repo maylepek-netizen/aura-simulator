@@ -164,8 +164,9 @@ function buildVeoPrompt(
     : `Extreme close-up on ${anchor} — sharp foreground anchor.`;
 
   if (classification.environment === 'B' || classification.environment === 'C') {
-    // Check if situation actually involves a specific person
-    const hasPerson = /\b(mom|dad|mother|father|parent|teacher|doctor|friend|boss|stranger|person|someone|he|she|they|man|woman|girl|boy|cashier|waiter|dentist|therapist|nurse|colleague)\b/i.test(situation);
+    // Only trigger face-closeup for ONE specific person, not groups
+    const hasGroup = /\b(friends|people|everyone|crowd|group|party|class|team|family|kids|children|girls|boys|guys|colleagues|classmates|others)\b/i.test(situation);
+    const hasPerson = !hasGroup && /\b(mom|dad|mother|father|parent|teacher|doctor|friend|boss|stranger|person|someone|he|she|man|woman|girl|boy|cashier|waiter|dentist|therapist|nurse|colleague)\b/i.test(situation);
 
     if (hasPerson) {
       return `First-person POV at ${height}cm eye level. Scene: ${situation}. This must feel alien, clinical, dissociative — NOT cinematic or flattering. The world is experienced as raw unfiltered sensory data. Pick the most overwhelming sensory detail specific to this situation — a face too close, a clinical tool, fabric texture, a sound source. 0-3s: that overwhelming detail fills frame in extreme close-up, slightly too bright. 3-5s: slow involuntary drift away — another detail in the same environment. 5-7s: original detail intrudes back into frame, 1 second soft blur then sharp. 7-8s: back to start. Subtle tremor. Audio: ${audio}. Audio must match EXACTLY what you would hear in: ${situation}. Photorealistic raw documentary. No protagonist visible. White Western European appearance. No masks.${modifierText} ABSOLUTE NON-NEGOTIABLE: ONE single unbroken take. No cuts. No fades. No transitions. Continuous 8-second recording. STRICT: No AI glitches, no morphing, no digital artifacts.${thoughtsDirection}`;
