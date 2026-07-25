@@ -584,126 +584,117 @@ function ProcessingMetrics({ visible, onComplete }: { visible: boolean; onComple
 }
 
 // ─── Generation preview (video "still generating" state) ─────────────────────
-// A cinematic transition into the simulation: a defined, glowing line-art EYE —
-// an almond outline, an iris ring and a bright pupil — drawn as neon strokes that
-// grade from cool blue (upper-left) to warm amber (lower-right), each stroke
-// wrapped in a soft bloom. It breathes slowly and hypnotically, the pupil pulses,
-// and on reveal the whole eye scales up + brightens as it fades so the real video
-// (fading up beneath) appears to emerge from the eye's centre. The heading floats
-// and breathes in sync above it.
+// A cinematic transition into the simulation: an EYE-SHAPED NEBULA made purely of
+// soft volumetric blurred light — no outline, no iris, no pupil, no hard edges.
+// Purple, blue and warm-amber light pool along the eye silhouette (bright amber
+// rim across the top, cooler tones sinking to the sides) around a dark hollow
+// centre. The whole thing breathes on a slow 5s loop: light fills from within,
+// spreads, peaks, then drains until the eye almost disappears before reforming.
+// The colours drift independently like ink in water. On reveal it brightens and
+// scales up as it fades, so the real video emerges from within the light. The
+// heading sits at bottom-centre and breathes in sync.
 
 const GenerationBlob = () => (
   <div style={{
     position: 'absolute',
     inset: 0,
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
     background: '#000',
     overflow: 'hidden',
   }}>
     <style>{`
-      /* Whole-eye breathing: slow open/close via a gentle asymmetric scale so it
-         never sits perfectly still. Hypnotic 12s loop. */
-      @keyframes eye-breathe {
-        0%,100% { transform: scale(0.97, 0.9); }
-        50%     { transform: scale(1.03, 1.05); }
+      /* The breathing of the whole eye: fills with light → peaks → drains until
+         it almost disappears → refills. 5s loop. Brightness + subtle scale. */
+      @keyframes neb-breathe {
+        0%,100% { opacity: 0.12; transform: scale(0.88); filter: blur(40px) brightness(0.8) saturate(1.1); }
+        50%     { opacity: 1;    transform: scale(1.05); filter: blur(28px) brightness(1.55) saturate(1.35); }
       }
-      /* Pupil brightens and fades on its own rhythm. */
-      @keyframes eye-pupil {
-        0%,100% { transform: scale(0.82); opacity: 0.6; }
-        50%     { transform: scale(1.1);  opacity: 1;   }
-      }
-      /* Iris ring rotates almost imperceptibly so the colour play drifts. */
-      @keyframes eye-iris-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-      /* Bloom pulse behind the strokes — the glow swells and settles. */
-      @keyframes eye-bloom {
-        0%,100% { opacity: 0.5; filter: blur(18px); }
-        50%     { opacity: 0.8; filter: blur(24px); }
-      }
-      /* Text: breathing opacity + tiny vertical float + subtle tracking + glow. */
+      /* Colour blobs drift independently inside the blur — ink underwater. Slow,
+         each on its own timing so they flow into one another and never sync. */
+      @keyframes ink-a { 0%,100%{ transform: translate(-5%,3%) scale(1);    } 33%{ transform: translate(6%,-4%) scale(1.14);} 66%{ transform: translate(3%,5%) scale(0.9);} }
+      @keyframes ink-b { 0%,100%{ transform: translate(5%,-2%) scale(1.06); } 40%{ transform: translate(-6%,3%) scale(0.9);}  72%{ transform: translate(4%,-5%) scale(1.2);} }
+      @keyframes ink-c { 0%,100%{ transform: translate(2%,4%) scale(0.94);  } 45%{ transform: translate(-4%,-3%) scale(1.22);} 75%{ transform: translate(6%,2%) scale(1.02);} }
+      /* The bright top rim shimmers/drifts slightly so the silhouette morphs. */
+      @keyframes rim-drift { 0%,100%{ transform: translateX(-2%) scaleX(1);   } 50%{ transform: translateX(3%) scaleX(1.05);} }
+      /* Text: breathing opacity + tiny float + subtle tracking, synced to breathe. */
       @keyframes gen-text {
-        0%,100% { opacity: 0.5;  transform: translateY(2px);  letter-spacing: 0.26em; text-shadow: 0 0 6px rgba(200,180,255,0.0); }
-        50%     { opacity: 0.92; transform: translateY(-2px); letter-spacing: 0.32em; text-shadow: 0 0 16px rgba(210,190,255,0.45); }
+        0%,100% { opacity: 0.42; transform: translateY(1.5px);  letter-spacing: 0.26em; }
+        50%     { opacity: 0.9;  transform: translateY(-1.5px); letter-spacing: 0.32em; }
       }
     `}</style>
 
-    {/* ── THE EYE ── centred, ~30vw wide, generous negative space. */}
+    {/* ── THE EYE-NEBULA ── centred; light only, clipped to an eye silhouette. */}
     <div aria-hidden style={{
-      position: 'relative',
-      width: 'clamp(220px, 30vw, 460px)',
-      aspectRatio: '1.9 / 1',
-      animation: 'eye-breathe 12s ease-in-out infinite',
-      willChange: 'transform',
+      position: 'absolute', top: '50%', left: '50%',
+      width: 'clamp(340px, 46vw, 720px)',
+      aspectRatio: '2 / 1',
+      transform: 'translate(-50%, -50%)',
+      // The eye silhouette: a soft almond mask that fades at every edge, so the
+      // light inside has no border. WebkitMaskImage duplicated for Safari.
+      WebkitMaskImage: 'radial-gradient(ellipse 50% 50% at 50% 50%, #000 42%, transparent 72%)',
+      maskImage: 'radial-gradient(ellipse 50% 50% at 50% 50%, #000 42%, transparent 72%)',
     }}>
-      <svg viewBox="0 0 380 200" width="100%" height="100%" style={{ overflow: 'visible' }}>
-        <defs>
-          {/* Blue (upper-left) → amber (lower-right) sweep across the whole eye. */}
-          <linearGradient id="eyeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%"   stopColor="#7db4ff" />
-            <stop offset="42%"  stopColor="#cdbff2" />
-            <stop offset="70%"  stopColor="#ffcaa0" />
-            <stop offset="100%" stopColor="#ff9d5c" />
-          </linearGradient>
-          {/* Soft outer glow applied to the strokes. */}
-          <filter id="eyeGlow" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="6" result="b" />
-            <feMerge>
-              <feMergeNode in="b" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
-          <radialGradient id="pupilGrad" cx="50%" cy="50%" r="50%">
-            <stop offset="0%"  stopColor="#fff6e6" />
-            <stop offset="55%" stopColor="#ffd9b0" stopOpacity="0.85" />
-            <stop offset="100%" stopColor="#ffb27a" stopOpacity="0" />
-          </radialGradient>
-        </defs>
-
-        {/* Bloom halo behind everything. */}
-        <ellipse cx="190" cy="100" rx="150" ry="70" fill="url(#eyeGrad)" opacity="0.16"
-          style={{ transformOrigin: '190px 100px', animation: 'eye-bloom 9s ease-in-out infinite' }} />
-
-        {/* Eye group — glow + gradient stroke. */}
-        <g filter="url(#eyeGlow)" fill="none" stroke="url(#eyeGrad)" strokeLinecap="round">
-          {/* Almond outline: upper and lower arcs meeting at the corners. */}
-          <path d="M40 100 Q190 8 340 100" strokeWidth="6" />
-          <path d="M40 100 Q190 192 340 100" strokeWidth="6" />
-          {/* Iris ring — slowly drifting. */}
-          <circle cx="190" cy="100" r="46" strokeWidth="5.5"
-            style={{ transformOrigin: '190px 100px', animation: 'eye-iris-spin 40s linear infinite' }} />
-          {/* Inner iris detail ring. */}
-          <circle cx="190" cy="100" r="30" strokeWidth="2.5" opacity="0.7" />
-        </g>
-
-        {/* Bright pulsing pupil. */}
-        <circle cx="190" cy="100" r="20" fill="url(#pupilGrad)"
-          style={{ transformOrigin: '190px 100px', animation: 'eye-pupil 6s ease-in-out infinite' }} />
-      </svg>
+      {/* Breathing wrapper — fills and drains. */}
+      <div style={{
+        position: 'absolute', inset: '-10%',
+        animation: 'neb-breathe 5s ease-in-out infinite',
+        willChange: 'opacity, transform, filter',
+      }}>
+        {/* Purple pool — lower-left. */}
+        <div style={{
+          position: 'absolute', inset: 0, mixBlendMode: 'screen',
+          background: 'radial-gradient(ellipse 48% 42% at 32% 60%, rgba(176,110,255,1) 0%, rgba(130,80,230,0.5) 40%, transparent 70%)',
+          animation: 'ink-a 16s ease-in-out infinite',
+        }} />
+        {/* Blue pool — right / lower-right. */}
+        <div style={{
+          position: 'absolute', inset: 0, mixBlendMode: 'screen',
+          background: 'radial-gradient(ellipse 46% 40% at 70% 58%, rgba(96,164,255,1) 0%, rgba(60,120,235,0.48) 42%, transparent 72%)',
+          animation: 'ink-b 21s ease-in-out infinite',
+        }} />
+        {/* Bright warm-amber RIM across the top arc — the eye's brightest light. */}
+        <div style={{
+          position: 'absolute', inset: 0, mixBlendMode: 'screen',
+          background: 'radial-gradient(ellipse 64% 34% at 50% 28%, rgba(255,205,140,1) 0%, rgba(250,160,90,0.6) 40%, transparent 70%)',
+          animation: 'rim-drift 13s ease-in-out infinite',
+        }} />
+        {/* Amber lower echo — a warm glow along the bottom arc. */}
+        <div style={{
+          position: 'absolute', inset: 0, mixBlendMode: 'screen',
+          background: 'radial-gradient(ellipse 54% 30% at 52% 76%, rgba(255,180,120,0.8) 0%, transparent 66%)',
+          animation: 'ink-c 18s ease-in-out infinite',
+        }} />
+        {/* Dark hollow centre — subtracts light from the middle so no pupil/iris
+            forms; the eye reads as a rim of light around a void. */}
+        <div style={{
+          position: 'absolute', top: '50%', left: '50%',
+          width: '46%', aspectRatio: '1.4 / 1', transform: 'translate(-50%,-50%)',
+          borderRadius: '50%',
+          background: 'radial-gradient(ellipse at center, #000 0%, rgba(0,0,0,0.85) 40%, transparent 72%)',
+        }} />
+      </div>
     </div>
 
-    {/* Vignette — deep black surround so the eye floats in negative space. */}
+    {/* Vignette — deep black surround so the light floats in negative space. */}
     <div aria-hidden style={{
       position: 'absolute', inset: 0, pointerEvents: 'none',
-      background: 'radial-gradient(ellipse at center, transparent 26%, rgba(0,0,0,0.6) 60%, #000 84%)',
+      background: 'radial-gradient(ellipse 60% 60% at center, transparent 40%, rgba(0,0,0,0.55) 70%, #000 88%)',
     }} />
 
-    {/* Heading — breathes/floats in sync above the eye. */}
+    {/* Heading — bottom-centre, clear of the eye; breathes in sync. */}
     <div style={{
       position: 'absolute',
-      top: 'calc(50% - clamp(150px, 20vw, 260px))',
+      bottom: 'max(100px, calc(env(safe-area-inset-bottom) + 100px))',
       left: 0, right: 0,
       display: 'flex', justifyContent: 'center',
       zIndex: 2, pointerEvents: 'none',
     }}>
       <div style={{
         fontFamily: 'Assistant, sans-serif',
-        fontSize: 'clamp(13px, 1.5vw, 16px)',
+        fontSize: 'clamp(13px, 1.4vw, 16px)',
         textTransform: 'uppercase',
-        color: 'rgba(240,235,255,0.9)',
+        color: 'rgba(240,235,255,0.85)',
         whiteSpace: 'nowrap',
-        animation: 'gen-text 8s ease-in-out infinite',
+        animation: 'gen-text 5s ease-in-out infinite',
         willChange: 'opacity, transform, letter-spacing',
       }}>
         Generating your simulation
