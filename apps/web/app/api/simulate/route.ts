@@ -243,8 +243,10 @@ function buildSchema(gender: string): string {
     '  "sensory_scores": { "auditory": 0, "visual": 0, "tactile": 0, "social": 0 },\n' +
     '  "overall_load": 0,\n' +
     '  "visual_effect": "glitch_heavy",\n' +
+    '  "situation_english": "One sentence describing the situation in ENGLISH for video generation",\n' +
     '  "scene_caption": "10-15 word ' + captionVoice(gender) + ', describing this exact moment in the situation — write this IN HEBREW (בעברית)",\n' +
     '  "monologue": ["8 first-person inner thoughts, all IN HEBREW (בעברית)","","","","","","",""],\n' +
+    '  "monologue_english": ["first 2 inner thoughts translated to ENGLISH for video direction","" ],\n' +
     '  "sensory_channels": { "auditory": "description IN HEBREW (בעברית)", "visual": "description IN HEBREW (בעברית)", "tactile": "description IN HEBREW (בעברית)", "interoception": "description IN HEBREW (בעברית)" },\n' +
     '  "emotions": ["3 emotions IN HEBREW (בעברית)","",""],\n' +
     '  "coping_actions": ["3 coping actions IN HEBREW (בעברית)","",""],\n' +
@@ -301,8 +303,16 @@ export async function POST(req: NextRequest) {
     const result = JSON.parse(cleaned);
 
     // Build the video_prompt deterministically from the classification (no Gemini call).
+    // Use the ENGLISH fields so the video prompt contains ZERO Hebrew: the model
+    // returns situation_english + monologue_english alongside the Hebrew content.
     const classification = await classificationPromise;
-    result.video_prompt = buildVeoPrompt(classification, String(situation), Number(age), result.monologue);
+    const situationEn = typeof result.situation_english === "string" && result.situation_english.trim()
+      ? result.situation_english.trim()
+      : String(situation);
+    const thoughtsEn = Array.isArray(result.monologue_english)
+      ? result.monologue_english.filter((t: unknown): t is string => typeof t === "string" && t.trim().length > 0)
+      : [];
+    result.video_prompt = buildVeoPrompt(classification, situationEn, Number(age), thoughtsEn);
 
     // Generate reference image for image-to-video pipeline
     let imageBase64: string | null = null;

@@ -1,5 +1,9 @@
-@import "tailwindcss";
+/* Font @import must come BEFORE the Tailwind import: Tailwind v4 expands
+   @import "tailwindcss" inline into many rules, and any @import that follows
+   would then sit mid-file, which is invalid (@import must precede all rules).
+   Dev (Turbopack) errors on that; keeping the font first avoids it. */
 @import url('https://fonts.googleapis.com/css2?family=Amiri:ital@0;1&family=Inter:wght@300;400;500;600&display=swap');
+@import "tailwindcss";
 
 :root {
   --background: #000000;
