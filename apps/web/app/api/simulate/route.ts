@@ -203,7 +203,7 @@ const RESEARCH_CONTEXT =
 
 const SYSTEM_PROMPT =
   "You are a precise simulation engine that recreates the internal experience of an autistic person in a given situation. " +
-  "Your output is grounded in peer-reviewed autism research. Return ONLY valid JSON. All text in English.\n\n" +
+  "Your output is grounded in peer-reviewed autism research. Return ONLY valid JSON. All text fields in Hebrew, EXCEPT video_prompt which must remain in English.\n\n" +
   RESEARCH_CONTEXT;
 
 function cameraHeight(age: number): string {
@@ -243,13 +243,13 @@ function buildSchema(gender: string): string {
     '  "sensory_scores": { "auditory": 0, "visual": 0, "tactile": 0, "social": 0 },\n' +
     '  "overall_load": 0,\n' +
     '  "visual_effect": "glitch_heavy",\n' +
-    '  "scene_caption": "10-15 word ' + captionVoice(gender) + ', describing this exact moment in the situation",\n' +
-    '  "monologue": ["thought1","thought2","thought3","thought4","thought5","thought6","thought7","thought8"],\n' +
-    '  "sensory_channels": { "auditory": "description", "visual": "description", "tactile": "description", "interoception": "description" },\n' +
-    '  "emotions": ["emotion1","emotion2","emotion3"],\n' +
-    '  "coping_actions": ["action1","action2","action3"],\n' +
-    '  "masking_cost": "description",\n' +
-    '  "research_tags": ["tag1","tag2"],\n' +
+    '  "scene_caption": "10-15 word ' + captionVoice(gender) + ', describing this exact moment in the situation — write this IN HEBREW (בעברית)",\n' +
+    '  "monologue": ["8 first-person inner thoughts, all IN HEBREW (בעברית)","","","","","","",""],\n' +
+    '  "sensory_channels": { "auditory": "description IN HEBREW (בעברית)", "visual": "description IN HEBREW (בעברית)", "tactile": "description IN HEBREW (בעברית)", "interoception": "description IN HEBREW (בעברית)" },\n' +
+    '  "emotions": ["3 emotions IN HEBREW (בעברית)","",""],\n' +
+    '  "coping_actions": ["3 coping actions IN HEBREW (בעברית)","",""],\n' +
+    '  "masking_cost": "description IN HEBREW (בעברית)",\n' +
+    '  "research_tags": ["2 short research tags IN HEBREW (בעברית)",""],\n' +
     '  "ambient_sound": "ALWAYS pick a sound category — never return null or omit this field. Even for alone in a quiet room or meditating — pick home which represents the subtle ambient hum of a quiet space. There is always some ambient sound in any environment. Pick ONE from this exact list: crowd (mall/market/waiting room/any public space with people), children (school/playground/kids nearby), storm (thunder/rain/wind/bad weather), alarm (fire alarm/siren/emergency), restaurant (dining/food court), transport (train/bus/car/airport transit), nature (forest/park/birds/outdoors), party (celebration/event/music), classroom (school lesson/lecture), street (urban street/pedestrians), hospital (medical facility/clinic), home (quiet home/bedroom/alone indoors — use for calm or solitary situations), supermarket (grocery store/shop), office (workplace/open plan), beach (seaside/waves), construction (building site/drilling), library (quiet library/study), sports (gym/stadium/game), airport (terminal/departures), cafe (coffee shop/small cafe), nightclub (club/loud music/dancing), traffic (highway/busy road/cars), park (outdoor park/families), baby (infant/baby sounds), dogs (barking/dog park), forest (deep woods/insects/birds), rain (rainfall/drizzle — no thunder)"\n' +
     '}'
   );
