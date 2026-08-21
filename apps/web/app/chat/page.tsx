@@ -20,14 +20,14 @@ function nowIso() {
 }
 
 const HELP_QUESTIONS = [
-  "What did you do yesterday at noon?",
-  "Where were you this morning?",
-  "Think of a place that felt overwhelming recently.",
-  "Was there a moment this week that felt too loud or too much?",
-  "When did you last feel misunderstood?",
-  "Think of a routine you do every day — what does it feel like?",
-  "Where do you go that makes you feel anxious?",
-  "What was the last crowded place you visited?",
+  "מה עשיתם אתמול בצהריים?",
+  "איפה הייתם הבוקר?",
+  "חשבו על מקום שהרגיש מציף לאחרונה.",
+  "היה רגע השבוע שהרגיש רועש מדי או יותר מדי?",
+  "מתי הרגשתם לאחרונה לא מובנים?",
+  "חשבו על שגרה שאתם עושים כל יום — איך היא מרגישה?",
+  "לאן אתם הולכים שגורם לכם להרגיש חרדה?",
+  "מה היה המקום ההומה האחרון שביקרתם בו?",
 ];
 
 function generateSituation(age: number, gender: string): string {
@@ -65,37 +65,37 @@ function getExamples(age: number, gender: string): string[] {
 
   if (age < 15) {
     const base = [
-      "Sudden fire alarm at school",
-      "Supermarket with bright fluorescent lights",
-      "Family dinner with relatives visiting",
-      "Waiting at a crowded doctor's office",
+      "אזעקת אש פתאומית בבית הספר",
+      "סופרמרקט עם תאורת פלואורסנט חזקה",
+      "ארוחת ערב משפחתית עם קרובים שמבקרים",
+      "המתנה בחדר המתנה עמוס של רופא",
     ];
     return g === "female"
-      ? ["Noisy school cafeteria", "Group project with classmates", "Sleepover at a friend's house", ...base]
-      : ["Crowded school hallway", "PE class with lots of shouting", "Playing outside with neighbourhood kids", ...base];
+      ? ["קפיטריה רועשת בבית הספר", "עבודה קבוצתית עם חברים לכיתה", "שינה אצל חברה", ...base]
+      : ["מסדרון עמוס בבית הספר", "שיעור ספורט עם הרבה צעקות", "משחק בחוץ עם ילדי השכונה", ...base];
   }
 
   if (age <= 20) {
     const base = [
-      "House party with loud music",
-      "Crowded school hallway between classes",
-      "Exam hall with clocks ticking",
-      "Bus ride home packed with students",
+      "מסיבת בית עם מוזיקה חזקה",
+      "מסדרון עמוס בין השיעורים",
+      "אולם בחינות עם תקתוק שעונים",
+      "נסיעה הביתה באוטובוס צפוף בתלמידים",
     ];
     return g === "female"
-      ? ["Noisy school cafeteria", "Getting ready with friends before a party", "Group project with classmates", ...base]
-      : ["Football practice in the rain", "Concert with friends", "Substitute teacher unexpectedly", ...base];
+      ? ["קפיטריה רועשת בבית הספר", "להתארגן עם חברות לפני מסיבה", "עבודה קבוצתית עם חברים לכיתה", ...base]
+      : ["אימון כדורגל בגשם", "הופעה עם חברים", "מורה מחליף באופן פתאומי", ...base];
   }
 
   const base = [
-    "Open office with many sounds",
-    "Commuting on a packed train",
-    "Unexpected phone call from an unknown number",
-    "Plans cancelled at the last minute",
+    "משרד פתוח עם הרבה רעשים",
+    "נסיעה ברכבת צפופה",
+    "שיחת טלפון לא צפויה ממספר לא מוכר",
+    "תוכניות שמתבטלות ברגע האחרון",
   ];
   return g === "female"
-    ? ["First date at a busy restaurant", "Crowded bar on a Friday night", "Work meeting with many speakers", ...base]
-    : ["Crowded bar on a Friday night", "First date at a noisy restaurant", "Networking event with colleagues", ...base];
+    ? ["דייט ראשון במסעדה הומה", "בר עמוס בערב שישי", "פגישת עבודה עם הרבה דוברים", ...base]
+    : ["בר עמוס בערב שישי", "דייט ראשון במסעדה רועשת", "אירוע נטוורקינג עם קולגות", ...base];
 }
 
 export default function ChatPage() {
@@ -318,7 +318,7 @@ export default function ChatPage() {
             fontWeight: 400, lineHeight: 1.05,
             textAlign: "center", maxWidth: 760,
           }}>
-            Describe a Situation
+            תארו מצב
           </h1>
 
           {/* Description — directly below heading */}
@@ -328,7 +328,7 @@ export default function ChatPage() {
             color: "#ffffff", opacity: 1,
             textAlign: "center", lineHeight: 1.3,
           }}>
-            Describe a real-life moment, place, or interaction. The simulation will reinterpret it through an autistic sensory and social perspective, informed by research, first-hand accounts, and documented autistic experiences.
+            תארו רגע, מקום או אינטראקציה מהחיים. הסימולציה תפרש אותם מחדש דרך נקודת מבט חושית וחברתית אוטיסטית, המבוססת על מחקר, עדויות ממקור ראשון וחוויות אוטיסטיות מתועדות.
           </p>
 
           {/* Textarea card */}
@@ -346,7 +346,7 @@ export default function ChatPage() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               disabled={processing}
-              placeholder="Describe your situation..."
+              placeholder="תארו את המצב שלכם..."
               onKeyDown={(e) => {
                 if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
                   e.preventDefault();
@@ -377,7 +377,7 @@ export default function ChatPage() {
                   transition: "all 0.2s ease",
                 }}
               >
-                {processing ? "Generating…" : "Send"}
+                {processing ? "יוצר..." : "שליחה"}
               </button>
             </div>
 
@@ -393,7 +393,7 @@ export default function ChatPage() {
                   transform: helpersVisible ? "translateY(0)" : "translateY(6px)",
                   transition: "opacity 0.5s ease, transform 0.5s ease",
                 }}>
-                Help me think
+                עזרו לי לחשוב
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                   <path d="M9.5 2a6 6 0 0 1 5 9.5M9.5 2a6 6 0 0 0-5 9.5M9.5 2v1M14.5 11.5a6 6 0 0 1-5 9.5M14.5 11.5a6 6 0 0 0-5 9.5M9.5 21v-1M3 7h1M16 7h1M3 17h1M16 17h1"/>
                 </svg>
@@ -405,7 +405,7 @@ export default function ChatPage() {
                   transform: helpersVisible ? "translateY(0)" : "translateY(6px)",
                   transition: "opacity 0.5s ease 0.08s, transform 0.5s ease 0.08s",
                 }}>
-                Write for me
+                כתבו בשבילי
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                   <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>
                 </svg>
@@ -416,7 +416,7 @@ export default function ChatPage() {
                 onClick={() => { setShowExamples((v) => !v); setHelpHint(null); }}
                 style={{ border: "1px solid #FFC99D", color: "#FFC99D" }}
               >
-                Show me examples <span>›</span>
+                הראו לי דוגמאות <span>›</span>
               </button>
             </div>
 

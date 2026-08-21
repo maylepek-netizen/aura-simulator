@@ -12,7 +12,7 @@ function capitalizeFirst(str: string) {
 
 export default function QuestionPage() {
   const navigate = useNavigate();
-  const [name, setName] = useState("Friend");
+  const [name, setName] = useState("חבר");
   const [transitioning, setTransitioning] = useState(false);
 
   // ui opacity: 1 = visible, 0 = faded out
@@ -143,7 +143,7 @@ export default function QuestionPage() {
                 margin: 0,
                 maxWidth: 820,
               }}>
-                {capitalizeFirst(name)}, imagine the world around you felt different than it does today,
+                {capitalizeFirst(name)}, דמיינו שהעולם סביבכם מרגיש שונה ממה שהוא היום,
               </h1>
 
               <p style={{
@@ -156,7 +156,7 @@ export default function QuestionPage() {
                 margin: 0,
                 maxWidth: 820,
               }}>
-                are you ready to explore that possibility?
+                אתם מוכנים לחקור את האפשרות הזאת?
               </p>
             </div>
 
@@ -179,7 +179,7 @@ export default function QuestionPage() {
                   transition: "all 0.2s ease",
                 }}
               >
-                Next
+                המשך
               </button>
             </div>
           </div>

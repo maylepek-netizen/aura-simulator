@@ -260,7 +260,7 @@ export default function LandingPage() {
                 fontSize: 10, letterSpacing: "0.4em", fontWeight: 300,
                 textTransform: "uppercase", color: "white",
               }}>
-                BEGIN
+                התחל
               </span>
             </button>
           </div>
@@ -309,7 +309,7 @@ export default function LandingPage() {
                 color: "rgba(255,255,255,0.7)",
                 margin: 0, textAlign: "center",
               }}>
-                A simulation of the autistic perception
+                סימולציה של התפיסה האוטיסטית
               </p>
 
               <button
@@ -328,7 +328,7 @@ export default function LandingPage() {
                   transition: "all 0.2s ease",
                 }}
               >
-                Begin Experience
+                התחל חוויה
               </button>
             </div>
           </div>

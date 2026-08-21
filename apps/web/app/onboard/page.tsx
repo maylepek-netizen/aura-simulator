@@ -12,10 +12,10 @@ function clamp(n: number, min: number, max: number) {
 }
 
 const GENDER_OPTIONS: { value: Gender; label: string }[] = [
-  { value: "Male", label: "Male" },
-  { value: "Female", label: "Female" },
-  { value: "Non-binary", label: "Other" },
-  { value: "Prefer not to say", label: "Prefer not to say" },
+  { value: "Male", label: "גבר" },
+  { value: "Female", label: "אישה" },
+  { value: "Non-binary", label: "אחר" },
+  { value: "Prefer not to say", label: "מעדיף/ה לא לענות" },
 ];
 
 export default function OnboardingPage() {
@@ -31,7 +31,7 @@ export default function OnboardingPage() {
     const normalizedAge = clamp(Number(age), 5, 120);
 
     if (!trimmed) {
-      setError("Name is required.");
+      setError("יש להזין שם.");
       return;
     }
 
@@ -149,9 +149,9 @@ export default function OnboardingPage() {
                 fontWeight: 400,
                 letterSpacing: "-0.5px",
               }}>
-                Before exploring an<br />
-                <span style={{ fontStyle: "italic", color: "#FFC99D" }}>Autistic Perspective,</span><br />
-                tell us a little about yourself.
+                לפני שנחקור<br />
+                <span style={{ fontStyle: "italic", color: "#FFC99D" }}>נקודת מבט אוטיסטית,</span><br />
+                ספרו לנו קצת על עצמכם.
               </h1>
 
               {/* Divider — same max-width as paragraph below */}
@@ -171,7 +171,7 @@ export default function OnboardingPage() {
                 marginTop: "auto",
                 maxWidth: 340,
               }}>
-                Before starting the autism simulation, please tell us a little about yourself. These details help personalize the experience and adapt it to your perspective.
+                לפני שמתחילים את סימולציית האוטיזם, ספרו לנו קצת על עצמכם. הפרטים האלה עוזרים להתאים את החוויה אישית לנקודת המבט שלכם.
               </p>
             </div>
 
@@ -185,12 +185,12 @@ export default function OnboardingPage() {
 
               {/* Name */}
               <div>
-                <div style={fieldLabelStyle}>What should we call you?</div>
+                <div style={fieldLabelStyle}>איך לקרוא לכם?</div>
                 <input
                   className="onboard-input"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="Your Name"
+                  placeholder="השם שלכם"
                   autoComplete="off"
                   autoCorrect="off"
                   spellCheck={false}
@@ -199,7 +199,7 @@ export default function OnboardingPage() {
 
               {/* Gender */}
               <div>
-                <div style={fieldLabelStyle}>How do you identify?</div>
+                <div style={fieldLabelStyle}>איך אתם מזדהים?</div>
                 {/* Transparent field with only a bottom border, so it matches
                     the name/age inputs exactly when closed. The dropdown list
                     itself is dark (see the `select option` rule in globals.css). */}
@@ -234,14 +234,14 @@ export default function OnboardingPage() {
 
               {/* Age */}
               <div>
-                <div style={fieldLabelStyle}>How old are you?</div>
+                <div style={fieldLabelStyle}>בני כמה אתם?</div>
                 <input
                   className="onboard-input"
                   type="number"
                   min={5} max={120}
                   value={String(age)}
                   onChange={(e) => setAge(Number(e.target.value))}
-                  placeholder="Your Age?"
+                  placeholder="הגיל שלכם?"
                   inputMode="numeric"
                 />
               </div>
