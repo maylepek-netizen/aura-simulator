@@ -1318,7 +1318,9 @@ export default function ResultPage() {
 
   async function startNarration(r: SimulationResult) {
     if (audioPlaying) return;
-    const text = r.monologue.join(". ");
+    // Strip each thought's trailing period/ellipsis before joining, so the
+    // ". " separator never produces ".." / "..." (which TTS reads as "dot dot").
+    const text = r.monologue.map(t => t.replace(/[.…]+$/, "")).join(". ");
     // NOTE: audioPlaying flips true only when audio actually starts (onplay),
     // not when the request is fired — otherwise the indicator pulses while
     // the TTS fetch is still in flight and nothing is audible yet.

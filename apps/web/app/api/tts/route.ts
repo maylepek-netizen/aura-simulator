@@ -19,6 +19,19 @@ export async function POST(req: NextRequest) {
 
     const voice = voiceForGender(String(gender ?? ""));
     console.log("[TTS] gender received:", gender, "→ voice:", voice);
+    console.log("TTS TEXT:", text);
+
+    // Gemini TTS verbalizes runs of punctuation ("..", "...") as "dot dot dot".
+    // Collapse repeated periods, normalise ". ." spacing, turn dashes into
+    // commas, and squeeze whitespace so only clean sentence punctuation remains.
+    const cleanText = String(text)
+      .replace(/\.{2,}/g, ".")      // collapse .. and ... into single .
+      .replace(/\s*\.\s*\./g, ".")  // handle ". ." spacing variants
+      .replace(/([?!])\s*\./g, "$1") // drop a stray "." after ? or ! (thought ending in ? then joined with ". ")
+      .replace(/[—–]/g, ",")        // em/en dash to comma
+      .replace(/\s+/g, " ")
+      .trim();
+    console.log("TTS CLEANED:", cleanText);
 
     const res = await fetch(
       "https://generativelanguage.googleapis.com/v1beta/models/" + TTS_MODEL + ":generateContent?key=" + apiKey,
@@ -26,10 +39,11 @@ export async function POST(req: NextRequest) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          contents: [{ role: "user", parts: [{ text }] }],
+          contents: [{ role: "user", parts: [{ text: cleanText }] }],
           generationConfig: {
             responseModalities: ["AUDIO"],
             speechConfig: {
+              languageCode: "he-IL",
               voiceConfig: {
                 prebuiltVoiceConfig: { voiceName: voice },
               },
