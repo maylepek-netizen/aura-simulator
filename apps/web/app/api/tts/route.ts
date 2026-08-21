@@ -38,6 +38,10 @@ export async function POST(req: NextRequest) {
     // (the English-first prebuilt voices otherwise verbalize "question mark").
     const STYLE = "קרא את הטקסט הבא בעברית בנימה שטוחה ומונוטונית, ללא רגש וללא הדגשות. דבר לאט וברוגע. אל תקרא סימני פיסוק בקול. ";
     const promptText = STYLE + cleanText;
+    // This is what actually goes into the request body (contents[0].parts[0].text).
+    // Note: the "TTS CLEANED" log above prints cleanText BEFORE the STYLE prefix,
+    // so seeing the monologue there is expected — it is not the sent value.
+    console.log("TTS FINAL SENT:", promptText.substring(0, 150));
 
     // Gemini TTS intermittently returns 500s (or a 200 with no audio). Retry up
     // to 3 times with an 800ms wait between attempts before giving up.
