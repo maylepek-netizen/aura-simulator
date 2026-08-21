@@ -33,13 +33,19 @@ export async function POST(req: NextRequest) {
       .trim();
     console.log("TTS CLEANED:", cleanText);
 
+    // Hebrew style instruction: tells the model to read in a flat, monotone,
+    // unemotional voice AND — the key fix — not to read punctuation marks aloud
+    // (the English-first prebuilt voices otherwise verbalize "question mark").
+    const STYLE = "קרא את הטקסט הבא בעברית בנימה שטוחה ומונוטונית, ללא רגש וללא הדגשות. דבר לאט וברוגע. אל תקרא סימני פיסוק בקול. ";
+    const promptText = STYLE + cleanText;
+
     const res = await fetch(
       "https://generativelanguage.googleapis.com/v1beta/models/" + TTS_MODEL + ":generateContent?key=" + apiKey,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          contents: [{ role: "user", parts: [{ text: cleanText }] }],
+          contents: [{ role: "user", parts: [{ text: promptText }] }],
           generationConfig: {
             responseModalities: ["AUDIO"],
             speechConfig: {
