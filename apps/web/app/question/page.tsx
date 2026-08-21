@@ -138,6 +138,7 @@ export default function QuestionPage() {
                 fontSize: "clamp(1.87rem, 3.4vw, 2.89rem)",
                 color: "#FFC99D",
                 textAlign: "center",
+                direction: "rtl",
                 lineHeight: 0.975,
                 fontWeight: 400,
                 margin: 0,
@@ -152,6 +153,7 @@ export default function QuestionPage() {
                 fontSize: "clamp(1.1rem, 2vw, 1.6rem)",
                 color: "rgba(255,255,255,0.7)",
                 textAlign: "center",
+                direction: "rtl",
                 fontWeight: 400,
                 margin: 0,
                 maxWidth: 820,
@@ -177,6 +179,7 @@ export default function QuestionPage() {
                   cursor: "pointer",
                   opacity: 0.8,
                   transition: "all 0.2s ease",
+                  direction: "rtl", textAlign: "center",
                 }}
               >
                 המשך

@@ -54,6 +54,8 @@ export default function OnboardingPage() {
     marginBottom: 8,
     fontFamily: "inherit",
     fontWeight: 400,
+    direction: "rtl",
+    textAlign: "right",
   };
 
   const fieldValueStyle: React.CSSProperties = {
@@ -83,6 +85,8 @@ export default function OnboardingPage() {
           outline: none;
           font-family: inherit;
           font-weight: 400;
+          direction: rtl;
+          text-align: right;
         }
         .onboard-input::placeholder { color: rgba(255,255,255,0.6); }
         .onboard-input:focus { border-bottom-color: rgba(255,201,157,0.5); }
@@ -148,6 +152,8 @@ export default function OnboardingPage() {
                 lineHeight: 1.1,
                 fontWeight: 400,
                 letterSpacing: "-0.5px",
+                direction: "rtl",
+                textAlign: "right",
               }}>
                 לפני שנחקור<br />
                 <span style={{ fontStyle: "italic", color: "#FFC99D" }}>נקודת מבט אוטיסטית,</span><br />
@@ -170,6 +176,8 @@ export default function OnboardingPage() {
                 margin: 0,
                 marginTop: "auto",
                 maxWidth: 340,
+                direction: "rtl",
+                textAlign: "right",
               }}>
                 לפני שמתחילים את סימולציית האוטיזם, ספרו לנו קצת על עצמכם. הפרטים האלה עוזרים להתאים את החוויה אישית לנקודת המבט שלכם.
               </p>
@@ -218,6 +226,8 @@ export default function OnboardingPage() {
                     outline: 'none',
                     fontSize: 'inherit',
                     fontFamily: 'inherit',
+                    direction: 'rtl',
+                    textAlign: 'right',
                     // Hide the native dropdown arrow so the closed field looks
                     // identical to the name/age text inputs.
                     appearance: 'none',
@@ -273,6 +283,7 @@ export default function OnboardingPage() {
                   marginTop: "auto",
                   opacity: 0.8,
                   transition: "all 0.2s ease",
+                  direction: "rtl", textAlign: "center",
                 }}
               >
                 Begin Experience

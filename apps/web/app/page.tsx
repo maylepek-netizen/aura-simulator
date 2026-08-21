@@ -258,7 +258,7 @@ export default function LandingPage() {
               />
               <span style={{
                 fontSize: 10, letterSpacing: "0.4em", fontWeight: 300,
-                textTransform: "uppercase", color: "white",
+                textTransform: "uppercase", color: "white", direction: "rtl",
               }}>
                 התחל
               </span>
@@ -307,7 +307,7 @@ export default function LandingPage() {
               <p style={{
                 fontSize: 14, letterSpacing: "0.18em",
                 color: "rgba(255,255,255,0.7)",
-                margin: 0, textAlign: "center",
+                margin: 0, textAlign: "center", direction: "rtl",
               }}>
                 סימולציה של התפיסה האוטיסטית
               </p>
@@ -326,6 +326,7 @@ export default function LandingPage() {
                   fontWeight: 600, cursor: "pointer",
                   opacity: 0.8,
                   transition: "all 0.2s ease",
+                  direction: "rtl", textAlign: "center",
                 }}
               >
                 התחל חוויה

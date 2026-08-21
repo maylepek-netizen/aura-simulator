@@ -182,6 +182,8 @@ export default function ChatPage() {
           font-size: 18px;
           line-height: 1.7;
           font-family: inherit;
+          direction: rtl;
+          text-align: right;
         }
         .chat-textarea::placeholder { color: rgba(255,255,255,0.3); }
 
@@ -197,6 +199,7 @@ export default function ChatPage() {
           cursor: pointer;
           transition: opacity 0.2s;
           white-space: nowrap;
+          direction: rtl;
         }
         .helper-btn:hover { opacity: 0.75; }
 
@@ -316,7 +319,7 @@ export default function ChatPage() {
             fontSize: "clamp(2rem, 3.6vw, 3.1rem)",
             color: "white", margin: "0 0 7px",
             fontWeight: 400, lineHeight: 1.05,
-            textAlign: "center", maxWidth: 760,
+            textAlign: "center", direction: "rtl", maxWidth: 760,
           }}>
             תארו מצב
           </h1>
@@ -326,7 +329,7 @@ export default function ChatPage() {
             marginTop: 0, marginBottom: 25, maxWidth: 600,
             fontSize: 14, letterSpacing: "0.06em",
             color: "#ffffff", opacity: 1,
-            textAlign: "center", lineHeight: 1.3,
+            textAlign: "center", direction: "rtl", lineHeight: 1.3,
           }}>
             תארו רגע, מקום או אינטראקציה מהחיים. הסימולציה תפרש אותם מחדש דרך נקודת מבט חושית וחברתית אוטיסטית, המבוססת על מחקר, עדויות ממקור ראשון וחוויות אוטיסטיות מתועדות.
           </p>
@@ -375,6 +378,7 @@ export default function ChatPage() {
                   cursor: processing || !input.trim() ? "not-allowed" : "pointer",
                   opacity: processing || !input.trim() ? 0.6 : 0.8,
                   transition: "all 0.2s ease",
+                  direction: "rtl", textAlign: "center",
                 }}
               >
                 {processing ? "יוצר..." : "שליחה"}
@@ -449,6 +453,7 @@ export default function ChatPage() {
                           opacity: showExamples ? 1 : 0,
                           transform: showExamples ? "translateY(0)" : "translateY(-4px)",
                           transition: `opacity 0.4s ease-out ${delay}s, transform 0.4s ease-out ${delay}s`,
+                          direction: "rtl", textAlign: "right",
                         }}
                       >
                         {ex}
@@ -469,6 +474,7 @@ export default function ChatPage() {
                 fontSize: 13, letterSpacing: "0.08em",
                 color: "rgba(255,201,157,0.8)",
                 textAlign: "center",
+                direction: "rtl",
                 pointerEvents: "none",
               }}>
                 💭 {helpHint}
