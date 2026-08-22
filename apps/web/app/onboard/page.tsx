@@ -157,7 +157,8 @@ export default function OnboardingPage() {
               }}>
                 לפני שנחקור<br />
                 <span style={{ fontStyle: "italic", color: "#FFC99D" }}>נקודת מבט אוטיסטית,</span><br />
-                ספרו לנו קצת על עצמכם.
+                ספרו לנו קצת<br />
+                על עצמכם
               </h1>
 
               {/* Divider — same max-width as paragraph below */}

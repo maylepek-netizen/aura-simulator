@@ -13,6 +13,10 @@ function capitalizeFirst(str: string) {
 export default function QuestionPage() {
   const navigate = useNavigate();
   const [name, setName] = useState("חבר");
+  // Gender drives Hebrew grammatical agreement (verb/adjective forms) in the
+  // question text. Values match the stored profile: "Male" | "Female" |
+  // "Non-binary" | "Prefer not to say". Default to the neutral/plural form.
+  const [gender, setGender] = useState("Prefer not to say");
   const [transitioning, setTransitioning] = useState(false);
 
   // ui opacity: 1 = visible, 0 = faded out
@@ -26,6 +30,7 @@ export default function QuestionPage() {
     try {
       const profile = JSON.parse(localStorage.getItem("aura.profile.v1") || "{}");
       if (profile.name) setName(profile.name.trim().split(" ")[0]);
+      if (profile.gender) setGender(profile.gender);
     } catch {}
   }, []);
 
@@ -46,6 +51,24 @@ export default function QuestionPage() {
     setTimeout(() => {
       navigate("/chat");
     }, 800);
+  }
+
+  // Hebrew grammatical gender agreement. The heading (before the comma) and the
+  // subtitle (the "are you ready…" question) each take singular masculine /
+  // singular feminine / plural-neutral forms. Non-binary and "Prefer not to say"
+  // both use the plural-neutral form.
+  const displayName = capitalizeFirst(name);
+  let headingText: string;
+  let subtitleText: string;
+  if (gender === "Male") {
+    headingText = `${displayName}, דמיין שהעולם סביבך מרגיש שונה ממה שהוא היום,`;
+    subtitleText = "האם אתה מוכן לחקור את האפשרות הזאת?";
+  } else if (gender === "Female") {
+    headingText = `${displayName}, דמייני שהעולם סביבך מרגיש שונה ממה שהוא היום,`;
+    subtitleText = "האם את מוכנה לחקור את האפשרות הזאת?";
+  } else {
+    headingText = `${displayName}, דמיינו שהעולם סביבכם מרגיש שונה ממה שהוא היום,`;
+    subtitleText = "האם אתם מוכנים לחקור את האפשרות הזאת?";
   }
 
   return (
@@ -144,7 +167,7 @@ export default function QuestionPage() {
                 margin: 0,
                 maxWidth: 820,
               }}>
-                {capitalizeFirst(name)}, דמיינו שהעולם סביבכם מרגיש שונה ממה שהוא היום,
+                {headingText}
               </h1>
 
               <p style={{
@@ -158,7 +181,7 @@ export default function QuestionPage() {
                 margin: 0,
                 maxWidth: 820,
               }}>
-                אתם מוכנים לחקור את האפשרות הזאת?
+                {subtitleText}
               </p>
             </div>
 
