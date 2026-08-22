@@ -339,10 +339,10 @@ class AmbientSoundEngine {
 // onComplete so the parent can fade it out even if the video isn't ready yet.
 
 const LOADING_STAGES = [
-  { label: ["COLLECTING", "MEMORIES"],        color: "#F4C79B", message: "Collecting memories..." },        // Peach
-  { label: ["SENSORY", "INPUT"],              color: "#B7B8F6", message: "Filtering sensory input..." },     // Periwinkle
-  { label: ["MAPPING", "SOCIAL SIGNALS"],     color: "#F7B6B6", message: "Mapping social signals..." },      // Blush
-  { label: ["PREPARING", "SIMULATION"],       color: "#FAFAFA", message: "Preparing your simulation..." },   // Ivory
+  { label: ["אוסף", "זיכרונות"],           color: "#F4C79B", message: "אוסף זיכרונות..." },        // Peach
+  { label: ["קלט", "חושי"],                color: "#B7B8F6", message: "מסנן קלט חושי..." },        // Periwinkle
+  { label: ["ממפה", "אותות חברתיים"],      color: "#F7B6B6", message: "ממפה אותות חברתיים..." },   // Blush
+  { label: ["מכין", "סימולציה"],           color: "#FAFAFA", message: "מכין את הסימולציה שלך..." }, // Ivory
 ] as const;
 
 const FILL_DURATION = 22000; // ms for the ring to fill fully across all 4 stages (continuous)
@@ -722,7 +722,7 @@ function GenerationBlob() {
         animation: 'gen-text 5s ease-in-out infinite',
         willChange: 'opacity, transform, letter-spacing',
       }}>
-        Generating your simulation
+        יוצרים את הסימולציה שלך
       </div>
     </div>
   );
@@ -780,10 +780,11 @@ function ReflectionScreen({ onBank, onNew }: { onBank: () => void; onNew: () => 
             color: "#FFC99D",
             margin: "0 0 8px",
             textAlign: "center",
+            direction: "rtl",
             fontWeight: 400,
             lineHeight: 1.2,
           }}>
-            Every perception tells a different story.
+            כל תפיסה מספרת סיפור אחר.
           </h1>
 
           {/* Main statement */}
@@ -792,12 +793,13 @@ function ReflectionScreen({ onBank, onNew }: { onBank: () => void; onNew: () => 
             fontSize: "clamp(1.6rem, 3.2vw, 2.6rem)",
             color: "white",
             textAlign: "center",
+            direction: "rtl",
             lineHeight: 1.35,
             fontWeight: 400,
             margin: "0 0 56px",
             maxWidth: 820,
           }}>
-            What you experienced was only one possible<br />interpretation of the world.
+            מה שחווית היה רק פרשנות אפשרית אחת של העולם.
           </p>
 
           {/* Subtitle */}
@@ -807,10 +809,11 @@ function ReflectionScreen({ onBank, onNew }: { onBank: () => void; onNew: () => 
             textTransform: "uppercase",
             color: "rgba(255,255,255,0.45)",
             textAlign: "center",
+            direction: "rtl",
             margin: "0 0 64px",
             fontWeight: 400,
           }}>
-            Would you like to explore another perspective?
+            רוצה לחקור נקודת מבט נוספת?
           </p>
 
           {/* Buttons */}
@@ -833,9 +836,10 @@ function ReflectionScreen({ onBank, onNew }: { onBank: () => void; onNew: () => 
                 whiteSpace: "nowrap",
                 opacity: 0.8,
                 transition: "all 0.2s ease",
+                direction: "rtl",
               }}
             >
-              Simulation Bank
+              בנק הסימולציות
             </button>
 
             <button
@@ -853,9 +857,10 @@ function ReflectionScreen({ onBank, onNew }: { onBank: () => void; onNew: () => 
                 fontWeight: 400,
                 cursor: "pointer",
                 whiteSpace: "nowrap",
+                direction: "rtl",
               }}
             >
-              New Simulation
+              סימולציה חדשה
             </button>
           </div>
         </div>
@@ -911,6 +916,7 @@ function CyclingMonologue({ lines }: { lines: string[] }) {
     <p style={{
       fontSize: 13, lineHeight: 1.7, color: "rgba(255,255,255,0.88)",
       fontStyle: "italic", margin: 0,
+      direction: "rtl", textAlign: "right",
       // Never fade below 0.85 — the cycling cross-fade used to drop text to
       // near-invisible mid-transition, which testers found unreadable.
       opacity: 0.85 + opacity * 0.15,
@@ -927,9 +933,9 @@ function LiveMetricBar({ label, value, color, tooltip }: { label: string; value:
   return (
     <Tooltip text={tooltip}>
       <div style={{ display: "flex", flexDirection: "column", gap: 4, width: "100%", cursor: "default" }}>
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", direction: "rtl" }}>
           <span style={{ fontSize: 8, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.4)" }}>{label}</span>
-          <span style={{ fontSize: 8, fontFamily: "var(--font-body)", color: "rgba(255,255,255,0.35)" }}>{value}%</span>
+          <span dir="ltr" style={{ fontSize: 8, fontFamily: "var(--font-body)", color: "rgba(255,255,255,0.35)" }}>{value}%</span>
         </div>
         <div style={{ height: 2, background: "rgba(255,255,255,0.08)", borderRadius: 1, overflow: "hidden" }}>
           <div style={{ height: "100%", width: `${value}%`, background: color, transition: "width 2s ease", borderRadius: 1 }} />
@@ -983,7 +989,7 @@ function Sparkline({ color, label }: { color: string; label: string }) {
   const d = pts.map((v, i) => `${i === 0 ? "M" : "L"}${toX(i).toFixed(1)},${toY(v).toFixed(1)}`).join(" ");
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-      <span style={{ fontSize: 8, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)" }}>{label}</span>
+      <span style={{ fontSize: 8, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)", direction: "rtl", textAlign: "right", display: "block" }}>{label}</span>
       <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`}>
         <path d={d} fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" opacity="0.7" />
       </svg>
@@ -1676,7 +1682,7 @@ export default function ResultPage() {
           {result && (
             <div style={{ position: "absolute", bottom: 12, left: 14, zIndex: 5, display: "flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,0.5)", borderRadius: 20, padding: "4px 10px" }}>
               <div style={{ width: 6, height: 6, borderRadius: "50%", background: loadColor }} />
-              <span style={{ fontSize: 10, letterSpacing: "0.1em", color: "rgba(255,255,255,0.75)" }}>Load {load}%</span>
+              <span dir="rtl" style={{ fontSize: 10, letterSpacing: "0.1em", color: "rgba(255,255,255,0.75)" }}>עומס {load}%</span>
             </div>
           )}
           {videoUrl && (
@@ -1691,69 +1697,69 @@ export default function ResultPage() {
         {/* Scrollable info panel (all sections, sans-serif) */}
         <div className="result-scroll" style={{ flex: 1, overflowY: "auto", padding: "18px 20px 24px", fontFamily: "var(--font-body)" }}>
           {snapshot.situation && (
-            <p style={{ fontSize: 15, lineHeight: 1.5, color: "rgba(255,255,255,0.82)", margin: "0 0 22px", fontFamily: "var(--font-body)" }}>
+            <p style={{ fontSize: 15, lineHeight: 1.5, color: "rgba(255,255,255,0.82)", margin: "0 0 22px", fontFamily: "var(--font-body)", direction: "rtl", textAlign: "right" }}>
               &ldquo;{snapshot.situation}&rdquo;
             </p>
           )}
 
           {/* Sound toggles */}
           <div style={{ display: "flex", gap: 8, marginBottom: 24, flexWrap: "wrap" }}>
-            <button type="button" onClick={toggleNarration} className="sound-btn" style={{ flex: "1 1 44%", height: 40, borderRadius: 3, border: `1px solid ${audioPlaying ? "rgba(188,194,255,0.5)" : "rgba(255,255,255,0.14)"}`, background: audioPlaying ? "rgba(188,194,255,0.08)" : "rgba(255,255,255,0.03)", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 12, color: audioPlaying ? "#BCC2FF" : "rgba(255,255,255,0.6)", cursor: "pointer", fontFamily: "var(--font-body)" }}>
-              Inner Thoughts
+            <button type="button" onClick={toggleNarration} className="sound-btn" style={{ flex: "1 1 44%", height: 40, borderRadius: 3, border: `1px solid ${audioPlaying ? "rgba(188,194,255,0.5)" : "rgba(255,255,255,0.14)"}`, background: audioPlaying ? "rgba(188,194,255,0.08)" : "rgba(255,255,255,0.03)", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 12, color: audioPlaying ? "#BCC2FF" : "rgba(255,255,255,0.6)", cursor: "pointer", fontFamily: "var(--font-body)", direction: "rtl" }}>
+              מחשבות פנימיות
               {audioPlaying && <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#BCC2FF", animation: "pulse-dot 1s infinite" }} />}
             </button>
-            <button type="button" onClick={toggleAmbient} className="sound-btn" style={{ flex: "1 1 44%", height: 40, borderRadius: 3, border: `1px solid ${ambientPlaying ? "rgba(255,201,157,0.5)" : "rgba(255,255,255,0.14)"}`, background: ambientPlaying ? "rgba(255,201,157,0.06)" : "rgba(255,255,255,0.03)", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 12, color: ambientPlaying ? "#FFC99D" : "rgba(255,255,255,0.6)", cursor: "pointer", fontFamily: "var(--font-body)" }}>
-              Environment
+            <button type="button" onClick={toggleAmbient} className="sound-btn" style={{ flex: "1 1 44%", height: 40, borderRadius: 3, border: `1px solid ${ambientPlaying ? "rgba(255,201,157,0.5)" : "rgba(255,255,255,0.14)"}`, background: ambientPlaying ? "rgba(255,201,157,0.06)" : "rgba(255,255,255,0.03)", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 12, color: ambientPlaying ? "#FFC99D" : "rgba(255,255,255,0.6)", cursor: "pointer", fontFamily: "var(--font-body)", direction: "rtl" }}>
+              צלילי סביבה
               {ambientPlaying && <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#FFC99D", animation: "pulse-dot 1s infinite" }} />}
             </button>
-            <button type="button" onClick={toggleHeartbeat} className="sound-btn" style={{ flex: "1 1 44%", height: 40, borderRadius: 3, border: `1px solid ${heartbeatPlaying ? "rgba(255,193,187,0.5)" : "rgba(255,255,255,0.14)"}`, background: heartbeatPlaying ? "rgba(255,193,187,0.06)" : "rgba(255,255,255,0.03)", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 12, color: heartbeatPlaying ? "#FFC1BB" : "rgba(255,255,255,0.6)", cursor: "pointer", fontFamily: "var(--font-body)" }}>
-              Heartbeat
+            <button type="button" onClick={toggleHeartbeat} className="sound-btn" style={{ flex: "1 1 44%", height: 40, borderRadius: 3, border: `1px solid ${heartbeatPlaying ? "rgba(255,193,187,0.5)" : "rgba(255,255,255,0.14)"}`, background: heartbeatPlaying ? "rgba(255,193,187,0.06)" : "rgba(255,255,255,0.03)", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 12, color: heartbeatPlaying ? "#FFC1BB" : "rgba(255,255,255,0.6)", cursor: "pointer", fontFamily: "var(--font-body)", direction: "rtl" }}>
+              דופק לב
               {heartbeatPlaying && <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#FFC1BB", animation: "pulse-dot 0.7s infinite" }} />}
             </button>
           </div>
 
           {result && (
             <>
-              <MobileResultSection title="Inner Voices"><CyclingMonologue lines={result.monologue} /></MobileResultSection>
+              <MobileResultSection title="מחשבות פנימיות"><CyclingMonologue lines={result.monologue} /></MobileResultSection>
 
-              <MobileResultSection title="Sensory Overload">
+              <MobileResultSection title="עומס חושי">
                 <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                  <LiveMetricBar label="Sensory Load" value={liveLoad} color="#FFC99D" tooltip="How overwhelmed the senses are right now" />
-                  <LiveMetricBar label="Anxiety" value={liveAnxiety} color="#BCC2FF" tooltip="Physiological and social anxiety level" />
-                  <LiveMetricBar label="Overstimulation" value={liveMasking} color="#FFC1BB" tooltip="Total sensory overload accumulation" />
+                  <LiveMetricBar label="עומס חושי" value={liveLoad} color="#FFC99D" tooltip="עד כמה החושים מוצפים כרגע" />
+                  <LiveMetricBar label="חרדה" value={liveAnxiety} color="#BCC2FF" tooltip="רמת חרדה פיזיולוגית וחברתית" />
+                  <LiveMetricBar label="הצפה חושית" value={liveMasking} color="#FFC1BB" tooltip="הצטברות כוללת של עומס חושי" />
                 </div>
               </MobileResultSection>
 
-              <MobileResultSection title="Emotions">
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+              <MobileResultSection title="רגשות">
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 6, direction: "rtl" }}>
                   {result.emotions.map((e, i) => (
                     <span key={i} style={{ fontSize: 13, color: "rgba(255,201,157,0.85)", border: "1px solid rgba(255,201,157,0.2)", borderRadius: 4, padding: "4px 11px", fontFamily: "var(--font-body)" }}>{e}</span>
                   ))}
                 </div>
               </MobileResultSection>
 
-              <MobileResultSection title="Sensory Channels">
+              <MobileResultSection title="ערוצים חושיים">
                 {Object.entries(result.sensory_channels).map(([key, val]) => (
                   <div key={key} style={{ marginBottom: 14 }}>
-                    <div style={{ fontSize: 9, letterSpacing: "0.15em", textTransform: "uppercase", color: "rgba(255,255,255,0.3)", marginBottom: 4 }}>{key}</div>
-                    <p style={{ fontSize: 14, lineHeight: 1.55, color: "rgba(255,255,255,0.6)", margin: 0, fontFamily: "var(--font-body)" }}>{val}</p>
+                    <div style={{ fontSize: 9, letterSpacing: "0.15em", textTransform: "uppercase", color: "rgba(255,255,255,0.3)", marginBottom: 4, direction: "rtl", textAlign: "right" }}>{key}</div>
+                    <p style={{ fontSize: 14, lineHeight: 1.55, color: "rgba(255,255,255,0.6)", margin: 0, fontFamily: "var(--font-body)", direction: "rtl", textAlign: "right" }}>{val}</p>
                   </div>
                 ))}
               </MobileResultSection>
 
-              <MobileResultSection title="Social Anxiety">
-                <p style={{ fontSize: 14, lineHeight: 1.6, color: "rgba(255,255,255,0.6)", margin: 0, fontFamily: "var(--font-body)" }}>{result.masking_cost}</p>
+              <MobileResultSection title="חרדה חברתית">
+                <p style={{ fontSize: 14, lineHeight: 1.6, color: "rgba(255,255,255,0.6)", margin: 0, fontFamily: "var(--font-body)", direction: "rtl", textAlign: "right" }}>{result.masking_cost}</p>
               </MobileResultSection>
 
-              <MobileResultSection title="Coping Actions">
+              <MobileResultSection title="פעולות התמודדות">
                 {result.coping_actions.map((a, i) => (
-                  <p key={i} style={{ fontSize: 14, lineHeight: 1.55, color: "rgba(255,255,255,0.5)", margin: "0 0 10px", borderLeft: "1px solid rgba(255,255,255,0.08)", paddingLeft: 10, fontFamily: "var(--font-body)" }}>{a}</p>
+                  <p key={i} style={{ fontSize: 14, lineHeight: 1.55, color: "rgba(255,255,255,0.5)", margin: "0 0 10px", borderRight: "1px solid rgba(255,255,255,0.08)", paddingRight: 10, fontFamily: "var(--font-body)", direction: "rtl", textAlign: "right" }}>{a}</p>
                 ))}
               </MobileResultSection>
 
               {result.research_tags?.length > 0 && (
-                <MobileResultSection title="Research Tags">
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
+                <MobileResultSection title="תגיות מחקר">
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 5, direction: "rtl" }}>
                     {result.research_tags.map((tag) => (
                       <span key={tag} style={{ fontSize: 10, letterSpacing: "0.08em", textTransform: "uppercase", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 3, padding: "3px 8px", color: "rgba(255,255,255,0.4)", fontFamily: "var(--font-body)" }}>{tag}</span>
                     ))}
@@ -1761,16 +1767,16 @@ export default function ResultPage() {
                 </MobileResultSection>
               )}
 
-              <button type="button" onClick={handleEndSimulation} style={{ marginTop: 12, width: "100%", height: 50, borderRadius: 3, border: "none", background: "#FFC99D", opacity: 0.9, fontSize: 13, letterSpacing: "0.16em", textTransform: "uppercase", color: "#0a0807", fontWeight: 600, cursor: "pointer", fontFamily: "var(--font-body)" }}>
-                End Simulation
+              <button type="button" onClick={handleEndSimulation} style={{ marginTop: 12, width: "100%", height: 50, borderRadius: 3, border: "none", background: "#FFC99D", opacity: 0.9, fontSize: 13, letterSpacing: "0.16em", textTransform: "uppercase", color: "#0a0807", fontWeight: 600, cursor: "pointer", fontFamily: "var(--font-body)", direction: "rtl" }}>
+                סיום הסימולציה
               </button>
             </>
           )}
 
           {error && !loading && (
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14, padding: "24px 0" }}>
-              <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", textAlign: "center" }}>{error}</p>
-              <button type="button" onClick={() => void runSimulation()} style={{ fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", border: "1px solid rgba(255,255,255,0.2)", borderRadius: 3, padding: "8px 16px", color: "rgba(255,255,255,0.6)", background: "transparent", cursor: "pointer" }}>Retry</button>
+              <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", textAlign: "center", direction: "rtl" }}>{error}</p>
+              <button type="button" onClick={() => void runSimulation()} style={{ fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", border: "1px solid rgba(255,255,255,0.2)", borderRadius: 3, padding: "8px 16px", color: "rgba(255,255,255,0.6)", background: "transparent", cursor: "pointer", direction: "rtl" }}>לנסות שוב</button>
             </div>
           )}
         </div>
@@ -1870,9 +1876,9 @@ export default function ResultPage() {
         <ProcessingMetrics visible={processingVisible} onComplete={() => setLoadingDone(true)} />
         {error && !loading && (
           <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16, zIndex: 3 }}>
-            <div style={{ fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.6)" }}>Error</div>
-            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", textAlign: "center", padding: "0 32px" }}>{error}</p>
-            <button type="button" onClick={() => void runSimulation()} style={{ fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", border: "1px solid rgba(255,255,255,0.2)", borderRadius: 3, padding: "8px 16px", color: "rgba(255,255,255,0.6)", background: "transparent", cursor: "pointer" }}>Retry</button>
+            <div style={{ fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.6)", direction: "rtl" }}>שגיאה</div>
+            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", textAlign: "center", padding: "0 32px", direction: "rtl" }}>{error}</p>
+            <button type="button" onClick={() => void runSimulation()} style={{ fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", border: "1px solid rgba(255,255,255,0.2)", borderRadius: 3, padding: "8px 16px", color: "rgba(255,255,255,0.6)", background: "transparent", cursor: "pointer", direction: "rtl" }}>לנסות שוב</button>
           </div>
         )}
         {/* Screen vignette */}
@@ -1884,18 +1890,18 @@ export default function ResultPage() {
 
         {/* Nav buttons */}
         <div style={{ padding: "14px 16px 12px", display: "flex", gap: 8, flexShrink: 0 }}>
-          <button type="button" className="nav-btn" onClick={() => navigate("/")} style={{ flex: 1, height: 32, borderRadius: 3, border: "1px solid rgba(255,255,255,0.18)", background: "rgba(255,255,255,0.05)", fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.7)", cursor: "pointer" }}>
-            Home
+          <button type="button" className="nav-btn" onClick={() => navigate("/")} style={{ flex: 1, height: 32, borderRadius: 3, border: "1px solid rgba(255,255,255,0.18)", background: "rgba(255,255,255,0.05)", fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.7)", cursor: "pointer", direction: "rtl" }}>
+            דף הבית
           </button>
-          <button type="button" className="nav-btn" onClick={() => navigate("/chat")} style={{ flex: 1, height: 32, borderRadius: 3, border: "1px solid rgba(255,255,255,0.18)", background: "rgba(255,255,255,0.05)", fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.7)", cursor: "pointer" }}>
-            New Simulation
+          <button type="button" className="nav-btn" onClick={() => navigate("/chat")} style={{ flex: 1, height: 32, borderRadius: 3, border: "1px solid rgba(255,255,255,0.18)", background: "rgba(255,255,255,0.05)", fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.7)", cursor: "pointer", direction: "rtl" }}>
+            סימולציה חדשה
           </button>
         </div>
 
         {/* Situation quote */}
         {snapshot.situation && (
           <div style={{ padding: "0 20px 16px", flexShrink: 0, borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-            <p style={{ fontSize: 13, lineHeight: 1.5, color: "rgba(255,255,255,0.75)", margin: 0, fontFamily: "'Amiri', serif" }}>
+            <p style={{ fontSize: 13, lineHeight: 1.5, color: "rgba(255,255,255,0.75)", margin: 0, fontFamily: "'Amiri', serif", direction: "rtl", textAlign: "right" }}>
               &ldquo;{snapshot.situation}&rdquo;
             </p>
           </div>
@@ -1907,23 +1913,23 @@ export default function ResultPage() {
           {/* Current Situation */}
           {result && (
             <div style={{ marginBottom: 32 }}>
-              <div style={{ fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)", marginBottom: 10 }}>Current Situation</div>
-              <p style={{ fontSize: 15, lineHeight: 1.7, color: "rgba(255,255,255,0.88)", margin: 0 }}>{result.sensory_channels.auditory}</p>
+              <div style={{ fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)", marginBottom: 10, direction: "rtl", textAlign: "right" }}>המצב הנוכחי</div>
+              <p style={{ fontSize: 15, lineHeight: 1.7, color: "rgba(255,255,255,0.88)", margin: 0, direction: "rtl", textAlign: "right" }}>{result.sensory_channels.auditory}</p>
             </div>
           )}
 
           {/* Social Anxiety */}
           {result && (
             <div style={{ marginBottom: 32 }}>
-              <div style={{ fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)", marginBottom: 10 }}>Social Anxiety</div>
-              <p style={{ fontSize: 15, lineHeight: 1.7, color: "rgba(255,255,255,0.88)", margin: 0 }}>{result.masking_cost}</p>
+              <div style={{ fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)", marginBottom: 10, direction: "rtl", textAlign: "right" }}>חרדה חברתית</div>
+              <p style={{ fontSize: 15, lineHeight: 1.7, color: "rgba(255,255,255,0.88)", margin: 0, direction: "rtl", textAlign: "right" }}>{result.masking_cost}</p>
             </div>
           )}
 
           {/* Inner Voices — cycling */}
           {result && (
             <div style={{ marginBottom: 32 }}>
-              <div style={{ fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)", marginBottom: 10 }}>Inner Voices</div>
+              <div style={{ fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)", marginBottom: 10, direction: "rtl", textAlign: "right" }}>מחשבות פנימיות</div>
               <CyclingMonologue lines={result.monologue} />
             </div>
           )}
@@ -1931,8 +1937,8 @@ export default function ResultPage() {
           {/* Emotions */}
           {result && (
             <div style={{ marginBottom: 20 }}>
-              <div style={{ fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)", marginBottom: 10 }}>Emotions</div>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
+              <div style={{ fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)", marginBottom: 10, direction: "rtl", textAlign: "right" }}>רגשות</div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 5, direction: "rtl" }}>
                 {result.emotions.map((e, i) => (
                   <span key={i} style={{ fontSize: 12, letterSpacing: "0.06em", color: "rgba(255,201,157,0.8)", border: "1px solid rgba(255,201,157,0.2)", borderRadius: 4, padding: "3px 10px" }}>{e}</span>
                 ))}
@@ -1943,9 +1949,9 @@ export default function ResultPage() {
           {/* Coping actions */}
           {result && (
             <div style={{ marginBottom: 12 }}>
-              <div style={{ fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)", marginBottom: 10 }}>Coping Actions</div>
+              <div style={{ fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)", marginBottom: 10, direction: "rtl", textAlign: "right" }}>פעולות התמודדות</div>
               {result.coping_actions.map((a, i) => (
-                <p key={i} style={{ fontSize: 15, lineHeight: 1.7, color: "rgba(255,255,255,0.85)", margin: "0 0 10px", borderLeft: "1px solid rgba(255,255,255,0.08)", paddingLeft: 10 }}>{a}</p>
+                <p key={i} style={{ fontSize: 15, lineHeight: 1.7, color: "rgba(255,255,255,0.85)", margin: "0 0 10px", borderRight: "1px solid rgba(255,255,255,0.08)", paddingRight: 10, direction: "rtl", textAlign: "right" }}>{a}</p>
               ))}
             </div>
           )}
@@ -1953,12 +1959,12 @@ export default function ResultPage() {
 
         {/* Bottom waveform + sounds label */}
         <div style={{ padding: "12px 20px", borderTop: "1px solid rgba(255,255,255,0.06)", flexShrink: 0 }}>
-          <div style={{ fontSize: 8, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.25)", marginBottom: 8 }}>Sounds Interruption</div>
+          <div style={{ fontSize: 8, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.25)", marginBottom: 8, direction: "rtl", textAlign: "right" }}>קטיעות קול</div>
           <WaveformBars active={ambientPlaying || heartbeatPlaying} />
           {/* save button */}
           {result && videoUri && (
-            <button type="button" onClick={handleSave} style={{ marginTop: 10, width: "100%", height: 30, borderRadius: 3, border: "1px solid rgba(255,255,255,0.12)", background: saved ? "rgba(134,239,172,0.1)" : "transparent", fontSize: 9, letterSpacing: "0.12em", textTransform: "uppercase", color: saved ? "rgba(134,239,172,0.8)" : "rgba(255,255,255,0.4)", cursor: saved ? "default" : "pointer" }}>
-              {saved ? "Saved ✓" : "Save Simulation"}
+            <button type="button" onClick={handleSave} style={{ marginTop: 10, width: "100%", height: 30, borderRadius: 3, border: "1px solid rgba(255,255,255,0.12)", background: saved ? "rgba(134,239,172,0.1)" : "transparent", fontSize: 9, letterSpacing: "0.12em", textTransform: "uppercase", color: saved ? "rgba(134,239,172,0.8)" : "rgba(255,255,255,0.4)", cursor: saved ? "default" : "pointer", direction: "rtl" }}>
+              {saved ? "נשמר ✓" : "שמירת סימולציה"}
             </button>
           )}
         </div>
@@ -1970,37 +1976,37 @@ export default function ResultPage() {
         <div className="result-scroll" style={{ flex: 1, overflowY: "auto", padding: "16px 16px 0" }}>
 
           {/* Simulation Bank button */}
-          <button type="button" onClick={() => navigate("/bank")} style={{ width: "100%", height: 36, borderRadius: 3, border: "1px solid rgba(255,255,255,0.2)", background: "rgba(255,255,255,0.04)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontSize: 12, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.7)", cursor: "pointer", marginBottom: 20 }} className="sound-btn">
+          <button type="button" onClick={() => navigate("/bank")} style={{ width: "100%", height: 36, borderRadius: 3, border: "1px solid rgba(255,255,255,0.2)", background: "rgba(255,255,255,0.04)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontSize: 12, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.7)", cursor: "pointer", marginBottom: 20, direction: "rtl" }} className="sound-btn">
             <img src="/icons/bank.svg" alt="" style={{ width: 16, opacity: 0.6 }} />
-            Simulation Bank
+            בנק הסימולציות
           </button>
 
           {/* Sound controls */}
           <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 20 }}>
-            <Tooltip text="Hear the narrator's inner thoughts">
-              <button type="button" onClick={toggleNarration} style={{ width: "100%", height: 44, borderRadius: 3, border: `1px solid ${audioPlaying ? "rgba(188,194,255,0.5)" : "rgba(255,255,255,0.14)"}`, background: audioPlaying ? "rgba(188,194,255,0.08)" : "rgba(255,255,255,0.03)", display: "flex", alignItems: "center", gap: 10, padding: "0 14px", fontSize: 12, letterSpacing: "0.08em", color: audioPlaying ? "#BCC2FF" : "rgba(255,255,255,0.6)", cursor: "pointer" }} className="sound-btn">
+            <Tooltip text="להאזין למחשבות הפנימיות של המספר">
+              <button type="button" onClick={toggleNarration} style={{ width: "100%", height: 44, borderRadius: 3, border: `1px solid ${audioPlaying ? "rgba(188,194,255,0.5)" : "rgba(255,255,255,0.14)"}`, background: audioPlaying ? "rgba(188,194,255,0.08)" : "rgba(255,255,255,0.03)", display: "flex", alignItems: "center", gap: 10, padding: "0 14px", fontSize: 12, letterSpacing: "0.08em", color: audioPlaying ? "#BCC2FF" : "rgba(255,255,255,0.6)", cursor: "pointer", direction: "rtl" }} className="sound-btn">
                 <img src="/icons/brain.svg" alt="" style={{ width: 16, flexShrink: 0 }} />
-                Inner thoughts Sound
-                {audioPlaying && <div style={{ marginLeft: "auto", width: 6, height: 6, borderRadius: "50%", background: "#BCC2FF", animation: "pulse-dot 1s infinite" }} />}
+                מחשבות פנימיות
+                {audioPlaying && <div style={{ marginInlineStart: "auto", width: 6, height: 6, borderRadius: "50%", background: "#BCC2FF", animation: "pulse-dot 1s infinite" }} />}
               </button>
             </Tooltip>
-            <Tooltip text="Environmental sounds from the scene">
-              <button type="button" onClick={toggleAmbient} style={{ width: "100%", height: 44, borderRadius: 3, border: `1px solid ${ambientPlaying ? "rgba(255,201,157,0.5)" : "rgba(255,255,255,0.14)"}`, background: ambientPlaying ? "rgba(255,201,157,0.06)" : "rgba(255,255,255,0.03)", display: "flex", alignItems: "center", gap: 10, padding: "0 14px", fontSize: 12, letterSpacing: "0.08em", color: ambientPlaying ? "#FFC99D" : "rgba(255,255,255,0.6)", cursor: "pointer" }} className="sound-btn">
+            <Tooltip text="צלילי הסביבה מהסצנה">
+              <button type="button" onClick={toggleAmbient} style={{ width: "100%", height: 44, borderRadius: 3, border: `1px solid ${ambientPlaying ? "rgba(255,201,157,0.5)" : "rgba(255,255,255,0.14)"}`, background: ambientPlaying ? "rgba(255,201,157,0.06)" : "rgba(255,255,255,0.03)", display: "flex", alignItems: "center", gap: 10, padding: "0 14px", fontSize: 12, letterSpacing: "0.08em", color: ambientPlaying ? "#FFC99D" : "rgba(255,255,255,0.6)", cursor: "pointer", direction: "rtl" }} className="sound-btn">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ flexShrink: 0, opacity: ambientPlaying ? 1 : 0.6 }}>
                   <path d="M3 18v-6a9 9 0 0 1 18 0v6"/>
                   <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 1 2 2h1a2 2 0 0 1 2-2v-3a2 2 0 0 1-2-2H3z"/>
                 </svg>
-                Environment Sound
-                {ambientPlaying && <div style={{ marginLeft: "auto", width: 6, height: 6, borderRadius: "50%", background: "#FFC99D", animation: "pulse-dot 1s infinite" }} />}
+                צלילי סביבה
+                {ambientPlaying && <div style={{ marginInlineStart: "auto", width: 6, height: 6, borderRadius: "50%", background: "#FFC99D", animation: "pulse-dot 1s infinite" }} />}
               </button>
             </Tooltip>
-            <Tooltip text="Simulated heartbeat matching sensory load">
-              <button type="button" onClick={toggleHeartbeat} style={{ width: "100%", height: 44, borderRadius: 3, border: `1px solid ${heartbeatPlaying ? "rgba(255,193,187,0.5)" : "rgba(255,255,255,0.14)"}`, background: heartbeatPlaying ? "rgba(255,193,187,0.06)" : "rgba(255,255,255,0.03)", display: "flex", alignItems: "center", gap: 10, padding: "0 14px", fontSize: 12, letterSpacing: "0.08em", color: heartbeatPlaying ? "#FFC1BB" : "rgba(255,255,255,0.6)", cursor: "pointer" }} className="sound-btn">
+            <Tooltip text="דופק לב מדומה בהתאם לעומס החושי">
+              <button type="button" onClick={toggleHeartbeat} style={{ width: "100%", height: 44, borderRadius: 3, border: `1px solid ${heartbeatPlaying ? "rgba(255,193,187,0.5)" : "rgba(255,255,255,0.14)"}`, background: heartbeatPlaying ? "rgba(255,193,187,0.06)" : "rgba(255,255,255,0.03)", display: "flex", alignItems: "center", gap: 10, padding: "0 14px", fontSize: 12, letterSpacing: "0.08em", color: heartbeatPlaying ? "#FFC1BB" : "rgba(255,255,255,0.6)", cursor: "pointer", direction: "rtl" }} className="sound-btn">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
                   <path d="M8 14s-6-4.5-6-8a4 4 0 0 1 6-3.46A4 4 0 0 1 14 6c0 3.5-6 8-6 8z" stroke={heartbeatPlaying ? "#FFC1BB" : "rgba(255,255,255,0.4)"} strokeWidth="1.2" fill="none"/>
                 </svg>
-                Heartbeat Sound
-                {heartbeatPlaying && <div style={{ marginLeft: "auto", width: 6, height: 6, borderRadius: "50%", background: "#FFC1BB", animation: "pulse-dot 0.7s infinite" }} />}
+                דופק לב
+                {heartbeatPlaying && <div style={{ marginInlineStart: "auto", width: 6, height: 6, borderRadius: "50%", background: "#FFC1BB", animation: "pulse-dot 0.7s infinite" }} />}
               </button>
             </Tooltip>
           </div>
@@ -2008,11 +2014,11 @@ export default function ResultPage() {
           {/* Sensory Overload section */}
           {result && (
             <div style={{ marginBottom: 28 }}>
-              <div style={{ fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)", marginBottom: 12 }}>Sensory Overload</div>
+              <div style={{ fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)", marginBottom: 12, direction: "rtl", textAlign: "right" }}>עומס חושי</div>
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                <LiveMetricBar label="Sensory Load" value={liveLoad} color="#FFC99D" tooltip="How overwhelmed the senses are right now" />
-                <LiveMetricBar label="Anxiety" value={liveAnxiety} color="#BCC2FF" tooltip="Physiological and social anxiety level" />
-                <LiveMetricBar label="Overstimulation" value={liveMasking} color="#FFC1BB" tooltip="Total sensory overload accumulation" />
+                <LiveMetricBar label="עומס חושי" value={liveLoad} color="#FFC99D" tooltip="עד כמה החושים מוצפים כרגע" />
+                <LiveMetricBar label="חרדה" value={liveAnxiety} color="#BCC2FF" tooltip="רמת חרדה פיזיולוגית וחברתית" />
+                <LiveMetricBar label="הצפה חושית" value={liveMasking} color="#FFC1BB" tooltip="הצטברות כוללת של עומס חושי" />
               </div>
             </div>
           )}
@@ -2021,9 +2027,9 @@ export default function ResultPage() {
           {result && (
             <div style={{ marginBottom: 20, padding: "12px 14px", background: "rgba(255,255,255,0.03)", borderRadius: 8, border: "1px solid rgba(255,255,255,0.06)" }}>
               <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                <Sparkline color="#FFC99D" label="Sensory" />
-                <Sparkline color="#BCC2FF" label="Social" />
-                <Sparkline color="#FFC1BB" label="Overstimulation" />
+                <Sparkline color="#FFC99D" label="חושי" />
+                <Sparkline color="#BCC2FF" label="חברתי" />
+                <Sparkline color="#FFC1BB" label="הצפה חושית" />
               </div>
             </div>
           )}
@@ -2031,24 +2037,24 @@ export default function ResultPage() {
           {/* Social Anxiety detail */}
           {result && (
             <div style={{ marginBottom: 32 }}>
-              <div style={{ fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)", marginBottom: 10 }}>Social Anxiety</div>
-              <p style={{ fontSize: 15, lineHeight: 1.7, color: "rgba(255,255,255,0.88)", margin: 0 }}>{result.masking_cost}</p>
+              <div style={{ fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)", marginBottom: 10, direction: "rtl", textAlign: "right" }}>חרדה חברתית</div>
+              <p style={{ fontSize: 15, lineHeight: 1.7, color: "rgba(255,255,255,0.88)", margin: 0, direction: "rtl", textAlign: "right" }}>{result.masking_cost}</p>
             </div>
           )}
 
           {/* Second section repeated per screenshot */}
           {result && (
             <div style={{ marginBottom: 32 }}>
-              <div style={{ fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)", marginBottom: 10 }}>Social Anxiety</div>
-              <p style={{ fontSize: 15, lineHeight: 1.7, color: "rgba(255,255,255,0.88)", margin: 0 }}>{result.sensory_channels.visual}</p>
+              <div style={{ fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)", marginBottom: 10, direction: "rtl", textAlign: "right" }}>חרדה חברתית</div>
+              <p style={{ fontSize: 15, lineHeight: 1.7, color: "rgba(255,255,255,0.88)", margin: 0, direction: "rtl", textAlign: "right" }}>{result.sensory_channels.visual}</p>
             </div>
           )}
 
           {/* Research tags */}
           {result && (
             <div style={{ marginBottom: 16 }}>
-              <div style={{ fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)", marginBottom: 8 }}>Research Tags</div>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+              <div style={{ fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)", marginBottom: 8, direction: "rtl", textAlign: "right" }}>תגיות מחקר</div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 4, direction: "rtl" }}>
                 {result.research_tags.map(tag => (
                   <span key={tag} style={{ border: "1px solid rgba(255,255,255,0.1)", borderRadius: 3, padding: "2px 6px", fontSize: 8, letterSpacing: "0.08em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)" }}>{tag}</span>
                 ))}
@@ -2062,8 +2068,8 @@ export default function ResultPage() {
           <button type="button" onClick={handleEndSimulation}
             onMouseEnter={(e) => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.boxShadow = "0 0 20px rgba(255,201,157,0.6)"; }}
             onMouseLeave={(e) => { e.currentTarget.style.opacity = "0.9"; e.currentTarget.style.boxShadow = "none"; }}
-            style={{ width: "100%", height: 44, borderRadius: 3, border: "none", background: "#FFC99D", opacity: 0.9, fontSize: 12, letterSpacing: "0.18em", textTransform: "uppercase", color: "#0a0807", fontWeight: 600, cursor: "pointer", transition: "opacity 0.2s ease, box-shadow 0.2s ease" }}>
-            End Simulation
+            style={{ width: "100%", height: 44, borderRadius: 3, border: "none", background: "#FFC99D", opacity: 0.9, fontSize: 12, letterSpacing: "0.18em", textTransform: "uppercase", color: "#0a0807", fontWeight: 600, cursor: "pointer", transition: "opacity 0.2s ease, box-shadow 0.2s ease", direction: "rtl" }}>
+            סיום הסימולציה
           </button>
         </div>
       </div>
@@ -2071,27 +2077,27 @@ export default function ResultPage() {
       {/* Bottom timeline bar */}
       {result && (
         <div style={{ position: "fixed", bottom: 0, left: 280, right: 280, height: 56, zIndex: 10, ...panelBgBottom, display: "flex", alignItems: "center", gap: 32, padding: "0 28px", opacity: panelsVisible ? 1 : 0, transition: "opacity 0.8s ease" }}>
-          <Tooltip text="Time elapsed in simulation">
+          <Tooltip text="הזמן שחלף בסימולציה">
             <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-              <span style={{ fontSize: 8, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.3)" }}>Timeline</span>
-              <span style={{ fontSize: 11, color: "rgba(255,255,255,0.7)", fontFamily: "var(--font-body)" }}>1.3 / 5.00</span>
+              <span style={{ fontSize: 8, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.3)", direction: "rtl", textAlign: "right", display: "block" }}>ציר זמן</span>
+              <span dir="ltr" style={{ fontSize: 11, color: "rgba(255,255,255,0.7)", fontFamily: "var(--font-body)" }}>1.3 / 5.00</span>
             </div>
           </Tooltip>
-          <Tooltip text="Physiological and social anxiety level">
+          <Tooltip text="רמת חרדה פיזיולוגית וחברתית">
             <div style={{ display: "flex", flexDirection: "column", gap: 4, flex: 1 }}>
-              <span style={{ fontSize: 8, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.3)" }}>○ Anxiety</span>
+              <span style={{ fontSize: 8, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.3)", direction: "rtl", textAlign: "right", display: "block" }}>○ חרדה</span>
               <div style={{ height: 2, background: "rgba(255,255,255,0.08)", borderRadius: 1 }}><div style={{ height: "100%", width: `${liveAnxiety}%`, background: "#e08c5c", transition: "width 2s ease", borderRadius: 1 }} /></div>
             </div>
           </Tooltip>
-          <Tooltip text="How overwhelmed the senses are right now">
+          <Tooltip text="עד כמה החושים מוצפים כרגע">
             <div style={{ display: "flex", flexDirection: "column", gap: 4, flex: 1 }}>
-              <span style={{ fontSize: 8, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.3)" }}>⊕ Sound</span>
+              <span style={{ fontSize: 8, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.3)", direction: "rtl", textAlign: "right", display: "block" }}>⊕ קול</span>
               <div style={{ height: 2, background: "rgba(255,255,255,0.08)", borderRadius: 1 }}><div style={{ height: "100%", width: `${liveLoad}%`, background: "#BCC2FF", transition: "width 2s ease", borderRadius: 1 }} /></div>
             </div>
           </Tooltip>
-          <Tooltip text="The energy spent performing neurotypicality">
+          <Tooltip text="האנרגיה המושקעת בהעמדת פנים של נוירוטיפיקליות">
             <div style={{ display: "flex", flexDirection: "column", gap: 4, flex: 1 }}>
-              <span style={{ fontSize: 8, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.3)" }}>≡ Overstimulation</span>
+              <span style={{ fontSize: 8, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.3)", direction: "rtl", textAlign: "right", display: "block" }}>≡ הצפה חושית</span>
               <div style={{ height: 2, background: "rgba(255,255,255,0.08)", borderRadius: 1 }}><div style={{ height: "100%", width: `${liveMasking}%`, background: "#FFC1BB", transition: "width 2s ease", borderRadius: 1 }} /></div>
             </div>
           </Tooltip>
@@ -2104,7 +2110,7 @@ export default function ResultPage() {
 function MobileResultSection({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div style={{ marginBottom: 26 }}>
-      <div style={{ fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)", marginBottom: 10, fontFamily: "var(--font-body)" }}>{title}</div>
+      <div style={{ fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)", marginBottom: 10, fontFamily: "var(--font-body)", direction: "rtl", textAlign: "right" }}>{title}</div>
       {children}
     </div>
   );
