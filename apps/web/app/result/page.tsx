@@ -1324,9 +1324,16 @@ export default function ResultPage() {
 
   async function startNarration(r: SimulationResult) {
     if (audioPlaying) return;
-    // Strip each thought's trailing period/ellipsis before joining, so the
-    // ". " separator never produces ".." / "..." (which TTS reads as "dot dot").
-    const text = r.monologue.map(t => t.replace(/[.…]+$/, "")).join(". ");
+    // Build the narration from ONLY the Hebrew monologue thoughts — no section
+    // titles, no labels, nothing but the thoughts themselves. For each thought:
+    // strip any Latin/English runs the model may have leaked in (headings like
+    // "Inner Thoughts:" etc. must never be narrated), then strip the trailing
+    // period/ellipsis so the ". " join never yields ".." / "..." ("dot dot").
+    const text = r.monologue
+      .map(t => t.replace(/[A-Za-z]{2,}/g, "").replace(/\s+/g, " ").trim())
+      .map(t => t.replace(/[.…]+$/, "").trim())
+      .filter(Boolean)
+      .join(". ");
     // NOTE: audioPlaying flips true only when audio actually starts (onplay),
     // not when the request is fired — otherwise the indicator pulses while
     // the TTS fetch is still in flight and nothing is audible yet.

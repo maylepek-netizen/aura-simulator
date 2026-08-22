@@ -40,7 +40,12 @@ export async function POST(req: NextRequest) {
     // Collapse repeated periods, normalise ". ." spacing, drop a stray "." after
     // ? or !, turn dashes into commas, and squeeze whitespace so only clean
     // sentence punctuation remains.
+    // Safety net: the narration is 100% Hebrew by design, so any run of Latin
+    // letters is a leaked English label/heading (e.g. "Inner Thoughts") that must
+    // NOT be read aloud. Strip Latin runs first, then normalise punctuation so
+    // any orphaned "." / spaces left behind are cleaned up too.
     const cleanText = String(text)
+      .replace(/[A-Za-z]{2,}/g, "")   // drop English words/labels entirely
       .replace(/\.{2,}/g, ".")
       .replace(/\s*\.\s*\./g, ".")
       .replace(/([?!])\s*\./g, "$1")
