@@ -2,15 +2,28 @@
 
 import { useEffect, useState } from "react";
 import { useNavigate } from "../TransitionProvider";
+import { getReflectionText } from "@/lib/reflectionText";
 
 export default function SummaryPage() {
   const navigate = useNavigate();
   const [visible, setVisible] = useState(false);
+  // Gender drives Hebrew agreement in the reflection copy. Default to the
+  // neutral/plural form if no profile is stored.
+  const [gender, setGender] = useState("Prefer not to say");
 
   useEffect(() => {
     const t = setTimeout(() => setVisible(true), 30);
     return () => clearTimeout(t);
   }, []);
+
+  useEffect(() => {
+    try {
+      const p = JSON.parse(localStorage.getItem("aura.profile.v1") || "{}");
+      if (p.gender) setGender(p.gender);
+    } catch {}
+  }, []);
+
+  const t = getReflectionText(gender);
 
   return (
     <>
@@ -62,10 +75,11 @@ export default function SummaryPage() {
             color: "#FFC99D",
             margin: "0 0 8px",
             textAlign: "center",
+            direction: "rtl",
             fontWeight: 400,
             lineHeight: 1.2,
           }}>
-            Every perception tells a different story.
+            {t.headline}
           </h1>
 
           {/* Main statement */}
@@ -74,12 +88,13 @@ export default function SummaryPage() {
             fontSize: "clamp(1.6rem, 3.2vw, 2.6rem)",
             color: "white",
             textAlign: "center",
+            direction: "rtl",
             lineHeight: 1.35,
             fontWeight: 400,
             margin: "0 0 56px",
             maxWidth: 820,
           }}>
-            What you experienced was only one possible<br />interpretation of the world.
+            {t.statement}
           </p>
 
           {/* Subtitle */}
@@ -89,10 +104,11 @@ export default function SummaryPage() {
             textTransform: "uppercase",
             color: "rgba(255,255,255,0.45)",
             textAlign: "center",
+            direction: "rtl",
             margin: "0 0 64px",
             fontWeight: 400,
           }}>
-            Would you like to explore another perspective?
+            {t.subtitle}
           </p>
 
           {/* Buttons */}
@@ -115,9 +131,10 @@ export default function SummaryPage() {
                 whiteSpace: "nowrap",
                 opacity: 0.8,
                 transition: "all 0.2s ease",
+                direction: "rtl", textAlign: "center",
               }}
             >
-              Simulation Bank
+              {t.bankButton}
             </button>
 
             <button
@@ -135,9 +152,10 @@ export default function SummaryPage() {
                 fontWeight: 400,
                 cursor: "pointer",
                 whiteSpace: "nowrap",
+                direction: "rtl", textAlign: "center",
               }}
             >
-              New Simulation
+              {t.newButton}
             </button>
           </div>
         </div>

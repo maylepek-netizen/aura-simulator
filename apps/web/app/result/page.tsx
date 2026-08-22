@@ -8,6 +8,7 @@ import { saveSimulation } from "@/lib/simulationStorage";
 import { saveSimulationToSupabase } from "@/lib/supabase";
 import { SOUND_MAP, AMBIENT_FALLBACK } from "@/lib/soundMap";
 import { CITATIONS } from "@/lib/researchCitations";
+import { getReflectionText } from "@/lib/reflectionText";
 
 declare global {
   interface Window { backgroundMusic: HTMLAudioElement; }
@@ -744,9 +745,10 @@ function useIsMobile() {
 // ─── Reflection screen ────────────────────────────────────────────────────────
 // Shown when the viewer ends the simulation, in place of navigating to /summary.
 
-function ReflectionScreen({ onBank, onNew }: { onBank: () => void; onNew: () => void }) {
+function ReflectionScreen({ gender, onBank, onNew }: { gender: string; onBank: () => void; onNew: () => void }) {
   const [visible, setVisible] = useState(false);
-  useEffect(() => { const t = setTimeout(() => setVisible(true), 30); return () => clearTimeout(t); }, []);
+  useEffect(() => { const timer = setTimeout(() => setVisible(true), 30); return () => clearTimeout(timer); }, []);
+  const t = getReflectionText(gender);
   return (
     <>
       <style>{`
@@ -784,7 +786,7 @@ function ReflectionScreen({ onBank, onNew }: { onBank: () => void; onNew: () => 
             fontWeight: 400,
             lineHeight: 1.2,
           }}>
-            כל תפיסה מספרת סיפור אחר.
+            {t.headline}
           </h1>
 
           {/* Main statement */}
@@ -799,7 +801,7 @@ function ReflectionScreen({ onBank, onNew }: { onBank: () => void; onNew: () => 
             margin: "0 0 56px",
             maxWidth: 820,
           }}>
-            מה שחווית היה רק פרשנות אפשרית אחת של העולם.
+            {t.statement}
           </p>
 
           {/* Subtitle */}
@@ -813,7 +815,7 @@ function ReflectionScreen({ onBank, onNew }: { onBank: () => void; onNew: () => 
             margin: "0 0 64px",
             fontWeight: 400,
           }}>
-            רוצה לחקור נקודת מבט נוספת?
+            {t.subtitle}
           </p>
 
           {/* Buttons */}
@@ -836,10 +838,10 @@ function ReflectionScreen({ onBank, onNew }: { onBank: () => void; onNew: () => 
                 whiteSpace: "nowrap",
                 opacity: 0.8,
                 transition: "all 0.2s ease",
-                direction: "rtl",
+                direction: "rtl", textAlign: "center",
               }}
             >
-              בנק הסימולציות
+              {t.bankButton}
             </button>
 
             <button
@@ -857,10 +859,10 @@ function ReflectionScreen({ onBank, onNew }: { onBank: () => void; onNew: () => 
                 fontWeight: 400,
                 cursor: "pointer",
                 whiteSpace: "nowrap",
-                direction: "rtl",
+                direction: "rtl", textAlign: "center",
               }}
             >
-              סימולציה חדשה
+              {t.newButton}
             </button>
           </div>
         </div>
@@ -1623,7 +1625,7 @@ export default function ResultPage() {
   };
 
   if (reflecting) {
-    return <ReflectionScreen onBank={() => navigate("/bank")} onNew={() => navigate("/chat")} />;
+    return <ReflectionScreen gender={snapshot.gender} onBank={() => navigate("/bank")} onNew={() => navigate("/chat")} />;
   }
 
   // ─── MOBILE LAYOUT ──────────────────────────────────────────────────────────
