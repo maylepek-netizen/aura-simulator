@@ -1,86 +1,88 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const TTS_MODEL = "gemini-2.5-flash-preview-tts";
+// Google Cloud Text-to-Speech has native Hebrew (he-IL) WaveNet voices, which
+// (unlike the Gemini prebuilt voices) read Hebrew correctly and do NOT verbalize
+// punctuation in English. Endpoint + key are SEPARATE from the Gemini API:
+// this needs a Google Cloud Console API key with the Cloud Text-to-Speech API
+// enabled and billing linked — see GOOGLE_CLOUD_TTS_KEY.
+const TTS_ENDPOINT = "https://texttospeech.googleapis.com/v1/text:synthesize";
 
+// he-IL WaveNet voices. A = female, B = male, C = neutral fallback (also used
+// for non-binary / prefer-not-to-say).
 function voiceForGender(gender: string): string {
   const g = gender.toLowerCase().trim();
-  if (g === "female" || g === "נקבה" || g === "woman") return "Kore";
-  if (g === "male" || g === "זכר" || g === "man") return "Charon";
-  // non-binary / prefer not to say / other / אחר → neutral
-  return "Fenrir";
+  if (g === "female" || g === "נקבה" || g === "woman") return "he-IL-Wavenet-A";
+  if (g === "male" || g === "זכר" || g === "man") return "he-IL-Wavenet-B";
+  return "he-IL-Wavenet-C";
+}
+
+// Escape the five XML entities so the cleaned text is safe to embed inside SSML.
+function escapeXml(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
 }
 
 export async function POST(req: NextRequest) {
   try {
     const { text, gender } = await req.json();
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) return NextResponse.json({ error: "Missing API key" }, { status: 401 });
+    const apiKey = process.env.GOOGLE_CLOUD_TTS_KEY;
+    if (!apiKey) return NextResponse.json({ error: "Missing GOOGLE_CLOUD_TTS_KEY" }, { status: 401 });
     if (!text) return NextResponse.json({ error: "Missing text" }, { status: 400 });
 
     const voice = voiceForGender(String(gender ?? ""));
     console.log("[TTS] gender received:", gender, "→ voice:", voice);
     console.log("TTS TEXT:", text);
 
-    // Gemini TTS verbalizes runs of punctuation ("..", "...") as "dot dot dot".
-    // Collapse repeated periods, normalise ". ." spacing, turn dashes into
-    // commas, and squeeze whitespace so only clean sentence punctuation remains.
+    // Collapse repeated periods, normalise ". ." spacing, drop a stray "." after
+    // ? or !, turn dashes into commas, and squeeze whitespace so only clean
+    // sentence punctuation remains.
     const cleanText = String(text)
-      .replace(/\.{2,}/g, ".")      // collapse .. and ... into single .
-      .replace(/\s*\.\s*\./g, ".")  // handle ". ." spacing variants
-      .replace(/([?!])\s*\./g, "$1") // drop a stray "." after ? or ! (thought ending in ? then joined with ". ")
-      .replace(/[—–]/g, ",")        // em/en dash to comma
+      .replace(/\.{2,}/g, ".")
+      .replace(/\s*\.\s*\./g, ".")
+      .replace(/([?!])\s*\./g, "$1")
+      .replace(/[—–]/g, ",")
       .replace(/\s+/g, " ")
       .trim();
     console.log("TTS CLEANED:", cleanText);
 
-    // Hebrew style instruction: tells the model to read in a flat, monotone,
-    // unemotional voice AND — the key fix — not to read punctuation marks aloud
-    // (the English-first prebuilt voices otherwise verbalize "question mark").
-    const STYLE = "קרא את הטקסט הבא בעברית בנימה שטוחה ומונוטונית, ללא רגש וללא הדגשות. דבר לאט וברוגע. אל תקרא סימני פיסוק בקול. ";
-    const promptText = STYLE + cleanText;
-    // This is what actually goes into the request body (contents[0].parts[0].text).
-    // Note: the "TTS CLEANED" log above prints cleanText BEFORE the STYLE prefix,
-    // so seeing the monologue there is expected — it is not the sent value.
-    console.log("TTS FINAL SENT:", promptText.substring(0, 150));
+    // Wrap in SSML with a prosody envelope for a flat, calm, monotone delivery:
+    // slightly slower rate and a lowered, narrowed pitch.
+    const ssml =
+      `<speak><prosody rate="0.9" pitch="-2st">${escapeXml(cleanText)}</prosody></speak>`;
+    console.log("TTS SSML SENT:", ssml.substring(0, 180));
 
-    // Gemini TTS intermittently returns 500s (or a 200 with no audio). Retry up
-    // to 3 times with an 800ms wait between attempts before giving up.
     const requestBody = JSON.stringify({
-      contents: [{ role: "user", parts: [{ text: promptText }] }],
-      generationConfig: {
-        responseModalities: ["AUDIO"],
-        speechConfig: {
-          languageCode: "he-IL",
-          voiceConfig: {
-            prebuiltVoiceConfig: { voiceName: voice },
-          },
-        },
-      },
+      input: { ssml },
+      voice: { languageCode: "he-IL", name: voice },
+      audioConfig: { audioEncoding: "MP3" },
     });
 
+    // Cloud TTS can intermittently return 5xx (or a 200 with no audio). Retry up
+    // to 3 times with an 800ms wait between attempts before giving up.
     let lastError = "TTS error";
     for (let n = 1; n <= 3; n++) {
       console.log(`TTS attempt ${n}/3`);
 
-      const res = await fetch(
-        "https://generativelanguage.googleapis.com/v1beta/models/" + TTS_MODEL + ":generateContent?key=" + apiKey,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: requestBody,
-        }
-      );
+      const res = await fetch(TTS_ENDPOINT + "?key=" + apiKey, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: requestBody,
+      });
 
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         lastError = (err as { error?: { message?: string } })?.error?.message ?? `TTS error (HTTP ${res.status})`;
       } else {
         const data = await res.json();
-        const part = data.candidates?.[0]?.content?.parts?.[0];
-        const audioB64 = part?.inlineData?.data;
-        const mimeType = part?.inlineData?.mimeType ?? "audio/wav";
+        const audioB64 = data.audioContent;
         if (audioB64) {
-          return NextResponse.json({ audio: audioB64, mimeType });
+          // Same response shape as before so result/page.tsx needs no changes:
+          // it builds `data:${mimeType};base64,${audio}` and plays it.
+          return NextResponse.json({ audio: audioB64, mimeType: "audio/mp3" });
         }
         lastError = "No audio returned";
       }
