@@ -167,6 +167,14 @@ export default function ChatPage() {
 
   const examples = profile ? getExamples(profile.age, profile.gender) : [];
 
+  // Gender-matched heading (Hebrew imperative agreement). Values match the stored
+  // profile: "Male" | "Female" | "Non-binary" | "Prefer not to say". Non-binary
+  // and "Prefer not to say" both use the plural-neutral form.
+  const headingText =
+    profile?.gender === "Male"   ? "ספר על סיטואציה"  :
+    profile?.gender === "Female" ? "ספרי על סיטואציה" :
+                                   "ספרו על סיטואציה";
+
   return (
     <>
       <style>{`
@@ -321,7 +329,7 @@ export default function ChatPage() {
             fontWeight: 400, lineHeight: 1.05,
             textAlign: "center", direction: "rtl", maxWidth: 760,
           }}>
-            תארו מצב
+            {headingText}
           </h1>
 
           {/* Description — directly below heading */}
@@ -357,9 +365,9 @@ export default function ChatPage() {
                 }
               }}
             />
-            {/* Bottom row: send button right-aligned inside card */}
+            {/* Bottom row: send button left-aligned inside card (correct for RTL) */}
             <div style={{
-              display: "flex", alignItems: "center", justifyContent: "flex-end",
+              display: "flex", alignItems: "center", justifyContent: "flex-start",
               borderTop: "1px solid rgba(255,255,255,0.1)",
               paddingTop: 14, marginTop: 8,
             }}>
@@ -389,7 +397,7 @@ export default function ChatPage() {
 
           {/* ── Help buttons — spread across the full card width ── */}
           <div style={{ position: "relative", marginTop: 30, width: "100%", maxWidth: 600 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div style={{ display: "flex", flexDirection: "row-reverse", justifyContent: "space-between", alignItems: "center" }}>
               <button className="helper-btn" type="button" onClick={handleHelpMe}
                 style={{
                   border: "1px solid #FFC1BB", color: "#FFC1BB",
