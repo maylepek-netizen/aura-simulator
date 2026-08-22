@@ -9,7 +9,8 @@ interface AppHeaderProps {
 
 export default function AppHeader({ step, showBank = false, onBankClick, position = "fixed" }: AppHeaderProps) {
   return (
-    <div style={{
+    // dir="ltr" locks this English header LTR even when a parent flips to RTL.
+    <div dir="ltr" style={{
       // Sits inside the safe area: var(--gutter) from the top and both sides, so
       // the step label and "Simulation | Exit" share the same 40px frame as
       // every other edge element. Changing --gutter moves them all together.

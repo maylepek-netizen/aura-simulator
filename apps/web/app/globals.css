@@ -118,6 +118,15 @@ input[type=number]::-webkit-outer-spin-button {
   opacity: 0.7;
 }
 
+/* In an RTL number field the spinner belongs on the LEFT edge of the field.
+   float:left pulls the WebKit spin button to the left; margin-inline-end pushes
+   the value away from it so digits stay clear of the arrows. */
+input[type=number][dir="rtl"]::-webkit-inner-spin-button,
+input[type=number][dir="rtl"]::-webkit-outer-spin-button {
+  float: left;
+  margin-inline-end: auto;
+}
+
 /* Dropdown option list: always solid black with white text, across every
    <select> in the app. The closed field stays styled by its own class
    (e.g. .onboard-select) — this only affects the opened options list. */

@@ -119,7 +119,7 @@ export default function OnboardingPage() {
         <AppHeader step="STEP 01 / WHO ARE YOU?" />
 
         {/* ── BOTTOM RIGHT SERIAL ── */}
-        <div style={{
+        <div dir="ltr" style={{
           position: "fixed", bottom: "var(--gutter)", right: "var(--gutter)",
           fontSize: 11, letterSpacing: "0.16em",
           color: "rgba(255,255,255,0.25)", zIndex: 10,
@@ -134,7 +134,7 @@ export default function OnboardingPage() {
           padding: "0 var(--gutter)",
           zIndex: 5,
         }}>
-          <div style={{
+          <div dir="rtl" style={{
             width: "100%", maxWidth: 1080,
             display: "flex",
             gap: 48,
@@ -196,6 +196,7 @@ export default function OnboardingPage() {
                 <div style={fieldLabelStyle}>איך לקרוא לכם?</div>
                 <input
                   className="onboard-input"
+                  dir="rtl"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="השם שלכם"
@@ -247,6 +248,7 @@ export default function OnboardingPage() {
                 <div style={fieldLabelStyle}>בני כמה אתם?</div>
                 <input
                   className="onboard-input"
+                  dir="rtl"
                   type="number"
                   min={5} max={120}
                   value={String(age)}

@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 export default function AppSidebar() {
   const router = useRouter();
   return (
-    <div style={{
+    // dir="ltr" locks this left icon strip LTR even under an RTL parent.
+    <div dir="ltr" style={{
       // Fixed left strip, inset from the edges by the shared safe area:
       // var(--gutter) from the left, top and bottom. The strip is a fixed 33px
       // wide (widest icon) column so its children never collapse; the logo sits
