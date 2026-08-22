@@ -19,16 +19,47 @@ function nowIso() {
   return new Date().toISOString();
 }
 
-const HELP_QUESTIONS = [
-  "מה עשיתם אתמול בצהריים?",
-  "איפה הייתם הבוקר?",
-  "חשבו על מקום שהרגיש מציף לאחרונה.",
-  "היה רגע השבוע שהרגיש רועש מדי או יותר מדי?",
-  "מתי הרגשתם לאחרונה לא מובנים?",
-  "חשבו על שגרה שאתם עושים כל יום — איך היא מרגישה?",
-  "לאן אתם הולכים שגורם לכם להרגיש חרדה?",
-  "מה היה המקום ההומה האחרון שביקרתם בו?",
-];
+// Gender-matched help prompts. Hebrew agreement: singular masculine / singular
+// feminine, with the plural form kept as the neutral fallback (Non-binary /
+// Prefer not to say). Some past-tense 2nd-person singular forms are identical
+// for masc/fem in unvocalised Hebrew (עשית / היית / הרגשת / ביקרת).
+function getHelpQuestions(gender: string): string[] {
+  const g = gender.toLowerCase();
+  if (g === "male") {
+    return [
+      "מה עשית אתמול בצהריים?",
+      "איפה היית הבוקר?",
+      "חשוב על מקום שהרגיש מציף לאחרונה.",
+      "היה רגע השבוע שהרגיש רועש מדי או יותר מדי?",
+      "מתי הרגשת לאחרונה שלא מבינים אותך?",
+      "חשוב על שגרה שאתה עושה כל יום — איך היא מרגישה?",
+      "לאן אתה הולך שגורם לך להרגיש חרדה?",
+      "מה היה המקום ההומה האחרון שביקרת בו?",
+    ];
+  }
+  if (g === "female") {
+    return [
+      "מה עשית אתמול בצהריים?",
+      "איפה היית הבוקר?",
+      "חשבי על מקום שהרגיש מציף לאחרונה.",
+      "היה רגע השבוע שהרגיש רועש מדי או יותר מדי?",
+      "מתי הרגשת לאחרונה שלא מבינים אותך?",
+      "חשבי על שגרה שאת עושה כל יום — איך היא מרגישה?",
+      "לאן את הולכת שגורם לך להרגיש חרדה?",
+      "מה היה המקום ההומה האחרון שביקרת בו?",
+    ];
+  }
+  return [
+    "מה עשיתם אתמול בצהריים?",
+    "איפה הייתם הבוקר?",
+    "חשבו על מקום שהרגיש מציף לאחרונה.",
+    "היה רגע השבוע שהרגיש רועש מדי או יותר מדי?",
+    "מתי הרגשתם לאחרונה שלא מבינים אתכם?",
+    "חשבו על שגרה שאתם עושים כל יום — איך היא מרגישה?",
+    "לאן אתם הולכים שגורם לכם להרגיש חרדה?",
+    "מה היה המקום ההומה האחרון שביקרתם בו?",
+  ];
+}
 
 function generateSituation(age: number, gender: string): string {
   const g = gender.toLowerCase();
@@ -150,7 +181,8 @@ export default function ChatPage() {
   }
 
   function handleHelpMe() {
-    const q = HELP_QUESTIONS[Math.floor(Math.random() * HELP_QUESTIONS.length)];
+    const questions = getHelpQuestions(profile?.gender ?? "");
+    const q = questions[Math.floor(Math.random() * questions.length)];
     setHelpHint(q);
     setShowExamples(false);
   }
@@ -174,6 +206,18 @@ export default function ChatPage() {
     profile?.gender === "Male"   ? "ספר על סיטואציה"  :
     profile?.gender === "Female" ? "ספרי על סיטואציה" :
                                    "ספרו על סיטואציה";
+
+  // Gender-matched screen copy (same pattern: Male / Female / plural-neutral).
+  const isMale = profile?.gender === "Male";
+  const isFemale = profile?.gender === "Female";
+  const describeVerb = isMale ? "תאר" : isFemale ? "תארי" : "תארו";
+  const yourSuffix = isMale || isFemale ? "שלך" : "שלכם";
+  const descriptionText =
+    `${describeVerb} רגע, מקום או אינטראקציה מהחיים. הסימולציה תפרש אותם מחדש דרך נקודת מבט חושית וחברתית אוטיסטית, המבוססת על מחקר, עדויות ממקור ראשון וחוויות אוטיסטיות מתועדות.`;
+  const placeholderText = `${describeVerb} את המצב ${yourSuffix}...`;
+  const helpMeLabel = isMale ? "עזור לי לחשוב" : isFemale ? "עזרי לי לחשוב" : "עזרו לי לחשוב";
+  const writeForMeLabel = isMale ? "כתוב בשבילי" : isFemale ? "כתבי בשבילי" : "כתבו בשבילי";
+  const showExamplesLabel = isMale ? "הראה לי דוגמאות" : isFemale ? "הראי לי דוגמאות" : "הראו לי דוגמאות";
 
   return (
     <>
@@ -339,7 +383,7 @@ export default function ChatPage() {
             color: "#ffffff", opacity: 1,
             textAlign: "center", direction: "rtl", lineHeight: 1.3,
           }}>
-            תארו רגע, מקום או אינטראקציה מהחיים. הסימולציה תפרש אותם מחדש דרך נקודת מבט חושית וחברתית אוטיסטית, המבוססת על מחקר, עדויות ממקור ראשון וחוויות אוטיסטיות מתועדות.
+            {descriptionText}
           </p>
 
           {/* Textarea card */}
@@ -357,7 +401,7 @@ export default function ChatPage() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               disabled={processing}
-              placeholder="תארו את המצב שלכם..."
+              placeholder={placeholderText}
               onKeyDown={(e) => {
                 if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
                   e.preventDefault();
@@ -405,7 +449,7 @@ export default function ChatPage() {
                   transform: helpersVisible ? "translateY(0)" : "translateY(6px)",
                   transition: "opacity 0.5s ease, transform 0.5s ease",
                 }}>
-                עזרו לי לחשוב
+                {helpMeLabel}
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                   <path d="M9.5 2a6 6 0 0 1 5 9.5M9.5 2a6 6 0 0 0-5 9.5M9.5 2v1M14.5 11.5a6 6 0 0 1-5 9.5M14.5 11.5a6 6 0 0 0-5 9.5M9.5 21v-1M3 7h1M16 7h1M3 17h1M16 17h1"/>
                 </svg>
@@ -417,7 +461,7 @@ export default function ChatPage() {
                   transform: helpersVisible ? "translateY(0)" : "translateY(6px)",
                   transition: "opacity 0.5s ease 0.08s, transform 0.5s ease 0.08s",
                 }}>
-                כתבו בשבילי
+                {writeForMeLabel}
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                   <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>
                 </svg>
@@ -428,7 +472,7 @@ export default function ChatPage() {
                 onClick={() => { setShowExamples((v) => !v); setHelpHint(null); }}
                 style={{ border: "1px solid #FFC99D", color: "#FFC99D" }}
               >
-                הראו לי דוגמאות <span>›</span>
+                {showExamplesLabel} <span>›</span>
               </button>
             </div>
 
