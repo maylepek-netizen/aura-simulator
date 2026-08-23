@@ -11,14 +11,35 @@ type AgeBand = "All" | "Child" | "Teen" | "Adult";
 type LoadBand = "All" | "Low" | "Medium" | "High" | "Shutdown";
 
 // Ordered low→high so the age slider reads left-to-right as increasing age.
+// key stays English (used for filter logic + as React key); label/sliderLabel
+// are the Hebrew display strings.
 const AGE_BANDS: { key: AgeBand; label: string; sliderLabel: string }[] = [
-  { key: "All", label: "All", sliderLabel: "All ages" },
-  { key: "Child", label: "Child (5-12)", sliderLabel: "Child 5–12" },
-  { key: "Teen", label: "Teen (13-18)", sliderLabel: "Teen 13–18" },
-  { key: "Adult", label: "Adult (18+)", sliderLabel: "Adult 18+" },
+  { key: "All", label: "הכול", sliderLabel: "כל הגילים" },
+  { key: "Child", label: "ילד/ה (5-12)", sliderLabel: "ילד/ה 5–12" },
+  { key: "Teen", label: "נוער (13-18)", sliderLabel: "נוער 13–18" },
+  { key: "Adult", label: "מבוגר/ת (18+)", sliderLabel: "מבוגר/ת 18+" },
 ];
 
 const LOAD_BANDS: LoadBand[] = ["All", "Low", "Medium", "High", "Shutdown"];
+
+// Hebrew display labels for the load bands. Keys stay English (LOAD_BANDS is used
+// directly in the filter comparison), so the visible pill text is looked up here.
+const LOAD_LABELS: Record<LoadBand, string> = {
+  All: "הכול",
+  Low: "נמוכה",
+  Medium: "בינונית",
+  High: "גבוהה",
+  Shutdown: "קריסה",
+};
+
+// Hebrew display labels for the gender pills. Keys stay English (used in filter
+// comparison and stored on records).
+const GENDER_LABELS: Record<string, string> = {
+  All: "הכול",
+  Male: "זכר",
+  Female: "נקבה",
+  "Non-binary": "לא בינארי",
+};
 
 function matchesAgeBand(age: number, band: AgeBand): boolean {
   if (band === "All") return true;
@@ -130,10 +151,10 @@ function SimCard({ rec, index, x, y, onOpen }: {
 
       {/* Meta below thumbnail */}
       <div style={{ marginTop: 8, padding: "0 2px" }}>
-        <div style={{ fontSize: 9, letterSpacing: "0.14em", textTransform: "uppercase", color: hovered ? "rgba(255,255,255,0.7)" : "rgba(255,255,255,0.35)", marginBottom: 3, transition: "color 0.4s" }}>
-          {rec.name} · {rec.gender} · Age {rec.age}
+        <div style={{ fontSize: 9, letterSpacing: "0.14em", textTransform: "uppercase", color: hovered ? "rgba(255,255,255,0.7)" : "rgba(255,255,255,0.35)", marginBottom: 3, transition: "color 0.4s", direction: "rtl", textAlign: "right" }}>
+          {rec.name} · {GENDER_LABELS[rec.gender] ?? rec.gender} · גיל {rec.age}
         </div>
-        <p style={{ fontSize: 10, lineHeight: 1.55, color: hovered ? "rgba(255,255,255,0.65)" : "rgba(255,255,255,0.3)", margin: 0, transition: "color 0.4s" }}>
+        <p style={{ fontSize: 10, lineHeight: 1.55, color: hovered ? "rgba(255,255,255,0.65)" : "rgba(255,255,255,0.3)", margin: 0, transition: "color 0.4s", direction: "rtl", textAlign: "right" }}>
           {situationSnippet}
         </p>
       </div>
@@ -389,15 +410,15 @@ export default function BankPage() {
         {/* Title */}
         <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
           <img src="/icons/bank.svg" alt="" style={{ width: 17, opacity: 0.6 }} />
-          <span style={{ fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.7)", whiteSpace: "nowrap" }}>Simulation Bank</span>
-          <span style={{ fontSize: 10, letterSpacing: "0.1em", color: "rgba(255,255,255,0.25)", fontFamily: "var(--font-body)", whiteSpace: "nowrap" }}>{records.length} saved</span>
+          <span style={{ fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.7)", whiteSpace: "nowrap", direction: "rtl" }}>בנק הסימולציות</span>
+          <span style={{ fontSize: 10, letterSpacing: "0.1em", color: "rgba(255,255,255,0.25)", fontFamily: "var(--font-body)", whiteSpace: "nowrap", direction: "rtl" }}>{records.length} שמורות</span>
         </div>
 
         <div style={{ width: 1, height: 18, background: "rgba(255,255,255,0.1)", flexShrink: 0 }} />
 
         {/* Gender pills */}
         <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-          <span style={{ fontSize: 9, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)", marginRight: 1 }}>Gender</span>
+          <span style={{ fontSize: 9, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)", marginRight: 1, direction: "rtl" }}>מגדר</span>
           {["All", "Male", "Female", "Non-binary"].map(g => (
             <button key={g} type="button" className="filter-btn" onClick={() => setGenderFilter(g)} style={{
               height: 22, padding: "0 8px", borderRadius: 3,
@@ -406,7 +427,7 @@ export default function BankPage() {
               fontSize: 8.5, letterSpacing: "0.1em", textTransform: "uppercase",
               color: genderFilter === g ? "#FFC99D" : "rgba(255,255,255,0.45)",
               cursor: "pointer", whiteSpace: "nowrap",
-            }}>{g}</button>
+            }}>{GENDER_LABELS[g] ?? g}</button>
           ))}
         </div>
 
@@ -414,7 +435,7 @@ export default function BankPage() {
 
         {/* Age slider — snaps to the four bands */}
         <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
-          <span style={{ fontSize: 9, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)" }}>Age</span>
+          <span style={{ fontSize: 9, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)", direction: "rtl" }}>גיל</span>
           <input
             type="range"
             className="age-slider"
@@ -423,12 +444,13 @@ export default function BankPage() {
             step={1}
             value={AGE_BANDS.findIndex(b => b.key === ageFilter)}
             onChange={(e) => setAgeFilter(AGE_BANDS[Number(e.target.value)].key)}
-            aria-label="Filter by age band"
+            aria-label="סינון לפי קבוצת גיל"
           />
           <span style={{
             fontSize: 9, letterSpacing: "0.12em", textTransform: "uppercase",
             color: ageFilter === "All" ? "rgba(255,255,255,0.45)" : "#FFC99D",
             whiteSpace: "nowrap", minWidth: 74, fontFamily: "var(--font-body)",
+            direction: "rtl", textAlign: "right",
           }}>
             {AGE_BANDS.find(b => b.key === ageFilter)?.sliderLabel}
           </span>
@@ -438,7 +460,7 @@ export default function BankPage() {
 
         {/* Anxiety level pills */}
         <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-          <span style={{ fontSize: 9, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)", marginRight: 1, whiteSpace: "nowrap" }}>Anxiety Level</span>
+          <span style={{ fontSize: 9, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)", marginRight: 1, whiteSpace: "nowrap", direction: "rtl" }}>רמת חרדה</span>
           {LOAD_BANDS.map(b => (
             <button key={b} type="button" className="filter-btn" onClick={() => setLoadFilter(b)} style={{
               height: 22, padding: "0 8px", borderRadius: 3,
@@ -447,14 +469,14 @@ export default function BankPage() {
               fontSize: 8.5, letterSpacing: "0.1em", textTransform: "uppercase",
               color: loadFilter === b ? "#FFC99D" : "rgba(255,255,255,0.45)",
               cursor: "pointer", whiteSpace: "nowrap",
-            }}>{b}</button>
+            }}>{LOAD_LABELS[b] ?? b}</button>
           ))}
         </div>
 
         {/* New Simulation — far right */}
         <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
-          <button type="button" className="filter-btn" onClick={() => navigate("/chat")} style={{ height: 28, padding: "0 13px", borderRadius: 3, border: "1px solid rgba(255,255,255,0.15)", background: "transparent", fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.55)", cursor: "pointer", whiteSpace: "nowrap" }}>
-            New Simulation
+          <button type="button" className="filter-btn" onClick={() => navigate("/chat")} style={{ height: 28, padding: "0 13px", borderRadius: 3, border: "1px solid rgba(255,255,255,0.15)", background: "transparent", fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.55)", cursor: "pointer", whiteSpace: "nowrap", direction: "rtl", textAlign: "center" }}>
+            סימולציה חדשה
           </button>
         </div>
       </div>
@@ -502,9 +524,9 @@ export default function BankPage() {
       {!loading && records.length === 0 && (
         <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 20, zIndex: 10 }}>
           <img src="/icons/bank.svg" alt="" style={{ width: 40, opacity: 0.25 }} />
-          <p style={{ fontSize: 11, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.3)" }}>No simulations saved yet</p>
-          <button type="button" onClick={() => navigate("/chat")} style={{ height: 36, padding: "0 24px", borderRadius: 3, border: "1px solid rgba(255,255,255,0.2)", background: "transparent", fontSize: 10, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.5)", cursor: "pointer" }}>
-            Start a simulation
+          <p style={{ fontSize: 11, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.3)", direction: "rtl", textAlign: "center" }}>עדיין לא נשמרו סימולציות</p>
+          <button type="button" onClick={() => navigate("/chat")} style={{ height: 36, padding: "0 24px", borderRadius: 3, border: "1px solid rgba(255,255,255,0.2)", background: "transparent", fontSize: 10, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.5)", cursor: "pointer", direction: "rtl", textAlign: "center" }}>
+            להתחיל סימולציה
           </button>
         </div>
       )}
@@ -513,7 +535,7 @@ export default function BankPage() {
       {!loading && records.length > 0 && (
         <div style={{
           position: "fixed", top: 78, left: "50%", transform: "translateX(-50%)",
-          display: "flex", alignItems: "center", gap: 8,
+          display: "flex", alignItems: "center", gap: 8, direction: "rtl",
           fontFamily: "var(--font-body)",
           fontSize: 11, letterSpacing: "0.16em", textTransform: "uppercase",
           color: "rgba(255,201,157,0.4)",
@@ -524,7 +546,7 @@ export default function BankPage() {
           <svg width="13" height="10" viewBox="0 0 13 10" fill="none" aria-hidden>
             <path d="M4.5 1L1 5l3.5 4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
-          Drag to explore
+          גררו כדי לחקור
           <svg width="13" height="10" viewBox="0 0 13 10" fill="none" aria-hidden>
             <path d="M8.5 1L12 5l-3.5 4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
@@ -551,9 +573,10 @@ export default function BankPage() {
             padding: "9px 20px", borderRadius: 3, fontSize: 13, cursor: "pointer",
             fontFamily: "var(--font-body)", letterSpacing: "0.04em",
             transition: "box-shadow 0.2s ease",
+            direction: "rtl", textAlign: "center",
           }}
         >
-          ← Back to Start
+          חזרה להתחלה →
         </button>
         <button
           type="button"
@@ -569,9 +592,10 @@ export default function BankPage() {
             padding: "9px 20px", borderRadius: 3, fontSize: 13, cursor: "pointer",
             fontFamily: "var(--font-body)", letterSpacing: "0.04em",
             transition: "box-shadow 0.2s ease",
+            direction: "rtl", textAlign: "center",
           }}
         >
-          Read the Research →
+          ← קראו על המחקר
         </button>
       </div>
     </div>
