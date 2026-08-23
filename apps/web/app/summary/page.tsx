@@ -85,7 +85,7 @@ export default function SummaryPage() {
           {/* Main statement */}
           <p style={{
             fontFamily: "'Amiri', serif",
-            fontSize: "clamp(1.6rem, 3.2vw, 2.6rem)",
+            fontSize: "clamp(0.96rem, 1.92vw, 1.56rem)",
             color: "white",
             textAlign: "center",
             direction: "rtl",

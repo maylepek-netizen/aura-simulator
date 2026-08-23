@@ -163,7 +163,7 @@ export default function OnboardingPage() {
 
               {/* Divider — same max-width as paragraph below */}
               <div style={{
-                width: "100%", maxWidth: 340, height: 1,
+                width: "100%", maxWidth: 460, height: 1,
                 background: "rgba(255,201,157,0.3)",
                 marginBottom: 24,
               }} />
@@ -176,7 +176,7 @@ export default function OnboardingPage() {
                 lineHeight: 1.3,
                 margin: 0,
                 marginTop: "auto",
-                maxWidth: 340,
+                maxWidth: 460,
                 direction: "rtl",
                 textAlign: "right",
               }}>
@@ -289,7 +289,7 @@ export default function OnboardingPage() {
                   direction: "rtl", textAlign: "center",
                 }}
               >
-                Begin Experience
+                התחלת החוויה
               </button>
             </div>
 

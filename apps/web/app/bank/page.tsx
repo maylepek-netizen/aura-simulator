@@ -576,7 +576,7 @@ export default function BankPage() {
             direction: "rtl", textAlign: "center",
           }}
         >
-          חזרה להתחלה →
+          ← חזרה להתחלה
         </button>
         <button
           type="button"
@@ -595,7 +595,7 @@ export default function BankPage() {
             direction: "rtl", textAlign: "center",
           }}
         >
-          ← קראו על המחקר
+          קראו על המחקר →
         </button>
       </div>
     </div>

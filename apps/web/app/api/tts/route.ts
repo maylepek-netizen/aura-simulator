@@ -37,20 +37,24 @@ export async function POST(req: NextRequest) {
     console.log("[TTS] gender received:", gender, "→ voice:", voice);
     console.log("TTS TEXT:", text);
 
-    // Collapse repeated periods, normalise ". ." spacing, drop a stray "." after
-    // ? or !, turn dashes into commas, and squeeze whitespace so only clean
-    // sentence punctuation remains.
-    // Safety net: the narration is 100% Hebrew by design, so any run of Latin
-    // letters is a leaked English label/heading (e.g. "Inner Thoughts") that must
-    // NOT be read aloud. Strip Latin runs first, then normalise punctuation so
-    // any orphaned "." / spaces left behind are cleaned up too.
+    // The narration is 100% Hebrew by design. Google TTS otherwise verbalizes
+    // stray characters aloud ("סוגר שמאלי", "נקודה", single letters like "g"),
+    // so we aggressively strip everything that is not Hebrew, a digit, a space,
+    // or sentence punctuation, then clean up the debris. Order matters: strip
+    // first, whitelist as a safety net, then normalise the leftover punctuation.
     const cleanText = String(text)
-      .replace(/[A-Za-z]{2,}/g, "")   // drop English words/labels entirely
-      .replace(/\.{2,}/g, ".")
-      .replace(/\s*\.\s*\./g, ".")
-      .replace(/([?!])\s*\./g, "$1")
-      .replace(/[—–]/g, ",")
-      .replace(/\s+/g, " ")
+      .replace(/[A-Za-z]/g, "")             // ALL Latin letters, incl. single ones
+      .replace(/[()[\]{}<>]/g, "")          // brackets / parentheses
+      .replace(/[*#@~^|\\/_=+]/g, "")       // other symbols that get verbalized
+      .replace(/[—–]/g, ",")                // em/en dash → comma
+      .replace(/[^֐-׿0-9\s.,?!]/g, "") // whitelist: keep only Hebrew, digits, space, . , ? !
+      .replace(/\.{2,}/g, ".")              // collapse .. / ... → .
+      .replace(/\s*\.\s*\./g, ".")          // ". ." spacing variants → .
+      .replace(/([?!])\s*\./g, "$1")        // drop stray "." after ? or !
+      .replace(/([.,?!])[\s.,?!]*([.,?!])/g, "$1") // collapse clustered/orphaned punctuation runs
+      .replace(/\s+([.,?!])/g, "$1")        // remove space before punctuation
+      .replace(/^[\s.,?!]+/, "")            // drop leading punctuation left after stripping
+      .replace(/\s+/g, " ")                 // squeeze whitespace
       .trim();
     console.log("TTS CLEANED:", cleanText);
 

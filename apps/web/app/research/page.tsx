@@ -264,9 +264,9 @@ export default function ResearchPage() {
         /* ── Main 3-column grid ── */
         .r-main {
           display: grid;
-          /* Side columns sized to their content so the centre column is the
-             true remaining space — the wheel then centres between them. */
-          grid-template-columns: minmax(240px, 1fr) minmax(0, 1.9fr) minmax(240px, 1fr);
+          /* Header/hero column removed — two columns now: the centre wheel
+             (remaining space) and the topic-detail panel on the right. */
+          grid-template-columns: minmax(0, 1.9fr) minmax(280px, 1fr);
           column-gap: 56px;
           align-items: center;              /* all three columns balanced vertically */
           /* Hard constraint: the whole section fits one viewport, no scroll.
@@ -739,41 +739,20 @@ export default function ResearchPage() {
               cursor: 'pointer',
               fontFamily: 'Assistant, sans-serif',
               transition: 'box-shadow 0.2s ease',
-              direction: 'rtl', textAlign: 'center',
+              direction: 'rtl',
             }}
           >
-            חזרה לסימולטור →
+            {/* row-reverse keeps the Hebrew text RTL-rendered on the LEFT while
+                the arrow sits on the RIGHT (per requested layout). */}
+            <span style={{ display: 'flex', flexDirection: 'row-reverse', alignItems: 'center', gap: 8, justifyContent: 'center' }}>
+              <span>חזרה לסימולטור</span>
+              <span aria-hidden>→</span>
+            </span>
           </button>
         </nav>
 
-        {/* ── Main 3-col ── */}
+        {/* ── Main 2-col (header/hero removed) ── */}
         <div className="r-main">
-
-          {/* LEFT */}
-          <div className="r-left">
-            <h1 className="r-heading" style={{ direction: "rtl", textAlign: "right" }}>להבין<br />אוטיזם</h1>
-            <p className="r-desc" style={{ direction: "rtl", textAlign: "right" }}>
-              חקרנו נקודות מבט רבות דרך מחקר, מחקרים וחוויות אמיתיות כדי להבין את התפיסה האוטיסטית המגוונת.
-            </p>
-            <div className="r-stats">
-              <div>
-                <div className="r-stat-num" style={{ color: "#FFC99D" }}>10</div>
-                <div className="r-stat-label" style={{ direction: "rtl", textAlign: "right" }}>מחקרים</div>
-              </div>
-              <div>
-                <div className="r-stat-num" style={{ color: "#FFC1BB" }}>360+</div>
-                <div className="r-stat-label" style={{ direction: "rtl", textAlign: "right" }}>מקורות</div>
-              </div>
-              <div>
-                <div className="r-stat-num" style={{ color: "#BCC2FF" }}>120</div>
-                <div className="r-stat-label" style={{ direction: "rtl", textAlign: "right" }}>משתתפים</div>
-              </div>
-              <div>
-                <div className="r-stat-num" style={{ color: "#FFC99D" }}>45K+</div>
-                <div className="r-stat-label" style={{ direction: "rtl", textAlign: "right" }}>נקודות נתונים</div>
-              </div>
-            </div>
-          </div>
 
           {/* CENTER — SVG knowledge map */}
           <div className="r-center">
