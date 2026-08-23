@@ -229,6 +229,18 @@ function captionVoice(gender: string): string {
   return "first-person neutral inner voice, written without gendered assumptions";
 }
 
+// Hebrew is grammatically gendered — verbs/adjectives must agree with the
+// narrator's gender. Without an explicit instruction the model defaults
+// inconsistently (often feminine), so we state it in the strongest terms.
+function hebrewGenderDirective(gender: string): string {
+  const g = gender.toLowerCase();
+  if (g === "male")
+    return "CRITICAL: All Hebrew text must use MASCULINE singular forms (אני מרגיש, אני חושב, אני יושב). The narrator is male.";
+  if (g === "female")
+    return "CRITICAL: All Hebrew text must use FEMININE singular forms (אני מרגישה, אני חושבת, אני יושבת). The narrator is female.";
+  return "Use forms that avoid gender marking where possible.";
+}
+
 function loadVisuals(load: number): string {
   if (load < 40)
     return "subtle desaturation, slight blur on periphery, colors muted but recognisable";
@@ -269,8 +281,9 @@ export async function POST(req: NextRequest) {
     const userPrompt =
       "Simulate the internal autistic experience for:\n" +
       "Name: " + name + ", Age: " + age + ", Gender: " + gender + "\n" +
+      hebrewGenderDirective(String(gender)) + "\n" +
       "Situation: \"" + situation + "\"\n\n" +
-      "Return this exact JSON (all text in English):\n" +
+      "Return this exact JSON:\n" +
       schema;
 
     // Kick off the fast classification in parallel with the main simulation call.

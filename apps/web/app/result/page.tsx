@@ -1339,6 +1339,7 @@ export default function ResultPage() {
     // NOTE: audioPlaying flips true only when audio actually starts (onplay),
     // not when the request is fired — otherwise the indicator pulses while
     // the TTS fetch is still in flight and nothing is audible yet.
+    console.log("SENDING TO TTS - gender:", snapshot.gender);
     try {
       const res = await fetch("/api/tts", {
         method: "POST",
