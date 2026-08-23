@@ -8,13 +8,13 @@ import { useRouter } from "next/navigation";
 const TOPICS = [
   {
     id: 1,
-    label: "Sensory Processing",
-    tags: ["Sensitivity", "Overload", "Perception"],
+    label: "עיבוד חושי",
+    tags: ["רגישות", "עומס יתר", "תפיסה"],
     finding: "87%",
-    findingText: "of autistic individuals experience sensory overload in everyday environments.",
+    findingText: "מהאנשים על הרצף חווים עומס חושי בסביבות היומיום.",
     description:
-      "Autistic individuals often experience sensory information more intensely or differently than neurotypical individuals.",
-    quote: "It's not that we notice more things. It's that everything arrives at once.",
+      "אנשים על הרצף חווים לעיתים קרובות מידע חושי בעוצמה גבוהה יותר או באופן שונה מאנשים נוירוטיפיקליים.",
+    quote: "זה לא שאנחנו שמים לב ליותר דברים. זה שהכול מגיע בבת אחת.",
     studies: [
       "Dunn, W. (2001). The Sensory Profile",
       "Baranek, G. (2006). Sensory Features",
@@ -23,13 +23,13 @@ const TOPICS = [
   },
   {
     id: 2,
-    label: "Social Interaction",
-    tags: ["Connection", "Empathy", "Communication"],
+    label: "אינטראקציה חברתית",
+    tags: ["חיבור", "אמפתיה", "תקשורת"],
     finding: "70%",
-    findingText: "report difficulty reading implicit social cues in everyday interactions.",
+    findingText: "מדווחים על קושי בפענוח רמזים חברתיים מרומזים באינטראקציות יומיומיות.",
     description:
-      "Social interaction for autistic individuals involves navigating a world built around neurotypical communication norms.",
-    quote: "I understand the words but not the music underneath them.",
+      "אינטראקציה חברתית עבור אנשים על הרצף כרוכה בהתנהלות בעולם שבנוי סביב נורמות תקשורת נוירוטיפיקליות.",
+    quote: "המילים ברורות לי, אבל לא המנגינה שמתחתן.",
     studies: [
       "Milton, D. (2012). The Double Empathy Problem",
       "Baron-Cohen, S. (2001). Theory of Mind",
@@ -38,13 +38,13 @@ const TOPICS = [
   },
   {
     id: 3,
-    label: "Communication Differences",
-    tags: ["Language", "Expression", "AAC"],
+    label: "הבדלי תקשורת",
+    tags: ["שפה", "הבעה", "AAC"],
     finding: "65%",
-    findingText: "of autistic individuals are non-speaking or minimally speaking at some point in their lives.",
+    findingText: "מהאנשים על הרצף אינם מדברים או מדברים באופן מינימלי בשלב כלשהו בחייהם.",
     description:
-      "Communication differences in autism are diverse — from delayed speech to rich inner worlds that are hard to express verbally.",
-    quote: "My words and my feelings don't always arrive at the same time.",
+      "הבדלי תקשורת באוטיזם מגוונים — מעיכוב בדיבור ועד עולמות פנימיים עשירים שקשה לבטא במילים.",
+    quote: "המילים והרגשות שלי לא תמיד מגיעים באותו הזמן.",
     studies: [
       "Tager-Flusberg, H. (2016). Language Development",
       "Mirenda, P. (2003). AAC Interventions",
@@ -53,13 +53,13 @@ const TOPICS = [
   },
   {
     id: 4,
-    label: "Anxiety & Stress",
-    tags: ["Mental Health", "Coping", "Triggers"],
+    label: "חרדה ולחץ",
+    tags: ["בריאות נפשית", "התמודדות", "טריגרים"],
     finding: "40%",
-    findingText: "of autistic people have a co-occurring anxiety disorder, far above the general population rate.",
+    findingText: "מהאנשים על הרצף חווים הפרעת חרדה נלווית, הרבה מעל השיעור באוכלוסייה הכללית.",
     description:
-      "Anxiety is one of the most common co-occurring conditions in autism, often amplified by sensory overload and social unpredictability.",
-    quote: "The world feels like it's always one unexpected thing away from collapse.",
+      "חרדה היא אחד המצבים הנלווים הנפוצים ביותר באוטיזם, ולעיתים קרובות מתעצמת בשל עומס חושי וחוסר צפיוּת חברתית.",
+    quote: "העולם מרגיש כאילו הוא תמיד דבר בלתי צפוי אחד מקריסה.",
     studies: [
       "White, S. (2009). Anxiety in Autism",
       "Simonoff, E. (2008). Psychiatric Disorders in ASD",
@@ -68,13 +68,13 @@ const TOPICS = [
   },
   {
     id: 5,
-    label: "Routine & Repetition",
-    tags: ["Predictability", "Safety", "Structure"],
+    label: "שגרה וחזרתיות",
+    tags: ["צפיוּת", "ביטחון", "מבנה"],
     finding: "80%+",
-    findingText: "report that disrupted routines cause significant distress and dysregulation.",
+    findingText: "מדווחים שהפרה של השגרה גורמת למצוקה משמעותית ולחוסר ויסות.",
     description:
-      "Routines provide predictability in an unpredictable world. Repetitive behaviors are often self-regulatory, not pathological.",
-    quote: "Routine isn't a cage. It's the scaffold that holds everything else up.",
+      "שגרה מספקת צפיוּת בעולם בלתי צפוי. התנהגויות חזרתיות הן לרוב מווסתות־עצמי, לא פתולוגיות.",
+    quote: "השגרה אינה כלוב. היא הפיגום שמחזיק את כל השאר.",
     studies: [
       "Turner, M. (1999). Repetitive Behaviour",
       "Leekam, S. (2011). Restricted Interests",
@@ -83,13 +83,13 @@ const TOPICS = [
   },
   {
     id: 6,
-    label: "Executive Functioning",
-    tags: ["Planning", "Focus", "Transitions"],
+    label: "תפקוד ניהולי",
+    tags: ["תכנון", "מיקוד", "מעברים"],
     finding: "73%",
-    findingText: "of autistic adults report significant difficulties with task-switching and cognitive flexibility.",
+    findingText: "מהמבוגרים על הרצף מדווחים על קשיים משמעותיים במעבר בין משימות ובגמישות קוגניטיבית.",
     description:
-      "Executive functioning differences affect planning, initiating tasks, and switching attention — often misread as laziness or defiance.",
-    quote: "I know exactly what I need to do. Starting is a different universe entirely.",
+      "הבדלים בתפקוד הניהולי משפיעים על תכנון, יזום משימות והסטת קשב — ולעיתים קרובות נקראים בטעות כעצלנות או התרסה.",
+    quote: "ברור לי בדיוק מה צריך לעשות. ההתחלה היא יקום אחר לגמרי.",
     studies: [
       "Hill, E. (2004). Executive Dysfunction",
       "Pennington, B. (1996). Working Memory in ASD",
@@ -98,13 +98,13 @@ const TOPICS = [
   },
   {
     id: 7,
-    label: "Emotional Regulation",
-    tags: ["Emotions", "Interoception", "Expression"],
+    label: "ויסות רגשי",
+    tags: ["רגשות", "אינטרוצפציה", "הבעה"],
     finding: "50%",
-    findingText: "of autistic individuals experience alexithymia — difficulty identifying and describing emotions.",
+    findingText: "מהאנשים על הרצף חווים אלקסיתימיה — קושי בזיהוי ובתיאור של רגשות.",
     description:
-      "Emotional regulation in autism involves navigating intense feelings with fewer tools and often less social support.",
-    quote: "I feel everything. I just can't always name it or show it in a way others recognize.",
+      "ויסות רגשי באוטיזם כרוך בהתמודדות עם רגשות עזים עם פחות כלים ולעיתים קרובות עם פחות תמיכה חברתית.",
+    quote: "הכול מורגש אצלי בעוצמה. פשוט לא תמיד יש לזה שם, או דרך להראות את זה שאחרים מזהים.",
     studies: [
       "Bird, G. (2012). Alexithymia and Autism",
       "Mazefsky, C. (2013). Emotion Regulation",
@@ -113,13 +113,13 @@ const TOPICS = [
   },
   {
     id: 8,
-    label: "Meltdowns & Shutdowns",
-    tags: ["Overwhelm", "Recovery", "Support"],
+    label: "קריסה חושית וכיבוי",
+    tags: ["הצפה", "התאוששות", "תמיכה"],
     finding: "~100%",
-    findingText: "of meltdowns are preceded by a detectable buildup of sensory or social overload.",
+    findingText: "ממצבי הקריסה מגיעים לאחר הצטברות ניתנת לזיהוי של עומס חושי או חברתי.",
     description:
-      "Meltdowns and shutdowns are neurological responses to overwhelm — not behavioral choices. They require recovery time and safety.",
-    quote: "A meltdown isn't a tantrum. It's a nervous system saying it has nothing left.",
+      "קריסה חושית וכיבוי הם תגובות נוירולוגיות להצפה — לא בחירות התנהגותיות. הם דורשים זמן התאוששות וסביבה בטוחה.",
+    quote: "קריסה אינה התקף זעם. זו מערכת עצבים שאומרת שלא נשאר לה כלום.",
     studies: [
       "Bogdashina, O. (2016). Sensory Perceptual Issues",
       "Vermeulen, P. (2012). Autism as Context Blindness",
@@ -128,13 +128,13 @@ const TOPICS = [
   },
   {
     id: 9,
-    label: "Autistic Strengths",
-    tags: ["Strengths", "Cognition", "Detail"],
-    finding: "Top 10%",
-    findingText: "autistic individuals show superior performance in pattern recognition and detail-focused processing tasks.",
+    label: "חוזקות אוטיסטיות",
+    tags: ["חוזקות", "קוגניציה", "פרטים"],
+    finding: "10% העליונים",
+    findingText: "אנשים על הרצף מציגים ביצועים גבוהים יותר במשימות של זיהוי דפוסים ועיבוד ממוקד־פרטים.",
     description:
-      "Autistic cognition brings genuine strengths: deep focus, pattern recognition, honesty, and innovative thinking.",
-    quote: "My brain doesn't miss details. It collects them until they form something no one else sees.",
+      "הקוגניציה האוטיסטית מביאה עמה חוזקות אמיתיות: מיקוד עמוק, זיהוי דפוסים, כנות וחשיבה חדשנית.",
+    quote: "המוח שלי לא מפספס פרטים. הוא אוסף אותם עד שהם מרכיבים משהו שאף אחד אחר לא רואה.",
     studies: [
       "Mottron, L. (2006). Enhanced Perceptual Functioning",
       "Baron-Cohen, S. (2009). Empathizing-Systemizing",
@@ -143,13 +143,13 @@ const TOPICS = [
   },
   {
     id: 10,
-    label: "Masking & Camouflaging",
-    tags: ["Identity", "Authenticity", "Burnout"],
-    finding: "Linked",
-    findingText: "chronic masking is directly linked to burnout, depression, and significantly delayed diagnosis.",
+    label: "מיסוך",
+    tags: ["זהות", "אותנטיות", "שחיקה"],
+    finding: "מקושר",
+    findingText: "מיסוך כרוני מקושר ישירות לשחיקה, לדיכאון ולעיכוב משמעותי באבחון.",
     description:
-      "Masking is the effortful performance of neurotypical behavior. It hides autistic traits at great cost to wellbeing and identity.",
-    quote: "I spent so long performing 'normal' that I forgot what I actually was.",
+      "מיסוך הוא ביצוע מאומץ של התנהגות נוירוטיפיקלית. הוא מסתיר תכונות אוטיסטיות במחיר כבד לרווחה ולזהות.",
+    quote: "כל כך הרבה זמן העמדתי פנים של 'נורמלי' עד ששכחתי מה אני באמת.",
     studies: [
       "Hull, L. (2017). Putting on My Best Normal",
       "Pearson, A. (2021). Autistic Masking",
@@ -162,23 +162,23 @@ const TOPICS = [
 
 const INSIGHTS = [
   {
-    title: "Perception is local before it is global",
-    body: "Enhanced Perceptual Functioning describes autistic perception as locally oriented: individual details are processed more intensely than the whole scene. A button, a hum, or a texture can dominate awareness before the room is ever perceived as a room — which is why filtering background noise is not a matter of trying harder.",
+    title: "התפיסה מקומית לפני שהיא כללית",
+    body: "Enhanced Perceptual Functioning מתארת את התפיסה האוטיסטית כמכוונת־מקום: פרטים בודדים מעובדים בעוצמה גבוהה יותר מאשר הסצנה כולה. כפתור, זמזום או מרקם יכולים להשתלט על המודעות עוד לפני שהחדר נתפס כחדר — ולכן סינון של רעש רקע אינו עניין של מאמץ רב יותר.",
     source: "Mottron et al. (2006) — Enhanced Perceptual Functioning",
   },
   {
-    title: "Misunderstanding runs in both directions",
-    body: "The Double Empathy Problem reframes social difficulty as a mutual mismatch rather than a one-sided deficit. Autistic and non-autistic people each struggle to read the other; autistic people communicating with each other show no such breakdown. The 'deficit' lives in the gap, not in one brain.",
+    title: "אי־ההבנה פועלת בשני הכיוונים",
+    body: "The Double Empathy Problem ממסגרת מחדש את הקושי החברתי כאי־התאמה הדדית ולא כליקוי חד־צדדי. אנשים על הרצף ואנשים שאינם על הרצף מתקשים כל אחד לקרוא את האחר; אנשים על הרצף שמתקשרים זה עם זה אינם חווים כשל כזה. ה'ליקוי' חי בפער, לא במוח אחד.",
     source: "Milton (2012) — The Double Empathy Problem",
   },
   {
-    title: "The volume control is stuck",
-    body: "First-person accounts consistently describe sound arriving without hierarchy — every source at equal volume, impossible to modulate. Atypical sensory experience is estimated in as many as 90% of autistic individuals and spans every modality, making ordinary environments genuinely painful rather than merely unpleasant.",
+    title: "בקרת עוצמת הקול תקועה",
+    body: "עדויות ממקור ראשון מתארות באופן עקבי צליל שמגיע ללא היררכיה — כל מקור בעוצמה שווה, בלתי אפשרי לווסת. חוויה חושית לא־טיפוסית מוערכת אצל עד 90% מהאנשים על הרצף וחוצה את כל הערוצים החושיים, מה שהופך סביבות רגילות לכואבות ממש ולא רק לא־נעימות.",
     source: "Grandin; Robertson & Baron-Cohen (2017)",
   },
   {
-    title: "Masking has a measurable cost",
-    body: "Camouflaging — suppressing stimming, forcing eye contact, scripting conversation — is effortful performance sustained across entire days. Research links chronic masking to burnout, depression, and late or missed diagnosis, particularly in women and people of colour whose presentation does not match the expected template.",
+    title: "למיסוך יש מחיר מדיד",
+    body: "מיסוך — דיכוי של סטימינג, כפייה של קשר עין, תסריט מוכן לשיחה — הוא ביצוע מאומץ שנמשך לאורך ימים שלמים. מחקרים מקשרים מיסוך כרוני לשחיקה, לדיכאון ולאבחון מאוחר או חסר, במיוחד אצל נשים ואנשים מקבוצות מיעוט שההצגה שלהם אינה תואמת את התבנית המצופה.",
     source: "Hull et al. (2017); Cage & Troxell-Whitman (2019)",
   },
 ];
@@ -739,9 +739,10 @@ export default function ResearchPage() {
               cursor: 'pointer',
               fontFamily: 'Assistant, sans-serif',
               transition: 'box-shadow 0.2s ease',
+              direction: 'rtl', textAlign: 'center',
             }}
           >
-            ← Back to Simulator
+            חזרה לסימולטור →
           </button>
         </nav>
 
@@ -750,33 +751,33 @@ export default function ResearchPage() {
 
           {/* LEFT */}
           <div className="r-left">
-            <h1 className="r-heading">Understanding<br />Autism</h1>
-            <p className="r-desc">
-              We explored multiple perspectives through research, studies, and real experiences to understand the diverse autistic perception.
+            <h1 className="r-heading" style={{ direction: "rtl", textAlign: "right" }}>להבין<br />אוטיזם</h1>
+            <p className="r-desc" style={{ direction: "rtl", textAlign: "right" }}>
+              חקרנו נקודות מבט רבות דרך מחקר, מחקרים וחוויות אמיתיות כדי להבין את התפיסה האוטיסטית המגוונת.
             </p>
             <div className="r-stats">
               <div>
                 <div className="r-stat-num" style={{ color: "#FFC99D" }}>10</div>
-                <div className="r-stat-label">Research Studies</div>
+                <div className="r-stat-label" style={{ direction: "rtl", textAlign: "right" }}>מחקרים</div>
               </div>
               <div>
                 <div className="r-stat-num" style={{ color: "#FFC1BB" }}>360+</div>
-                <div className="r-stat-label">Sources</div>
+                <div className="r-stat-label" style={{ direction: "rtl", textAlign: "right" }}>מקורות</div>
               </div>
               <div>
                 <div className="r-stat-num" style={{ color: "#BCC2FF" }}>120</div>
-                <div className="r-stat-label">Participants</div>
+                <div className="r-stat-label" style={{ direction: "rtl", textAlign: "right" }}>משתתפים</div>
               </div>
               <div>
                 <div className="r-stat-num" style={{ color: "#FFC99D" }}>45K+</div>
-                <div className="r-stat-label">Data Points</div>
+                <div className="r-stat-label" style={{ direction: "rtl", textAlign: "right" }}>נקודות נתונים</div>
               </div>
             </div>
           </div>
 
           {/* CENTER — SVG knowledge map */}
           <div className="r-center">
-            <p className="r-map-label">Explore the research<br />by selecting a topic</p>
+            <p className="r-map-label" style={{ direction: "rtl" }}>חקרו את המחקר<br />על ידי בחירת נושא</p>
             <p className="r-map-arrow">↓</p>
 
             <svg
@@ -916,8 +917,8 @@ export default function ResearchPage() {
               })}
             </svg>
 
-            <div className="r-counter">
-              <span>{activeTopic + 1}</span> / 10 &nbsp; RESEARCH TOPICS
+            <div className="r-counter" style={{ direction: "rtl" }}>
+              <span dir="ltr"><span>{activeTopic + 1}</span> / 10</span> &nbsp; נושאי מחקר
             </div>
             <div className="r-progress">
               {TOPICS.map((_, i) => (
@@ -932,8 +933,8 @@ export default function ResearchPage() {
           </div>
 
           {/* RIGHT */}
-          <div className="r-right">
-            <div className="r-topic-num">{String(topic.id).padStart(2, "0")}</div>
+          <div className="r-right" style={{ direction: "rtl", textAlign: "right" }}>
+            <div className="r-topic-num" dir="ltr" style={{ textAlign: "right" }}>{String(topic.id).padStart(2, "0")}</div>
             <div className="r-topic-title">{topic.label}</div>
             <p className="r-topic-desc">{topic.description}</p>
             <div className="r-tags">
@@ -946,10 +947,10 @@ export default function ResearchPage() {
 
             {/* Key finding */}
             <div className="r-card">
-              <div className="r-card-label">Key Finding</div>
+              <div className="r-card-label">ממצא מרכזי</div>
               <div>
                 <span className="r-finding-num">{topic.finding}</span>
-                <span style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", marginLeft: 6 }}>
+                <span style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", marginInlineStart: 6 }}>
                   {topic.findingText}
                 </span>
               </div>
@@ -957,19 +958,19 @@ export default function ResearchPage() {
 
             {/* Participant insight */}
             <div className="r-card">
-              <div className="r-card-label">Participant Insight</div>
+              <div className="r-card-label">תובנה ממשתתפים</div>
               <p className="r-quote">{topic.quote}</p>
-              <div style={{ fontSize: 10, color: "rgba(255,255,255,0.25)", marginTop: 8 }}>– Research Participant</div>
+              <div style={{ fontSize: 10, color: "rgba(255,255,255,0.25)", marginTop: 8 }}>– משתתפים במחקר</div>
             </div>
 
             {/* Related studies */}
             <div className="r-card">
-              <div className="r-card-label">Related Studies</div>
+              <div className="r-card-label">מחקרים קשורים</div>
               <div className="r-studies-list">
                 {topic.studies.map((s) => (
                   <div key={s} className="r-study-row">
-                    <span><span className="r-study-icon">☰</span>{s}</span>
-                    <span style={{ color: "rgba(255,201,157,0.5)", fontSize: 11 }}>→</span>
+                    <span dir="ltr" style={{ textAlign: "left" }}><span className="r-study-icon">☰</span>{s}</span>
+                    <span style={{ color: "rgba(255,201,157,0.5)", fontSize: 11 }}>←</span>
                   </div>
                 ))}
               </div>
@@ -980,15 +981,15 @@ export default function ResearchPage() {
 
         {/* Scroll hint — the section above is 100vh, so signal there is more below */}
         <div className="r-scroll-hint" aria-hidden>
-          <span className="r-scroll-hint-text">More below</span>
+          <span className="r-scroll-hint-text" style={{ direction: "rtl" }}>עוד למטה</span>
           <span className="r-scroll-hint-arrow">↓</span>
         </div>
 
         {/* ── Research insights — fills the lower page, 2 columns on desktop ── */}
         <section className="r-insights">
-          <h2 className="r-insights-heading">Key Insights From the Research</h2>
-          <p className="r-insights-sub">
-            Four threads run through almost every study of autistic perception.
+          <h2 className="r-insights-heading" style={{ direction: "rtl" }}>תובנות מרכזיות מהמחקר</h2>
+          <p className="r-insights-sub" style={{ direction: "rtl" }}>
+            ארבעה חוטים חוזרים כמעט בכל מחקר על תפיסה אוטיסטית.
           </p>
 
           <div className="r-insights-grid">
@@ -997,9 +998,9 @@ export default function ResearchPage() {
                 <div className="r-insight-num" style={{ color: accent(i) }}>
                   {String(i + 1).padStart(2, "0")}
                 </div>
-                <h3 className="r-insight-title" style={{ color: accent(i) }}>{ins.title}</h3>
-                <p className="r-insight-body">{ins.body}</p>
-                <div className="r-insight-source" style={{ borderTopColor: `${accent(i)}33` }}>
+                <h3 className="r-insight-title" style={{ color: accent(i), direction: "rtl", textAlign: "right" }}>{ins.title}</h3>
+                <p className="r-insight-body" style={{ direction: "rtl", textAlign: "right" }}>{ins.body}</p>
+                <div className="r-insight-source" dir="ltr" style={{ borderTopColor: `${accent(i)}33`, textAlign: "left" }}>
                   {ins.source}
                 </div>
               </article>
